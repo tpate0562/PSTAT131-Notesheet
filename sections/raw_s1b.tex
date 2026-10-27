@@ -2,55 +2,20 @@
 %% (training vs. test MSE, overfitting, bias-variance decomposition/tradeoff,
 %%  classification error rates, Bayes classifier, k-nearest neighbors).
 \section{Slide Set 1 (cont.) --- pp.~59--116}
+{\color{figgray}\itshape [Slides/parts already covered in Part I are omitted: S1.59--60, S1.66, S1.68--80, S1.82, S1.85--96, S1.99--102.]}
 \ixh{bias-variance tradeoff}\ixh{k-nearest neighbors (KNN)}
 
 %% ------------------------------------------------------------------
 \subsection{Training MSE vs.\ test MSE; overfitting}
 \ixh{training MSE}\ixh{test MSE}\ixh{overfitting}
 
-\slide{1}{59}{Training MSE vs.\ test MSE}
-\ixh{mean squared error (MSE)}
-\textbf{Training set}\ixh{training data}\quad $\{(\mathbf{x}_1, y_1), (\mathbf{x}_2, y_2), \ldots, (\mathbf{x}_n, y_n)\}$\\
-\textbf{Test set}\ixh{testing data}\quad $\{(\tilde{\mathbf{x}}_1, \tilde{y}_1), (\tilde{\mathbf{x}}_2, \tilde{y}_2), \ldots, (\tilde{\mathbf{x}}_m, y_m)\}$
-
-\begin{center}
-\begin{tabular}{@{}c@{\qquad}c@{}}
-\textbf{\color{dblue}Training MSE}\ixh{training MSE}\ixh{training error} & \textbf{\color{dblue}Test MSE}\ixh{test MSE}\ixh{testing error}\\[2pt]
-$\displaystyle \frac{1}{n}\sum_{i=1}^{n}\Big(y_i-\hat{f}(\mathbf{x}_i)\Big)^2$ &
-$\displaystyle \frac{1}{m}\sum_{i=1}^{m}\Big(\tilde{y}_i-\hat{f}(\tilde{\mathbf{x}}_i)\Big)^2$
-\end{tabular}
-\end{center}
-\fig{Two arrows, one from the $\hat f(\mathbf{x}_i)$ in the training-MSE formula and one from the $\hat f(\tilde{\mathbf{x}}_i)$ in the test-MSE formula, both point to the red caption below.}
-\begin{center}
-\textbf{\color{warnc}$\hat{f}$ is obtained on the training set!}
-\end{center}
-\textbf{We want $\hat{f}$ for which the {\color{warnc}test MSE} is as small as possible}
-
-\slide{1}{60}{[untitled --- can we minimise training MSE?]}
-\textbf{Can we just select $\hat{f}$ that minimizes {\color{dblue}Training MSE}}\ixh{training MSE}
-\[ \frac{1}{n}\sum_{i=1}^{n}\Big(y_i-\hat{f}(\mathbf{x}_i)\Big)^2 \qquad \textbf{?} \]
-\fig{Hand-drawn axes (no labels, three tick marks on each axis). Six \textbf{blue} dots (training points) rise roughly linearly from lower left to upper right; four \textbf{red} dots (test points) sit between/off them. A black dashed straight line runs through the middle of the cloud (simple fit). A green dashed wiggly curve starts at the origin and snakes exactly through every blue dot (it interpolates the training data, so its training MSE is 0, but it misses the red test points).}\ixh{interpolation}
-\begin{center}
-{\Large\textbf{\color{warnc}NO!}}\\
-\textbf{A method that has {\color{warnc}lowest training MSE} does not necessarily imply that it also has the {\color{warnc}lowest test MSE}}\ixh{test MSE}
-\end{center}
-
 \slide{1}{61}{Lowest training MSE $\neq$ lowest test MSE}
 \ixh{training MSE}\ixh{test MSE}\ixh{flexibility}
 \fig{Scatterplot (ISLR Fig.~2.9 left): about 50 open black circles, $X$ from 0 to 100 (horizontal), $Y$ from about 3 to 11 (vertical axis ticks 2--12). Four fitted curves: \textbf{black} = the true $f$ (rises from $\approx$4.5 at $X=0$ to a peak $\approx$9.4 near $X=70$, then falls to $\approx$6.3 at $X=100$); \textbf{orange} = \ix{linear regression} straight line (from $\approx$4.5 to $\approx$9.9); \textbf{light blue} = a simple \ix{smoothing spline}, close to the black curve; \textbf{green} = a complicated smoothing spline that wiggles up and down to chase individual points.}
-\begin{itemize}
-\item \textbf{Higher model \ix{flexibility} $\to$ matches data points better}
-\item \textbf{Higher model flexibility $\to$ more wiggly curve}
-\item \textbf{Higher model flexibility {\color{warnc}$\nrightarrow$} better fit to the true $f$}
-\end{itemize}
 \fig{Colour key below the plot, placed along a long right-pointing arrow labelled ``\textbf{level of model flexibility}'': {\color{orange}Linear regression} (least flexible), True $f$ (black), {\color{cyan!70!blue}smoothing spline (simple)}, {\color{green!50!black}smoothing spline (complicated)} (most flexible).}
 
 \slide{1}{62}{[untitled --- training vs.\ test MSE as flexibility grows]}
 \ixh{flexibility}\ixh{training MSE}\ixh{test MSE}
-\begin{itemize}
-\item \textbf{Higher model flexibility $\to$ matches data points better ($\approx$lower training MSE)}
-\item \textbf{Higher model flexibility {\color{warnc}$\nrightarrow$} better fit to the true $f$ ($\approx$lower test MSE)}
-\end{itemize}
 \fig{Left: the same scatterplot and four fits as S1.61 (smaller), with the same colour key and ``level of model flexibility'' arrow underneath (Linear regression, True $f$, smoothing spline (simple), smoothing spline (complicated)). Right: plot of \textbf{Mean Squared Error} (vertical, 0.0--2.5) vs.\ \textbf{Flexibility} (horizontal, log scale, ticks 2, 5, 10, 20). \textbf{Red} curve labelled ``Test MSE'' is U-shaped: $\approx$2.12 at flexibility 2 (orange square = linear regression), minimum $\approx$1.13 at flexibility $\approx$5.5 (blue square = simple spline), $\approx$1.53 at flexibility $\approx$25 (green square = complicated spline), then shoots up to $\approx$2.4. \textbf{Grey} curve labelled ``Training MSE'' decreases monotonically: $\approx$1.73 (orange square), $\approx$0.87 (blue square), $\approx$0.38 (green square), $\approx$0.12 at the right end. A horizontal dashed line at MSE $=1.0$ (the \ix{irreducible error} $\mathrm{Var}(\epsilon)$; unlabelled) --- test MSE never goes below it, training MSE does.}
 
 \slide{1}{63}{[untitled --- example 2: true $f$ nearly linear]}
@@ -66,307 +31,32 @@ $\displaystyle \frac{1}{m}\sum_{i=1}^{m}\Big(\tilde{y}_i-\hat{f}(\tilde{\mathbf{
 \ixh{overfitting}\ixh{underfitting}\ixh{training MSE}\ixh{test MSE}
 \fig{$3\times3$ grid of cartoons; columns ``Under-fitting'' / ``Optimal-fitting'' / ``Over-fitting'', rows ``Regression'' / ``Classification'' / ``Deep learning''. \emph{Regression row}: blue points following a U-shape; under-fitting = a straight downward-sloping line missing the U; optimal = a smooth parabola through the cloud; over-fitting = a jagged black polyline that zig-zags through every point. \emph{Classification row}: blue and red points (red cluster on the right, a few red points among the blue); under-fitting = a straight line boundary that misclassifies many; optimal = a smooth parabola-shaped boundary enclosing the red cluster; over-fitting = a tortuous, snaking boundary that loops around individual points. \emph{Deep learning row}: Error (vertical) vs.\ Epochs (horizontal), blue ``Validation'' and red ``Training'' curves; under-fitting = both curves decrease and level off together at a fairly high error; optimal = both curves decrease, validation slightly above training, both low; over-fitting = training error keeps falling to near 0 while validation error levels off much higher (large gap).}\ixh{underfitting}\ixh{validation set}
 
-\slide{1}{66}{[untitled --- prediction error vs.\ model complexity]}
-\ixh{bias-variance tradeoff}\ixh{model complexity}
-\fig{Classic ESL figure. Vertical axis ``\textbf{Prediction Error}'', horizontal axis ``\textbf{Model Complexity}'' from Low to High. \textbf{Cyan} curve labelled ``Training Sample'' decreases monotonically from high (low complexity) to near zero (high complexity). \textbf{Red} curve labelled ``Test Sample'' starts slightly above the cyan curve, decreases to a minimum around the middle, then rises again at high complexity (U-shape). Top-left annotation ``High \ixh{bias}Bias / Low \ixh{variance}Variance'' with a dashed arrow pointing left; top-right annotation ``Low Bias / High Variance'' with a dashed arrow pointing right.}\ixh{training error}\ixh{testing error}
-
 \slide{1}{67}{[untitled --- overfitting memes]}
 \ixh{overfitting}
 \fig{Two memes. Left: a photo of a wooden bed frame with a mattress bent into the curvy shape of a body lying on it; caption ``THE BEST WAY TO EXPLAIN OVERFITTING''. Right: the Futurama ``Fry squinting'' meme, captioned ``NOT SURE IF 99\% ACCURACY\ixh{accuracy} \ldots\ OR OVERFITTING'' (memegenerator.net).}
-
-\slide{1}{68}{Estimating test MSE}
-\ixh{test MSE}
-\begin{itemize}
-\item Computing \ix{training MSE} is easy -- \ix{test MSE}, not so much
-  \begin{itemize}
-  \item Either \ix{testing data} is not available or it is, but we don't want to use it too much
-  \item It would just become another training set!
-  \end{itemize}
-\item What do we do?
-\end{itemize}
-\begin{center}
-{\large\textbf{\color{dblue}Cross-validation:}}\ixh{cross-validation}\\
-\textbf{a method for estimating test MSE using only \ix{training data}!}
-\end{center}
 
 %% ------------------------------------------------------------------
 \subsection{Bias-variance decomposition}
 \ixh{bias-variance decomposition}\ixh{bias}\ixh{variance}\ixh{irreducible error}
 
-\slide{1}{69}{Bias-variance decomposition}
-\ixh{bias-variance decomposition}\ixh{training MSE}\ixh{test MSE}\ixh{flexibility}
-\fig{The Mean Squared Error vs.\ Flexibility plot from S1.62 on its own: vertical axis Mean Squared Error 0.0--2.5, horizontal axis Flexibility (log scale 2, 5, 10, 20). Red U-shaped ``Test MSE'' curve ($\approx$2.12 at flexibility 2 [orange square], minimum $\approx$1.13 near 5.5 [blue square], $\approx$1.53 near 25 [green square], rising to $\approx$2.4); grey decreasing ``Training MSE'' curve ($\approx$1.73, 0.87, 0.38 at the same squares, $\approx$0.12 at the end); horizontal dashed line at 1.0.}
-
-\slide{1}{70}{Bias-variance decomposition}
-\ixh{bias-variance decomposition}
-\begin{align*}
-&\underbrace{E\Big[\big(\tilde{y}_0-\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)^2\Big]}_{\text{\bfseries expected test MSE}}\\
-&\;=\underbrace{\mathit{Var}\big(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)}_{\text{\bfseries variance on test data}}
-+\underbrace{\big(\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}}))\big)^2}_{\text{\bfseries bias on test data}}
-+\underbrace{\mathit{Var}(\varepsilon)}_{\text{\bfseries irreducible error}}
-\end{align*}\ixh{expected test MSE}\ixh{variance}\ixh{bias}\ixh{irreducible error}
-\begin{itemize}
-\item $\hat{f}$ is learned from a training set\ixh{training data}
-\item $(\tilde{\boldsymbol{x}}_{\mathbf{0}},\tilde{y}_0)$ is a test observation, independent of the training set, randomly sampled from the model\ixh{testing data}
-\end{itemize}
-\[ Y=\underbrace{f(X)}_{\text{\bfseries non-random}}+\underbrace{\varepsilon}_{\text{\bfseries zero-mean noise}} \]\ixh{error term}\ixh{noise}
-
-\slide{1}{71}{[untitled --- target analogy]}
-\ixh{bias-variance decomposition}
-\fig{An archery target: concentric rings from the outside in --- white, black, cyan, red, and a yellow bullseye labelled $\tilde{y}_0$ (the true test response we want to hit). To the right, the label $\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})$ above a $3\times3$ block of nine dark-blue dots: the ``arrows'' --- predictions at the same test point $\tilde{\boldsymbol{x}}_{\mathbf{0}}$ from $\hat f$'s fitted on different training sets.}
-
-\slide{1}{72}{[untitled --- many fits give many predictions at $x_0$]}
-\ixh{variance}
-\fig{Left: hand-drawn axes, $\boldsymbol{x}_{\mathbf{0}}$ marked on the horizontal axis and $y_0$ on the vertical axis. A thick solid black line (the true relationship) and four thinner dashed lines of different slopes (fits from different training sets) all pass near $x_0$. At $x_0$, four light-blue circles stacked vertically mark the four predictions, labelled from bottom to top $\hat{f}(\boldsymbol{x}_{\mathbf{0}})_1$, $\hat{f}(\boldsymbol{x}_{\mathbf{0}})_2$, $\hat{f}(\boldsymbol{x}_{\mathbf{0}})_3$, $\hat{f}(\boldsymbol{x}_{\mathbf{0}})_4$; a red dot at height $y_0$ (on the solid line) is overlapped by the second circle. Right: the archery target with bullseye $\tilde{y}_0$, and below it the label $\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})$ above a $3\times3$ block of nine dark-blue dots (the predictions = arrows to shoot at the target).}
-
-\slide{1}{73}{[untitled --- case 1]}
-\textbf{1.}
-\fig{Archery target with all nine dark-blue dots packed tightly \emph{inside the yellow bullseye}: predictions are accurate and consistent (low \ix{variance}, low \ix{bias}).}
-\begin{align*}
-&\underbrace{E\Big[\big(\tilde{y}_0-\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)^2\Big]}_{\text{\bfseries expected test MSE}}\\
-&\;=\underbrace{\mathit{Var}\big(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)}_{\text{\bfseries variance on test data}}
-+\underbrace{\big(\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}}))\big)^2}_{\text{\bfseries bias on test data}}
-+\underbrace{\mathit{Var}(\varepsilon)}_{\text{\bfseries irreducible error}}
-\end{align*}
-\fig{On the slide \textbf{both} the $\mathit{Var}(\hat f(\tilde{\boldsymbol{x}}_{\mathbf{0}}))$ term and the $(\mathit{Bias}(\hat f(\tilde{\boldsymbol{x}}_{\mathbf{0}})))^2$ term are crossed out with a large blue X (both $\approx0$); only $\mathit{Var}(\varepsilon)$ remains.}\ixh{irreducible error}
-
-\slide{1}{74}{[untitled --- case 2]}
-\textbf{2.}
-\fig{Archery target with the nine dots spread out around the centre: one in the yellow bullseye, the others scattered around the red ring and its border with the cyan ring --- centred on the target but widely spread (low bias, high variance).}\ixh{variance}\ixh{bias}
-\[ E\Big[\big(\tilde{y}_0-\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)^2\Big]=\mathit{Var}\big(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)+\big(\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}}))\big)^2+\mathit{Var}(\varepsilon) \]
-\fig{Only the $(\mathit{Bias}(\cdot))^2$ term is crossed out with a blue X.}
-
-\slide{1}{75}{[untitled --- case 3]}
-\textbf{3.}
-\fig{Archery target with the nine dots packed tightly together but far from the centre, in the black ring at the upper right --- consistent but systematically off target (low variance, high bias).}\ixh{variance}\ixh{bias}
-\[ E\Big[\big(\tilde{y}_0-\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)^2\Big]=\mathit{Var}\big(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)+\big(\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}}))\big)^2+\mathit{Var}(\varepsilon) \]
-\fig{Only the $\mathit{Var}(\hat f(\tilde{\boldsymbol{x}}_{\mathbf{0}}))$ term is crossed out with a blue X.}
-
-\slide{1}{76}{[untitled --- case 4]}
-\textbf{4.}
-\fig{Archery target with the nine dots widely scattered and shifted towards the lower right (in the red/cyan boundary, cyan, black and outer white rings), none in the bullseye --- both spread out and off-centre (high variance, high bias).}\ixh{variance}\ixh{bias}
-\[ E\Big[\big(\tilde{y}_0-\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)^2\Big]=\mathit{Var}\big(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)+\big(\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}}))\big)^2+\mathit{Var}(\varepsilon) \]
-\fig{Nothing is crossed out: all three terms contribute.}
-
-\slide{1}{77}{Bias-variance decomposition}
-\ixh{bias-variance decomposition}
-\[ \underbrace{E\Big[\big(\tilde{y}_0-\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)^2\Big]}_{\text{\color{warnc}\bfseries Expected test MSE}}=\mathit{Var}\big(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)+\big(\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}}))\big)^2+\underbrace{\mathit{Var}(\varepsilon)}_{\text{\color{warnc}\bfseries Irreducible error}} \]\ixh{expected test MSE}\ixh{irreducible error}
-\[ Y=\underbrace{f(X)}_{\text{\bfseries non-random}}+\underbrace{\varepsilon}_{\text{\bfseries zero-mean noise}} \]
-
-\slide{1}{78}{Bias}
-\ixh{bias}
-\[ E\Big[\big(\tilde{y}_0-\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)^2\Big]=\mathit{Var}\big(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)+{\color{dblue}\big(\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}}))\big)^2}+\mathit{Var}(\varepsilon) \]
-\[ {\color{dblue}\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})=E\big[\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big]-f(\tilde{\boldsymbol{x}}_{\mathbf{0}})} \]
-{\color{figgray}\itshape [note: the slide is missing a closing parenthesis: $\mathit{Bias}(\hat f(\tilde{\boldsymbol{x}}_{\mathbf{0}}))=E[\hat f(\tilde{\boldsymbol{x}}_{\mathbf{0}})]-f(\tilde{\boldsymbol{x}}_{\mathbf{0}})$ --- average prediction minus truth.]}
-\fig{Three panels. Left: the scatterplot with four fits from S1.61 (orange \ix{linear regression} line, black true $f$, blue simple spline, green wiggly spline). Middle: a target (outer white ring, light-blue ring, inner white ring, red bullseye) with a tight cluster of dark-blue dots in the upper part of the light-blue ring --- consistent but off-centre (high bias, low variance, like the rigid linear fit). Right: the Mean Squared Error vs.\ Flexibility plot from S1.62 (red U-shaped Test MSE, grey decreasing Training MSE, dashed line at 1.0).}
-
-\slide{1}{79}{Variance}
-\ixh{variance}
-\[ E\Big[\big(\tilde{y}_0-\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)^2\Big]={\color{keyc}\mathit{Var}\big(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)}+\big(\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}}))\big)^2+\mathit{Var}(\varepsilon) \]
-\[ {\color{keyc}\mathit{Var}\big(\hat{f}(\boldsymbol{x}_{\mathbf{0}})\big)=E\Big[\big(\hat{f}(\boldsymbol{x}_{\mathbf{0}})-E[\hat{f}(\boldsymbol{x}_{\mathbf{0}})]\big)^2\Big]} \]
-\fig{Three panels. Left: hand-drawn axes with two sets of points (dark-blue and light-blue circles, i.e.\ two different training samples) and a green dashed very wiggly curve that snakes through the light-blue points --- a flexible fit that would change a lot with a different sample. Middle: target (white, light-blue, white, red bullseye) with many dark-blue dots scattered all around the bullseye in the inner white ring and the light-blue ring --- centred but spread out (high variance, low bias). Right: the Mean Squared Error vs.\ Flexibility plot from S1.62.}\ixh{flexibility}
-
-\slide{1}{80}{Bias-variance tradeoff}
-\ixh{bias-variance tradeoff}
-\[ E\Big[\big(\tilde{y}_0-\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)^2\Big]=\mathit{Var}\big(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)+\big(\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}}))\big)^2+\mathit{Var}(\varepsilon) \]
-\fig{$2\times2$ grid of targets (white, light-blue, white rings, red bullseye), columns ``Low Variance'' / ``High Variance'', rows ``Low Bias'' / ``High Bias''. Low bias + low variance: tight cluster of dots right on the bullseye. Low bias + high variance: dots scattered widely around the bullseye (centred). High bias + low variance: tight cluster in the upper light-blue ring, away from the bullseye. High bias + high variance: dots scattered over the upper-left outer rings, off-centre and spread out.}\ixh{bias}\ixh{variance}
-
 \slide{1}{81}{Bias-variance tradeoff}
 \ixh{bias-variance tradeoff}
-\[ E\Big[\big(\tilde{y}_0-\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)^2\Big]=\mathit{Var}\big(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)+\big(\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}}))\big)^2+\mathit{Var}(\varepsilon) \]
-\begin{center}
-Want to \textbf{simultaneously} achieve \textbf{low \ix{variance}} and \textbf{low \ix{bias}}
-\end{center}
 \fig{ISLR Fig.~2.12 (left) style plot: horizontal axis Flexibility (log scale 2, 5, 10, 20), vertical axis 0.0--2.5. Dark-red curve ``Test MSE'' is U-shaped ($\approx$2.12 at flexibility 2, minimum $\approx$1.13 near flexibility 5.5, up to $\approx$2.43 at the right end). Orange curve ``Variance'' starts near 0.05 and increases, slowly at first then sharply, to $\approx$1.42. Cyan curve ``Bias$^2$'' starts at $\approx$1.08 and drops quickly to $\approx$0 by flexibility $\approx$5.5, then stays flat near 0. Horizontal dashed line at 1.0 (= $\mathrm{Var}(\varepsilon)$); vertical dotted line at flexibility $\approx$5.5 where the test MSE is smallest. Test MSE = Variance + Bias$^2$ + 1.0 at every flexibility.}\ixh{test MSE}\ixh{irreducible error}\ixh{flexibility}
-\begin{itemize}
-\item A simple model $\to$ high bias + low variance
-\item A flexible model $\to$ low bias + high variance\ixh{flexibility}
-\end{itemize}
-\begin{center}
-\textbf{\color{warnc}Challenge: find a method for which both the variance and (squared) bias are low}
-\end{center}
-
-\slide{1}{82}{[untitled --- example 1: data, MSE, and its decomposition]}
-\ixh{bias-variance decomposition}\ixh{training MSE}\ixh{test MSE}
-\fig{Three panels for the first example (true $f$ curved, S1.61). Left: the scatterplot with the four fits (orange linear regression, black true $f$, blue simple spline, green wiggly spline). Middle: Mean Squared Error vs.\ Flexibility (red U-shaped Test MSE: 2.12 / 1.13 / 1.53 at the orange / blue / green squares; grey decreasing Training MSE: 1.73 / 0.87 / 0.38; dashed line at 1.0). Right: the decomposition from S1.61 without labels --- dark-red test MSE (U-shaped, minimum $\approx$1.13 at flexibility $\approx$5.5, marked by a vertical dotted line), cyan squared bias (from $\approx$1.08 down to $\approx$0 by flexibility 5.5), orange variance (from $\approx$0.05 rising to $\approx$1.42), dashed line at 1.0.}\ixh{bias}\ixh{variance}
 
 \slide{1}{83}{[untitled --- example 2: data, MSE, and its decomposition]}
 \ixh{bias-variance decomposition}
-\fig{Three panels for the second example (true $f$ nearly linear, S1.63). Left: scatterplot with the four fits, all close to the black true $f$ except the wiggly green spline. Middle: Mean Squared Error vs.\ Flexibility (Test MSE 1.09 / 1.06 / 1.52 at the orange / blue / green squares, Training MSE 0.99 / 0.91 / 0.39; dashed line at 1.0). Right: decomposition --- dark-red test MSE starts $\approx$1.09, reaches its minimum $\approx$1.06 at flexibility $\approx$3 (vertical dotted line), then rises to $\approx$2.35; cyan squared bias is tiny everywhere ($\approx$0.05 at flexibility 2, $\approx$0 afterwards); orange variance rises from $\approx$0.04 to $\approx$1.33; dashed line at 1.0. With little bias to remove, the optimum is at low flexibility and variance dominates.}\ixh{bias}\ixh{variance}
+\fig{Three panels for the second example (true $f$ nearly linear, S1.63). Right: decomposition --- dark-red test MSE starts $\approx$1.09, reaches its minimum $\approx$1.06 at flexibility $\approx$3 (vertical dotted line), then rises to $\approx$2.35; cyan squared bias is tiny everywhere ($\approx$0.05 at flexibility 2, $\approx$0 afterwards); orange variance rises from $\approx$0.04 to $\approx$1.33; dashed line at 1.0. With little bias to remove, the optimum is at low flexibility and variance dominates.}\ixh{bias}\ixh{variance}
 
 \slide{1}{84}{[untitled --- example 3: data, MSE, and its decomposition]}
 \ixh{bias-variance decomposition}
-\fig{Three panels for the third example (true $f$ highly nonlinear, S1.64). Left: scatterplot ($Y$ from $-10$ to 27 vs.\ $X$ 0--100) with the badly fitting orange line and the well-fitting blue/green splines. Middle: Mean Squared Error (0--20) vs.\ Flexibility (Test MSE $\approx$18.8 and Training MSE $\approx$14.8 at flexibility 2; both $\approx$1 at flexibility 10; Test $\approx$1.5, Training $\approx$0.4 at $\approx$25). Right: decomposition with legend ``MSE'' (dark red), ``Bias'' (cyan), ``Var'' (orange): MSE falls from $\approx$18.8 to $\approx$1.2 between flexibility 2 and 6 and stays low, turning up to $\approx$2.5 at the end; squared bias falls from $\approx$17.7 to $\approx$0 by flexibility $\approx$8; variance is $\approx$0 until it rises to $\approx$1.5 at the right end; vertical dotted line at flexibility $\approx$10 (the minimum); dashed line at 1.0. Here bias dominates, so the optimum is at higher flexibility.}\ixh{bias}\ixh{variance}
-
-\slide{1}{85}{Bias-variance tradeoff}
-\ixh{bias-variance tradeoff}\ixh{bias-variance decomposition}
-\fig{Green-bordered box in the top-right corner: $Y=f(X)+\varepsilon$, with ``non-random'' under $f(X)$ and ``zero-mean noise'' under $\varepsilon$.}
-\begin{align*}
-&E\Big[\big(\tilde{y}_0-\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)^2\Big]=\mathit{Var}\big(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}})\big)+\big(\mathit{Bias}(\hat{f}(\tilde{\boldsymbol{x}}_{\mathbf{0}}))\big)^2+\mathit{Var}(\varepsilon)\\
-&\textbf{\color{warnc}Expected test MSE}\ =\ \textbf{\color{warnc}Variance}\ +\ \textbf{\color{warnc}Bias$^2$}\ +\ \textbf{\color{warnc}Irreducible error}\\
-&{\color{dblue}=\mathrm{E}\Big[\big(\hat{f}(\mathbf{x}_0)-\mathrm{E}\hat{f}(\mathbf{x}_0)\big)^2\Big]+\Big[\mathrm{E}\big[\hat{f}(\mathbf{x}_0)\big]-f(\mathbf{x}_0)\Big]^2}+\mathrm{Var}(\varepsilon)
-\end{align*}\ixh{expected test MSE}\ixh{variance}\ixh{bias}\ixh{irreducible error}
-\textbf{If we take}
-\[ {\color{keyc}\hat{f}(\mathbf{x}_0)=\mathrm{E}\big[Y\,|\,X=\mathbf{x}_0\big]} \]\ixh{conditional expectation}
-\textbf{then}
-\[ {\color{dblue}\mathrm{E}\Big[\big(\hat{f}(\mathbf{x}_0)-\mathrm{E}\hat{f}(\mathbf{x}_0)\big)^2\Big]=0}\quad\textbf{and}\quad{\color{dblue}\Big[\mathrm{E}\big[\hat{f}(\mathbf{x}_0)\big]-f(\mathbf{x}_0)\Big]^2=0} \]
-
-\slide{1}{86}{Bias-variance tradeoff}
-\ixh{bias-variance tradeoff}
-\begin{align*}
-&E\Big[\big(y_0-\hat{f}(\boldsymbol{x}_{\mathbf{0}})\big)^2\Big]=\mathit{Var}\big(\hat{f}(\boldsymbol{x}_{\mathbf{0}})\big)+\big(\mathit{Bias}(\hat{f}(\boldsymbol{x}_{\mathbf{0}}))\big)^2+\mathit{Var}(\varepsilon)\\
-&\textbf{\color{warnc}Expected test MSE}\ =\ \textbf{\color{warnc}Variance}\ +\ \textbf{\color{warnc}Bias$^2$}\ +\ \textbf{\color{warnc}Irreducible error}\\
-&=\underbrace{{\color{dblue}\mathrm{E}\Big[\big(\hat{f}(\mathbf{x}_0)-\mathrm{E}\hat{f}(\mathbf{x}_0)\big)^2\Big]+\Big[\mathrm{E}\big[\hat{f}(\mathbf{x}_0)\big]-f(\mathbf{x}_0)\Big]^2}}_{\text{\color{dblue}\bfseries minimized!}}+\mathrm{Var}(\varepsilon)\\
-&=\underbrace{\mathrm{Var}(\varepsilon)}_{\text{\color{warnc}\bfseries Irreducible error}}
-\end{align*}\ixh{irreducible error}
-{\color{figgray}\itshape [note: on the slide ``minimized!'' sits under a horizontal line drawn beneath the variance and bias$^2$ terms; this slide writes $y_0$, $\boldsymbol{x}_{\mathbf{0}}$ without tildes.]}
-
-\slide{1}{87}{Bias-variance tradeoff}
-\ixh{bias-variance tradeoff}
-\begin{itemize}
-\item The ``best'' we can do:
-\[ {\color{keyc}\hat{f}(\mathbf{x}_0)=\mathrm{E}\big[Y\,|\,X=\mathbf{x}_0\big]} \]\ixh{conditional expectation}
-\item but this is unknown in practice!
-\item Because the actual population \ix{joint distribution} of X and Y is unknown
-\end{itemize}
+\fig{Three panels for the third example (true $f$ highly nonlinear, S1.64). Right: decomposition with legend ``MSE'' (dark red), ``Bias'' (cyan), ``Var'' (orange): MSE falls from $\approx$18.8 to $\approx$1.2 between flexibility 2 and 6 and stays low, turning up to $\approx$2.5 at the end; squared bias falls from $\approx$17.7 to $\approx$0 by flexibility $\approx$8; variance is $\approx$0 until it rises to $\approx$1.5 at the right end; vertical dotted line at flexibility $\approx$10 (the minimum); dashed line at 1.0. Here bias dominates, so the optimum is at higher flexibility.}\ixh{bias}\ixh{variance}
 
 %% ------------------------------------------------------------------
 \subsection{Classification setting: error rates and the Bayes classifier}
 \ixh{classification}\ixh{error rate}
 
-\slide{1}{88}{Classification setting}
-\ixh{classification}
-\fig{Flow diagram of three light-blue boxes joined by arrows: \textbf{Data} $\to$ \textbf{Learn} $\to$ \textbf{Evaluate}. Under ``Data'': ``Training set $\{(\mathbf{x}_1,y_1),(\mathbf{x}_2,y_2),\ldots,(\mathbf{x}_n,y_n)\}$''; under ``Learn'': a large $\hat{f}$.}\ixh{training data}
-\begin{itemize}
-\item[] $y_1,\ldots,y_n$: \textbf{\ix{class label} (qualitative), i.e.,}\ixh{qualitative variable}\\
-$y_1=\text{dog},\ y_2=\text{cat},\ y_3=\text{cat},\ \ldots,\ y_n=\text{dog}$
-\item[] $\hat{y}_1,\ldots,\hat{y}_n$: \textbf{predicted class label using $\hat{f}$, i.e.,}\ixh{predicted class}\\
-$\hat{y}_1=\text{dog},\ \hat{y}_2=\text{dog},\ \hat{y}_3=\text{cat},\ \ldots,\ \hat{y}_n=\text{cat}$
-\item[] $\mathbf{x}_i=(x_{i1},x_{i2},\ldots,x_{ip})$\ixh{predictor}
-\end{itemize}
-
-\slide{1}{89}{[untitled --- training error rate]}
-\ixh{training error rate}\ixh{error rate}
-\fig{The same Data $\to$ Learn $\to$ Evaluate diagram as S1.88 (``Training set $\{(\mathbf{x}_1,y_1),\ldots,(\mathbf{x}_n,y_n)\}$'' under Data, $\hat f$ under Learn).}
-\begin{center}
-\textbf{\color{warnc}how well does $\hat{f}$ learn?}
-\end{center}
-\fig{Blue-bordered box titled \textbf{\textit{Indicator function}}:}\ixh{indicator function}
-\[ I\big(y_i\neq\hat{y}_i\big)=\begin{cases}1 & \textbf{if}\quad y_i\neq\hat{y}_i\\ 0 & \textbf{if}\quad y_i=\hat{y}_i\end{cases} \]
-\[ \text{Training error rate}=\frac{1}{n}\sum_{i=1}^{n}I\big(y_i\neq\hat{y}_i\big) \]\ixh{training error}
-\fig{An arrow from $\hat y_i$ points to the note ``\textbf{predicted class label that $\hat{f}$ gives for the $i$th training observation}''.}
-\begin{center}
-\textbf{{\color{warnc}Training} {\color{dblue}Error} Rate}\\
-\textbf{fraction} of \textbf{\color{dblue}incorrect} classifications in \textbf{\color{warnc}training} set
-\end{center}
-
-\slide{1}{90}{[untitled --- training error rate example]}
-\ixh{training error rate}
-\[ \text{Training error rate}=\frac{1}{n}\sum_{i=1}^{n}I\big(y_i\neq\hat{y}_i\big) \]
-\fig{Arrow from $\hat y_i$ to ``\textbf{predicted class label that $\hat{f}$ gives for the $i$th training observation}''. Blue-bordered \textbf{\textit{Indicator function}} box as on S1.89: $I(y_i\neq\hat y_i)=1$ if $y_i\neq\hat y_i$, $0$ if $y_i=\hat y_i$.}\ixh{indicator function}
-\begin{itemize}
-\item[] $y_1,\ldots,y_n$: \textbf{class label (qualitative), i.e.,} $y_1=\text{dog}, y_2=\text{cat}, y_3=\text{cat},\ldots,y_n=\text{dog}$\ixh{class label}
-\item[] $\hat{y}_1,\ldots,\hat{y}_n$: \textbf{predicted class label using $\hat{f}$, i.e.,} $\hat{y}_1=\text{dog}, \hat{y}_2=\text{dog}, \hat{y}_3=\text{cat},\ldots,\hat{y}_n=\text{cat}$
-\end{itemize}
-\begin{center}
-\begin{tabular}{@{}l l c@{}}
-\toprule
-$\boldsymbol{y_i}$ & $\boldsymbol{\hat{y}_i}$ & $\boldsymbol{I(y_i\neq\hat{y}_i)}$\\
-\midrule
-dog & cat & 1\\
-cat & cat & 0\\
-bird & dog & 1\\
-dog & dog & 0\\
-dog & dog & 0\\
-\bottomrule
-\end{tabular}
-\end{center}
-\[ \text{Training error rate: }\frac{\sum_{i=1}^{n}I(y_i\neq\hat{y}_i)}{n}=\frac{2}{5}=0.40 \]\ixh{training error rate}
-\[ \text{Training accuracy: }1-\frac{\sum_{i=1}^{n}I(y_i\neq\hat{y}_i)}{n}=\frac{3}{5}=0.60 \]\ixh{accuracy}
-
-\slide{1}{91}{[untitled --- test error rate]}
-\ixh{test error rate}\ixh{testing error}
-\fig{Data $\to$ Learn $\to$ Evaluate diagram as on S1.88 (``Training set $\{(\mathbf{x}_1,y_1),\ldots,(\mathbf{x}_n,y_n)\}$'' under Data, $\hat f$ under Learn).}
-\textbf{Again, we are less interested in how $\hat{f}$ performs on training set}
-
-\textbf{Consider {\color{warnc}test set $\{(\tilde{\mathbf{x}}_1,\tilde{y}_1),(\tilde{\mathbf{x}}_2,\tilde{y}_2),\ldots,(\tilde{\mathbf{x}}_m,\tilde{y}_m)\}$}, not seen or used to train $\hat{f}$}\ixh{testing data}
-\[ \text{Test error rate}=\frac{1}{n}\sum_{i=1}^{n}I\Big(\tilde{y}_i\neq\hat{\tilde{y}}_i\Big) \]\ixh{test error rate}
-\fig{Arrow from $\hat{\tilde y}_i$ to ``\textbf{predicted class label that $\hat{f}$ gives for the $i$th test observation}''.}
-{\color{figgray}\itshape [note: the slide sums to $n$ with $1/n$ even though the test set has $m$ observations; it should be $\frac1m\sum_{i=1}^m$.]}
-\begin{center}
-\textbf{{\color{warnc}Test} {\color{dblue}Error} Rate}\\
-\textbf{fraction} of \textbf{\color{dblue}incorrect} classifications in \textbf{\color{warnc}test} set
-\end{center}
-
-\slide{1}{92}{[untitled --- training vs.\ test error rate]}
-\ixh{training error rate}\ixh{test error rate}
-\textbf{Training set}\quad $\{(\mathbf{x}_1, y_1), (\mathbf{x}_2, y_2), \ldots, (\mathbf{x}_n, y_n)\}$\\
-\textbf{Test set}\quad $\{(\tilde{\mathbf{x}}_1, \tilde{y}_1), (\tilde{\mathbf{x}}_2, \tilde{y}_2), \ldots, (\tilde{\mathbf{x}}_m, y_m)\}$
-\begin{center}
-\begin{tabular}{@{}c@{\qquad}c@{}}
-\textbf{\color{dblue}Training error rate} & \textbf{\color{dblue}Test error rate}\\[2pt]
-$\displaystyle \frac{1}{n}\sum_{i=1}^{n}I\big(y_i\neq\hat{y}_i\big)$ &
-$\displaystyle \frac{1}{n}\sum_{i=1}^{n}I\Big(\tilde{y}_i\neq\hat{\tilde{y}}_i\Big)$
-\end{tabular}
-\end{center}
-\fig{Arrows from $\hat y_i$ to ``\textbf{predicted class label that $\hat f$ gives for the $i$th training observation}'' and from $\hat{\tilde y}_i$ to ``\textbf{predicted class label that $\hat f$ gives for the $i$th test observation}''.}
-\begin{center}
-\textbf{\color{warnc}$\hat{f}$ is obtained on the training set!}
-\end{center}
-
-\slide{1}{93}{Same discussion as in regression setting}
-\ixh{training error rate}\ixh{test error rate}
-\begin{itemize}
-\item Having the \textbf{lowest \ix{training error rate}} does not necessarily imply that a method also has the \textbf{lowest \ix{test error rate}}
-\end{itemize}
-\begin{itemize}
-\item[] \textbf{Higher model \ix{flexibility} $\to$ lower training error rate}
-\item[] \textbf{Higher model flexibility {\color{warnc}$\nrightarrow$} lower test error rate}
-\item[] \textbf{{\color{dblue}\ixh{overfitting}Overfitting}\ixh{overfitting} = Large test error rate + small training error rate}
-\end{itemize}
-
-\slide{1}{94}{Estimating test error rate -- same as regression:}
-\ixh{test error rate}
-\begin{itemize}
-\item Computing \ix{training error} is easy -- test error\ixh{testing error}, not so much
-  \begin{itemize}
-  \item Either \ix{testing data} is not available or it is, but we don't want to train on it
-  \item It would just become another training set!
-  \end{itemize}
-\item What do we do?
-\end{itemize}
-\begin{center}
-{\large\textbf{\color{dblue}Cross-validation:}}\ixh{cross-validation}\\
-\textbf{a method for estimating test MSE using only \ix{training data}!}\\
-\textbf{Next week!}
-\end{center}
-
-\slide{1}{95}{Bias-variance tradeoff}
-\ixh{bias-variance tradeoff}
-\begin{center}
-Still want to \textbf{simultaneously} achieve \textbf{low \ix{variance}} and \textbf{low \ix{bias}}\\[3pt]
-A simple model $\to$ high bias + low variance\\
-A \ixh{flexibility}flexible model $\to$ low bias + high variance\\[3pt]
-\textbf{\color{warnc}Challenge: find a method for which both the variance and bias are low}
-\end{center}
-
-\slide{1}{96}{[untitled --- the Bayes classifier]}
-\ixh{Bayes classifier}
-\textbf{In classification setting, the ``best'' we can do}
-\[ {\color{keyc}\hat{y}_0=\operatorname{argmax}_j\ \Big\{\underbrace{\mathrm{Prob}\big(Y=j\,|\,X=\mathbf{x}_0\big)}_{\substack{\text{\color{warnc}\bfseries conditional probability of $Y=j$,}\\ \text{\color{warnc}\bfseries given the observed predictor $\mathbf{x}_0$}}}\Big\}} \]\ixh{argmax}\ixh{conditional probability}\ixh{posterior probability}
-\textbf{{\color{dblue}\ix{Bayes classifier}}: assigns each observation to the most likely class, given its predictor values}
-
-\textbf{For example, we want to classify species of an animal (dog, cat, bird) given its picture}
-\[ \left.\begin{aligned}
-\mathrm{Prob}\big(Y=\textbf{dog}\,|\,X=\mathbf{x}_0\big)&=0.5\\
-\mathrm{Prob}\big(Y=\textbf{cat}\,|\,X=\mathbf{x}_0\big)&=0.3\\
-\mathrm{Prob}\big(Y=\textbf{bird}\,|\,X=\mathbf{x}_0\big)&=0.2
-\end{aligned}\right\}\ \longrightarrow\ \hat{y}_0=\textbf{dog} \]
-
 \slide{1}{97}{[untitled --- Bayes classifier, two classes]}
 \ixh{Bayes classifier}\ixh{Bayes decision boundary}
-In a two-class problem:
-\[ \hat{y}_0=\begin{cases}1 & \textbf{if}\ \mathrm{Prob}\big(Y=1\,|\,X=\mathbf{x}_0\big)>0.5\\ 2 & \textbf{if}\ \mathrm{Prob}\big(Y=1\,|\,X=\mathbf{x}_0\big)\le0.5\end{cases} \]\ixh{threshold}
 \fig{ISLR Fig.~2.13 (simulated two-class data). Axes $X_1$ (horizontal) and $X_2$ (vertical), no tick values. About 100 orange circles (class 1) mostly in the upper left and about 100 blue circles (class 2) mostly in the lower and right part, with considerable overlap in the middle. A purple dashed curve --- the \ix{Bayes decision boundary} --- winds from the left edge (about 1/3 up from the bottom), dips down around the lower middle, rises up through the centre, bulges left, and exits through the top edge right of centre. The background is a grid of small dots coloured orange on the side where the Bayes classifier predicts orange (upper left) and blue where it predicts blue (lower part and right side). Several orange circles lie in the blue region and vice versa.}\ixh{decision boundary}
 
 \slide{1}{98}{[untitled --- reading the Bayes classifier plot]}
@@ -379,46 +69,4 @@ In a two-class problem:
 \textbf{Areas:}
 \[ {\color{orange}\mathrm{Prob}\big(Y=1\,|\,X=\mathbf{x}_0\big)>50\,\%}\qquad
 {\color{dblue}\mathrm{Prob}\big(Y=2\,|\,X=\mathbf{x}_0\big)>50\,\%} \]
-\fig{The same simulated $X_1$--$X_2$ scatterplot as S1.97: orange circles = class 1, blue circles = class 2; orange-dotted background region = where $\mathrm{Prob}(Y=1\mid X=\mathbf{x}_0)>50\%$, blue-dotted region = where $\mathrm{Prob}(Y=2\mid X=\mathbf{x}_0)>50\%$; the purple dashed Bayes decision boundary separates the two regions (where the probability is exactly 50\%).}\ixh{Bayes decision boundary}
-
-\slide{1}{99}{[untitled --- Bayes error rate]}
-\ixh{Bayes error rate}
-\[ {\color{keyc}\hat{y}_0=\operatorname{argmax}_j\ \Big\{\underbrace{\mathrm{Prob}\big(Y=j\,|\,X=\mathbf{x}_0\big)}_{\substack{\text{\color{warnc}\bfseries conditional probability of $Y=j$,}\\ \text{\color{warnc}\bfseries given the observed predictor $\mathbf{x}_0$}}}\Big\}} \]
-\textbf{\color{dblue}\ix{Bayes error rate}}
-\[ {\color{dblue}1-\mathrm{E}\Big[\max_j\ \mathrm{Prob}\big(Y=j\,|\,X\big)\Big]} \]
-\fig{The same simulated $X_1$--$X_2$ scatterplot with the purple dashed Bayes decision boundary and orange/blue background regions. Two small red squares highlight points on the ``wrong'' side of the boundary: one in the orange region (upper left of centre) containing a blue circle, and one in the blue region (lower middle) containing an orange circle among blue ones --- even the Bayes classifier misclassifies these, which is why the Bayes error rate is $>0$.}\ixh{irreducible error}
-
-\slide{1}{100}{[untitled --- regression vs.\ classification summary]}
-\ixh{regression}\ixh{classification}
-\begin{center}
-\begin{tabular}{@{}c@{\quad}c@{}}
-{\large\textbf{\color{dblue}\ixh{regression}Regression}} & {\large\textbf{\color{warnc}\ixh{classification}Classification}}\\[2pt]
-$X$ & $X$\\
-\textbf{\color{dblue}quantitative} $Y$ & \textbf{\color{warnc}qualitative} $Y$\\[3pt]
-\textbf{Training/Test} & \textbf{Training/Test}\\
-\textbf{\color{dblue}Mean Squared Error (MSE)}\ixh{MSE} & \textbf{\color{warnc}Error Rate}\ixh{error rate}\\[4pt]
-${\color{dblue}\hat{f}(\mathbf{x}_0)=\mathrm{E}\big[Y\,|\,X=\mathbf{x}_0\big]}$ &
-${\color{warnc}\hat{y}_0=\operatorname{argmax}_j\big\{\mathrm{Prob}(Y=j\,|\,X=\mathbf{x}_0)\big\}}$\\[3pt]
-${\color{dblue}\mathrm{Var}(\varepsilon)}$ &
-${\color{warnc}1-\mathrm{E}\big[\max_j\mathrm{Prob}(Y=j\,|\,X)\big]}$
-\end{tabular}
-\end{center}\ixh{quantitative variable}\ixh{qualitative variable}\ixh{irreducible error}\ixh{Bayes classifier}\ixh{Bayes error rate}
-
-\slide{1}{101}{[untitled --- model complexity summary]}
-\ixh{bias-variance tradeoff}\ixh{model complexity}
-\fig{The Prediction Error vs.\ Model Complexity (Low to High) figure from S1.66: cyan ``Training Sample'' curve decreasing monotonically; red ``Test Sample'' curve U-shaped; top-left ``High Bias / Low Variance'' with a dashed arrow pointing left; top-right ``Low Bias / High Variance'' with a dashed arrow pointing right. Text overlaid on the plot:}\ixh{training error}\ixh{testing error}
-\begin{itemize}
-\item[] \textbf{Higher model complexity $\to$ Higher \ix{variance} + Lower \ix{bias}}
-\item[] \textbf{Lower model complexity $\to$ Lower variance + Higher bias}
-\item[] \textbf{Higher model complexity $\to$ lower training {\color{keyc}MSE}/{\color{orange}error rate}}
-\item[] \textbf{Higher model complexity {\color{warnc}$\nrightarrow$} lower test {\color{keyc}MSE}/{\color{orange}error rate}}
-\end{itemize}
-
-%% ------------------------------------------------------------------
-\subsection{\texorpdfstring{$k$}{k}-nearest neighbors (KNN)}
-\ixh{k-nearest neighbors (KNN)}
-
-\slide{1}{102}{$k$-nearest neighbors (KNN)}
-\ixh{k-nearest neighbors (KNN)}
-\textit{\ix{$k$-nearest neighbors} (\ix{KNN})} --- A starter \ix{machine learning} model
 
