@@ -9,7 +9,7 @@
 
 \slide{1}{61--62}{Lowest training MSE $\neq$ lowest test MSE}
 \fig{Ex.~1 (ISLR 2.9): $Y$ (3--11) vs.\ $X$ (0--100); true $f$ (black) rises $\approx$4.5$\to$9.4 (peak $X\approx70$) then falls to $\approx$6.3. Fits by increasing flexibility: orange \ix{linear regression}; light-blue simple \ix{smoothing spline} ($\approx f$); green complicated spline (chases points).
-MSE vs.\ flexibility (log, 2--20): test MSE (red) U-shaped: $\approx$2.12 (linear), min $\approx$1.13 at $\approx$5.5 (simple spline), $\approx$1.53 at $\approx$25 (complicated), up to $\approx$2.4. Training MSE (grey) falls monotonically: 1.73, 0.87, 0.38, $\to$0.12. Dashed line at 1.0 = \ix{irreducible error} $\mathrm{Var}(\epsilon)$: test MSE never below it, training MSE is.}
+MSE vs.\ flexibility (log, 2--20): test MSE (red) U-shaped: $\approx$2.12 (linear), min $\approx$1.13 at $\approx$5.5 (simple spline), $\approx$1.53 at $\approx$25 (complicated), up to $\approx$2.4. Training MSE (gray) falls monotonically: 1.73, 0.87, 0.38, $\to$0.12. Dashed line at 1.0 = \ix{irreducible error} $\mathrm{Var}(\epsilon)$: test MSE never below it, training MSE is.}
 
 \slide{1}{63}{[Ex.~2: true $f$ nearly linear]}
 \fig{$f$ rises $\approx$2.7$\to$12.7, almost linear; \ix{linear regression} and simple spline lie on it, complicated spline wiggly. Test MSE: $\approx$1.09 (linear), min $\approx$1.06 at $\approx$3, $\approx$1.52 at $\approx$25, $\to$2.35. Training: 0.99, 0.91, 0.39, $\to$0.13. Inflexible linear fit is already nearly optimal.}
@@ -38,5 +38,5 @@ MSE vs.\ flexibility (log, 2--20): test MSE (red) U-shaped: $\approx$2.12 (linea
 \ixh{classification}\ixh{error rate}\ixh{Bayes classifier}
 
 \slide{1}{97--98}{[Bayes classifier, two classes]}
-\fig{ISLR 2.13: $\sim$100 orange (class 1, upper left) and $\sim$100 blue (class 2, lower/right) circles in $(X_1,X_2)$, overlapping in the middle. Purple dashed wiggly \ix{Bayes decision boundary}\ixh{decision boundary}; background dots coloured by the Bayes prediction; some circles on the wrong side.}
-Each circle = an observation; location = \ix{predictor} $X$; colour = \ix{class label} $Y\in\{{\color{orange}1},{\color{dblue}2}\}$. Areas: ${\color{orange}\Pr(Y=1\,|\,X=\mathbf{x}_0)>50\%}$ vs.\ ${\color{dblue}\Pr(Y=2\,|\,X=\mathbf{x}_0)>50\%}$.
+\fig{ISLR 2.13: $\sim$100 orange (class 1, upper left) and $\sim$100 blue (class 2, lower/right) circles in $(X_1,X_2)$, overlapping in the middle. Purple dashed wiggly \ix{Bayes decision boundary}\ixh{decision boundary}; background dots colored by the Bayes prediction; some circles on the wrong side.}
+Each circle = an observation; location = \ix{predictor} $X$; color = \ix{class label} $Y\in\{{\color{orange}1},{\color{dblue}2}\}$. Areas: ${\color{orange}\Pr(Y=1\,|\,X=\mathbf{x}_0)>50\%}$ vs.\ ${\color{dblue}\Pr(Y=2\,|\,X=\mathbf{x}_0)>50\%}$.

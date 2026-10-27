@@ -31,7 +31,7 @@ cor_Smarket %>%
   geom_tile() +                           (*@\ixch{geom\_tile()}@*)
   geom_text(aes(label = as.character(fashion(r))))  (*@\ixch{geom\_text()}\ixch{fashion()}@*)
 \end{rcode}
-\fig{Tiles labelled with $r$; diagonal NA (grey); all in $[-.05,.04]$ (e.g.\ Lag1--Lag2 $-.03$, Volume--Lag4 $-.05$, Year--Lag4 $.04$, Volume--Today $.01$) except Year--Volume $.54$.}
+\fig{Tiles labeled with $r$; diagonal NA (gray); all in $[-.05,.04]$ (e.g.\ Lag1--Lag2 $-.03$, Volume--Lag4 $-.05$, Year--Lag4 $.04$, Volume--Today $.01$) except Year--Volume $.54$.}
 Upper and lower triangles identical (always true of a correlation matrix\ixh{correlation matrix}); only \rc{Year}--\rc{Volume} have notable \ix{correlation} ($\approx0.54$). \ix{boxplot} of \rc{Volume} by \rc{Year}:
 \begin{rcode}
 ggplot(Smarket, aes(factor(Year), Volume)) +   (*@\ixch{ggplot()}\ixch{factor()}@*)

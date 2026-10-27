@@ -15,7 +15,7 @@ Undergrads: ch.~1 of ISLR\ixch{ISLR}; grads: ch.~1 of ESL\ixh{ESL}.
 \fig{toy \ixh{scatterplot}scatterplot, Speed vs.\ Amount of Yams Consumed (me = low/slow, Usain Bolt = high/fast) with a fitted dashed \ixh{regression line}regression line; a new $x$ is read up to the line and across to give the \ixh{prediction}predicted speed. Link: ``Jamaica's sprinting glory: Is it the yams or the genes?''}
 
 \slide{1}{11--13}{[Comics]}
-\fig{xkcd 1838: ML = pour data into a pile of linear algebra, collect answers, ``stir the pile'' until they look right (opaque trial-and-error). xkcd 1425: checking if a photo is in a national park = easy GIS lookup; checking if it is a bird = research team + 5 years. Meme (S1.13): crack labelled ``statistics'' $\to$ framed as ``Machine Learning'' $\to$ ``Artificial intelligence'' (ML/AI = rebranded statistics).}\ixh{machine learning}\ixh{statistical learning}
+\fig{xkcd 1838: ML = pour data into a pile of linear algebra, collect answers, ``stir the pile'' until they look right (opaque trial-and-error). xkcd 1425: checking if a photo is in a national park = easy GIS lookup; checking if it is a bird = research team + 5 years. Meme (S1.13): crack labeled ``statistics'' $\to$ framed as ``Machine Learning'' $\to$ ``Artificial intelligence'' (ML/AI = rebranded statistics).}\ixh{machine learning}\ixh{statistical learning}
 
 \slide{1}{15--17}{[AI $\supset$ ML $\supset$ deep learning]}
 \fig{Nvidia timeline: AI (1950s, checkers) $\supset$ ML (1980s, spam filtering) $\supset$ deep learning (2010s, image recognition). Venn: AI (rule-based, expert systems) $\supset$ ML (CART, SVM) $\supset$ DL (neural networks).}
@@ -28,7 +28,7 @@ Undergrads: ch.~1 of ISLR\ixch{ISLR}; grads: ch.~1 of ESL\ixh{ESL}.
 \end{itemize}
 
 \slide{1}{18}{[How a child vs.\ a program learns ``dog'' (New Yorker)]}
-Old program: thousands of if-then-else rules (ears, snout, hair, not a rat \ldots). Child: sees labelled dogs, errs (wolf = dog), is corrected. ML, like the child, uses a classified \ix{training set}\ixh{training data} (dog / not dog), extracts features\ixh{feature}, tests itself on thousands of labelled images, and builds its own recognizer.
+Old program: thousands of if-then-else rules (ears, snout, hair, not a rat \ldots). Child: sees labeled dogs, errs (wolf = dog), is corrected. ML, like the child, uses a classified \ix{training set}\ixh{training data} (dog / not dog), extracts features\ixh{feature}, tests itself on thousands of labeled images, and builds its own recognizer.
 
 \slide{1}{19--23}{[ML applications]}
 Generative AI\ixh{generative AI}: Lensa, DALL$\cdot$E, ChatGPT, Jukebox (music as raw audio). Lee Sedol vs.\ AlphaGo\ixh{AlphaGo} (2016). Google AI car first non-human to qualify as a driver\ixh{self-driving car}.
@@ -38,7 +38,7 @@ Generative AI\ixh{generative AI}: Lensa, DALL$\cdot$E, ChatGPT, Jukebox (music a
 High-energy physics; gene-expression microarrays (20,000+ features\ixh{feature}); GWAS (millions of features). $\Rightarrow$ unprecedented data scale + highly complicated structure.\ixh{high-dimensional data}
 
 \slide{1}{26--28}{[Data science workflow; tidymodels]}
-\fig{R4DS: Import $\to$ Tidy $\to$ [Transform $\to$ Visualise $\to$ Model loop = Understand] $\to$ Communicate. Package view: tidyverse (Import, Tidy, Transform, Visualize) $\to$ tidymodels (Model, loops back to Transform) $\to$ rmarkdown/Shiny (Share).}\ixh{data science workflow}\ixh{tidy data}\ixch{rmarkdown}\ixch{Shiny}
+\fig{R4DS: Import $\to$ Tidy $\to$ [Transform $\to$ Visualize $\to$ Model loop = Understand] $\to$ Communicate. Package view: tidyverse (Import, Tidy, Transform, Visualize) $\to$ tidymodels (Model, loops back to Transform) $\to$ rmarkdown/Shiny (Share).}\ixh{data science workflow}\ixh{tidy data}\ixch{rmarkdown}\ixch{Shiny}
 \ixc{tidymodels} = collection of packages for modeling/ML using \ixc{tidyverse} principles.
 \begin{rcode}
 install.packages("tidymodels")   (*@\ixch{install.packages()}\ixch{tidymodels}@*)
@@ -69,7 +69,7 @@ Need to give the model observed output and input. Learner/supervisor: college st
 \ixh{supervised learning}\ixh{unsupervised learning}\ixh{linear regression}\ixh{logistic regression}\ixh{decision tree}\ixh{naive Bayes}\ixh{KNN}\ixh{ridge regression}\ixh{lasso}\ixh{regularization}\ixh{clustering}\ixh{k-means clustering}\ixh{hierarchical clustering}\ixh{dimension reduction}\ixh{principal component analysis (PCA)}
 
 \slide{1}{48}{[ML mind map]}
-\fig{Unsupervised $\to$ dimensionality reduction (compression, structure discovery, big-data visualisation, feature elicitation), clustering (recommenders, targeted marketing, customer segmentation). Supervised $\to$ classification (image classification, customer retention, identity fraud, diagnostics), regression (ad popularity, weather/market forecasting, life expectancy, population growth). Reinforcement $\to$ real-time decisions, game AI, robot navigation, skill acquisition, learning tasks.}
+\fig{Unsupervised $\to$ dimensionality reduction (compression, structure discovery, big-data visualization, feature elicitation), clustering (recommenders, targeted marketing, customer segmentation). Supervised $\to$ classification (image classification, customer retention, identity fraud, diagnostics), regression (ad popularity, weather/market forecasting, life expectancy, population growth). Reinforcement $\to$ real-time decisions, game AI, robot navigation, skill acquisition, learning tasks.}
 \ixh{machine learning}\ixh{supervised learning}\ixh{unsupervised learning}\ixh{reinforcement learning}\ixh{classification}\ixh{regression}\ixh{clustering}\ixh{dimension reduction}
 
 \slide{1}{51}{General comments}

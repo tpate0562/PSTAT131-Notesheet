@@ -12,7 +12,7 @@
 \begin{qbox}{HW1 Ex1}
 \textbf{Prompt.} \ix{histogram} of \ixc{hwy} (highway mpg); describe.
 \mine
-\fig{binwidth 2, x = Highway MPG, y = Count. Counts (centres 12, 14, \dots, 44): 5, 12, 38, 23, 13, 14, 28, 46, 29, 11, 6, 3, 3, 0, 1, 0, 2.}
+\fig{binwidth 2, x = Highway MPG, y = Count. Counts (centers 12, 14, \dots, 44): 5, 12, 38, 23, 13, 14, 28, 46, 29, 11, 6, 3, 3, 0, 1, 0, 2.}
 Two peaks, $\approx$16--18 and 24--28 mpg; median 24, mean $\approx$23.4. Most cars 15--30 mpg; a few outliers\ixh{outlier} $>40$.
 \end{qbox}
 
@@ -61,7 +61,7 @@ More cylinders $\to$ less chance of full utilization $\to$ lower efficiency. 4cy
 
 \begin{qbox}{HW1 Ex6 (231 only)}
 \textbf{Prompt.} Recreate with \ixc{ggplot()} (hint: \ixc{ggthemes}):
-\fig{horizontal boxplots, x = Highway MPG, y = Vehicle Class (2seater \dots\ suv), unfilled boxes, black outlier dots, grey jittered points, Google-Docs-style theme. Pickup, suv lowest ($\approx$17); compact/midsize/subcompact highest (medians $\approx$26--27); subcompact widest.}
+\fig{horizontal boxplots, x = Highway MPG, y = Vehicle Class (2seater \dots\ suv), unfilled boxes, black outlier dots, gray jittered points, Google-Docs-style theme. Pickup, suv lowest ($\approx$17); compact/midsize/subcompact highest (medians $\approx$26--27); subcompact widest.}
 \ans
 \begin{rcode}
 ggplot(mpg, aes(x = hwy, y = class)) +
@@ -82,7 +82,7 @@ ggplot(mpg, aes(x = class, y = hwy, fill = drv)) + geom_boxplot()  (*@\ixch{fill
 
 \begin{qbox}{HW1 Ex8 (231 only)}
 \textbf{Prompt.} Recreate:
-\fig{\texttt{hwy} vs.\ \texttt{displ}, points coloured by drv; one blue loess curve per drv, no ribbon, linetype by drv, one merged legend: 4 solid, $\approx$27$\to$16 then flat; f short dash, $\approx$33$\to$25 then flat; r long dash, $\approx$25, dip to $\approx$18 at displ 5.3, back to $\approx$25.}
+\fig{\texttt{hwy} vs.\ \texttt{displ}, points colored by drv; one blue loess curve per drv, no ribbon, linetype by drv, one merged legend: 4 solid, $\approx$27$\to$16 then flat; f short dash, $\approx$33$\to$25 then flat; r long dash, $\approx$25, dip to $\approx$18 at displ 5.3, back to $\approx$25.}
 \ans
 \begin{rcode}
 ggplot(mpg, aes(x = displ, y = hwy)) +
