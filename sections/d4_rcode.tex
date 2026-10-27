@@ -1,0 +1,430 @@
+%% d4_rcode.tex -- DISTILLED: R code reference (tidyverse + tidymodels).
+%% Built from Labs 1-3, HW1-3 (+ submissions), slides S1.27-28, S2.7, S2.45-46,
+%% S3.26, S3.45, practice exam Q7/Q13, Sai Q9.
+\section{R code reference: tidyverse + tidymodels}
+\ixh{tidyverse}\ixh{tidymodels}\ixh{R code}
+
+\begin{topic}{Packages and set-up \src{Lab 1--3, S1.27--28}}
+\ixc{tidyverse} = data handling + plots (\ixc{dplyr}, \ixc{ggplot2}, \ixc{readr}, \ixc{tibble}, \texttt{forcats}, \texttt{tidyr}).
+\ixc{tidymodels} = modelling (\ixc{rsample} split, \ixc{recipes} preprocessing, \ixc{parsnip} model specs,
+\ixc{workflows}, \ixc{yardstick} metrics, \texttt{broom} \ixc{tidy()}, \texttt{tune}).
+Workflow picture \src{S1.28}: Import $\to$ Tidy $\to$ Transform $\leftrightarrow$ Visualize $\leftrightarrow$ Model (tidymodels) $\to$ Share.
+\begin{rcode}
+library(tidyverse); library(tidymodels)  (*@\ixch{library()}\ixch{tidyverse}\ixch{tidymodels}@*)
+library(corrplot); library(ggthemes)     # EDA extras (*@\ixch{corrplot}\ixch{ggthemes}@*)
+library(kknn)                  # engine for nearest_neighbor() (*@\ixch{kknn}@*)
+library(discrim); library(klaR) # LDA/QDA/naive Bayes specs (*@\ixch{discrim}\ixch{klaR}@*)
+library(naniar); library(corrr) # vis_miss(); correlate() (*@\ixch{naniar}\ixch{corrr}@*)
+tidymodels_prefer()  # tidymodels wins name conflicts  (*@\ixch{tidymodels\_prefer()}@*)
+\end{rcode}
+\begin{itemize}
+\item \ixc{tidymodels\_prefer()}: when two loaded packages export the same name (e.g.\ \texttt{MASS::select()} vs
+  \texttt{dplyr::select()}, \texttt{MASS} is loaded with \texttt{klaR}), use the tidymodels/tidyverse version.
+\item Install once \emph{outside} the .Rmd (\texttt{install.packages("kknn")}); an \texttt{install.packages()} line
+  inside the .Rmd stops it knitting \src{Lab 1}. \texttt{?fun} / \texttt{help(fun)} = documentation.
+\item Pipes: \ixc{\%>\%} (magrittr, Ctrl/Cmd+Shift+M) and native \ixc{|>} do the same here:
+  \rc{x \%>\% f(y)} $=$ \rc{f(x, y)}. \texttt{<-} = assignment (``gets'').
+\end{itemize}
+\end{topic}
+
+%======================================================================
+\subsection{The pipeline: split $\to$ recipe $\to$ spec $\to$ workflow $\to$ fit $\to$ predict $\to$ metrics}
+\ixh{tidymodels}\ixh{workflows}
+\begin{keybox}[The 7 steps (memorise the order)]
+\begin{enumerate}\setlength\itemsep{0pt}
+\item \textbf{Seed + split}: \ixc{set.seed()}, \ixc{initial\_split()}\texttt{(data, prop, strata)}, \ixc{training()}, \ixc{testing()}.
+\item \textbf{Recipe} (on \emph{training} data): \ixc{recipe()}\texttt{(y \textasciitilde{} ., data = train)} + \texttt{step\_*()}. Only a \emph{plan}; nothing is computed.
+\item \textbf{Model spec}: model function + \ixc{set\_engine()} + \ixc{set\_mode()}. No data yet.
+\item \textbf{Workflow}: \ixc{workflow()} \ixc{\%>\%} \ixc{add\_model()} \ixc{\%>\%} \ixc{add\_recipe()}.
+\item \textbf{Fit}: \ixc{fit()}\texttt{(wflow, train)} --- preps the recipe on train, bakes train, fits the engine.
+\item \textbf{Predict}: \ixc{predict()}\texttt{(fit, new\_data = test)} (only predictions) or \ixc{augment()}\texttt{(fit, new\_data = test)} (data + predictions).
+\item \textbf{Evaluate}: \ixc{yardstick} metric\texttt{(data, truth = y, estimate = .pred\_class / .pred)} or \ixc{metric\_set()}.
+\end{enumerate}
+\end{keybox}
+
+\textbf{Regression template} (\ixc{diamonds} Lab 2, \ixc{abalone} HW2):
+\begin{rcode}
+set.seed(3435)                                     (*@\ixch{set.seed()}@*)
+d_split <- initial_split(diamonds, prop = 0.80, strata = price) (*@\ixch{initial\_split()}\ixch{prop}\ixch{strata}@*)
+d_train <- training(d_split); d_test <- testing(d_split) (*@\ixch{training()}\ixch{testing()}@*)
+
+d_rec <- recipe(price ~ ., data = d_train) %>%     (*@\ixch{recipe()}\ixch{\%>\%}@*)
+  step_dummy(all_nominal_predictors()) %>%         (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}@*)
+  step_normalize(all_numeric_predictors())         (*@\ixch{step\_normalize()}\ixch{all\_numeric\_predictors()}@*)
+
+lm_mod <- linear_reg() %>% set_engine("lm")        (*@\ixch{linear\_reg()}\ixch{set\_engine()}\ixch{lm}@*)
+knn_mod <- nearest_neighbor(neighbors = 7) %>%     (*@\ixch{nearest\_neighbor()}\ixch{neighbors}@*)
+  set_engine("kknn") %>% set_mode("regression")    (*@\ixch{set\_mode()}\ixch{kknn}@*)
+
+lm_wf <- workflow() %>% add_model(lm_mod) %>%      (*@\ixch{workflow()}\ixch{add\_model()}@*)
+  add_recipe(d_rec)                                (*@\ixch{add\_recipe()}@*)
+lm_fit <- fit(lm_wf, data = d_train)               (*@\ixch{fit()}@*)
+
+lm_fit %>% extract_fit_parsnip() %>% tidy()  # coef table (*@\ixch{extract\_fit\_parsnip()}\ixch{tidy()}@*)
+res <- augment(lm_fit, new_data = d_test)  # test + .pred (*@\ixch{augment()}\ixch{.pred}@*)
+reg_metrics <- metric_set(rmse, rsq, mae)          (*@\ixch{metric\_set()}\ixch{rmse()}\ixch{rsq()}\ixch{mae()}@*)
+reg_metrics(res, truth = price, estimate = .pred)  (*@\ixch{truth}\ixch{estimate}@*)
+\end{rcode}
+
+\textbf{Classification template} (\ixc{titanic} HW3, \ixc{OJ}/\ixc{Smarket} Lab 3):
+\begin{rcode}
+titanic <- read_csv("data/titanic.csv") %>%       (*@\ixch{read\_csv()}@*)
+  mutate(survived = factor(survived, levels = c("Yes", "No")), (*@\ixch{mutate()}\ixch{factor()}@*)
+         pclass = factor(pclass))   # outcome MUST be a factor
+set.seed(131)
+t_split <- initial_split(titanic, prop = 0.7, strata = survived)
+t_train <- training(t_split); t_test <- testing(t_split)
+t_rec <- recipe(survived ~ pclass + sex + age + sib_sp +
+                  parch + fare, data = t_train) %>%
+  step_impute_linear(age, impute_with = imp_vars(sib_sp, parch, fare)) %>% (*@\ixch{step\_impute\_linear()}\ixch{imp\_vars()}@*)
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(terms = ~ starts_with("sex"):fare + age:fare) (*@\ixch{step\_interact()}\ixch{starts\_with()}@*)
+log_mod <- logistic_reg() %>% set_engine("glm") %>% (*@\ixch{logistic\_reg()}\ixch{glm}@*)
+  set_mode("classification")
+log_fit <- workflow() %>% add_model(log_mod) %>%
+  add_recipe(t_rec) %>% fit(t_train)
+res <- augment(log_fit, new_data = t_test)
+# res = t_test + .pred_class + .pred_Yes + .pred_No (*@\ixch{.pred\_class}\ixch{.pred\_Yes}\ixch{.pred\_No}@*)
+res %>% conf_mat(truth = survived, estimate = .pred_class) (*@\ixch{conf\_mat()}@*)
+res %>% accuracy(truth = survived, estimate = .pred_class) (*@\ixch{accuracy()}@*)
+res %>% roc_auc(truth = survived, .pred_Yes)       (*@\ixch{roc\_auc()}@*)
+res %>% roc_curve(truth = survived, .pred_Yes) %>% autoplot() (*@\ixch{roc\_curve()}\ixch{autoplot()}@*)
+\end{rcode}
+To swap models, change only the spec (step 3) and \ixc{add\_model()}; the recipe is reused \src{Lab 3}.
+Without a recipe use \texttt{add\_formula(y \textasciitilde{} x1 + x2)}\ixh{add\_formula()}.
+
+%======================================================================
+\subsection{dplyr / tidyverse verbs}
+\ixh{dplyr}
+Every verb takes a data frame first and returns a new data frame (tibble); nothing changes unless you
+assign with \texttt{<-} \src{Lab 1}.\\[1pt]
+{\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}p{0.27\linewidth} >{\raggedright\arraybackslash\leavevmode}X@{}}
+\toprule
+Function & Does / example\\\midrule
+\ixc{filter()} & keep \emph{rows}: \texttt{filter(class == "compact" \& manufacturer == "audi")}; \texttt{==}, \texttt{!=}, \texttt{>}, \texttt{\&} and, \texttt{|} or, \texttt{!} not, \texttt{\%in\%}\ixh{\%in\%} \texttt{c("IAH","HOU")}\\
+\ixc{select()} & keep \emph{columns}: \texttt{select(year, hwy, class)}; ranges \texttt{year:class}; drop \texttt{-(year:class)}, \texttt{-price}; helpers \ixc{starts\_with()}, \texttt{everything()}\ixh{everything()}, \texttt{where(is.numeric)}\ixh{where()}\\
+\ixc{mutate()} & add/modify columns (added at the end): \texttt{mutate(age = rings + 1.5)}, \texttt{mutate(after\_2k = if\_else(year <= 2000, 0, 1))}\ixh{if\_else()}\\
+\texttt{transmute()}\ixh{transmute()} & like \texttt{mutate()} but keeps only the new columns\\
+\ixc{summarise()} & collapse to one row (per group): \texttt{summarise(avg\_hwy = mean(hwy), count = }\ixc{n()}\texttt{)}\\
+\ixc{group\_by()} & following \texttt{summarise}/\texttt{mutate}/\texttt{filter} work per group; \texttt{ungroup()}\ixh{ungroup()} undoes\\
+\ixc{arrange()} & sort rows ascending; \texttt{arrange(desc(x))} or \texttt{arrange(-x)} descending\\
+\ixc{count()} & \texttt{count(manufacturer, sort = TRUE)} = \texttt{group\_by + summarise(n = n())}\\
+\texttt{drop\_na()}\ixh{drop\_na()} & delete rows with any \texttt{NA} (\texttt{airquality}: 153 $\to$ 111 rows)\\
+\ixc{head()}, \ixc{glimpse()}, \texttt{dim()}\ixh{dim()}, \ixc{summary()} & first 6 rows; column types; (rows, cols); summary stats\\
+\ixc{factor()}, \ixc{levels()} & make categorical; \texttt{factor(x, levels = c("Yes","No"))} sets level order\\
+\ixc{bind\_cols()} / \texttt{bind\_rows()}\ixh{bind\_rows()} & glue side by side (predictions + truth) / stack tables\\
+\texttt{table()}\ixh{table()} & class counts: \texttt{Smarket \%>\% select(Direction) \%>\% table()} $\to$ Down 602, Up 648\\
+\bottomrule
+\end{tabularx}}
+\begin{rcode}
+mpg %>%                                           (*@\ixch{mpg}@*)
+  group_by(manufacturer) %>%                      (*@\ixch{group\_by()}@*)
+  summarise(avg_hwy = mean(hwy), count = n()) %>% (*@\ixch{summarise()}\ixch{n()}@*)
+  filter(count >= 9) %>%                          (*@\ixch{filter()}@*)
+  arrange(avg_hwy)          # ascending; top 10 makers (*@\ixch{arrange()}@*)
+airquality %>% summarise(mean(Ozone))               # NA!
+airquality %>% summarise(mean(Ozone, na.rm = TRUE)) # number (*@\ixch{na.rm}@*)
+abalone %>% summarise(n = n(), mean = mean(age), median = median(age),
+  sd = sd(age), q1 = quantile(age, 0.25))   # HW2 Q1
+\end{rcode}
+
+%======================================================================
+\subsection{ggplot2 for EDA}
+\ixh{ggplot2}\ixh{exploratory data analysis (EDA)}
+Grammar: \ixc{ggplot()}\texttt{(data, }\ixc{aes()}\texttt{(x, y, fill, color))} \textbf{\texttt{+}} \texttt{geom\_*()} \texttt{+} \ixc{labs()} \texttt{+} \texttt{theme\_bw()}.
+Layers are joined with \texttt{+}, \emph{not} \texttt{\%>\%} (but you may pipe the data \emph{into} \texttt{ggplot()}).
+Map a variable inside \texttt{aes(fill = sex)}; a constant goes outside (\texttt{geom\_point(alpha = 0.2)}).
+Which plot answers which question: see the EDA table in \emph{Linear models}.
+\begin{rcode}
+ggplot(mpg, aes(x = hwy)) + geom_histogram(binwidth = 2) (*@\ixch{geom\_histogram()}@*)
+ggplot(mpg, aes(x = hwy, y = cty)) + geom_point() +  (*@\ixch{geom\_point()}@*)
+  geom_smooth(method = "lm")        # fitted line  (*@\ixch{geom\_smooth()}@*)
+ggplot(mpg, aes(x = factor(cyl), y = hwy)) +
+  geom_boxplot() + geom_jitter(alpha = 0.3)  (*@\ixch{geom\_boxplot()}\ixch{geom\_jitter()}@*)
+ggplot(Smarket, aes(x = Direction)) + geom_bar() # class balance (*@\ixch{geom\_bar()}@*)
+# HW3 Q2: percent stacked bar (each bar sums to 100%)
+ggplot(t_train, aes(x = survived, fill = sex)) +
+  geom_bar(position = "fill") + labs(y = "proportion") (*@\ixch{position = "fill"}\ixch{labs()}@*)
+# correlation matrix of numeric columns
+t_train %>% select(where(is.numeric)) %>%
+  cor(use = "complete.obs") %>%   # NAs (age) else NA (*@\ixch{cor()}@*)
+  corrplot(type = "lower", diag = FALSE, method = "number") (*@\ixch{corrplot()}@*)
+Smarket %>% select(-Direction) %>% correlate() %>% rplot() (*@\ixch{correlate()}\ixch{rplot()}@*)
+# predicted vs observed (Lab 2, HW2): points on dashed 45-degree line = perfect
+ggplot(res, aes(x = .pred, y = price)) + geom_point(alpha = 0.2) +
+  geom_abline(lty = 2) + coord_obs_pred()  (*@\ixch{geom\_abline()}\ixch{coord\_obs\_pred()}@*)
+ggplot(res, aes(.pred, price)) + geom_point() + facet_wrap(~ model) (*@\ixch{facet\_wrap()}@*)
+\end{rcode}
+Other helpers seen: \texttt{reorder(cut, price)} orders categories by mean price; \texttt{fct\_infreq()} by frequency,
+\texttt{fct\_rev()} reverses; \texttt{geom\_tile()} heatmap; \texttt{xlab()}; \texttt{theme\_bw()}.
+\ixc{vis\_miss()}\texttt{(airquality)} plots missingness (\ixc{naniar}).
+
+%======================================================================
+\subsection{rsample: splitting}
+\ixh{rsample}\ixh{data splitting}
+{\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}p{0.30\linewidth} >{\raggedright\arraybackslash\leavevmode}X@{}}
+\toprule
+\ixc{set.seed()}\texttt{(3435)} & before every random step (split; later CV) $\Rightarrow$ \ix{reproducibility}; any number\\
+\ixc{initial\_split()}\texttt{(df, prop, strata)} & returns an \texttt{rsplit} object (prints \texttt{<Training/Testing/Total>}), not data\\
+\ixc{prop} & fraction to \textbf{training} (default 0.75); 0.80 Lab 1--2, 0.70 Lab 3, 0.85 HW2 (3548/629)\\
+\ixc{strata} & \ix{stratified sampling} on the outcome (numeric: binned into quartiles) so train/test have the same outcome distribution\\
+\ixc{training()}, \ixc{testing()} & extract the two data frames from the split\\
+\bottomrule
+\end{tabularx}}
+Details and why stratify: see \emph{Data splitting} in Linear models.
+
+%======================================================================
+\subsection{recipes: steps, selectors, prep/bake}
+\ixh{recipes}\ixh{feature engineering}
+\texttt{recipe(outcome \textasciitilde{} predictors, data = train)}: the formula lists roles (``\texttt{.}'' = all other columns,
+\emph{including} IDs and leaky columns); \texttt{data} supplies column names/types and is what \ixc{prep()} estimates
+from. Steps run \textbf{in the order written}.\\[1pt]
+{\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}p{0.36\linewidth} >{\raggedright\arraybackslash\leavevmode}X@{}}
+\toprule
+Step & What it does\\\midrule
+\ixc{step\_dummy()} & usually on \ixc{all\_nominal\_predictors()}: factor/character with $K$ levels $\to$ $K-1$ 0/1 columns \texttt{var\_level}; first level = \ix{reference level} (no column) \src{S2.45}\\
+\texttt{step\_dummy(type,} \ixc{one\_hot}\texttt{ = TRUE)} & $K$ columns (\ix{one-hot encoding}) \src{S2.46}: rank-deficient with \texttt{lm} (has intercept), fine for KNN \src{PE Q7, Q13}\\
+\ixc{step\_normalize()} & $(x-\bar x)/s$ with train mean/SD = \ixc{step\_center()} + \ixc{step\_scale()}\\
+\ixc{step\_interact()}\texttt{(terms = \textasciitilde{} a:b)} & adds product column \texttt{a\_x\_b}; for factors use the dummy names: \texttt{starts\_with("type\_"):shucked\_weight}\\
+\ixc{step\_impute\_linear()} & \texttt{(x, impute\_with = }\ixc{imp\_vars()}\texttt{(a, b))}: fill \texttt{NA}s of \texttt{x} by a linear regression on the listed (complete) columns\\
+\ixc{step\_impute\_mean()} / \texttt{\_median} / \ixc{step\_impute\_mode()} / \ixc{step\_impute\_knn()} / \ixc{step\_impute\_bag()} & other imputations \src{S2.7}; mean/median/mode shrink variance\\
+\ixc{step\_poly()}\texttt{(x, degree = 2)} & orthogonal polynomial columns \texttt{x\_poly\_1}, \texttt{x\_poly\_2}\\
+\ixc{step\_log()}\texttt{(x)} & $\log(x)$ (natural; \texttt{base =} to change)\\
+\texttt{step\_mutate(new = expr)}\ixh{step\_mutate()} & any new column, e.g.\ \texttt{square\_meters = square\_feet * 0.092903} \src{Sai Q9}\\
+\texttt{step\_rm(id)}\ixh{step\_rm()} & remove a column (IDs, leaky vars)\\
+\bottomrule
+\end{tabularx}}
+
+\begin{keybox}[Selectors (used inside steps)]
+\ixc{all\_predictors()} (every predictor) $\cdot$ \ixc{all\_numeric\_predictors()} $\cdot$ \ixc{all\_nominal\_predictors()}
+(factor/character) $\cdot$ \texttt{all\_outcomes()}\ixh{all\_outcomes()} $\cdot$ by name (\texttt{type}, \texttt{age}) $\cdot$ \ixc{starts\_with()}\texttt{("type\_")}
+$\cdot$ \texttt{contains()}, \texttt{ends\_with()} $\cdot$ exclude with \texttt{-}: \texttt{all\_predictors(), -age}.
+\ixc{all\_predictors()} never touches the outcome, so the outcome is not normalized.
+\end{keybox}
+
+\begin{keybox}[Step order that works]
+\textbf{impute $\to$ transform (\texttt{log}, \texttt{poly}, \texttt{mutate}) $\to$ \texttt{step\_dummy} $\to$
+\texttt{step\_interact} $\to$ \texttt{step\_normalize}/center/scale.}
+\begin{itemize}
+\item Impute first: dummies/products/means cannot be computed from \texttt{NA}s.
+\item Dummy before interact: after \ixc{step\_dummy()} the factor \texttt{sex} no longer exists; it is \texttt{sex\_male},
+  hence \texttt{starts\_with("sex")} \src{HW3 Q4}.
+\item Dummy before normalize when normalizing \ixc{all\_predictors()}: centering/scaling needs numeric columns
+  (a factor would error). With \ixc{all\_numeric\_predictors()} written \emph{after} \texttt{step\_dummy}, the 0/1 dummies get
+  normalized too (HW2 centers/scales every predictor, dummies and interactions included).
+\end{itemize}
+\end{keybox}
+
+\begin{rcode}
+abalone_recipe <- recipe(age ~ type, data = abalone_train) %>%
+  step_dummy(type)                                   # S2.45
+abalone_recipe %>% prep() %>%                        (*@\ixch{prep()}@*)
+  bake(new_data = abalone_train)  # or new_data = NULL (*@\ixch{bake()}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 3,131 x 3
+    age type_I type_M      # type has levels F, I, M
+  <dbl>  <dbl>  <dbl>      # F = reference (both 0)
+1   8.5      1      0      # an infant
+3   8.5      0      1      # a male
+5   9.5      0      0      # a female
+\end{routput}
+\begin{itemize}
+\item \ixc{prep()} = \emph{estimate} everything from the training data (means/SDs, imputation models, factor
+  levels); \ixc{bake()}\texttt{(new\_data = X)} = \emph{apply} those fixed values to \texttt{X}; \texttt{new\_data = NULL}
+  returns the processed training set. Used only to \emph{look} at the result --- \ixc{fit()} on a workflow does
+  prep+bake itself, and \ixc{predict()}/\ixc{augment()} bake new data with the \textbf{training} estimates.
+\item Baked columns: original numerics, then outcome, then new dummies/interactions at the end
+  (HW2: \texttt{type\_I}, \texttt{type\_M}, \texttt{type\_I\_x\_shucked\_weight}, \texttt{longest\_shell\_x\_diameter}, \dots).
+\item \textbf{Ordered factors} (\texttt{diamonds}: \texttt{cut}, \texttt{color}, \texttt{clarity}) get \emph{polynomial}
+  contrasts, not 0/1: columns \texttt{cut\_1}\dots\texttt{cut\_4} with values like 0.632, $-0.267$ \src{Lab 2}.
+\end{itemize}
+Printed recipe (HW2):
+\begin{routput}
+-- Recipe ------------------------------------
+-- Inputs
+Number of variables by role
+outcome:   1
+predictor: 8
+-- Operations
+* Dummy variables from: all_nominal_predictors()
+* Interactions with: ...
+* Centering for: all_predictors()
+* Scaling for: all_predictors()
+\end{routput}
+
+%======================================================================
+\subsection{parsnip: model specs, engines, modes}
+\ixh{parsnip}\ixh{engine}\ixh{mode}
+{\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}p{0.17\linewidth} >{\raggedright\arraybackslash\leavevmode}p{0.27\linewidth} >{\raggedright\arraybackslash\leavevmode}p{0.10\linewidth} >{\raggedright\arraybackslash\leavevmode}X@{}}
+\toprule
+Model & Spec function & Engine & Mode / package / main args\\\midrule
+\ix{linear regression} & \ixc{linear\_reg()} & \texttt{"lm"} & regression only (default); base R \ixc{lm}\\
+\ix{logistic regression} & \ixc{logistic\_reg()} & \texttt{"glm"} & classification only; base R \ixc{glm} (binomial)\\
+\ix{KNN} & \ixc{nearest\_neighbor()} & \texttt{"kknn"} & \textbf{must} set mode \texttt{"regression"} or \texttt{"classification"}; \texttt{library(kknn)}; \ixc{neighbors} = $k$ (default 5)\\
+\ix{LDA} & \ixc{discrim\_linear()} & \texttt{"MASS"} & classification; \texttt{library(}\ixc{discrim}\texttt{)}, engine pkg \ixc{MASS}\\
+\ix{QDA} & \ixc{discrim\_quad()} & \texttt{"MASS"} & classification; \texttt{library(discrim)}\\
+\ix{naive Bayes} & \ixc{naive\_Bayes()} & \texttt{"klaR"} & classification; \texttt{library(discrim)} + \texttt{library(}\ixc{klaR}\texttt{)}; \texttt{set\_args(usekernel = FALSE)} = Gaussian\\
+\bottomrule
+\end{tabularx}}
+\begin{itemize}
+\item Spec = model type + \ixc{engine} (which R package computes it) + \ixc{mode} (regression/classification).
+  Same thing as arguments: \texttt{nearest\_neighbor(mode = "classification", engine = "kknn", neighbors = 7)}.
+\item Hyperparameters go \emph{in the model function} (\texttt{nearest\_neighbor(neighbors = 2)}) or via
+  \ixc{set\_args()}; never in the recipe. Spelling: \texttt{naive\_Bayes} (capital B), \texttt{nearest\_neighbor} (no s).
+\item The spec function for LDA/QDA/naive Bayes only exists after \texttt{library(discrim)}; ``could not find
+  function'' = package not loaded.
+\end{itemize}
+\begin{routput}
+> knn_model             # printing a spec (HW2)
+K-Nearest Neighbor Model Specification (regression)
+Main Arguments:
+  neighbors = 7
+Computational engine: kknn
+> knn_fit %>% extract_fit_parsnip()   # Lab 2
+parsnip model object
+Call: kknn::train.kknn(formula = ..y ~ ., data = data,
+                       ks = min_rows(5, data, 5))
+Type of response variable: continuous
+minimal mean absolute error: 373.8765
+Minimal mean squared error: 515091.1
+Best kernel: optimal
+Best k: 5
+\end{routput}
+(``Best k: 5'' only because 5 was the only (default) value tried \src{Lab 2}.)
+
+%======================================================================
+\subsection{fit, predict, augment, tidy}
+\ixh{prediction}
+\begin{keybox}[predict() / augment() output columns]
+{\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}p{0.40\linewidth} >{\raggedright\arraybackslash\leavevmode}X@{}}
+\toprule
+Call & Returns (a tibble, same rows as \texttt{new\_data})\\\midrule
+\texttt{predict(fit, new\_data = d)} regression & \ixc{.pred} (type \texttt{"numeric"})\\
+\texttt{predict(fit, new\_data = d)} classification & \ixc{.pred\_class} (type \texttt{"class"}: most probable class, i.e.\ $\hat p>0.5$ for 2 classes)\\
+\texttt{predict(fit, d,} \ixc{type = "prob"}\texttt{)} & one column per level \texttt{.pred\_<level>}: \ixc{.pred\_Yes} \ixc{.pred\_No}; \texttt{.pred\_Down .pred\_Up}; \texttt{.pred\_CH .pred\_MM} (rows sum to 1)\\
+\texttt{predict(lm\_fit, d, type = "conf\_int")} / \texttt{"pred\_int"} & \texttt{.pred\_lower}, \texttt{.pred\_upper} (CI / PI, linear reg.)\\
+\ixc{augment()}\texttt{(fit, new\_data = d)} & all columns of \texttt{d} \textbf{plus} \texttt{.pred} (regr.) or \texttt{.pred\_class} + all \texttt{.pred\_<level>} (classif.)\\
+\bottomrule
+\end{tabularx}}
+\end{keybox}
+\begin{rcode}
+pr <- predict(lm_fit, new_data = d_train %>% select(-price)) (*@\ixch{predict()}@*)
+pr <- bind_cols(pr, d_train %>% select(price))  # add truth (*@\ixch{bind\_cols()}@*)
+predict(smarketlog_fit, new_data = smarket_train, type = "prob") (*@\ixch{type = "prob"}\ixch{.pred\_Down}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 874 x 2
+   .pred_Down .pred_Up        # Lab 3: all near 0.5 =>
+1      0.521    0.479         # model can't discriminate
+\end{routput}
+\begin{itemize}
+\item \textbf{Predicting one new case} \src{HW2 Q7}: build a \texttt{tibble()}\ixh{tibble()} with \emph{every} predictor the
+  recipe uses, same names and types (factor with the training levels):
+  \texttt{tibble(type = factor("F", levels = levels(abalone\$type)), longest\_shell = 0.5, ...)}, then
+  \texttt{predict(lm\_fit, new\_data = new\_abalone)} (recipe applied automatically; $\to$ \texttt{.pred} 21.8).
+\item \texttt{predict()} gives \emph{only} the prediction columns $\Rightarrow$ \ixc{bind\_cols()} the truth before metrics;
+  \texttt{augment()} already keeps it.
+\end{itemize}
+
+\begin{topic}{Reading tidy() output}
+\ixc{tidy()} on a fitted workflow (directly, or after \ixc{extract\_fit\_parsnip()}) = coefficient table:
+\begin{routput}
+# A tibble: 24 x 5                     # Lab 2 diamonds, lm
+   term        estimate std.error statistic   p.value
+ 1 (Intercept)  5317.      496.      10.7   8.54e- 27
+ 2 carat       11282.       54.3    208.    0
+ 6 y               9.08     19.9      0.456 6.49e-  1
+ 8 cut_1         596.       25.0     23.8   1.22e-124
+\end{routput}
+\begin{itemize}
+\item \texttt{term} = predictor column after the recipe (dummy names); \texttt{estimate} = $\hat\beta_j$;
+  \texttt{std.error} = SE$(\hat\beta_j)$; \texttt{statistic} = estimate/std.error ($t$ for \texttt{lm}, $z$ for
+  \texttt{glm}); \texttt{p.value} tests $H_0{:}\ \beta_j=0$ given the other predictors (here \texttt{y} is not significant, $p=0.65$).
+\item Interpretation: \texttt{carat} $+1$ $\Rightarrow$ price $+\$11{,}282$ holding the others fixed. If the recipe
+  normalized predictors, an estimate is the change per 1 SD and \texttt{(Intercept)} $=\bar y_{\text{train}}$ (HW2: 11.5).
+\item Logistic (\texttt{glm}): estimates are changes in \ix{log odds} of the \textbf{second} factor level; $e^{\hat\beta}$ = \ix{odds ratio}
+  (see \emph{Classification models}).
+\item KNN has no coefficients: \texttt{tidy()} is not informative; print \texttt{extract\_fit\_parsnip()} instead.
+\end{itemize}
+\end{topic}
+
+\begin{topic}{Base R equivalents (slides, ISLR)}
+\begin{rcode}
+fit <- lm(price ~ carat + cut, data = d_train); summary(fit) (*@\ixch{lm()}\ixch{summary()}@*)
+glm.fit <- glm(default ~ student + balance + income,        (*@\ixch{glm()}@*)
+               data = Default, family = binomial)   # S3.26 (*@\ixch{family = binomial}@*)
+predict(glm.fit, newdata = new, type = "response")  # probabilities
+predict(glm.fit, newdata = new)  # default type = "link": LOG ODDS
+\end{rcode}
+Base R uses \texttt{newdata=} and \texttt{summary()}; tidymodels uses \texttt{new\_data=} and \texttt{tidy()}.
+Perfectly separable data $\Rightarrow$ \texttt{glm} warns ``algorithm did not converge'' / ``fitted probabilities
+numerically 0 or 1 occurred'' \src{S3.45}.
+\end{topic}
+
+%======================================================================
+\subsection{yardstick: metrics}
+\ixh{yardstick}\ixh{model evaluation}
+Every metric: \texttt{metric(data, truth = <true col>, estimate = <prediction col>)}, \ix{truth} \textbf{first};
+returns a tibble \ixc{.metric} / \ixc{.estimator} (\texttt{standard} = regression, \texttt{binary}) / \ixc{.estimate};
+pull the number with \texttt{\$.estimate}. Full outputs and interpretation: see \emph{Model evaluation}.\\[1pt]
+{\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}p{0.38\linewidth} >{\raggedright\arraybackslash\leavevmode}X@{}}
+\toprule
+Call & Needs\\\midrule
+\ixc{rmse()}, \ixc{rsq()}, \ixc{mae()} (\texttt{rsq\_trad()}) & numeric \texttt{truth}, \texttt{estimate = .pred}. No \texttt{mse()} in yardstick: MSE $=$ RMSE$^2$\\
+\ixc{accuracy()}, \ixc{sensitivity()}, \ixc{specificity()}, \texttt{precision()}\ixh{precision()} & factor \texttt{truth}, \texttt{estimate = .pred\_class} (same levels)\\
+\ixc{conf\_mat()}\texttt{(truth =, estimate = .pred\_class)} & rows = Prediction, cols = Truth; \texttt{\%>\% autoplot(type = "heatmap")} (or \texttt{"mosaic"})\\
+\ixc{roc\_auc()}\texttt{(truth, .pred\_Yes)} & factor truth + \textbf{probability} column of the \textbf{event} (first level); 3rd argument is unnamed\\
+\ixc{roc\_curve()}\texttt{(truth, .pred\_Yes)} & returns \texttt{.threshold}, \texttt{specificity}, \texttt{sensitivity}; \texttt{\%>\% autoplot()} draws the \ix{ROC curve}\\
+\ixc{metric\_set()}\texttt{(accuracy, sensitivity, specificity)} & makes a new function; list metric names \emph{without} \texttt{()}; call it like any metric\\
+\bottomrule
+\end{tabularx}}
+\begin{itemize}
+\item \textbf{Event level} = \textbf{first} factor level (\ixc{event\_level}\texttt{ = "first"} default). Smarket: \texttt{Down}
+  $\Rightarrow$ \texttt{roc\_curve(Direction, .pred\_Down)}; OJ: \texttt{.pred\_CH}; Titanic: relevel so ``Yes'' is first.
+  Alternative: keep levels and pass \texttt{event\_level = "second"}.
+\item Lab 3 Smarket QDA test: sensitivity 0.254 $=46/(46+135)$ is the rate for \texttt{Down}, the first level.
+\end{itemize}
+
+%======================================================================
+\subsection{Common bugs / exam traps}
+\ixh{target leakage}\ixh{reproducibility}
+\begin{trap}[Spot-the-bug checklist]
+\begin{itemize}\setlength\itemsep{1pt}
+\item \textbf{No \ixc{set.seed()}} before \ixc{initial\_split()} $\Rightarrow$ a new random split (and new results) every run \src{Lab 1, HW2}.
+\item \textbf{Recipe/model on the wrong data}: \texttt{recipe(..., data = test)}, \texttt{fit(wf, test)}, or recipe built on the
+  full data before splitting $\Rightarrow$ test information leaks into training (means/SDs/imputation from test).
+  Recipe and \ixc{fit()} use \textbf{training}; test is only for the final \ixc{predict()}/\ixc{augment()}.
+\item \textbf{Metrics on training data} reported as performance: optimistic (KNN: each training point is its own
+  neighbour; Lab 2 $k=2$ train $R^2$ 0.999). Use \texttt{augment(fit, new\_data = test)}.
+\item \textbf{Recipe defined but never used} \src{PE Q7}: \texttt{loan\_model \npipe{} fit(defaulted \textasciitilde{} ., data = loans)} fits raw data;
+  the \texttt{step\_dummy} never runs. Fix: \texttt{workflow() \%>\% add\_model() \%>\% add\_recipe()} then \texttt{fit(wf, train)}.
+\item \textbf{\texttt{y \textasciitilde{} .}} pulls in \ix{identifier variable}s (\texttt{application\_id}) and \ix{target leakage} (\texttt{default\_date}, \texttt{rings} for age) \src{PE Q7, HW2 Q3}.
+\item \textbf{KNN without \ixc{step\_normalize()}} $\Rightarrow$ large-scale variables dominate distances \src{PE Q6--7}.
+\item \textbf{\texttt{one\_hot = TRUE} with \texttt{lm}} $\Rightarrow$ ``rank-deficient'' fit (dummies sum to the intercept column);
+  use default \texttt{one\_hot = FALSE} $\to$ $K-1$ dummies (3 departments $\to$ 2) \src{PE Q13}. Fine for KNN.
+\item \textbf{Redundant predictors}: \texttt{step\_mutate(square\_meters = square\_feet * 0.092903)} +
+  \texttt{step\_normalize()} still leaves two perfectly collinear columns; normalizing does not fix
+  \ix{collinearity} --- drop one \src{Sai Q9}.
+\item \textbf{Step order}: \texttt{step\_interact(\textasciitilde{} sex:fare)} after \texttt{step\_dummy} must use
+  \texttt{starts\_with("sex")}; \texttt{step\_normalize(all\_predictors())} before \texttt{step\_dummy} hits factor columns;
+  impute before anything that uses the column.
+\item \textbf{Outcome not a factor} for classification (0/1 numbers, character): \texttt{logistic\_reg()} / \texttt{conf\_mat()}
+  need a factor $\Rightarrow$ \texttt{mutate(y = factor(y))}.
+\item \textbf{Wrong event level}: \texttt{factor()} sorts levels alphabetically (\texttt{"No"} before \texttt{"Yes"}), so
+  sensitivity/AUC would be for ``No''. Relevel (\texttt{levels = c("Yes","No")}) or \texttt{event\_level = "second"}.
+  Passing \texttt{.pred\_No} when Yes is the event gives AUC $=1-$AUC.
+\item \textbf{glm vs yardstick}: glm coefficients are for the \textbf{second} level; yardstick's event is the \textbf{first}.
+\item \textbf{Missing \texttt{type = "prob"}}: \texttt{predict()} default gives only \texttt{.pred\_class};
+  \texttt{roc\_auc()}/\texttt{roc\_curve()} need \texttt{.pred\_<event>} (\texttt{augment()} has both).
+\item \textbf{\texttt{roc\_auc(truth, .pred\_class)}} = error (needs numeric probabilities); \texttt{accuracy(truth, .pred\_Yes)} = error (needs classes).
+\item \textbf{Argument names}: \texttt{new\_data =} (tidymodels) vs \texttt{newdata =} (base R); \texttt{truth} before \texttt{estimate}.
+\item \textbf{Missing \texttt{set\_mode()}} for \texttt{nearest\_neighbor()} (mode unknown) $\Rightarrow$ error at fit.
+\item \textbf{Package not loaded}: \texttt{discrim\_linear()}/\texttt{naive\_Bayes()} need \texttt{library(discrim)}; \texttt{"kknn"} needs \texttt{kknn} installed.
+\item \textbf{\texttt{filter(x = 5)}} instead of \texttt{==}; \texttt{\%>\%} between ggplot layers instead of \texttt{+};
+  \texttt{mean(x)} with \texttt{NA}s returns \texttt{NA} (\texttt{na.rm = TRUE}); forgetting \texttt{<-} so the result is not saved.
+\item \textbf{Picking a model by training accuracy} (Lab 3 did, only because CV was not yet taught): Smarket QDA best on
+  train (0.548) but 0.487 on test \src{Lab 3}.
+\item Lab 2 text says ``metric set of RMSE, MSE, and $R^2$'' but the code \texttt{metric\_set(rmse, rsq, mae)} computes \textbf{MAE}.
+\end{itemize}
+\end{trap}
