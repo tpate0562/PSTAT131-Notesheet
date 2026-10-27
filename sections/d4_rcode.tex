@@ -2,7 +2,7 @@
 %% Built from Labs 1-3, HW1-3 (+ submissions), slides S1.27-28, S2.7, S2.45-46,
 %% S3.26, S3.45, practice exam Q7/Q13, Sai Q9.
 \section{R code reference: tidyverse + tidymodels}
-\ixh{tidyverse}\ixh{tidymodels}\ixh{R code}
+\ixch{tidyverse}\ixch{tidymodels}\ixh{R code}
 
 \begin{topic}{Packages and set-up \src{Lab 1--3, S1.27--28}}
 \ixc{tidyverse} = data handling + plots (\ixc{dplyr}, \ixc{ggplot2}, \ixc{readr}, \ixc{tibble}, \texttt{forcats}, \texttt{tidyr}).
@@ -29,7 +29,7 @@ tidymodels_prefer()  # tidymodels wins name conflicts  (*@\ixch{tidymodels\_pref
 
 %======================================================================
 \subsection{The pipeline: split $\to$ recipe $\to$ spec $\to$ workflow $\to$ fit $\to$ predict $\to$ metrics}
-\ixh{tidymodels}\ixh{workflows}
+\ixch{tidymodels}\ixch{workflows}
 \begin{keybox}[The 7 steps (memorise the order)]
 \begin{enumerate}\setlength\itemsep{0pt}
 \item \textbf{Seed + split}: \ixc{set.seed()}, \ixc{initial\_split()}\texttt{(data, prop, strata)}, \ixc{training()}, \ixc{testing()}.
@@ -95,25 +95,25 @@ Without a recipe use \texttt{add\_formula(y \textasciitilde{} x1 + x2)}\ixh{add\
 
 %======================================================================
 \subsection{dplyr / tidyverse verbs}
-\ixh{dplyr}
+\ixch{dplyr}
 Every verb takes a data frame first and returns a new data frame (tibble); nothing changes unless you
 assign with \texttt{<-} \src{Lab 1}.\\[1pt]
 {\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}p{0.27\linewidth} >{\raggedright\arraybackslash\leavevmode}X@{}}
 \toprule
 Function & Does / example\\\midrule
 \ixc{filter()} & keep \emph{rows}: \texttt{filter(class == "compact" \& manufacturer == "audi")}; \texttt{==}, \texttt{!=}, \texttt{>}, \texttt{\&} and, \texttt{|} or, \texttt{!} not, \texttt{\%in\%}\ixh{\%in\%} \texttt{c("IAH","HOU")}\\
-\ixc{select()} & keep \emph{columns}: \texttt{select(year, hwy, class)}; ranges \texttt{year:class}; drop \texttt{-(year:class)}, \texttt{-price}; helpers \ixc{starts\_with()}, \texttt{everything()}\ixh{everything()}, \texttt{where(is.numeric)}\ixh{where()}\\
-\ixc{mutate()} & add/modify columns (added at the end): \texttt{mutate(age = rings + 1.5)}, \texttt{mutate(after\_2k = if\_else(year <= 2000, 0, 1))}\ixh{if\_else()}\\
-\texttt{transmute()}\ixh{transmute()} & like \texttt{mutate()} but keeps only the new columns\\
+\ixc{select()} & keep \emph{columns}: \texttt{select(year, hwy, class)}; ranges \texttt{year:class}; drop \texttt{-(year:class)}, \texttt{-price}; helpers \ixc{starts\_with()}, \texttt{everything()}\ixch{everything()}, \texttt{where(is.numeric)}\ixch{where()}\\
+\ixc{mutate()} & add/modify columns (added at the end): \texttt{mutate(age = rings + 1.5)}, \texttt{mutate(after\_2k = if\_else(year <= 2000, 0, 1))}\ixch{if\_else()}\\
+\texttt{transmute()}\ixch{transmute()} & like \texttt{mutate()} but keeps only the new columns\\
 \ixc{summarise()} & collapse to one row (per group): \texttt{summarise(avg\_hwy = mean(hwy), count = }\ixc{n()}\texttt{)}\\
-\ixc{group\_by()} & following \texttt{summarise}/\texttt{mutate}/\texttt{filter} work per group; \texttt{ungroup()}\ixh{ungroup()} undoes\\
+\ixc{group\_by()} & following \texttt{summarise}/\texttt{mutate}/\texttt{filter} work per group; \texttt{ungroup()}\ixch{ungroup()} undoes\\
 \ixc{arrange()} & sort rows ascending; \texttt{arrange(desc(x))} or \texttt{arrange(-x)} descending\\
 \ixc{count()} & \texttt{count(manufacturer, sort = TRUE)} = \texttt{group\_by + summarise(n = n())}\\
-\texttt{drop\_na()}\ixh{drop\_na()} & delete rows with any \texttt{NA} (\texttt{airquality}: 153 $\to$ 111 rows)\\
-\ixc{head()}, \ixc{glimpse()}, \texttt{dim()}\ixh{dim()}, \ixc{summary()} & first 6 rows; column types; (rows, cols); summary stats\\
+\texttt{drop\_na()}\ixch{drop\_na()} & delete rows with any \texttt{NA} (\texttt{airquality}: 153 $\to$ 111 rows)\\
+\ixc{head()}, \ixc{glimpse()}, \texttt{dim()}\ixch{dim()}, \ixc{summary()} & first 6 rows; column types; (rows, cols); summary stats\\
 \ixc{factor()}, \ixc{levels()} & make categorical; \texttt{factor(x, levels = c("Yes","No"))} sets level order\\
-\ixc{bind\_cols()} / \texttt{bind\_rows()}\ixh{bind\_rows()} & glue side by side (predictions + truth) / stack tables\\
-\texttt{table()}\ixh{table()} & class counts: \texttt{Smarket \%>\% select(Direction) \%>\% table()} $\to$ Down 602, Up 648\\
+\ixc{bind\_cols()} / \texttt{bind\_rows()}\ixch{bind\_rows()} & glue side by side (predictions + truth) / stack tables\\
+\texttt{table()}\ixch{table()} & class counts: \texttt{Smarket \%>\% select(Direction) \%>\% table()} $\to$ Down 602, Up 648\\
 \bottomrule
 \end{tabularx}}
 \begin{rcode}
@@ -130,7 +130,7 @@ abalone %>% summarise(n = n(), mean = mean(age), median = median(age),
 
 %======================================================================
 \subsection{ggplot2 for EDA}
-\ixh{ggplot2}\ixh{exploratory data analysis (EDA)}
+\ixch{ggplot2}\ixh{exploratory data analysis (EDA)}
 Grammar: \ixc{ggplot()}\texttt{(data, }\ixc{aes()}\texttt{(x, y, fill, color))} \textbf{\texttt{+}} \texttt{geom\_*()} \texttt{+} \ixc{labs()} \texttt{+} \texttt{theme\_bw()}.
 Layers are joined with \texttt{+}, \emph{not} \texttt{\%>\%} (but you may pipe the data \emph{into} \texttt{ggplot()}).
 Map a variable inside \texttt{aes(fill = sex)}; a constant goes outside (\texttt{geom\_point(alpha = 0.2)}).
@@ -161,7 +161,7 @@ Other helpers seen: \texttt{reorder(cut, price)} orders categories by mean price
 
 %======================================================================
 \subsection{rsample: splitting}
-\ixh{rsample}\ixh{data splitting}
+\ixch{rsample}\ixh{data splitting}
 {\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}p{0.30\linewidth} >{\raggedright\arraybackslash\leavevmode}X@{}}
 \toprule
 \ixc{set.seed()}\texttt{(3435)} & before every random step (split; later CV) $\Rightarrow$ \ix{reproducibility}; any number\\
@@ -175,7 +175,7 @@ Details and why stratify: see \emph{Data splitting} in Linear models.
 
 %======================================================================
 \subsection{recipes: steps, selectors, prep/bake}
-\ixh{recipes}\ixh{feature engineering}
+\ixch{recipes}\ixh{feature engineering}
 \texttt{recipe(outcome \textasciitilde{} predictors, data = train)}: the formula lists roles (``\texttt{.}'' = all other columns,
 \emph{including} IDs and leaky columns); \texttt{data} supplies column names/types and is what \ixc{prep()} estimates
 from. Steps run \textbf{in the order written}.\\[1pt]
@@ -190,7 +190,7 @@ Step & What it does\\\midrule
 \ixc{step\_impute\_mean()} / \texttt{\_median} / \ixc{step\_impute\_mode()} / \ixc{step\_impute\_knn()} / \ixc{step\_impute\_bag()} & other imputations \src{S2.7}; mean/median/mode shrink variance\\
 \ixc{step\_poly()}\texttt{(x, degree = 2)} & orthogonal polynomial columns \texttt{x\_poly\_1}, \texttt{x\_poly\_2}\\
 \ixc{step\_log()}\texttt{(x)} & $\log(x)$ (natural; \texttt{base =} to change)\\
-\texttt{step\_mutate(new = expr)}\ixh{step\_mutate()} & any new column, e.g.\ \texttt{square\_meters = square\_feet * 0.092903} \src{Sai Q9}\\
+\texttt{step\_mutate(new = expr)}\ixch{step\_mutate()} & any new column, e.g.\ \texttt{square\_meters = square\_feet * 0.092903} \src{Sai Q9}\\
 \texttt{step\_rm(id)}\ixh{step\_rm()} & remove a column (IDs, leaky vars)\\
 \bottomrule
 \end{tabularx}}
@@ -255,7 +255,7 @@ predictor: 8
 
 %======================================================================
 \subsection{parsnip: model specs, engines, modes}
-\ixh{parsnip}\ixh{engine}\ixh{mode}
+\ixch{parsnip}\ixch{engine}\ixch{mode}
 {\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}p{0.17\linewidth} >{\raggedright\arraybackslash\leavevmode}p{0.27\linewidth} >{\raggedright\arraybackslash\leavevmode}p{0.10\linewidth} >{\raggedright\arraybackslash\leavevmode}X@{}}
 \toprule
 Model & Spec function & Engine & Mode / package / main args\\\midrule
@@ -319,7 +319,7 @@ predict(smarketlog_fit, new_data = smarket_train, type = "prob") (*@\ixch{type =
 1      0.521    0.479         # model can't discriminate
 \end{routput}
 \begin{itemize}
-\item \textbf{Predicting one new case} \src{HW2 Q7}: build a \texttt{tibble()}\ixh{tibble()} with \emph{every} predictor the
+\item \textbf{Predicting one new case} \src{HW2 Q7}: build a \texttt{tibble()}\ixch{tibble()} with \emph{every} predictor the
   recipe uses, same names and types (factor with the training levels):
   \texttt{tibble(type = factor("F", levels = levels(abalone\$type)), longest\_shell = 0.5, ...)}, then
   \texttt{predict(lm\_fit, new\_data = new\_abalone)} (recipe applied automatically; $\to$ \texttt{.pred} 21.8).
@@ -364,15 +364,15 @@ numerically 0 or 1 occurred'' \src{S3.45}.
 
 %======================================================================
 \subsection{yardstick: metrics}
-\ixh{yardstick}\ixh{model evaluation}
-Every metric: \texttt{metric(data, truth = <true col>, estimate = <prediction col>)}, \ix{truth} \textbf{first};
+\ixch{yardstick}\ixh{model evaluation}
+Every metric: \texttt{metric(data, truth = <true col>, estimate = <prediction col>)}, \ixc{truth} \textbf{first};
 returns a tibble \ixc{.metric} / \ixc{.estimator} (\texttt{standard} = regression, \texttt{binary}) / \ixc{.estimate};
 pull the number with \texttt{\$.estimate}. Full outputs and interpretation: see \emph{Model evaluation}.\\[1pt]
 {\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}p{0.38\linewidth} >{\raggedright\arraybackslash\leavevmode}X@{}}
 \toprule
 Call & Needs\\\midrule
 \ixc{rmse()}, \ixc{rsq()}, \ixc{mae()} (\texttt{rsq\_trad()}) & numeric \texttt{truth}, \texttt{estimate = .pred}. No \texttt{mse()} in yardstick: MSE $=$ RMSE$^2$\\
-\ixc{accuracy()}, \ixc{sensitivity()}, \ixc{specificity()}, \texttt{precision()}\ixh{precision()} & factor \texttt{truth}, \texttt{estimate = .pred\_class} (same levels)\\
+\ixc{accuracy()}, \ixc{sensitivity()}, \ixc{specificity()}, \texttt{precision()}\ixch{precision()} & factor \texttt{truth}, \texttt{estimate = .pred\_class} (same levels)\\
 \ixc{conf\_mat()}\texttt{(truth =, estimate = .pred\_class)} & rows = Prediction, cols = Truth; \texttt{\%>\% autoplot(type = "heatmap")} (or \texttt{"mosaic"})\\
 \ixc{roc\_auc()}\texttt{(truth, .pred\_Yes)} & factor truth + \textbf{probability} column of the \textbf{event} (first level); 3rd argument is unnamed\\
 \ixc{roc\_curve()}\texttt{(truth, .pred\_Yes)} & returns \texttt{.threshold}, \texttt{specificity}, \texttt{sensitivity}; \texttt{\%>\% autoplot()} draws the \ix{ROC curve}\\

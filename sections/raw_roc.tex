@@ -1,12 +1,12 @@
 %% raw_roc.tex -- raw transcription of the reading "ROC Curves Deep Dive"
 %% (source/reading/roc_tutorial.html, page title "ROC Curves: An Overview").
 \section{Reading --- ROC Curves Deep Dive}
-\ixh{ROC curve}\ixh{AUC}\ixh{titanic}%
+\ixh{ROC curve}\ixh{AUC}\ixch{titanic}%
 {\bfseries ROC Curves: An Overview} \quad PSTAT 131/231
 {\color{figgray}\itshape [note: HTML page title; the Canvas name of this reading is ``ROC Curves Deep Dive''.]}
 
 \subsection{Data}
-For this, we'll use part of a Kaggle data set that was the subject of a \ix{machine learning} competition and is often used for practicing ML models. The goal is \ix{classification}; specifically, to predict which passengers would survive the Titanic\ixh{titanic}{} shipwreck.
+For this, we'll use part of a Kaggle data set that was the subject of a \ix{machine learning} competition and is often used for practicing ML models. The goal is \ix{classification}; specifically, to predict which passengers would survive the Titanic\ixch{titanic}{} shipwreck.
 
 We load in the data below and perform any necessary steps -- converting variables to factors as needed, loading the appropriate packages, etc.:
 \begin{rcode}
@@ -20,7 +20,7 @@ tidymodels_prefer()       (*@\ixch{tidymodels\_prefer()}@*)
 
 set.seed(3000) # can be any number (*@\ixh{random seed}\ixch{set.seed()}@*)
 
-titanic <- read_csv(file = "homework-3/data/titanic.csv") %>% (*@\ixh{titanic}\ixch{read\_csv()}\ixch{\%>\%}@*)
+titanic <- read_csv(file = "homework-3/data/titanic.csv") %>% (*@\ixch{titanic}\ixch{read\_csv()}\ixch{\%>\%}@*)
   mutate(survived = factor(survived,          (*@\ixch{mutate()}\ixch{factor()}@*)
                            levels = c("Yes", "No")),   (*@\ixch{levels}@*)
          pclass = factor(pclass),
@@ -33,7 +33,7 @@ titanic_test <- testing(titanic_split)    (*@\ixch{testing()}@*)
 \end{rcode}
 We split the data into \ix{training data}\ixh{training/testing split}{} and testing sets\ixh{testing data}, and choose to include $70\%$ of the data in training and $30\%$ in testing. \ixh{stratified sampling}Stratified sampling is important here because the outcome is imbalanced\ixh{class imbalance}; there is a larger number of passengers that didn't survive than passengers that did.
 
-Now we'll create recipes\ixh{recipe()}, and here we are going to specify two recipes -- one that will do pretty well predicting the outcome, and one that won't.
+Now we'll create recipes\ixch{recipe()}, and here we are going to specify two recipes -- one that will do pretty well predicting the outcome, and one that won't.
 
 The recipe we'll fit in Homework 3 will do a fairly good job, so we'll use that for what we'll call Recipe A:
 

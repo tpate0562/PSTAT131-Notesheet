@@ -129,7 +129,7 @@ C & 100\% & 68\% & \textbf{overfitting} (huge gap)\\\bottomrule
 \end{qbox}
 
 \begin{qbox}{Lab 2 (diamonds, predict price) --- RMSE \src{Lab 2}}
-\ixh{diamonds}
+\ixch{diamonds}
 \begin{tabular}{@{}lrrl@{}}
 \toprule
 Model & train & test & Reading\\\midrule
@@ -360,7 +360,7 @@ KNN works well for \textbf{small $p$} (about $p\le4$) and \textbf{large $n$}. It
 \end{topic}
 
 \begin{topic}{KNN in tidymodels \src{Lab 2; HW3 Q8}}
-\ixh{tidymodels}\ixh{parsnip}\ixh{kknn}
+\ixch{tidymodels}\ixch{parsnip}\ixch{kknn}
 Model: \ixc{nearest\_neighbor()} with argument \ixc{neighbors} ($k$; default 5 --- Lab 2's fit reports ``Best k: 5''), engine \ixc{set\_engine()}\texttt{("kknn")} (the only engine; needs \texttt{library(}\ixc{kknn}\texttt{)}), and \ixc{set\_mode()} \emph{required} (``regression'' or ``classification'', because KNN can do both).
 \begin{rcode}
 knn_rec <- recipe(y ~ ., data = train) |>   (*@\ixch{recipe()}@*)

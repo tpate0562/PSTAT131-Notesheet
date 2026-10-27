@@ -1,0 +1,364 @@
+% d5_exam.tex -- DISTILLED: exam prep. Every practice-exam and Sai-midterm question in one line,
+% recurring question patterns with answer recipes + tiny worked numbers, 60-second facts, HW1-3 answers.
+% (Full question text / official solutions: Part II raw_exams.tex; full HW: raw_hw.tex.)
+\section{Exam prep: past questions, patterns, quick answers}
+\ixh{model evaluation}\ixh{model comparison}\ixh{exam patterns}
+
+{\small Format (Canvas): $\le$12 multiple choice + 4 short answer, paper notes only; R code / R output may appear.
+Sai's midterm (Summer 2026, 26 pts) = 7 MC $\times$ 2 pts + 2 free-response (8 + 4 pts). MC rule from his cover sheet:
+\emph{more than one bubble = zero}; ``Both X and Y'' options are traps unless \emph{both} parts are right. Round to 3--4 decimals.\par}
+
+%======================================================================
+\subsection{Practice exam: every question, one line}
+\ixh{practice exam}
+\begin{keybox}[Practice exam (Fall 2026) answer key, condensed \src{PE, official solutions}]
+\begin{itemize}[leftmargin=1.9em,labelsep=0.3em,itemsep=1pt]
+\item[\textbf{Q1}] \ix{KNN} great on train, worse on new data $\Rightarrow$ \textbf{(b) increase $k$}. Small $k$ =
+  \ix{overfitting} (high \ix{variance}); decreasing $k$ makes it worse; weighting high-variance variables hurts
+  (\ix{standardization}); interactions irrelevant for non-parametric KNN. \src{PE Q1}
+\item[\textbf{Q2}] ``Most flexible is always best'' --- wrong: flexible models lose \ix{interpretability} (bad if goal
+  is \ix{inference}) and can fit noise $\Rightarrow$ low \ix{training error}, high \ix{testing error}. \src{PE Q2}
+\item[\textbf{Q3}] Train/test acc.\ A 71/70, B 86/82, C 100/68 $\Rightarrow$ \textbf{B} (highest \emph{test} accuracy);
+  C overfits (B a little). \src{PE Q3}
+\item[\textbf{Q4}] All three claims \textbf{false}: (a) zero \ix{Pearson correlation} = no \emph{linear} relation, can
+  still help nonlinear/empirical models; (b) correlated $\ne$ interacting (\ix{interaction term} = effect of $X_1$
+  depends on $X_2$); (c) lower training error not better. \src{PE Q4}
+\item[\textbf{Q5}] Neighbours A B B A A B B: $k=1$ \textbf{A}, $k=3$ \textbf{B} (2B:1A), $k=5$ \textbf{A} (3A:2B),
+  $k=7$ \textbf{B} (4B:3A). \src{PE Q5}
+\item[\textbf{Q6}] Age standardized, income not: KNN is distance-based\ixh{distance metric}; income's huge variance
+  dominates the \ix{Euclidean distance}. Normalize \emph{all} numeric predictors. \src{PE Q6}
+\item[\textbf{Q7}] Loan KNN code, $\ge$4 bugs: (1) \texttt{defaulted \textasciitilde{} .} pulls in \texttt{application\_id}
+  (\ix{identifier variable}) and \texttt{default\_date} (\ix{target leakage}) --- drop them; (2) no
+  \ixc{step\_normalize()}; (3) recipe never used (\ixc{fit()} on raw formula, no \ixc{workflow()}/\ixc{add\_recipe()});
+  (4) so \texttt{employment\_type} never dummy-coded. \ixc{one\_hot} \texttt{= TRUE} is \emph{fine} for KNN (no
+  intercept). \src{PE Q7}
+\item[\textbf{Q8}] Strong U-shape, $r=0.03$ $\Rightarrow$ \textbf{(c)} little linear correlation despite strong
+  \ix{nonlinear relationship}; X can still predict Y. \src{PE Q8}
+\item[\textbf{Q9}] Evidence of interaction = \textbf{(b)} $X_1$--$Y$ slope positive for one level of $X_2$, negative
+  for the other. Correlation/skew are not evidence. \src{PE Q9}
+\item[\textbf{Q10}] Graduation model (info at end of year 1): exclude \textbf{StudentID} (ID), \textbf{GraduationDate},
+  \textbf{FinalGPA} (unknown at prediction time = leakage), \textbf{Graduated4Years} (the \ix{outcome}). Keep
+  HS\_GPA, FirstYearGPA, Major, Credits*. \src{PE Q10}
+\item[\textbf{Q11}] Need dummies for \ix{logistic regression}: \textbf{Major, Dorm} (categorical\ixh{categorical predictor}). \src{PE Q11}
+\item[\textbf{Q12}] CompletionRate = Completed/Attempted (year-1 info) is \textbf{not} leakage; but with both
+  components it is redundant (\ix{collinearity}). \src{PE Q12}
+\item[\textbf{Q13}] Rank-deficient \texttt{lm}\ixh{rank deficiency}: \ixc{step\_dummy()} with \texttt{one\_hot = TRUE}
+  gives 3 indicators that sum to the \ix{intercept} column $\Rightarrow$ design matrix not full rank. Fix
+  \texttt{one\_hot = FALSE} $\Rightarrow$ \textbf{2} indicators ($K-1$, one \ix{reference level}). \src{PE Q13}
+\item[\textbf{Q14}] $\hat p=0.78$ $\Rightarrow$ \textbf{(c)} model assigns probability 0.78 of the pneumonia class
+  (not ``78\% accurate'', not certain). \src{PE Q14}
+\item[\textbf{Q15}] $\hat p$ = .31,.48,.63,.81: \ix{threshold} 0.5 $\Rightarrow$ \textbf{C, D}; 0.7 $\Rightarrow$
+  \textbf{D}; raising $t$ $\Rightarrow$ fewer positives. \src{PE Q15}
+\item[\textbf{Q16}] $\beta=0.04$ for MonthlyFee: not ``causes +4\% probability''. Linear in \ix{log odds}, and only
+  association: ``\$1 more is \emph{associated} with +0.04 log odds'' (odds $\times e^{0.04}=1.041$). \src{PE Q16}
+\item[\textbf{Q17}] TP 72, FP 18, FN 28, TN 182: \ix{accuracy} $254/300=0.8467$, \ix{TPR} $72/100=0.72$,
+  \ix{FPR} $18/200=0.09$. \src{PE Q17}
+\item[\textbf{Q18}] Threshold 0.5 $\to$ 0.3 does \textbf{not} change \ix{AUC} (ROC built over all thresholds). \src{PE Q18}
+\item[\textbf{Q19}] Dangerous disease, FN $\gg$ FP cost $\Rightarrow$ \textbf{Point C} (highest TPR, accept FPR
+  $\approx$ 0.5) on the \ix{ROC curve}. \src{PE Q19}
+\item[\textbf{Q20}] $n=50{,}000$, $p=2$, covariances clearly differ $\Rightarrow$ \textbf{(b)} \ix{QDA} (\ix{LDA}
+  assumes a common \ix{covariance matrix}; extra variance negligible at this $n$). \src{PE Q20}
+\end{itemize}
+\end{keybox}
+
+%======================================================================
+\subsection{Sai's graded midterm: every question, where points were lost}
+\ixh{Sai midterm}
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}l >{\leavevmode}X c c r@{}}
+\toprule
+Q & Topic (correct answer, why) & Sai & Key & Pts\\ \midrule
+1 & More flexible? Add polynomial/\ix{interaction term}s. ($\uparrow k$, fewer predictors, LDA vs QDA = \emph{less} flexible) & C & C & 2/2\\
+2 & Why KNN makes nonlinear boundaries: classification decided \emph{locally} by neighbours & C & C & 2/2\\
+3 & ROC point A$\to$C = \emph{decreasing} the threshold (TPR and FPR both rise) & B & B & 2/2\\
+4 & Readmission predictor: \texttt{HospitalID} (15 hospitals, populations differ = real group info); others are unique IDs & E & B & \textbf{1/2}\\
+5 & Covariances truly equal: QDA gains nothing, only adds estimation \ix{variance} & B & B & 2/2\\
+6 & Interaction: dosage effect $+10$ under A vs.\ $+25$ under B & F & B & \textbf{0/2}\\
+7 & $\beta_{\text{age}}>0$ but class unchanged: $\hat p$ rose without crossing the \ix{threshold} & A & B & \textbf{0/2}\\
+8a & Threshold $0.40\to0.70$: \ix{sensitivity} decreases & \checkmark & & 2/2\\
+8b & \ix{specificity} increases ($=1-$FPR, FPR falls) & \checkmark & & 2/2\\
+8c & \ix{ROC curve} unchanged (model-level; only the operating point moves) & \checkmark & & 2/2\\
+8d & Number flagged decreases (fewer $\hat p$ above the bar) & \checkmark & & 2/2\\
+9 & Keep \texttt{square\_feet} \& \texttt{square\_meters} after normalizing? \textbf{No}: exact \ix{collinearity} & ok & & \textbf{3/4}\\ \bottomrule
+\end{tabularx}}
+\par{\scriptsize Total 20/26. Verified against the scanned booklet and Gradescope rubric (\src{Sai pp.\,1--8}).\par}
+
+\begin{trap}[Sai's lost points and the correct reasoning]
+\begin{itemize}[leftmargin=1em]
+\item \textbf{Q4 ($-1$).} Sai: (E) ``None of the above''. Key: (B) \texttt{HospitalID}. A grouping ID with few levels
+  that \emph{carries information} (patient populations differ) is a legitimate \ix{categorical predictor}
+  (dummy-encode it); \texttt{PatientID}, \texttt{AdmissionID}, \texttt{RecordID} are unique per row
+  (\ix{identifier variable}: no pattern can generalize). \emph{Unclear grading:} the rubric item applied reads
+  ``partial credit for answering all variables'', which does not literally match (E); it appears the grader gave
+  half credit for rejecting the three unique IDs. Rule: unique-per-row ID $\Rightarrow$ drop; shared group label
+  $\Rightarrow$ keep. \src{Sai Q4}
+\item \textbf{Q6 ($-2$).} Sai: (F) ``Both B and D''. D (``dosage increases the fitted value under both treatments'') is a
+  \ix{main effect}, not evidence of interaction; so F is wrong even though B is right. Interaction = the \emph{size}
+  (or sign) of one variable's effect differs across levels of the other: $30-20=10$ vs.\ $50-25=25$. \src{Sai Q6}
+\item \textbf{Q7 ($-2$).} Sai: (A) ``a positive coefficient does not affect predicted probabilities'' --- false; a
+  positive $\beta$ raises the \ix{log odds} and hence $\hat p$. Key (B): $\hat p$ can rise (e.g.\ 0.31$\to$0.32) without
+  crossing $t=0.5$, so the class is unchanged. \src{Sai Q7}
+\item \textbf{Q9 ($-1$).} Sai said ``not appropriate'' (right) but argued via normal curves. Required word:
+  \textbf{collinearity}. \texttt{square\_meters} $=0.092903\times$\texttt{square\_feet} exactly, so after
+  \ixc{step\_normalize()} the two columns are \emph{identical} ($r=1$); OLS cannot separate their
+  \ix{coefficient}s (one is \texttt{NA}/huge SEs). Normalizing never removes collinearity --- drop one. \src{Sai Q9}
+\end{itemize}
+\end{trap}
+
+%======================================================================
+\subsection{Question patterns and how to answer them}
+\ixh{exam patterns}
+
+\begin{topic}{P1. Confusion matrix $\to$ metrics \src{PE Q17; HW3 Q10; S3.34--37}}
+\ixh{confusion matrix}\ixh{true positive}\ixh{false positive}
+\textbf{Recipe.} (1) Find the orientation: are \emph{rows} predicted or true? (PE Q17: rows = predicted;
+S3.34: rows = true; \ixc{conf\_mat()} prints \texttt{Prediction} rows $\times$ \texttt{Truth} columns.)
+(2) Which class is ``positive''? (yardstick: the \emph{first} factor level.) (3) Label TP, FP, FN, TN by
+\emph{meaning}. (4) Divide by the right total: actual positives (TPR, FNR), actual negatives (FPR, spec.),
+predicted positives (precision).
+\par\textbf{Example.} Truth Yes: 40 predicted Yes, 10 predicted No; truth No: 20 predicted Yes, 130 No. So TP 40, FN 10,
+FP 20, TN 130, $n=200$.
+\ix{accuracy} $=170/200=0.85$; \ix{sensitivity} $=40/50=0.80$; \ix{specificity} $=130/150=0.867$;
+\ix{FPR} $=20/150=0.133$; \ix{precision} $=40/60=0.667$; error rate $=0.15$.
+\end{topic}
+
+\begin{topic}{P2. Change the threshold: what happens? \src{Sai Q7--8; PE Q15}}
+\ixh{threshold}
+\textbf{Recipe.} Predict positive if $\hat p\ge t$. Raise $t$ $\Rightarrow$ fewer positives $\Rightarrow$ TP, FP
+$\downarrow$; \ix{sensitivity}/TPR $\downarrow$, FPR $\downarrow$, \ix{specificity} $\uparrow$; the
+ROC curve and AUC are \textbf{unchanged} (only the operating point slides down-left). Lower $t$: the reverse.
+Coefficients and $\hat p$ never change with $t$.
+\par\textbf{Example.} $\hat p$ / truth: 0.15 No, 0.40 Yes, 0.62 No, 0.85 Yes.\\
+{\footnotesize\begin{tabular}{@{}l c c c c c c@{}}
+$t$ & TP & FP & FN & TN & sens & spec\\ \midrule
+0.3 & 2 & 1 & 0 & 1 & 1.0 & 0.5\\
+0.5 & 1 & 1 & 1 & 1 & 0.5 & 0.5\\
+0.7 & 1 & 0 & 1 & 2 & 0.5 & 1.0\\
+\end{tabular}}
+\end{topic}
+
+\begin{topic}{P3. Read an ROC curve / compare AUCs \src{PE Q18--19; Sai Q3, Q8c; ROC}}
+\ixh{ROC curve}\ixh{AUC}
+\textbf{Recipe.} $x$ = FPR ($1-$spec.), $y$ = TPR (sens.); each point = one threshold. Up/right = lower $t$.
+Pick the point by costs: FN costly (disease, fraud) $\Rightarrow$ high-TPR point (up/right); FP costly $\Rightarrow$
+low-FPR point (down/left). Compare models by AUC (higher better; 0.5 = coin flip, 1 = perfect, AUC $=1$ $\Rightarrow$
+suspect \ix{target leakage}). AUC does not depend on the chosen threshold.
+\par\textbf{Example.} Same 4 cases as P2: positives score 0.40, 0.85; negatives 0.15, 0.62. Of the $2\times2$
+positive--negative pairs, the positive scores higher in 3 $\Rightarrow$ \ix{AUC} $=3/4=0.75$ (standard ``probability a
+random positive outranks a random negative'' reading). Model A AUC 0.88 vs.\ B 0.79 $\Rightarrow$ A
+discriminates better at almost every threshold.
+\end{topic}
+
+\begin{topic}{P4. Flexibility, bias--variance, $k$ in KNN \src{PE Q1--2; Sai Q1--2, Q5; S1.113--115}}
+\ixh{bias-variance tradeoff}\ixh{flexibility}
+\textbf{Recipe.} More flexible $\Rightarrow$ lower \ix{bias}, higher \ix{variance}, training error $\downarrow$, test
+error U-shaped. \emph{More} flexible: smaller $k$, add predictors / polynomial / interaction terms, QDA instead of
+LDA, KNN instead of a linear model. Overfit symptom: train $\gg$ test $\Rightarrow$ make it \emph{less} flexible
+(increase $k$, drop terms).
+\par\textbf{Example.} $k=1$: each training point is its own neighbour, training error $=0$ (maximal variance).
+$k=n$: always predicts the overall majority class (maximal bias). With 400 training points, $k=1$
+train/test error 0.00/0.30 vs.\ $k=15$ 0.18/0.21 $\Rightarrow$ choose $k=15$.
+\end{topic}
+
+\begin{topic}{P5. Pick a model from a train/test table \src{PE Q3; HW2 Q9; Lab 2}}
+\ixh{training error}\ixh{testing error}
+\textbf{Recipe.} Choose by the \textbf{test} column (highest accuracy/AUC/$R^2$, lowest RMSE/MAE). Then diagnose:
+big train--test gap = \ix{overfitting}; train $\approx$ test but both poor = \ix{underfitting}.
+\par\textbf{Example.} RMSE train/test: linear 2.18/1.95, KNN 1.46/2.21 (HW2 abalone) $\Rightarrow$ linear model
+(lower test RMSE); KNN overfits.
+\end{topic}
+
+\begin{topic}{P6. KNN by hand \src{PE Q5--6; S1.103--109}}
+\ixh{KNN}\ixh{Euclidean distance}
+\textbf{Recipe.} Standardize first; compute distances $d=\sqrt{\sum_j(x_{j}-x_{0j})^2}$; sort; classification =
+majority vote of the $k$ closest; regression = \emph{average} $y$ of the $k$ closest.
+\par\textbf{Example.} $x_0=(0,0)$; $(1,1)$ A: $d=1.41$; $(2,0)$ B: $2$; $(0,3)$ B: $3$; $(3,4)$ A: $5$.
+$k=1$ $\Rightarrow$ A; $k=3$ $\Rightarrow$ B (A,B,B). Regression: nearest 3 have $y=10,12,17$ $\Rightarrow\hat y=13$.
+\end{topic}
+
+\begin{topic}{P7. Interpret a logistic coefficient / compute $\hat p$ \src{PE Q14, Q16; Sai Q7; S3.12--25}}
+\ixh{logistic regression}\ixh{odds ratio}\ixh{log odds}
+\textbf{Recipe.} $\beta_j$ = change in \ix{log odds} per unit $X_j$, others held fixed; $e^{\beta_j}$ = \ix{odds ratio}
+(multiplicative); only the \emph{sign} transfers to $p$; say ``associated with'', never ``causes''. To predict:
+$z=\beta_0+\sum\beta_jx_j$, $\hat p=e^z/(1+e^z)$, then compare with $t$.
+\par\textbf{Example.} $\beta_0=-3$, $\beta_1=0.05$ (age). Age 40: $z=-1$, $\hat p=e^{-1}/(1+e^{-1})=0.269$
+$\Rightarrow$ ``No'' at $t=0.5$. Age $+10$: odds $\times e^{0.5}=1.65$. $\beta=0.7$: odds $\times e^{0.7}=2.01$ (about double).
+Template: ``A one-unit increase in $X$ is associated with a $\beta$ increase in the log odds of $Y$=Yes
+(odds multiplied by $e^{\beta}$), holding other predictors fixed.''
+\end{topic}
+
+\begin{topic}{P8. Read regression output; dummy and interaction coefficients \src{HW2 Q6; PE Q13; S2}}
+\ixh{linear regression}\ixh{dummy variable}
+\textbf{Recipe.} \ixc{tidy()} columns: \texttt{term}, \texttt{estimate} ($\hat\beta$), \texttt{std.error},
+\texttt{statistic} $=$ estimate/SE (\ix{t-statistic}), \texttt{p.value} ($<0.05$ $\Rightarrow$ significant).
+Dummy coefficient = difference from the \ix{reference level} (the level with no column), others fixed.
+Interaction $X_1{:}X_2$ coefficient = how much the $X_1$ slope changes per unit of $X_2$.
+\par\textbf{Example.} \texttt{diameter} 2.20, SE 0.308 $\Rightarrow t=7.14$, $p\approx10^{-12}$. Salary $=40+2\,\text{exp}+5\,
+\text{IT}-3\,\text{HR}$ (Sales = reference): IT with 10 yrs $\Rightarrow 40+20+5=65$; HR earns 8 less than IT at equal
+experience.
+\end{topic}
+
+\begin{topic}{P9. Spot an interaction in a table / plot \src{PE Q9; Sai Q6}}
+\ixh{interaction term}
+\textbf{Recipe.} Compute the effect of $X_1$ at each level of $X_2$ (differences, or slopes). Different $\Rightarrow$
+interaction; equal (parallel lines) $\Rightarrow$ additive. Correlation between predictors is irrelevant.
+\par\textbf{Example.} Low/High dose: A 20/30, B 25/50 $\Rightarrow$ +10 vs +25: interaction. A 20/30, B 25/35
+$\Rightarrow$ +10 both: none (B just shifted up 5).
+\end{topic}
+
+\begin{topic}{P10. Which variables may be predictors? \src{PE Q7, Q10, Q12; Sai Q4; HW2 Q3}}
+\ixh{target leakage}\ixh{identifier variable}
+\textbf{Recipe} --- ask four questions of each variable: (1) Is it the \ix{outcome} or computed from it?
+(2) Is it known \emph{at prediction time}? (no $\Rightarrow$ \ix{target leakage}). (3) Is it unique per row
+(\ix{identifier variable})? (4) Is it an exact function of another predictor (\ix{collinearity})?
+Group labels with a few shared levels (hospital, dorm, major) are fine $\Rightarrow$ dummy-encode.
+\par\textbf{Example.} Predict abalone \texttt{age}: \texttt{rings} is out (age $=$ rings $+1.5$, leakage).
+Loan default: \texttt{default\_date} out (only exists after default), \texttt{application\_id} out (ID).
+\end{topic}
+
+\begin{topic}{P11. Choose recipe steps (and their order) \src{S2; Lab 2--3; HW2 Q3; HW3 Q4}}
+\ixch{recipes}\ixh{feature engineering}
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}X >{\raggedright\arraybackslash\leavevmode}X@{}}
+\toprule
+Situation & Step\\ \midrule
+missing numeric values & \ixc{step\_impute\_linear()} (\ixc{imp\_vars()}) or \ixc{step\_impute\_mean()}\\
+categorical predictor, lm/glm/LDA & \ixc{step\_dummy()} (default $K-1$ columns)\\
+categorical, KNN & \texttt{step\_dummy(..., one\_hot = TRUE)} OK (no intercept)\\
+KNN (distance) & \ixc{step\_normalize()} = \ixc{step\_center()} + \ixc{step\_scale()}\\
+effect of $X_1$ depends on $X_2$ & \ixc{step\_interact()}, after dummying: \texttt{\textasciitilde{} starts\_with("sex"):fare}\\
+curved relationship & \ixc{step\_poly()}; skewed $X$ \ixc{step\_log()}\\ \bottomrule
+\end{tabularx}}
+\par Order: impute $\to$ dummy $\to$ interact $\to$ normalize. Recipe is \emph{trained on the training data}
+(\texttt{recipe(y \textasciitilde{} ., data = train)}).
+\end{topic}
+
+\begin{topic}{P12. Spot the bug in tidymodels code \src{PE Q7, Q13; Sai Q9; Lab 3}}
+\ixch{workflow()}
+Checklist: \textbf{(1)} recipe built but model fit with \texttt{fit(y \textasciitilde{} ., data)} $\Rightarrow$ recipe ignored;
+use \ixc{workflow()} \pipe{} \ixc{add\_recipe()} \pipe{} \ixc{add\_model()}. \textbf{(2)} \texttt{y \textasciitilde{} .} includes IDs /
+leakage. \textbf{(3)} KNN without \ixc{step\_normalize()}. \textbf{(4)} \texttt{one\_hot = TRUE} with an intercept model
+(rank deficient). \textbf{(5)} \ixc{nearest\_neighbor()} without \ixc{set\_mode()} (mode unknown). \textbf{(6)} metrics
+on \emph{training} data / \ixc{predict()} on training instead of \texttt{testing()}. \textbf{(7)} \ixc{roc\_auc()}
+given \ixc{.pred\_class} instead of the probability column (\ixc{.pred\_Yes}, from \texttt{type = "prob"}).
+\textbf{(8)} wrong event level (first factor level is the event). \textbf{(9)} no \ixc{set.seed()} before
+\ixc{initial\_split()}; no \ixc{strata} for an imbalanced outcome. \textbf{(10)} \ixc{step\_interact()} naming a
+variable that \ixc{step\_dummy()} already renamed (\texttt{sex} $\to$ \texttt{sex\_male}).
+\end{topic}
+
+\begin{topic}{P13. LDA vs.\ QDA vs.\ logistic vs.\ KNN \src{PE Q20; Sai Q2, Q5; S3.89--93}}
+\ixh{linear discriminant analysis (LDA)}\ixh{quadratic discriminant analysis (QDA)}
+\textbf{Recipe.} Boundary linear? $\to$ logistic or LDA (LDA if predictors roughly normal within classes / small $n$;
+logistic if normality doubtful). Class covariances clearly differ \emph{and} $n$ large relative to $p$ $\to$ QDA.
+Covariances equal $\to$ LDA (QDA only adds variance). Very irregular boundary, large $n$, small $p$ $\to$ KNN.
+Flexibility: KNN $>$ QDA $>$ LDA $=$ logistic.
+\par\textbf{Example.} $n=150$, $p=8$, similar spreads $\Rightarrow$ LDA. $n=50{,}000$, $p=2$, different
+covariances $\Rightarrow$ QDA. Binary outcome, skewed/dummy predictors $\Rightarrow$ logistic regression.
+\end{topic}
+
+\begin{topic}{P14. Correlation, collinearity, class imbalance \src{PE Q4, Q8; Sai Q9; HW3 Q1--2}}
+\ixh{Pearson correlation}\ixh{class imbalance}
+\textbf{Recipe.} $r$ measures \emph{linear} association only ($r\approx0$ with a U-shape is possible). Two predictors
+with $|r|\approx1$ (or one an exact rescaling of the other) $\Rightarrow$ \ix{collinearity}: keep one. Imbalanced
+outcome $\Rightarrow$ stratify the split (\ixc{strata}) and judge accuracy against the majority-class baseline.
+\par\textbf{Example.} 90\% negatives: ``always negative'' scores \ix{accuracy} 0.90 with sensitivity 0 and AUC 0.5.
+Titanic: 61.6\% died $\Rightarrow$ any useful model must beat 0.616.
+\end{topic}
+
+\begin{topic}{P15. Read other R output \src{Lab 2--3; HW2--3}}
+\ixh{R output}
+\ixc{predict()} default \texttt{type = "class"} $\to$ \ixc{.pred\_class}; \texttt{type = "prob"} $\to$
+\ixc{.pred\_Yes}/\texttt{.pred\_No}; regression $\to$ \texttt{.pred}. \ixc{augment()} = data + all prediction columns.
+Metric tibbles: \texttt{.metric}, \texttt{.estimator}, \ixc{.estimate}. LDA print: \emph{Prior probabilities} = training
+class proportions ($\hat\pi_k$), \emph{Group means} = $\hat\mu_k$, \emph{LD1} = discriminant direction. kknn print:
+``Minimal misclassification'' = leave-one-out training error. \ixc{initial\_split()} print
+\texttt{<Training/Testing/Total>}.
+\end{topic}
+
+%======================================================================
+\subsection{60-second facts}
+\begin{keybox}[High-yield one-liners]
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+\item Expected test MSE\ixh{mean squared error (MSE)}\ixh{bias-variance tradeoff}{} $=\mathrm{Var}(\hat f)+\mathrm{Bias}^2+\mathrm{Var}(\epsilon)$; last term = \ix{irreducible error}, always $\ge$ it.
+\item \ix{supervised learning} has a $Y$; \ix{unsupervised learning} does not. \ix{regression} = numeric $Y$, \ix{classification} = categorical $Y$.
+\item Parametric (linear, logistic, LDA, QDA) = assume a form for $f$; \ix{non-parametric model} (KNN) = no form, needs more data.
+\item \ix{KNN}: small $k$ = flexible\ixh{flexibility}{} = low bias / high variance; $k=1$ training error 0. Always normalize\ixh{normalization}.
+\item \ix{curse of dimensionality}: with many predictors, the ``nearest'' neighbours are far away $\Rightarrow$ KNN degrades.
+\item Lower training error is never by itself a reason to prefer a model; compare on \ix{testing data}.
+\item \ix{Bayes classifier}: assign the class with the largest $\Pr(Y=k\mid X=x_0)$; its error = \ix{Bayes error rate} (lowest possible).
+\item $R^2$\ixh{R-squared}{} = fraction of variance in $Y$ explained; RMSE/MAE\ixh{RMSE}\ixh{MAE}{} in units of $Y$, lower is better.
+\item $K$ levels $\Rightarrow$ $K-1$ dummies\ixh{dummy variable}\ixh{one-hot encoding}{} with an intercept; $K$ (one-hot) only without an intercept / for KNN.
+\item Interaction\ixh{interaction term}{} = effect of one predictor depends on another; \ix{hierarchical principle}: keep main effects if the interaction is in.
+\item Correlation $\ne$ interaction; correlation $\approx 0$ $\ne$ useless; correlation $\ne$ causation.
+\item \ix{logistic regression}: \ix{logit} linear in $X$; $e^{\beta}$ = \ix{odds ratio}; $p=0.5\Leftrightarrow$ log odds $=0$; odds $=p/(1-p)$.
+\item Logistic fit by \ix{maximum likelihood}; LDA by plugging in $\hat\pi_k,\hat\mu_k,\hat\Sigma$.
+\item \ix{LDA}: common $\Sigma$\ixh{covariance matrix}, linear \ix{decision boundary}; \ix{QDA}: $\Sigma_k$ per class, quadratic boundary, more parameters.
+\item \ix{confounding}: a coefficient's sign can flip once another predictor is added (Default \texttt{student}).
+\item \ix{sensitivity} $=$ \ix{TPR} $=$ recall $=TP/(TP+FN)$; \ix{specificity} $=TN/(TN+FP)=1-$\ix{FPR}; \ix{precision} $=TP/(TP+FP)$.
+\item Raise \ix{threshold}: sens $\downarrow$, spec $\uparrow$, positives $\downarrow$; ROC curve and AUC unchanged.
+\item \ix{ROC curve}: $x$ = FPR, $y$ = TPR; diagonal = random (AUC 0.5); top-left corner = perfect.
+\item \ix{AUC} is threshold-free and summarizes all thresholds; AUC = 1 on real data $\Rightarrow$ check for \ix{target leakage}.
+\item \ixc{yardstick}: first factor level\ixh{event level}\ixch{factor()}{} = event $\Rightarrow$ \texttt{factor(survived, levels = c("Yes","No"))}.
+\item \ixc{glm} (logistic) models the \emph{second} level: with Yes first, coefficients are for ``No''.
+\item Stratify\ixh{stratified sampling}{} on the outcome so train/test keep the class proportions; \ixc{set.seed()} for \ix{reproducibility}.
+\item Recipe + model $\to$ \ixc{workflow()} $\to$ \ixc{fit()} on training $\to$ \ixc{augment()}/\ixc{predict()} on testing $\to$ metrics.
+\item \ixc{step\_normalize()} cannot fix collinearity; it only puts predictors on a common scale.
+\item A predicted probability\ixh{posterior probability}{} is \emph{not} an accuracy; a model has accuracy, one patient has a probability.
+\end{itemize}
+\end{keybox}
+
+%======================================================================
+\subsection{HW answers at a glance}
+\ixh{homework}
+\begin{topic}{HW1 --- ML ideas; EDA on \texttt{mpg} \src{HW1; submission}}
+\ixch{mpg}
+\textbf{Q1} supervised\ixh{supervised learning}{} = labelled $Y$ to learn $f$; unsupervised\ixh{unsupervised learning}{} = no $Y$, find structure (clusters).
+\textbf{Q2} \ix{regression}: quantitative $Y$; \ix{classification}: qualitative $Y$ (class or class probabilities).
+\textbf{Q3} regression: \ix{RMSE}, $R^2$\ixh{R-squared}{} (\ix{MAE}); classification: \ix{accuracy}, \ix{sensitivity}/\ix{recall} (AUC).
+\textbf{Q4} \ix{descriptive model}: visually emphasize a trend; \ix{inferential model}: which features are significant,
+test theories/relationships; \ix{predictive model}: best prediction of $Y$, minimal reducible error \src{S1.50}.
+\textbf{Q5} \ix{mechanistic model} = \ix{parametric model} (assumed form; easier to understand; higher \ix{bias}, lower \ix{variance});
+\ix{empirically-driven model} = \ix{non-parametric model} (few assumptions, more data, more flexible: lower bias, higher variance); both
+estimate $f$ and both can overfit\ixh{overfitting}. (Correction to my submission: empirical models are \emph{lower}-bias, not ``unbiased''.)
+\textbf{Q6} (a) chance a voter supports the candidate = \textbf{predictive}\ixh{prediction}; (b) effect of personal contact = \textbf{inferential}\ixh{inference}.
+\textbf{EDA:} \ixc{hwy} \ix{histogram} bimodal (peaks $\approx$16 and $\approx$26), slightly right-skewed\ixh{skewness}; \texttt{hwy}--\texttt{cty}
+\ix{scatterplot} strong positive linear ($r=0.96$); \ix{bar plot}: most cars dodge (37), fewest lincoln (3); \ix{boxplot}: \texttt{hwy} falls with \texttt{cyl}
+(medians 29/24/17 for 4/6/8); \ixc{corrplot()} \ix{correlation matrix}: \texttt{displ}--\texttt{cyl} 0.93, mpg vs.\ \texttt{displ}/\texttt{cyl}
+$\approx -0.8$, \texttt{year} $\approx 0$.
+\end{topic}
+
+\begin{topic}{HW2 --- abalone, linear regression vs.\ KNN \src{HW2; submission}}
+\ixch{abalone}
+\textbf{Q1} \texttt{age = rings + 1.5} (\ixc{mutate()}); mean 11.4, median 10.5, SD 3.22, range 2.5--30.5: unimodal, right-skewed,
+$\approx$6.7\% boxplot outliers\ixh{outlier}. \textbf{Q2} \ixc{initial\_split()} \texttt{(prop = 0.85, strata = age)}\ixh{stratified sampling}\ixch{prop}\ixch{strata}{} $\to$ 3548 / 629.
+\textbf{Q3} recipe: \ixc{step\_dummy()} $\to$ \ixc{step\_interact()} (type$\times$shucked, longest$\times$diameter,
+shucked$\times$shell) $\to$ \ixc{step\_center()} $\to$ \ixc{step\_scale()}; exclude \texttt{rings}: age is an exact
+function of it (\ix{target leakage}). \textbf{Q4--6} \ixc{linear\_reg()} \texttt{"lm"}, \ixc{nearest\_neighbor()} \texttt{(neighbors = 7)}
+\texttt{"kknn"}\ixch{kknn}, two workflows\ixch{workflow()}, fit on training. \textbf{Q7} hypothetical female (\ixc{predict()}): $\hat y=21.8$ years.
+\textbf{Q8} \ixc{metric\_set()}\texttt{(rsq, rmse, mae)} + \ixc{augment()} on test: LM $R^2$ 0.585, RMSE 1.95, MAE 1.44; KNN 0.483 / 2.21 / 1.62. $R^2=0.585$: 58.5\% of the variance
+in test-set age explained. \textbf{Q9} LM wins on test; KNN training $R^2$ 0.811 $\to$ test 0.483 = \ix{overfitting}
+(flexible, high variance); LM 0.552 $\to$ 0.585 (rigid, stable). \textbf{Q10--12 (231)} \ix{reducible error} $=\mathrm{Var}+\mathrm{Bias}^2$,
+\ix{irreducible error} $=\mathrm{Var}(\epsilon)$; both nonnegative $\Rightarrow$ test error $\ge \mathrm{Var}(\epsilon)$.
+\end{topic}
+
+\begin{topic}{HW3 --- Titanic classifiers (MY OWN answers; not submitted/graded) \src{HW3; raw HW section}}
+\ixch{titanic}
+{\color{warnc}\itshape Self-worked solutions (R, seed 3435); exact numbers depend on the seed/split --- know the reasoning.}
+\textbf{Q1} 70/30, \ixc{strata} \texttt{= survived}: 623 / 268. \ix{missing data}: \texttt{age} 128 (impute), \texttt{cabin} 481
+(drop), \texttt{embarked} 2; IDs\ixh{identifier variable}{} (\texttt{passenger\_id}, \texttt{name}, \texttt{ticket}) not predictors.
+Stratify\ixh{stratified sampling}{} because the outcome is imbalanced\ixh{class imbalance}{} (38.4\% Yes) --- both sets keep the same proportion.
+\textbf{Q2} sex is a strong predictor (survival 72.9\% female vs.\ 20.3\% male); class too (63.0 / 47.7 / 23.8\% for
+1st/2nd/3rd). Percent stacked bars\ixh{percent stacked bar chart}{} (\ixc{geom\_bar()}, \texttt{position = "fill"}) compare \emph{proportions} when the bar totals differ.
+\textbf{Q3} \texttt{sib\_sp}--\texttt{parch} $+0.43$, \texttt{age}--\texttt{sib\_sp} $-0.33$, \texttt{fare} weakly $+$
+with the family counts; all $|r|<0.45$\ixh{Pearson correlation}, no \ix{collinearity} problem (needs \texttt{use = "pairwise.complete.obs"}).
+\textbf{Q4} \ixc{step\_impute\_linear()}\ixh{linear imputation}\texttt{(age, impute\_with = imp\_vars(...))}\ixch{imp\_vars()}{} $\to$ \texttt{step\_dummy(all\_nominal\_predictors())}\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}{}
+$\to$ \texttt{step\_interact(\textasciitilde{} starts\_with("sex"):fare + age:fare)}\ixch{step\_interact()}\ixch{starts\_with()}\ixh{interaction term}.
+\textbf{Q5--8} \ixc{logistic\_reg()} \texttt{"glm"}\ixch{glm}, \ixc{discrim\_linear()} / \ixc{discrim\_quad()} \texttt{"MASS"}\ixch{MASS}{}
+(\ixc{discrim}), \texttt{nearest\_neighbor(neighbors = 10)}\ixch{neighbors}{} \texttt{"kknn"}; same recipe, four workflows.
+\textbf{Q9} \ixc{predict()} \texttt{type = "prob"} + \ixc{bind\_cols()} $\to$ \ixc{roc\_auc()}; training \ix{AUC}: logistic 0.845, LDA 0.844, QDA 0.852, KNN 0.964 (inflated: own neighbour).
+\textbf{Q10} testing AUC\ixh{testing data}: logistic 0.880, \textbf{LDA 0.881}, QDA 0.859, KNN 0.879 $\Rightarrow$ LDA (near-tie).
+LDA test \ix{confusion matrix} (\ixc{conf\_mat()}) TP 73, FP 22, FN 30, TN 143: accuracy 0.806, \ix{sensitivity} 0.709, \ix{specificity} 0.867; \ixc{roc\_curve()} + \ixc{autoplot()} for the plot.
+Train 0.844 vs.\ test 0.881: rigid low-variance model, the difference is split-to-split sampling noise (small test
+set); KNN's 0.964 $\to$ 0.879 is the overfitting pattern. \textbf{Q11--12 (231)} \ix{logit} $=$ inverse \ix{logistic function};
+$x_1+2$ multiplies \ix{odds} by $e^{2\beta_1}$ (\ix{odds ratio}); $\beta_1<0$: $p\to0$ as $x_1\to\infty$, $p\to1$ as $x_1\to-\infty$.
+\end{topic}

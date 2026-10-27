@@ -271,7 +271,7 @@ augment(ojlog_fit, new_data = oj_train) %>%       (*@\ixch{augment()}@*)
 \end{topic}
 
 \begin{trap}[Which level is ``Y = 1''? (factor levels)]
-\ixh{factor levels}\ixh{event level}\ixc{glm} (and \ixc{logistic\_reg()} with \texttt{"glm"}) models the probability of the
+\ixh{factor level}\ixh{event level}\ixc{glm} (and \ixc{logistic\_reg()} with \texttt{"glm"}) models the probability of the
 \textbf{second} factor level; the first is the baseline. OJ levels are (CH, MM), so the coefficients are log odds
 of buying \textbf{MM}: \texttt{LoyalCH} $=-6.07$ means more Citrus-Hill loyalty $\Rightarrow$ lower odds of MM.
 \textbf{yardstick} metrics, in contrast, treat the \textbf{first} level as the event
@@ -484,7 +484,7 @@ parameters, but $p=2$ is small and $n$ is huge, so the extra variance is negligi
 \end{topic}
 
 \begin{topic}{LDA / QDA / naive Bayes in tidymodels (Lab 3)}
-\ixh{discrim}Needs \ixc{library(discrim)} (and \ixc{klaR} for naive Bayes). The recipe/workflow is reused; only the
+\ixch{discrim}Needs \ixc{library(discrim)} (and \ixc{klaR} for naive Bayes). The recipe/workflow is reused; only the
 model spec changes:
 \begin{rcode}
 lda_mod <- discrim_linear() %>%                     (*@\ixch{discrim\_linear()}@*)
@@ -522,7 +522,7 @@ and \ixc{roc\_curve()}\texttt{(Direction, .pred\_Down)} (see model evaluation).
 
 %% ==================================================================
 \subsection{HW3: four classifiers on the Titanic data}
-\ixh{titanic}
+\ixch{titanic}
 
 \begin{topic}{HW3 pipeline (Q1, Q4--Q10)}
 \src{HW3}\quad \ixc{titanic} (891 passengers; \texttt{survived} Yes $\approx38\%$; \texttt{age} has 177 NAs).

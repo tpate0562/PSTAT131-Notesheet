@@ -27,7 +27,7 @@ diamonds_test <- testing(diamonds_split)                (*@\ixch{testing()}@*)
 \ixch{recipe()}%
 You'll notice that the textbooks use the \ixc{lm()} function to fit a \ix{linear regression}. The \ixc{tidymodels} framework, however, has its own structure and flow, which is designed to work with multiple different \ix{machine learning} models and packages seamlessly.
 
-To fit any model with \rc{tidymodels}, the first step is to create a recipe\ixh{recipe()}. The structure of this recipe is similar to that of \rc{lm()}; the \ix{outcome} is listed first, then the features\ixh{feature}{} are added:
+To fit any model with \rc{tidymodels}, the first step is to create a recipe\ixch{recipe()}. The structure of this recipe is similar to that of \rc{lm()}; the \ix{outcome} is listed first, then the features\ixh{feature}{} are added:
 \begin{rcode}
 simple_diamonds_recipe <-
   recipe(price ~ ., data = diamonds_train)   (*@\ixch{recipe()}\ixh{formula (R)}@*)
@@ -52,9 +52,9 @@ We should dummy-code all categorical predictors\ixh{categorical predictor}\ixh{d
 diamonds_recipe <- recipe(price ~ ., data = diamonds_train) %>%  (*@\ixch{\%>\%}@*)
   step_dummy(all_nominal_predictors())  (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}@*)
 \end{rcode}
-Note that we haven't specified what type of model we'll be fitting yet. The other beauty of the recipe is that it can then be directly given to one of many machine learning model ``engines.''\ixh{engine}
+Note that we haven't specified what type of model we'll be fitting yet. The other beauty of the recipe is that it can then be directly given to one of many machine learning model ``engines.''\ixch{engine}
 
-Running the above code is essentially like writing down the instructions for a recipe on a sheet of paper. We've prepared the recipe to give to the workflow\ixh{workflow()}, but we are probably interested in seeing what the results of the recipe itself actually look like. Did the dummy coding work, for example? To apply the recipe to a data set and view the results, we can use \ixc{prep()}, which is akin to setting out a \emph{mise en place} of ingredients, and \ixc{bake()}.
+Running the above code is essentially like writing down the instructions for a recipe on a sheet of paper. We've prepared the recipe to give to the workflow\ixch{workflow()}, but we are probably interested in seeing what the results of the recipe itself actually look like. Did the dummy coding work, for example? To apply the recipe to a data set and view the results, we can use \ixc{prep()}, which is akin to setting out a \emph{mise en place} of ingredients, and \ixc{bake()}.
 
 We'll also use \ixc{kbl()} and \ixc{kable\_styling()} from the \ixc{kableExtra} package (\url{https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html}), which we installed above. It's not necessary to use these functions, but doing so allows the table of data to display more neatly, so that all the columns and rows are actually legible. We also use \ixc{head()} to select only the first few rows; otherwise the entire data frame would print, which would be time-consuming. Also note the use of \ixc{scroll\_box()}, allowing us to scroll through the entire data set.
 \begin{rcode}
@@ -103,7 +103,7 @@ Next, we can specify the model \ixc{engine} that we want to fit:
 lm_model <- linear_reg() %>%      (*@\ixch{linear\_reg()}@*)
   set_engine("lm")                (*@\ixch{set\_engine()}\ixch{lm}@*)
 \end{rcode}
-We set up a workflow\ixh{workflow()}. This step might seem unnecessary now, with only one model and one recipe, but it can make life easier when you are trying out a series of models or several different recipes later on.
+We set up a workflow\ixch{workflow()}. This step might seem unnecessary now, with only one model and one recipe, but it can make life easier when you are trying out a series of models or several different recipes later on.
 \begin{rcode}
 lm_wflow <- workflow() %>%        (*@\ixch{workflow()}@*)
   add_model(lm_model) %>%         (*@\ixch{add\_model()}@*)
@@ -251,7 +251,7 @@ diamond_metrics(diamond_test_res, truth = price,
 
 \subsection{\emph{k}-Nearest Neighbors}
 \ixh{KNN}\ixch{nearest\_neighbor()}%
-Now we'll take the recipe we've already created and try fitting a \ix{KNN} (\emph{k}-nearest neighbors) model with it (\url{https://parsnip.tidymodels.org/reference/nearest_neighbor.html})! To do this, we'll use the \ixc{nearest\_neighbor()} function, rather than the \ixc{linear\_reg()} function, but we'll still need to select an engine\ixh{engine}. There is only one \emph{R} package, or engine, that works with \rc{nearest\_neighbor()}, and that is the \ixc{kknn} package.
+Now we'll take the recipe we've already created and try fitting a \ix{KNN} (\emph{k}-nearest neighbors) model with it (\url{https://parsnip.tidymodels.org/reference/nearest_neighbor.html})! To do this, we'll use the \ixc{nearest\_neighbor()} function, rather than the \ixc{linear\_reg()} function, but we'll still need to select an engine\ixch{engine}. There is only one \emph{R} package, or engine, that works with \rc{nearest\_neighbor()}, and that is the \ixc{kknn} package.
 
 \fig{Cartoon by Allison Horst (\rc{images/parsnip.png}): title ``parsnip::set\_\textsuperscript{your}engine()!''. Four race cars on a track at a checkered start line, labelled \rc{STAN} (purple), \rc{keras} (red, flag), \rc{GLMNET} (blue) and \rc{lm} (yellow); a purple fuzzy creature in sunglasses holds a ``parsnip'' hex flag; text ``3\dots2\dots1\dots Run model!''. Caption: ``a standardized interface for fitting models and making predictions.''}\ixch{parsnip}\ixch{set\_engine()}
 

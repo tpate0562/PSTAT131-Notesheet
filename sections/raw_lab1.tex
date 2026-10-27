@@ -175,7 +175,7 @@ mpg_small <- mpg %>%
 \end{rcode}
 For a shortcut, when working with large data frames, we can use \rc{(year:class)} or \rc{-(year:class)} to select or de-select all columns including them and between them, respectively.
 
-Note that we use the \ixc{head()} function here so that only a few rows of the resulting tibble\ixh{tibble} are displayed when we knit to .html.
+Note that we use the \ixc{head()} function here so that only a few rows of the resulting tibble\ixch{tibble} are displayed when we knit to .html.
 \begin{rcode}
 mpg %>% select(year:class) %>% (*@\ixch{select()}@*)
   head() (*@\ixch{head()}@*)

@@ -12,7 +12,7 @@ This lab will be our first experience with \ix{classification} models. These mod
 We load \ixc{tidymodels} for modeling functions, \ixc{ISLR} and \ixc{ISLR2} for data sets, \ixc{discrim} to give us access to discriminant analysis models such as \ix{LDA} and \ix{QDA}, as well as the Naive Bayes\ixh{naive Bayes}{} model, and \ixc{poissonreg} for Poisson regression. Finally, we load \ixc{corrr} for aid in visualizing correlation matrices\ixh{correlation matrix}.
 \begin{rcode}
 library(tidymodels)                 (*@\ixch{library()}\ixch{tidymodels}@*)
-library(ISLR) # For the Smarket data set     (*@\ixch{ISLR}\ixh{Smarket}@*)
+library(ISLR) # For the Smarket data set     (*@\ixch{ISLR}\ixch{Smarket}@*)
 library(ISLR2) # For the Bikeshare data set  (*@\ixch{ISLR2}\ixh{Bikeshare}@*)
 library(discrim)                    (*@\ixch{discrim}@*)
 library(poissonreg)                 (*@\ixch{poissonreg}@*)
@@ -23,20 +23,20 @@ tidymodels_prefer()                 (*@\ixch{tidymodels\_prefer()}@*)
 \end{rcode}
 
 \subsubsection{Data}
-We'll start out by working with the \rc{Smarket}\ixh{Smarket}{} data set for this lab, which contains daily percentage returns for the S\&P 500 stock index between 2001 and 2005. It contains 1,250 observations on 8 numeric variables, plus a factor variable called \rc{Direction}\ixh{Direction (Smarket)}{} which has two levels, ``Up'' and ``Down''.
+We'll start out by working with the \rc{Smarket}\ixch{Smarket}{} data set for this lab, which contains daily percentage returns for the S\&P 500 stock index between 2001 and 2005. It contains 1,250 observations on 8 numeric variables, plus a factor variable called \rc{Direction}\ixh{Direction (Smarket)}{} which has two levels, ``Up'' and ``Down''.
 
 Before we go on to modeling, we'll explore the data a little, at least to look at possible correlations\ixh{correlation}{} between the variables. \rc{Direction} is our \ix{outcome} variable of interest; we'll attempt to predict it using the volume of shares traded (\rc{Volume}) and the five lag variables (which represent the percentage return for the previous days).
 
-The other data set we'll work with for this lab is the \rc{OJ}\ixh{OJ}, or Orange Juice, data set. It contains 1,070 observations, each of which represents a customer's purchase of either Citrus Hill or Minute Maid Orange Juice. \rc{Purchase}\ixh{Purchase (OJ)}{} is our outcome variable, which indicates the brand purchased. We'll attempt to predict it using the prices charged for each brand, the discounts offered, and a metric of customer loyalty.
+The other data set we'll work with for this lab is the \rc{OJ}\ixch{OJ}, or Orange Juice, data set. It contains 1,070 observations, each of which represents a customer's purchase of either Citrus Hill or Minute Maid Orange Juice. \rc{Purchase}\ixh{Purchase (OJ)}{} is our outcome variable, which indicates the brand purchased. We'll attempt to predict it using the prices charged for each brand, the discounts offered, and a metric of customer loyalty.
 
 \par\textbf{Activities}
 \begin{itemize}
-\item Access the help page for \rc{Smarket}\ixh{Smarket}. What does the \rc{Direction} variable represent? What predictors do you think might be correlated with it?
-\item Access the help page for \rc{OJ}\ixh{OJ}{} and familiarize yourself with it.
+\item Access the help page for \rc{Smarket}\ixch{Smarket}. What does the \rc{Direction} variable represent? What predictors do you think might be correlated with it?
+\item Access the help page for \rc{OJ}\ixch{OJ}{} and familiarize yourself with it.
 \end{itemize}
 To look at correlations among the continuous variables, we'll try using the \ixc{corrr} package. The \ixc{correlate()} function will calculate the \ix{correlation matrix} between all the variables that it is given. We choose to remove \rc{Direction,} it is not numeric. Then we pass the results to \ixc{rplot()} to visualize the correlation matrix.
 \begin{rcode}
-cor_Smarket <- Smarket %>%     (*@\ixh{Smarket}\ixch{\%>\%}@*)
+cor_Smarket <- Smarket %>%     (*@\ixch{Smarket}\ixch{\%>\%}@*)
   select(-Direction) %>%       (*@\ixch{select()}@*)
   correlate()                  (*@\ixch{correlate()}@*)
 rplot(cor_Smarket)             (*@\ixch{rplot()}@*)
@@ -49,7 +49,7 @@ rplot(cor_Smarket)             (*@\ixch{rplot()}@*)
 \item With this data set, do you need to worry about predictors being highly linearly correlated with each other?\ixh{collinearity}
 \item Does this matrix tell you anything about relationships between predictors and the outcome?
 \end{itemize}
-We could also use \rc{ggplot}\ixh{ggplot2}{} and the \ixc{geom\_tile()} function to create a heatmap-style correlation plot, with a few more lines of code:
+We could also use \rc{ggplot}\ixch{ggplot2}{} and the \ixc{geom\_tile()} function to create a heatmap-style correlation plot, with a few more lines of code:
 \begin{rcode}
 cor_Smarket %>%
   stretch() %>%                           (*@\ixch{stretch()}@*)
@@ -81,7 +81,7 @@ ggplot(Smarket, aes(factor(Year), Volume)) +   (*@\ixch{ggplot()}\ixch{factor()}
 
 We'll also consider a correlation plot for the orange juice data, restricting our analysis to the continuous predictor variables we'll be including:
 \begin{rcode}
-OJ %>%                                        (*@\ixh{OJ}@*)
+OJ %>%                                        (*@\ixch{OJ}@*)
   select(PriceCH, PriceMM, DiscCH, DiscMM,
          LoyalCH, PctDiscMM, PctDiscCH) %>%
   cor() %>%                                   (*@\ixch{cor()}@*)
@@ -151,7 +151,7 @@ oj_test <- testing(oj_split)
 \subsection{Logistic Regression}
 \ixh{logistic regression}%
 \subsubsection{Creating a Recipe}
-First, just as with our \ix{linear regression} lab last week, we want to create a recipe\ixh{recipe()}{} to represent the model we'll be fitting -- one for \rc{Direction} and one for \rc{Purchase}. Neither model has categorical predictors\ixh{categorical predictor}, so we won't need to include \rc{step\_dummy}\ixch{step\_dummy()}\ixh{dummy variable}.
+First, just as with our \ix{linear regression} lab last week, we want to create a recipe\ixch{recipe()}{} to represent the model we'll be fitting -- one for \rc{Direction} and one for \rc{Purchase}. Neither model has categorical predictors\ixh{categorical predictor}, so we won't need to include \rc{step\_dummy}\ixch{step\_dummy()}\ixh{dummy variable}.
 \begin{rcode}
 smarket_recipe <- recipe(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 +   (*@\ixch{recipe()}@*)
                            Lag5 + Volume, data = smarket_train)
@@ -169,7 +169,7 @@ log_reg <- logistic_reg() %>%      (*@\ixch{logistic\_reg()}@*)
 \end{rcode}
 
 \subsubsection{Workflow}
-We set up a workflow\ixh{workflow()}, one for each recipe, and fit the models to the \ix{training data}:
+We set up a workflow\ixch{workflow()}, one for each recipe, and fit the models to the \ix{training data}:
 \begin{rcode}
 smarketlog_wkflow <- workflow() %>%   (*@\ixch{workflow()}@*)
   add_model(log_reg) %>%              (*@\ixch{add\_model()}@*)
@@ -185,7 +185,7 @@ ojlog_fit <- fit(ojlog_wkflow, oj_train)      (*@\ixch{fit()}@*)
 \end{rcode}
 
 \subsubsection{Model Results}
-We can view the results -- for the \rc{Smarket}\ixh{Smarket}{} data:
+We can view the results -- for the \rc{Smarket}\ixch{Smarket}{} data:
 \begin{rcode}
 smarketlog_fit %>%
   tidy()                        (*@\ixch{tidy()}\ixh{coefficient}@*)
@@ -203,7 +203,7 @@ smarketlog_fit %>%
 7 Volume       0.184      0.193     0.952    0.341
 \end{routput}
 \ixh{p-value}\ixh{standard error}\ixh{intercept}%
-And for the \rc{OJ}\ixh{OJ}{} data:
+And for the \rc{OJ}\ixch{OJ}{} data:
 \begin{rcode}
 ojlog_fit %>%
   tidy()                        (*@\ixch{tidy()}@*)
@@ -534,7 +534,7 @@ ojnb_acc
 \ixh{model comparison}%
 Now we can make a table of the accuracy rates\ixh{accuracy}{} from these four models to choose the model that produced the highest accuracy on the \textbf{training data} for each of the two data sets.
 
-For the \rc{Smarket}\ixh{Smarket}{} data:
+For the \rc{Smarket}\ixch{Smarket}{} data:
 \begin{rcode}
 accuracies <- c(log_reg_acc_smarket$.estimate,     (*@\ixch{.estimate}@*)
                 smarketlda_acc$.estimate,
@@ -554,7 +554,7 @@ results %>%
 3      0.525 Logistic Regression
 4      0.524 LDA
 \end{routput}
-For the \rc{OJ}\ixh{OJ}{} data set:
+For the \rc{OJ}\ixch{OJ}{} data set:
 \begin{rcode}
 accuracies <- c(log_reg_acc_oj$.estimate, ojlda_acc$.estimate,
                 ojnb_acc$.estimate, ojqda_acc$.estimate)
@@ -618,7 +618,7 @@ augment(smarketqda_fit, new_data = smarket_test) %>%
 \end{rcode}
 \fig{ROC curve of the \rc{Smarket} QDA model on the test set (x ``1 - specificity'', y ``sensitivity'', both 0--1, dotted diagonal): a jagged staircase that hugs the 45$^\circ$ diagonal the whole way, dipping slightly below it (e.g.\ sensitivity $\approx$0.06 at FPR 0.12, $\approx$0.25 at FPR 0.28, $\approx$0.71 at FPR 0.75) and only marginally above it around FPR 0.4--0.6 --- essentially no discrimination (AUC $\approx$0.5; not printed).}
 
-We'll fit the logistic regression\ixh{logistic regression}{} to the \rc{OJ}\ixh{OJ}{} testing set, since it also performed best on the training set, with the same caveats, and view the same things:
+We'll fit the logistic regression\ixh{logistic regression}{} to the \rc{OJ}\ixch{OJ}{} testing set, since it also performed best on the training set, with the same caveats, and view the same things:
 \begin{rcode}
 augment(ojlog_fit, new_data = oj_test) %>%
   conf_mat(truth = Purchase, estimate = .pred_class)   (*@\ixch{conf\_mat()}@*)
