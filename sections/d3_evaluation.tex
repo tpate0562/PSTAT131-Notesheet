@@ -298,7 +298,7 @@ FN costly $\Rightarrow$ \emph{lower} the threshold (point up/right); FP costly $
 
 %======================================================================
 \subsection{Reading ``ROC Curves Deep Dive'': Titanic Model A vs.\ B}
-\ixh{titanic}
+\ixch{titanic}
 \begin{itemize}
 \item Data \ixc{titanic} (Kaggle; 891 rows): \rc{survived = factor(survived, levels = c("Yes", "No"))}
   \ixch{factor()}$\Rightarrow$ \textbf{``Yes'' is the first level = the event}; also adds a dummy
@@ -330,7 +330,7 @@ FN costly $\Rightarrow$ \emph{lower} the threshold (point up/right); FP costly $
 
 %======================================================================
 \subsection{yardstick code and output}
-\ixh{yardstick}
+\ixch{yardstick}
 \begin{rcode}
 log_fit_a <- fit(log_wkflow_a, titanic_train)      # fit on TRAINING (*@\ixch{fit()}@*)
 res <- augment(log_fit_a, new_data = titanic_test)  (*@\ixch{augment()}@*)

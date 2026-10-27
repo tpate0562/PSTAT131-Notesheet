@@ -1,6 +1,6 @@
 # Agent guide — PSTAT 131 midterm sheet (LaTeX)
 
-Project root: `/Users/tejaspatel/Desktop/LaTeX Projects/PSTAT 131 Midterm Notes`
+Project root: `/home/user/PSTAT131-Notesheet`
 (quote paths — they contain spaces). The document is `main.tex` + `cheatsheet.sty`;
 each agent writes ONE OR TWO fragment files in `sections/` (named in your task) and nothing else
 in the project (scratch files go in `work/tmp/<your-name>/`). Do not edit `main.tex`,
@@ -154,7 +154,7 @@ Arguments/columns (with \ixc): strata, prop, one\_hot, neighbors, type = "prob",
 - Index generously with `\ix`/`\ixc` (every key term where it is explained).
 
 ## Compile check (required before you finish)
-    cd "/Users/tejaspatel/Desktop/LaTeX Projects/PSTAT 131 Midterm Notes"
+    cd "/home/user/PSTAT131-Notesheet"
     tools/check_fragment.sh sections/<your_file>.tex raw        # or: distilled
 It compiles your fragment alone in a private temp dir and prints errors, overfull boxes, page count
 and the number of index entries. Fix ALL errors. Fix overfull boxes wider than ~10pt (break long

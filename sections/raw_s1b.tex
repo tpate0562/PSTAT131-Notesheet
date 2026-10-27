@@ -68,7 +68,7 @@ $\displaystyle \frac{1}{m}\sum_{i=1}^{m}\Big(\tilde{y}_i-\hat{f}(\tilde{\mathbf{
 
 \slide{1}{66}{[untitled --- prediction error vs.\ model complexity]}
 \ixh{bias-variance tradeoff}\ixh{model complexity}
-\fig{Classic ESL figure. Vertical axis ``\textbf{Prediction Error}'', horizontal axis ``\textbf{Model Complexity}'' from Low to High. \textbf{Cyan} curve labelled ``Training Sample'' decreases monotonically from high (low complexity) to near zero (high complexity). \textbf{Red} curve labelled ``Test Sample'' starts slightly above the cyan curve, decreases to a minimum around the middle, then rises again at high complexity (U-shape). Top-left annotation ``High \ix{Bias} / Low \ix{Variance}'' with a dashed arrow pointing left; top-right annotation ``Low Bias / High Variance'' with a dashed arrow pointing right.}\ixh{training error}\ixh{testing error}
+\fig{Classic ESL figure. Vertical axis ``\textbf{Prediction Error}'', horizontal axis ``\textbf{Model Complexity}'' from Low to High. \textbf{Cyan} curve labelled ``Training Sample'' decreases monotonically from high (low complexity) to near zero (high complexity). \textbf{Red} curve labelled ``Test Sample'' starts slightly above the cyan curve, decreases to a minimum around the middle, then rises again at high complexity (U-shape). Top-left annotation ``High \ixh{bias}Bias / Low \ixh{variance}Variance'' with a dashed arrow pointing left; top-right annotation ``Low Bias / High Variance'' with a dashed arrow pointing right.}\ixh{training error}\ixh{testing error}
 
 \slide{1}{67}{[untitled --- overfitting memes]}
 \ixh{overfitting}
@@ -322,7 +322,7 @@ $\displaystyle \frac{1}{n}\sum_{i=1}^{n}I\Big(\tilde{y}_i\neq\hat{\tilde{y}}_i\B
 \begin{itemize}
 \item[] \textbf{Higher model \ix{flexibility} $\to$ lower training error rate}
 \item[] \textbf{Higher model flexibility {\color{warnc}$\nrightarrow$} lower test error rate}
-\item[] \textbf{{\color{dblue}\ix{Overfitting}}\ixh{overfitting} = Large test error rate + small training error rate}
+\item[] \textbf{{\color{dblue}\ixh{overfitting}Overfitting}\ixh{overfitting} = Large test error rate + small training error rate}
 \end{itemize}
 
 \slide{1}{94}{Estimating test error rate -- same as regression:}
@@ -392,7 +392,7 @@ In a two-class problem:
 \ixh{regression}\ixh{classification}
 \begin{center}
 \begin{tabular}{@{}c@{\quad}c@{}}
-{\large\textbf{\color{dblue}\ix{Regression}}} & {\large\textbf{\color{warnc}\ix{Classification}}}\\[2pt]
+{\large\textbf{\color{dblue}\ixh{regression}Regression}} & {\large\textbf{\color{warnc}\ixh{classification}Classification}}\\[2pt]
 $X$ & $X$\\
 \textbf{\color{dblue}quantitative} $Y$ & \textbf{\color{warnc}qualitative} $Y$\\[3pt]
 \textbf{Training/Test} & \textbf{Training/Test}\\

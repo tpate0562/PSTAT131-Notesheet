@@ -95,7 +95,7 @@ distance calculations if it is not also standardized\ixh{scaling}.
 
 %% ------------------------------------------------------------------ Q7
 \begin{qbox}{PE Q7}
-\ixh{KNN}\ixh{target leakage}\ixh{identifier variable}\ixh{recipes}
+\ixh{KNN}\ixh{target leakage}\ixh{identifier variable}\ixch{recipes}
 7.~A researcher wants to use KNN to predict whether or not a bank customer will default on a loan. They write the
 following code:
 \begin{rcode}
@@ -125,7 +125,7 @@ correct it.
 \item There is no \ixc{step\_normalize()}, which is important for KNN because it is distance-based\ixh{normalization}.
   Add that to the recipe.
 \item The recipe is not actually being used; \texttt{loan\_recipe} is defined, but the model is fit directly to the raw
-  data.\ixh{workflow()}\ixh{add\_recipe()}
+  data.\ixch{workflow()}\ixch{add\_recipe()}
 \item Employment\_type therefore hasn't actually been dummy encoded\ixh{dummy variable} for the fitted model.
 \end{itemize}
 Note that one hot encoding\ixh{one-hot encoding} is not a problem for KNN; KNN has no regression \ix{intercept} creating

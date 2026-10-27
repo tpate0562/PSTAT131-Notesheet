@@ -324,7 +324,7 @@ x-axis ``Balance'', dots at 0 (five) and 1 (six), and the blue dashed S-curve.}
 \textbf{$\beta_j$: the (\textcolor{dblue}{additive}) change of \ix{logit} by increasing $X_j$ by 1-unit,
 \textcolor{dblue}{conditional on the other predictors}}\ixh{holding other predictors fixed}
 
-\begin{tabular}{@{}p{0.30\linewidth}@{\ \ }p{0.66\linewidth}@{}}
+\begin{tabular}{@{}p{0.30\linewidth}@{\ \ }p{0.64\linewidth}@{}}
 \raggedright\textbf{For any $j$, conditional on the other predictors} $X_1,\ldots,X_{j-1},X_j\ldots,X_p$
 &
 If $\beta_j>0$ then $X_j\nearrow\ \Longrightarrow\ \Pr(Y=1\mid X_1,\ldots,X_p)\nearrow$\par
@@ -512,9 +512,9 @@ the unrounded estimates the linear predictor is $\approx-2.14$ and $e^{-2.14}/(1
 \slide{3}{33}{From predicted probability to predicted class}
 \ixh{predicted class}
 \[
-\widehat{\Pr}(\text{default}=\text{TRUE}\mid\text{balance}=1500,\text{income}=40000,\text{student}=\text{FALSE})=0.105
+\begin{aligned}&\widehat{\Pr}(\text{default}=\text{TRUE}\mid\text{balance}=1500,\\&\qquad\text{income}=40000,\text{student}=\text{FALSE})=0.105\end{aligned}
 \]
-We can predict class $(\text{default}=\text{TRUE}$ \textbf{or} $\text{default}=\text{FALSE})$ by \textbf{thresholding the predicted probability}\ixh{threshold}
+We can predict class ($\text{default}=\text{TRUE}$ \textbf{or} $\text{default}=\text{FALSE}$) by \textbf{thresholding the predicted probability}\ixh{threshold}
 
 For example, one might predict $\text{default}=\text{TRUE}$ for any individual for whom the \textbf{predicted probability > 0.5}\ixh{threshold}
 
