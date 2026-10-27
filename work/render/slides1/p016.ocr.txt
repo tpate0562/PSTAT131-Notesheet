@@ -1,0 +1,51 @@
+Al HAS A LONG HISTORY OF BEING “THE NEXT BIG THING”...
+
+Timeline of Al Development
+
+Popularity * 1950s-1960s: First Al boom - the
+age of reasoning, prototype Al
+developed
+
+Explosive * 1970s: Al winter |
+Growth * 1980s-1990s: Second Al boom: the
+
+age of Knowledge representation
+(appearance of expert systems
+capable of reproducing human
+decision-making)
+
+* 1990s: Al winter II
+
+* 1997: Deep Blue beats Gary
+Kasparov
+
+'
+
+'
+
+'
+
+| * 2006: University of Toronto
+' develops Deep Learning
+1
+
+'
+
+'
+
+'
+
+1
+
+New Hopes
+
+Al winter I
+
+Birth
+
+* 2011: 1BM’s Watson won Jeopardy
+
+* 2016: Go software based on Deep
+Learning beats world’s champions
+
+1950 1956 1974 1980 1987 1993 Time

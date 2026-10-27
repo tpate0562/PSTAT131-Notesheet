@@ -1,0 +1,40 @@
+16. A logistic regression predicts whether a customer will cancel a subscription. The 
+coefficient for the predictor MonthlyFee is 0.04. 
+ 
+A student writes: “A $1 increase in the monthly fee causes a customer’s probability of 
+canceling to increase by 4%.” 
+ 
+Identify one problem with this interpretation and provide a better interpretation. 
+ 
+Solution: This statement implies that there is a linear relationship between monthly 
+fee and probability of cancellation. There is not. There is a linear relationship 
+between monthly fee and log odds of cancellation, or logit. Also, we cannot assume 
+that we can draw causal conclusions. A better interpretation would be either “A $1 
+increase in the monthly fee is associated with a 0.04 increase in log odds,” or “An 
+increase in the monthly fee is associated with an increased probability of 
+cancellation” (this is known because the sign of the coefficient is positive). 
+ 
+17. A model produces the following confusion matrix: 
+ 
+Actually Positive 
+Actually Negative 
+Predicted Positive 
+72 
+18 
+Predicted Negative 
+28 
+182 
+ 
+Calculate accuracy, true positive rate, and false positive rate. 
+Solution: Accuracy is (72 + 182)/(72 + 182 + 18 + 28) = 254/300 = 84.67% (or 0.8467). The 
+true positive rate is 72/(72 + 28) = 72/100 = 72% (or 0.72). The false positive rate is 
+18/(18+182) = 9% (or 0.09). 
+18. A student says: “I changed my classification threshold from 0.50 to 0.30, so the ROC 
+AUC of my fitted model will change.” Is this correct? Explain. 
+Solution: This is not correct. The ROC AUC measures the area under the ROC curve, 
+which is a curve that plots true positive rates and false positive rates across thresholds. 
+Therefore, using a different threshold value to classify observations will have no impact 
+whatsoever on the area under the ROC curve.  
+19. Suppose the ROC curve below represents a model used to screen patients for a very 
+dangerous disease. A false negative is considered substantially worse than a false 
+positive. Of points A, B, and C, which threshold would you be most inclined to choose? 

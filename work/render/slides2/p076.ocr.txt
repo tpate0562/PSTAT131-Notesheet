@@ -1,0 +1,13 @@
+Linear regression vs  K-NN regression
+in the general regression setting Y = f(X) + €
+
+Parametric approach Non-parametric approach
+
+Assume that f(X) = fp + PX, +... + 6,X, f(X) can have any function form
+
+No need to tune the model Tuning parameter: K
+Performs well when the true f(X) is close to linear Much more general-purpose
+Interpretability, statistical inference... Not very interpretable
+Can be extended to work when p is very large Curse of Dimensionality
+
+ridge regression, lasso ...

@@ -1,0 +1,11 @@
+K-nearest neighbors
+
+Regression Classification
+
+fx) =E[Y|X =x] Jo = argmax, { Prob (Y= JX =x») }
+
+In practice, we never know the conditional distribution of Y given X
+
+Estimate!!
+
+Idea: look at the K-nearest neighbors of Xp

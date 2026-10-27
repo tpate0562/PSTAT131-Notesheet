@@ -1,0 +1,49 @@
+Free Response Questions
+
+8. A bank uses a model to flag credit-card transactions as potentially fraudulent. ‘The classification
+threshold previously used was 0.40; the bank’s lead data scientist decides to increase the threshold to
+
+0.70.
+Explain the effect, if any, that this change would generally have on each of the following:
+
+(a) (2 points) Sensitivity
+
+(b) (2 points) Specificity
+
+(c) (2 points) The model’s ROC curve
+ayo vhode eueye weder
+
+Awueostatd woud. r¢
+
+Awe
+
+. le ah
+cevve Yoo eperrS ay~
+
+(a) (2 points) The overall number of transactions flagged for investigation
+
+adhe aresheld 1s iebite i mean 5 regu’ Kew
+wen ge Cnight® peat probabil? logo Guyer dbservaters |
+, ee ged fewer postive prediction
+
+me rt
+
+reertainty :
+exceed) ihe
+Negert ive peed chien 5.
+
+4 ber,
+
+9. (4 points) Consider the following recipe. The model's goal is to predict the sale price of a home.
+square_feet represents the house size measured in feet; square_meters represents the house size
+
+measured-in-meters:
+
+house_recipe <-
+
+recipe(sale_price ~ ., data = houses) %>%
+step_mutate(
+
+square_meters = square_feet * 0.092903
+
+Page 4

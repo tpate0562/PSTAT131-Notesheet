@@ -1,0 +1,21 @@
+confirmed
+
+We find the line that best fit the data, by minimizing the sum of squared residuals
+
+100000 150000 200000
+
+50000
+
+4 : °
+
+SSR = Xe — By — Bx
+
+summation over all obsefvations in the dataset
+
+y=fyt+ Pix
+
+T T T T T
+1000000 1500000 2000000 2500000 3000000
+
+population
+

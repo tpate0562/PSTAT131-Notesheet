@@ -1,0 +1,15 @@
+Discriminant Analysis: key idea
+
+m=Pr(Y=k) density function
+
+K
+dint Mf, +++) Xp)
+
+what we really care about
+
+SX, +++ Xp) = Pr (X, =X1,....X, = x,| Y= k)
+
+Discriminant Analysis in one sentence:
+assume f(x, 1119 Xp) is the normal distribution density
+
+© (X, +++) Xp) | Y is normally distributed

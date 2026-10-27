@@ -1,0 +1,20 @@
+Classification performance
+
+For a binary classifier, use confusion matrix
+Predicted Class
+
+Y=0
+
+Last
+ll
+—
+
+Y=0_ True Negative (TN) False Positive (FP)
+True
+
+Class
+Y=1 False Negative (FN) True Positive (TP)
+
+True positive rate (TPR) = TP / (TP + FN), a.k.a. 1 - Type Il error, power, sensitivity, recall
+
+False positive rate (FPR) = FP / (FP + TN), a.k.a. Type | error, 1 - Specificity

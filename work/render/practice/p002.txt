@@ -1,0 +1,40 @@
+loan_recipe <- 
+  recipe(defaulted ~ ., data = loans) |> 
+  step_dummy(all_nominal_predictors(), one_hot = TRUE) 
+ 
+loan_model <- 
+  nearest_neighbor(neighbors = 5) |> 
+  set_engine("kknn") |> 
+  set_mode("classification") 
+ 
+loan_fit <- 
+  loan_model |> 
+  fit(defaulted ~ ., data = loans) 
+ 
+Their data contain the following variables: 
+application_id 
+age 
+income 
+employment_type 
+credit_score 
+default_date 
+defaulted 
+ 
+Identify at least four problems with this analysis. For each problem, explain why it 
+matters and how you would correct it. 
+ 
+8. A scatterplot of X and Y shows a very strong U-shaped relationship. Their Pearson 
+correlation is 0.03. Which statement is best? 
+a. X and Y are essentially unrelated 
+b. The scatterplot is likely wrong 
+c. There is little linear correlation, despite a strong nonlinear relationship 
+d. X will not be a useful variable for predicting Y 
+e. Both C and D 
+ 
+9. Which EDA finding is evidence of an interaction? 
+a. X1 and X2 have a Pearson correlation of 0.91 
+b. The relationship between X1 and Y is positive for one level of X2 and negative 
+for the other 
+c. X1 is strongly right-skewed and X2 is strongly left-skewed 
+d. X1 and Y have a Pearson correlation of 0.80 
+e. The relationship between X1 and Y is the same across both levels of X2 

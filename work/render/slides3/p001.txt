@@ -1,0 +1,3 @@
+Logistic models
+PSTAT 131/231
+Week 3

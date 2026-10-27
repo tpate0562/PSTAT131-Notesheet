@@ -1,0 +1,5 @@
+Required reading:
+
+¢ For undergraduates, ch. 1 of ISLR
+
+¢ For graduate students, ch. 1 of ESL

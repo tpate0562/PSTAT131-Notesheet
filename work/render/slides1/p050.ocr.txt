@@ -1,0 +1,34 @@
+Uses of statistical models:
+
+PREDICTIVE:
+* What combo of
+
+features fits best?
+
+¢ Aim is to predict Y
+with minimum
+
+reducible error
+
+* Not focused on
+
+hypothesis tests
+
+INFERENTIAL:
+¢ What features are
+
+DESCRIPTIVE:
+* Choose model to
+
+best visuall Sismitgenie?
+emphasize a fend ¢ Aim is to test theories
+P . ¢ (Possibly) causal claims
+in data
+
+* i.e., using a line on
+a scatterplot
+
+* State relationship
+between outcome &
+predictor(s)
+

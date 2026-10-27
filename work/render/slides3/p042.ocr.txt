@@ -1,0 +1,12 @@
+In summary
+
+Logistic regression
+Model
+
+Coefficient interpretation
+
+Confounding
+
+Classification performance
+TPR/FPR
+ROC curve and AUC

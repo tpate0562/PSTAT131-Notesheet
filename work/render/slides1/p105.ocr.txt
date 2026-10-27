@@ -1,0 +1,11 @@
+K-nearest neighbors
+F(X) = E [¥|X = xo]
+
+Estimation idea: look at the K-nearest neighbors of Xo
+
+NV = {i: x; is among the K nearest neighbors of x,}
+
+A 1
+Fe%o) = z » Yi
+
+iEN

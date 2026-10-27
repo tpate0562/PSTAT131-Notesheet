@@ -1,0 +1,20 @@
+Multiple logistic regression
+
+e Pot+B,X,+.. .+6,X,
+
+_ 2 105 |
+Pr(Y 1 |X;, . -+>X) 1+ ePot AiX1+...+hpXp on
+
+which is equivalent to...
+
+PrY = 1X5 --yXp) Poti A8
+1 —Pr(¥ = 1|Xj,...,X,) E [0, + 00)
+
+taking logarithm of both sides...
+
+Pr(Y = 1|Xj, ...,X,)
+log
+
+ae) = Po + BX, +... +B,X,
+
+E (—oo, + co)

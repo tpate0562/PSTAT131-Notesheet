@@ -1,0 +1,11 @@
+A very basic learning model
+• Goal: learn f from observations of data
+𝑌= 𝑓𝑋!, … , 𝑋" + 𝜀
+Response
+Predictors
+Error 
+(”noise”)
+is a 
+function 
+of
+and

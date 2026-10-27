@@ -1,0 +1,429 @@
+%% raw_s3b.tex -- raw transcription of Slide Set 3, PDF pages 43--93
+%% (Discriminant analysis: LDA, QDA, comparison of classifiers).
+\section{Slide Set 3 (cont.) --- Discriminant analysis: LDA \& QDA (pp.~43--93; past the Slide-42 cutoff)}
+\ixh{discriminant analysis}\ixh{linear discriminant analysis (LDA)}\ixh{quadratic discriminant analysis (QDA)}
+{\color{figgray}\itshape [note: these pages lie past the official ``up until Slide 42'' midterm cutoff, but are included because practice exam Q20, Lab~3 and HW~3 test LDA/QDA.]}
+
+%% ------------------------------------------------------------------
+\subsection{Motivation: why LDA?}
+\ixh{linear discriminant analysis (LDA)}
+
+\slide{3}{43}{Next\ldots}
+\textbf{Discriminant Analysis}\ixh{discriminant analysis}
+
+\slide{3}{44}{[untitled --- course roadmap]}
+\fig{Roadmap diagram. Top row: ``Machine Learning\ixh{machine learning} vs Statistical Machine Learning\ixh{statistical machine learning}''; an arrow from each of the two points down to ``Supervised Learning\ixh{supervised learning}'' in the second row ``Supervised Learning vs Unsupervised Learning\ixh{unsupervised learning}''. From ``Supervised Learning'' two arrows go down to the third row ``Regression\ixh{regression} vs Classification\ixh{classification}''; ``Classification'' is boxed in red (the current topic).}
+
+\begin{center}
+\textbf{Another {\color{dblue}linear} method in {\color{dblue}classification}:}\\
+\textbf{\color{dblue}Linear Discriminant Analysis (LDA)}\ixh{linear discriminant analysis (LDA)}\ixh{classification}\\[2pt]
+\textbf{related methods, and their comparison}\ixh{model comparison}
+\end{center}
+
+\slide{3}{45}{Why bother considering LDA?}
+\ixh{linear discriminant analysis (LDA)}
+\textbf{{\color{dblue}Reason 1:} \ix{coefficient} estimates in \ix{logistic regression} can be {\color{warnc}unstable}}\ixh{unstable coefficient estimates}
+
+\textbf{Consider this example:}
+\[ Y=\begin{cases} 0 & \textbf{if}\quad X\le 50\\ 1 & \textbf{if}\quad X>50\end{cases} \]
+\begin{center}\textbf{\color{warnc}Perfectly separable!}\ixh{perfect separation}\end{center}
+\begin{routput}
+> x <- seq(100)
+> y <- c(rep(0, 50), rep(1, 50))
+> fit <- glm(y~x, family = "binomial")        (*@\ixch{glm()}\ixch{family = "binomial"}@*)
+Warning messages:
+1: glm.fit: algorithm did not converge
+2: glm.fit: fitted probabilities numerically 0 or 1 occurred
+\end{routput}
+\fig{R console screenshot: the three input lines are in blue, the two warning messages in red.}
+\begin{center}\textbf{\ix{LDA} does not suffer from this problem!}\end{center}
+
+\slide{3}{46}{Why bother considering LDA?}
+\ixh{linear discriminant analysis (LDA)}
+\textbf{{\color{dblue}Reason 1:} coefficient estimates in \ix{logistic regression} can be {\color{warnc}unstable}}\ixh{unstable coefficient estimates}
+
+\textbf{{\color{dblue}Reason 2:} when $n$ is small \& distribution of $X$ is close to normal}\ixh{normal distribution}\ixh{small sample size}
+
+\textbf{{\color{dblue}Reason 3:} \ix{multi-class classification} problem}
+
+\slide{3}{47}{[untitled --- feature extraction vs feature selection]}
+\fig{Two-panel graphic with no other text. Left panel (dark slate background), titled ``\ix{feature extraction}'': a row of 5 diamonds, a red down-arrow, a row of 8 circles, a red arrow, a row of 6 circles, a red arrow, and finally a row of 3 glowing circles --- the original features are transformed/combined into a small number of \emph{new} features. Right panel (light teal background), titled ``\ix{feature selection}'': a single row of 7 dark circles, 3 of which (the 2nd, 5th and 6th) are crossed out with red X's --- a subset of the \emph{original} features is kept and the rest are dropped.}\ixh{dimension reduction}
+{\color{figgray}\itshape [note: LDA is a feature-extraction method --- it builds new axes (LD1, LD2, \ldots) from combinations of the predictors; see S3.64--67, S3.80--85.]}
+
+%% ------------------------------------------------------------------
+\subsection{Bayes' theorem and the idea of discriminant analysis}
+\ixh{Bayes' theorem}
+
+\slide{3}{48}{Motivating LDA}
+\ixh{linear discriminant analysis (LDA)}
+\textbf{Back in Lecture 3, the \ix{Bayes classifier} is the ``best'' we can do}
+\[ {\color{keyc}\operatorname{argmax}_{k=1,\ldots,K}\Bigl\{\Pr\bigl(Y=k\mid X_1,\ldots,X_p\bigr)\Bigr\}} \]\ixh{argmax}\ixh{posterior probability}
+\textbf{Logistic regression\ixh{logistic regression} ($K=2$ case)}
+\[ \Pr(Y=1\mid X_1,\ldots,X_p)=\frac{e^{\beta_0+\beta_1X_1+\ldots+\beta_pX_p}}{1+e^{\beta_0+\beta_1X_1+\ldots+\beta_pX_p}} \]\ixh{logistic function}
+\textbf{{\color{dblue}LDA}: uses Bayes theorem\ixh{Bayes' theorem} \& makes assumptions on $X_1,\ldots,X_p\mid Y$}\ixh{linear discriminant analysis (LDA)}
+
+\slide{3}{49}{Bayes theorem}
+\ixh{Bayes' theorem}
+{\color{dblue}\textbf{Prior probability}}\ixh{prior probability}\quad $\pi_k=\Pr\bigl(Y=k\bigr)$\ixh[pi k]{$\pi_k$ (prior probability)}
+
+{\color{dblue}\textbf{Density function}}\ixh{density function}\ixh{class-conditional density} \textbf{of} $(X_1,\ldots,X_p)\mid Y=k$
+\[ f_k(x_1,\ldots,x_p)=\Pr\Bigl(X_1=x_1,\ldots,X_p=x_p\mid Y=k\Bigr) \]\ixh[f k]{$f_k(x)$ (class density)}
+{\color{dblue}\textbf{Bayes theorem:}}\ixh{Bayes' theorem}\ixh{posterior probability}
+\begin{align*}
+&\Pr\Bigl(Y=k\mid X_1=x_1,\ldots,X_p=x_p\Bigr)\\
+&\quad=\frac{\Pr\bigl(Y=k,X_1=x_1,\ldots,X_p=x_p\bigr)}{\Pr\bigl(X_1=x_1,\ldots,X_p=x_p\bigr)}\\
+&\quad=\frac{\Pr\bigl(Y=k,X_1=x_1,\ldots,X_p=x_p\bigr)}{\sum_{j=1}^K\Pr\bigl(Y=j,X_1=x_1,\ldots,X_p=x_p\bigr)}\\
+&\quad=\frac{\pi_kf_k(x_1,\ldots,x_p)}{\sum_{j=1}^K\pi_jf_j(x_1,\ldots,x_p)}
+\end{align*}
+
+%% ------------------------------------------------------------------
+\subsection{The geometric picture: projecting onto a new axis (gene-expression example)}
+\ixh{projection}\ixh{linear discriminant analysis (LDA)}
+
+\slide{3}{50}{[untitled --- 2D data projected onto one original axis]}
+\fig{Two hand-drawn panels, no text besides labels. Left, labelled ``2D'': a \ix{scatterplot} with axes $X_1$ (horizontal) and $X_2$ (vertical); about 6 blue points sit in the lower-left/middle and 5 red points in the upper part --- the two colours (two classes) are fairly well separated in 2D. Right, labelled ``2D'' (top) and ``1D'' (bottom): the same points, each with a green vertical arrow dropping straight down onto the $X_1$ axis; below, the resulting 1D number line ``$X_1$'' shows the projected points with blue and red thoroughly interleaved (blue, blue, blue/red, blue, red, blue, red, blue, red, red) --- projecting onto an original axis ($X_1$ only, i.e.\ ignoring $X_2$) loses the class separation.}\ixh{projection}\ixh{dimension reduction}
+
+\slide{3}{51}{[untitled --- 2D data projected onto the LD1 axis]}
+\fig{Three stacked hand-drawn panels. Top (``2D''): axes $X_1$, $X_2$; a black diagonal line runs from lower left to upper right through the cloud of blue (lower-left) and red (upper-right) points; green arrows project each point perpendicularly onto the line. Middle: the same axes with all points now lying on the diagonal line --- blue points on the lower-left half and red points on the upper-right half, no mixing. Bottom (``1D''): a number line labelled ``\ix{LD1}'' with 6 blue points on the left and 5 red points on the right --- projecting onto the new LDA axis keeps the two classes separated.}\ixh{linear discriminant (LD1, LD2)}\ixh{projection}\ixh{dimension reduction}
+
+\slide{3}{52}{LDA: A motivating example}
+\ixh{linear discriminant analysis (LDA)}\ixh{gene-expression example}
+\fig{Number line titled ``Transcription for Gene X'' (blue line with tick marks, dotted at both ends); left arrow ``Fewer Transcripts'' and right arrow ``More transcripts''. Twelve dots from left to right: green, green, green, green, red, green, red, green, red, red, red, red (6 green, 6 red). Legend: green dot ``= The drug works!''; red dot ``= The drug does not work :(''.}
+\begin{center}\footnotesize\texttt{https://youtu.be/azXCzI57Yfc}\quad{\color{figgray}\itshape(link at the bottom of the slide)}\end{center}
+
+\slide{3}{53}{LDA: A motivating example}
+\fig{Same Gene X number line and legend as S3.52. The four leftmost green dots are circled in red, with an arrow from the callout text:}
+\begin{quote}``For the most part, the drug works in people with low transcription of gene X.''\end{quote}
+
+\slide{3}{54}{LDA: A motivating example}
+\fig{Same Gene X number line; the four leftmost green dots are circled in red (left callout) and the four rightmost red dots are circled in red (right callout).}
+\begin{itemize}
+\item Left callout: ``For the most part, the drug works in people with low transcription of gene X.''
+\item Right callout: ``And, for the most part, the drug does not work in people with high transcription of gene X.''
+\end{itemize}
+
+\slide{3}{55}{LDA: A motivating example}
+\fig{Same Gene X number line; now the middle section (red, green, red, green) is circled in red, with an arrow from the callout text:}
+\begin{quote}``However, there is overlap\ixh{class overlap} and no obvious `cutoff' for who to give the drug to.''\end{quote}\ixh{class overlap}
+
+\slide{3}{56}{LDA: A motivating example}
+\begin{quote}In summary, Gene X does an OK job at telling us who should take the drug (and who shouldn't).\end{quote}
+\fig{Same Gene X number line and legend (green = drug works, red = drug does not work), no circles.}
+
+\slide{3}{57}{LDA: A motivating example}
+\begin{quote}In summary, Gene X does an OK job at telling us who should take the drug (and who shouldn't).
+
+Can we do better?\quad What if we used more than one gene?\end{quote}
+\fig{Same Gene X number line and legend as S3.56.}
+
+\slide{3}{58}{LDA: A motivating example}
+\fig{2D \ix{scatterplot}: horizontal axis ``Gene X'' (arrow ``More X transcripts''), vertical axis ``Gene Y'' (arrow ``More Y transcripts''). 6 green points (drug works) lie mostly toward the lower-left (one green at top-left, one green in the upper middle); 6 red points (drug does not work) lie mostly along the top/upper-right, plus one red at the lower right.}
+
+\slide{3}{59}{LDA: A motivating example}
+\fig{Same Gene X / Gene Y scatterplot as S3.58, now with a black dashed line running diagonally from the top (just right of the top-left green point) down to the lower right, separating the green points (below-left) from the red points (above-right) --- a linear \ix{decision boundary}.}
+
+\slide{3}{60}{LDA: A motivating example}
+\fig{Same scatterplot with the dashed separating line; a blue arrow points at the line from the callout text:}
+\begin{quote}Two genes do a better job separating the two categories.\end{quote}
+
+\slide{3}{61}{LDA: A motivating example}
+\fig{Same scatterplot and dashed separating line as S3.60.}
+\begin{quote}Two genes do a better job separating the two categories.
+
+Would three genes be even better?\end{quote}
+
+\slide{3}{62}{LDA: A motivating example}
+\fig{3D version of the scatterplot: axes Gene X (``More X transcripts'') and Gene Y (``More Y transcripts''), plus a dashed blue third axis drawn diagonally out of the origin labelled (with a grey arrow) ``Gene Z''. Points are drawn in different sizes to suggest depth (larger = closer): green points still mostly lower-left, red points mostly upper-right.}
+
+\slide{3}{63}{LDA: A motivating example}
+\fig{Same 3D plot (Gene X, Gene Y, Gene Z) with a translucent light-blue rectangle (a plane drawn in perspective, dashed outline) cutting through the cloud; an arrow points to it from the callout text:}
+\begin{quote}With 3 dimensions, we use a \ix{plane} to try and separate the two categories.\end{quote}\ixh{hyperplane}
+
+\slide{3}{64}{LDA: A motivating example}
+\begin{center}Reducing a 2-D graph to a 1-D graph\end{center}\ixh{dimension reduction}
+\fig{Left, under a brace ``A 2-D graph (aka X/Y Graph)'': the Gene X / Gene Y scatterplot (6 green, 6 red points). A thick black arrow $\to$ points to the right, under a brace ``A 1-D graph (aka number line)'': a blue double-headed number line with points (left to right) green, green, green, green, green, then red, red, green, red, then red, red, red --- the greens mostly on the left, the reds on the right with one green among them.}
+
+\slide{3}{65}{LDA: A motivating example}
+\fig{Gene X / Gene Y scatterplot as in S3.58; a large brace spans the vertical (Gene Y) axis with the callout to its left:}
+\begin{quote}One bad option would be to ignore Gene Y\end{quote}
+
+\slide{3}{66}{LDA: A motivating example}
+\begin{quote}One bad option would be to ignore Gene Y\end{quote}
+\fig{Same points, the ``Gene Y'' axis label is greyed out; dotted vertical arrows drop every point straight down onto the Gene X axis (i.e.\ projecting onto Gene X alone), so the green and red points end up interleaved along the X axis --- the separation provided by Gene Y is lost.}\ixh{projection}
+
+\slide{3}{67}{LDA: A motivating example}
+\fig{Left: the Gene X / Gene Y scatterplot with a solid black diagonal line drawn from the lower left (below the origin) up to the upper right, passing between/through the points; a thick blue arrow points to the line from the caption ``LDA uses both genes to create a new axis\ldots''. Right: the same three stacked hand-drawn panels as S3.51 --- points in the $(X_1,X_2)$ plane projected perpendicularly (green arrows) onto a diagonal line; the projected points on the line; and the resulting 1D number line labelled ``LD1'' with blue points on the left and red points on the right.}\ixh{LD1}\ixh{linear discriminant (LD1, LD2)}\ixh{projection}
+\begin{center}LDA uses both genes to create a new axis\ldots\end{center}\ixh{linear discriminant analysis (LDA)}\ixh{feature extraction}
+
+%% ------------------------------------------------------------------
+\subsection{Discriminant analysis: key idea}
+\ixh{discriminant analysis}
+
+\slide{3}{68}{Discriminant Analysis: key idea}
+\ixh{discriminant analysis}\ixh{Bayes' theorem}
+\[ \boxed{\Pr\Bigl(Y=k\mid X_1=x_1,\ldots,X_p=x_p\Bigr)}=\frac{\boxed{\pi_k}\,\boxed{f_k(x_1,\ldots,x_p)}}{\sum_{j=1}^K\pi_jf_j(x_1,\ldots,x_p)} \]
+\fig{Colour-coded annotations: the left-hand side is boxed in blue and labelled underneath ``{\color{dblue}what we really care about}'' (the \ix{posterior probability}); $\pi_k$ in the numerator is boxed in orange-red and labelled above ``$\pi_k=\Pr\bigl(Y=k\bigr)$'' (the \ix{prior probability}); $f_k(x_1,\ldots,x_p)$ is boxed in green and labelled above ``{\color{keyc}density function}''.}\ixh{density function}
+\[ f_k(x_1,\ldots,x_p)=\Pr\Bigl(X_1=x_1,\ldots,X_p=x_p\mid Y=k\Bigr) \]\ixh{class-conditional density}
+\begin{center}
+\textbf{\color{dblue}Discriminant Analysis in one sentence}\textbf{:}\ixh{discriminant analysis}\\
+\textbf{assume {\color{keyc}$f_k(x_1,\ldots,x_p)$} is the \ix{normal distribution} density}\\[2pt]
+\textbf{$\leftrightarrow$ $(X_1,\ldots,X_p)\mid Y$ is normally distributed}
+\end{center}
+
+%% ------------------------------------------------------------------
+\subsection{LDA with one predictor ($p=1$)}
+\ixh{linear discriminant analysis (LDA)}
+
+\slide{3}{69}{LDA: $p=1$ case}
+\ixh{linear discriminant analysis (LDA)}\ixh{normal distribution}
+\textbf{We only have one \ix{predictor} $X$, which we assume} \ $X\mid\boxed{Y=k}\sim N(\boxed{\mu_k},\boxed{\sigma^2})$\ixh[mu k]{$\mu_k$ (class mean)}\ixh[sigma2]{$\sigma^2$ (common variance)}
+
+\hfill{\color{warnc}\textbf{different mean, same variance}}\ixh{common variance assumption}
+\fig{``$Y=k$'', ``$\mu_k$'' and ``$\sigma^2$'' are each boxed in orange-red; the annotation ``different mean, same variance'' sits below them.}
+\[ f_k(x)=\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{1}{2\sigma^2}(x-\mu_k)^2\right) \]\ixh{density function}\ixh[f k]{$f_k(x)$ (class density)}
+\begin{align*}
+\Pr\bigl(Y=k\mid X=x\bigr)&=\frac{\pi_kf_k(x)}{\sum_{j=1}^K\pi_jf_j(x)}\\
+&=\frac{\pi_k\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{1}{2\sigma^2}(x-\mu_k)^2\right)}{\boxed{\sum_{j=1}^K\pi_j\frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{1}{2\sigma^2}(x-\mu_j)^2\right)}}
+\end{align*}\ixh{posterior probability}\ixh{Bayes' theorem}
+\fig{The constant $\frac{1}{\sqrt{2\pi}\sigma}$ is crossed out with a red slash in both numerator and denominator (it cancels because $\sigma$ is shared by all classes). The whole denominator is boxed in blue with the label ``{\color{dblue}same for all $k$}''.}
+
+\slide{3}{70}{LDA: $p=1$ case}
+\textbf{We only have one predictor $X$, which we assume} \ $X\mid\boxed{Y=k}\sim N(\boxed{\mu_k},\boxed{\sigma^2})$
+
+\hfill{\color{warnc}\textbf{different mean, same variance}}\ixh{common variance assumption}
+\[ \Pr\bigl(Y=k\mid X=x\bigr)\propto\pi_k\exp\left(-\frac{1}{2\sigma^2}(x-\mu_k)^2\right) \]\ixh{posterior probability}
+\textbf{The \ix{Bayes classifier} will assign an observation $X=x$ to the class for which $\Pr\bigl(Y=k\mid X=x\bigr)$ is largest\ldots}
+
+\textbf{equivalent to assigning the observation to the class for which}
+\[ \delta_k(x)=x\cdot\frac{\mu_k}{\sigma^2}-\frac{\mu_k^2}{\sigma^2}+\log(\pi_k)\qquad\textbf{is {\color{dblue}largest}} \]\ixh{discriminant function}\ixh[delta k]{$\delta_k(x)$ (discriminant function)}
+{\color{figgray}\itshape [note: transcribed as printed (also on S3.71, 73, 74, 76); the standard ISLR form (eq.~4.18) has $-\frac{\mu_k^2}{2\sigma^2}$, i.e.\ a factor $\tfrac12$ is missing on the slides.]}
+
+\slide{3}{71}{LDA: $p=1$ case}
+\[ \delta_k(x)=x\cdot\frac{\mu_k}{\sigma^2}-\frac{\mu_k^2}{\sigma^2}+\log(\pi_k) \]\ixh{discriminant function}\ixh[delta k]{$\delta_k(x)$ (discriminant function)}
+\textbf{For the observation $X=x$, \fbox{obtain}}
+\[ \delta_1(x),\delta_2(x),\ldots,\delta_K(x) \]
+\textbf{The \ix{Bayes classifier} assigns the observation to class $j$ if $\delta_j(x)$ is the largest}
+
+\begin{center}
+\textbf{The value of {\color{warnc}$\mu_1,\mu_2,\ldots,\mu_K,\pi_1,\ldots,\pi_K,\sigma^2$} are {\color{warnc}unknown}!}\ixh{parameter estimation}\\[2pt]
+\textbf{\color{dblue}estimate them!}
+\end{center}
+\fig{``obtain'' is boxed in blue.}
+
+\slide{3}{72}{[untitled --- projecting the 2-gene data onto the new axis]}
+\fig{Two panels, no text besides axis labels. Left: the Gene X (``More X transcripts'') / Gene Y (``More Y transcripts'') \ix{scatterplot} with a solid black diagonal line (lower-left to upper-right); dotted arrows move each green and red point perpendicularly onto the line (\ix{projection}). Right: the same axes with all 12 points now sitting on the diagonal line; from lower-left to upper-right: 5 green, 3 red, 1 green, 3 red --- the projected classes are almost perfectly separated along the new axis.}\ixh{LD1}\ixh{linear discriminant (LD1, LD2)}
+
+\slide{3}{73}{[untitled --- how LDA chooses the new axis: means and scatter]}
+\[ \delta_k(x)=x\cdot\frac{\mu_k}{\sigma^2}-\frac{\mu_k^2}{\sigma^2}+\log(\pi_k) \]\ixh{discriminant function}\ixh[delta k]{$\delta_k(x)$ (discriminant function)}
+\begin{itemize}
+\item[1)] Maximize the distance between means.\ixh{distance between means}
+\item[2)] Minimize the variation (which LDA calls ``\ix{scatter}'' and is represented by $\boldsymbol{s^2}$) within each category.\ixh{within-class variance}
+\end{itemize}
+\fig{A number line of projected points: green points on the left (4 green, plus 1 green further right among the reds), red points on the right. A thick green vertical bar marks the green mean ``$\mu$'' (green) and a thick red bar marks the red mean ``$\mu$'' (red); a black brace above joins the two means (callout 1). Below the line, a green brace spans the spread of the green points labelled ``$s^2$'' (green) and a red brace spans the red points labelled ``$s^2$'' (red) (callout 2).}
+
+\slide{3}{74}{[untitled --- the LDA separation criterion]}
+\begin{itemize}
+\item[1)] Maximize the distance between means.\ixh{distance between means}
+\item[2)] Minimize the variation (which LDA calls ``scatter'' and is represented by $\boldsymbol{s^2}$) within each category.\ixh{scatter}\ixh{within-class variance}
+\item Let's call $({\color{keyc}\mu}-{\color{slidec}\mu})$ $\boldsymbol{d}$ for $\boldsymbol{d}$istance.
+\end{itemize}
+\[ \frac{\boldsymbol{d^2}}{{\color{keyc}s^2}+{\color{slidec}s^2}}\ \Longrightarrow\ \frac{\text{Ideally large}}{\text{Ideally small}}\qquad\qquad \frac{\mu_k}{\sigma^2}-\frac{\mu_k^2}{\sigma^2} \]
+\fig{Same number line with green/red means $\mu$ and green/red scatter braces $s^2$ as S3.73. Blue arrows: from ``1) Maximize the distance between means'' and from ``Let's call $(\mu-\mu)$ $d$ for distance'' down to the numerator $d^2$; from ``2) Minimize the variation\ldots'' up to the denominator $s^2+s^2$ (green $s^2$ + red $s^2$). A big blue arrow from the fraction points to ``Ideally large'' over ``Ideally small''. Pasted below the fraction, in a white box, is the expression $\frac{\mu_k}{\sigma^2}-\frac{\mu_k^2}{\sigma^2}$ (the part of $\delta_k(x)$ involving the means and the common variance), linking the criterion to the discriminant function.}
+
+\slide{3}{75}{[untitled --- distance between means alone vs means and scatter]}
+\fig{Left: a 2D scatterplot (blue axes, no labels): 6 red points in an upper band and 6 green points in a lower band, both bands rising gently to the right (the classes are separated vertically, but each class is spread out horizontally). Two black arrows lead to two alternative projections.
+Top right (callout ``If we only maximize the distance between means\ldots''): the points are projected onto a line rising with the bands; green mean marked by a green tick on the left, red mean by a red tick on the right, far apart --- but the middle of the line, circled in black, shows green and red points interleaved; callout ``The separation isn't great\ldots''.
+Bottom right (callout ``However, if we optimize the distance between means and scatter\ldots''): the points are projected onto a steep, nearly vertical line; the red points cluster tightly together near the top (red tick at their mean) and the green points cluster tightly near the bottom (green tick), with no overlap; callout with blue arrow ``We get nice separation!''.}\ixh{distance between means}\ixh{scatter}\ixh{projection}
+\begin{itemize}
+\item If we only maximize the distance between means\ldots\quad The separation isn't great\ldots
+\item However, if we optimize the distance between means and scatter\ldots\quad We get nice separation!
+\end{itemize}
+
+\slide{3}{76}{LDA classifier: $p=1$ case}
+\ixh{linear discriminant analysis (LDA)}\ixh{parameter estimation}
+\[ \hat\pi_k=\frac{\boxed{n_k}}{\boxed{n}}\qquad\qquad \hat\mu_k=\frac{1}{n_k}\sum_{i:y_i=k}x_i \]\ixh[pi hat k]{$\hat\pi_k$ (estimated prior)}\ixh[mu hat k]{$\hat\mu_k$ (estimated class mean)}
+\begin{itemize}
+\item {\color{dblue}$n_k$: number of training observations in the $k$th class}\ixh{training data}
+\item {\color{dblue}$n$: total number of training observations}
+\end{itemize}
+\[ \hat\sigma^2=\frac{1}{n-K}\sum_{k=1}^K\sum_{i:y_i=k}(x_i-\hat\mu_k)^2 \]\ixh[sigma2 hat]{$\hat\sigma^2$ (pooled variance)}\ixh{pooled variance}
+\textbf{The {\color{dblue}LDA} classifier assigns the observation $X=x$ to class for which}\ixh{linear discriminant analysis (LDA)}
+\[ \boxed{\hat\delta_k(x)}=\boxed{x\cdot\frac{\hat\mu_k}{\hat\sigma^2}}-\frac{\hat\mu_k^2}{\hat\sigma^2}+\log(\hat\pi_k)\qquad\textbf{is {\color{dblue}largest}} \]\ixh[delta hat k]{$\hat\delta_k(x)$ (estimated discriminant function)}
+\fig{$n_k$ and $n$ are boxed in blue with the blue labels above. $\hat\delta_k(x)$ is boxed in blue and labelled ``{\color{dblue}Discriminant function}''; the term $x\cdot\hat\mu_k/\hat\sigma^2$ is boxed in orange-red and labelled ``{\color{warnc}linear in $x$}''.}\ixh{discriminant function}\ixh{linear in x}
+
+\slide{3}{77}{Decision boundary: $p=1$ case}
+\ixh{decision boundary}\ixh{Bayes decision boundary}\ixh{LDA decision boundary}
+\fig{Left plot: two \ix{normal distribution} density curves on an $x$-axis from $-5$ to $5$ (ticks $-4,-2,0,2,4$): a green curve labelled $N(\mu_1,\sigma^2)$ centred near $-1.25$ and a purple curve labelled $N(\mu_2,\sigma^2)$ centred near $+1.25$, same height and width (same variance). A black dashed vertical line at $x=0$, where the curves cross, is labelled with an arrow ``Bayesian decision boundary''.
+Right plot: overlaid histograms of a training sample from each class (green solid bars = class 1, purple hatched bars = class 2) on an $x$-axis from $-3$ to $4$, counts $0$--$5$; the green bars are concentrated on the left (peak 5 near $-1.75$), the purple bars on the right (peak 5 near $1.25$), overlapping between about $-2$ and $1$. Two vertical lines: the dashed line at $0$ (Bayes decision boundary) and a solid black line slightly to its left (about $-0.2$), labelled with a curved arrow ``LDA decision boundary'' --- the LDA boundary estimated from the data is close to, but not exactly at, the Bayes boundary.
+Bottom: the ``Transcription for Gene X'' number line from S3.52 again (``Fewer Transcripts'' $\leftarrow$ / $\to$ ``More transcripts''; green = drug works, red = drug does not work).}\ixh{histogram}\ixh{Bayes decision boundary}\ixh{LDA decision boundary}
+
+%% ------------------------------------------------------------------
+\subsection{LDA with multiple predictors ($p>1$)}
+\ixh{linear discriminant analysis (LDA)}\ixh{multivariate normal distribution}
+
+\slide{3}{78}{LDA: $p>1$ case}
+\textbf{We have multiple \ix{predictor}s $X_1,\ldots,X_p$, which we assume}
+\[ (X_1,\ldots,X_p)\mid\boxed{Y=k}\sim N(\boxed{\mu_k},\boxed{\Sigma}) \]\ixh{multivariate normal distribution}\ixh[mu k]{$\mu_k$ (class mean)}\ixh[Sigma]{$\Sigma$ (covariance matrix)}
+\begin{center}{\color{warnc}\textbf{different mean, same covariance}}\end{center}\ixh{covariance matrix}\ixh{common covariance assumption}
+\[ f_k(\mathbf x)=\frac{1}{(2\pi)^{p/2}|\Sigma|^{1/2}}\exp\left(-\frac12(\mathbf x-\mu_k)^T\Sigma^{-1}(\mathbf x-\mu_k)\right) \]\ixh{density function}\ixh[f k]{$f_k(x)$ (class density)}
+with a lot of algebra\ldots
+
+\textbf{The {\color{dblue}Bayes} classifier assigns the observation $\mathbf x$ to class for which}\ixh{Bayes classifier}
+\[ \delta_k(\mathbf x)=\mathbf x^T\Sigma^{-1}\mu_k-\frac12\mu_k^T\Sigma^{-1}\mu_k+\log\pi_k \]\ixh{discriminant function}\ixh[delta k]{$\delta_k(x)$ (discriminant function)}
+\textbf{is {\color{dblue}largest}}
+\fig{``$Y=k$'', ``$\mu_k$'' and ``$\Sigma$'' are boxed in orange-red above the annotation ``different mean, same covariance''.}
+
+\slide{3}{79}{LDA classifier: $p>1$ case}
+\ixh{linear discriminant analysis (LDA)}
+\textbf{The {\color{dblue}Bayes} classifier assigns the observation $\mathbf x$ to class for which}\ixh{Bayes classifier}
+\[ \delta_k(\mathbf x)=\mathbf x^T\Sigma^{-1}\mu_k-\frac12\mu_k^T\Sigma^{-1}\mu_k+\log\pi_k \]\ixh{discriminant function}\ixh[delta k]{$\delta_k(x)$ (discriminant function)}
+\textbf{is {\color{dblue}largest}}
+
+\textbf{The {\color{warnc}LDA} classifier assigns the observation $\mathbf x$ to class for which}\ixh{linear discriminant analysis (LDA)}
+\[ \hat\delta_k(\mathbf x)=\boxed{\mathbf x^T\hat\Sigma^{-1}\hat\mu_k}-\frac12\hat\mu_k^T\hat\Sigma^{-1}\hat\mu_k+\log\hat\pi_k \]\ixh[delta hat k]{$\hat\delta_k(x)$ (estimated discriminant function)}\ixh[Sigma hat]{$\hat\Sigma$ (estimated covariance matrix)}\ixh[mu hat k]{$\hat\mu_k$ (estimated class mean)}\ixh[pi hat k]{$\hat\pi_k$ (estimated prior)}
+\textbf{is {\color{warnc}largest}}
+\fig{The term $\mathbf x^T\hat\Sigma^{-1}\hat\mu_k$ is boxed in orange-red and labelled ``{\color{warnc}linear in $x$}''.}\ixh{linear in x}
+
+\slide{3}{80}{[untitled --- LDA with three genes]}
+\fig{Left: the 3D Gene X / Gene Y / Gene Z plot from S3.62 (point size suggests depth; green mostly lower-left, red mostly upper-right) with a solid black line drawn diagonally through the cloud from just below the origin up to the large red point at top right; an arrow points to the line from the caption ``Here's the new axis that LDA created.''. Right (axes faded out): ``The data are projected onto the new axis.'' --- all points lie on the diagonal line: 6 green points on the lower-left part and 6 red points on the upper-right part, completely separated.}\ixh{projection}\ixh{LD1}\ixh{dimension reduction}
+\begin{itemize}
+\item Here's the new axis that LDA created.\ixh{linear discriminant (LD1, LD2)}
+\item The data are projected onto the new axis.
+\end{itemize}
+
+\slide{3}{81}{Decision boundary: $p>1$ case}
+\ixh{decision boundary}
+\begin{itemize}
+\item {\color{dblue}\textbf{Bayesian decision boundary}}\ixh{Bayes decision boundary}\\
+\textbf{set of $\mathbf x$ such that $\delta_k(\mathbf x)=\delta_j(\mathbf x)$ for $k\ne j$}
+\item {\color{warnc}\textbf{LDA decision boundary}}\ixh{LDA decision boundary}\\
+\textbf{set of $\mathbf x$ such that $\hat\delta_k(\mathbf x)=\hat\delta_j(\mathbf x)$ for $k\ne j$}
+\item \textbf{linear boundary, i.e., \ix{hyperplane}}\ixh{linear decision boundary}
+\end{itemize}
+\fig{Plot with axes $X_1$ (horizontal, $-4$ to $4$+) and $X_2$ (vertical, $-4$ to $4$+): three classes of diamond-shaped points --- orange (upper middle, around $(1,3)$), blue (right, around $(3,1)$) and green (lower left, around $(-1.5,-1)$), about 20 each. The background is shaded with small dots in the colour of the region each point is classified to (orange top, blue right, green left/bottom). Three solid black line segments (LDA boundaries) meet at a point near $(0.6,0.4)$: one going up-right to the top-right corner, one going up-left toward $(-4,2.4)$, one going straight down to $(0.6,-4)$. Three dashed black lines (Bayes boundaries) meet at almost the same point: one nearly on top of the up-right solid line, one going left more shallowly toward $(-4,1.2)$, one going down slightly to the right toward $(1.2,-4)$. A blue curved arrow connects the label ``Bayesian decision boundary'' to a dashed line; an orange-red curved arrow connects ``LDA decision boundary'' to a solid line. All boundaries are straight lines.}\ixh{multi-class classification}
+
+\slide{3}{82}{[untitled --- LDA with three categories: the central point]}
+\ixh{multi-class classification}
+\begin{itemize}
+\item \textbf{The first difference} is how you measure the distances among the means.\ixh{distance between means}
+\item Find the point that is central to all of the data.\ixh{overall mean}
+\end{itemize}
+\fig{Two copies of a Gene X / Gene Y \ix{scatterplot} with \emph{three} categories: about 7 cyan points in the upper left, 7 red points in the upper right (one lower at the right edge), and 6 green points in the lower left/middle. In the right copy, a large black dot is placed in the middle of all the data (between the three groups), with an arrow from the callout ``Find the point that is central to all of the data.''}
+
+\slide{3}{83}{[untitled --- LDA with three categories: distances to the central point]}
+\begin{quote}Then measure the distances between a point that is central in each category and the main central point.\end{quote}\ixh{distance between means}
+\fig{Left: the 3-category scatterplot with a large dot at the centre of each category (blue for the cyan group, red for the red group, dark green for the green group) and a black arrow from each category centre to the black main central point. Right: zoomed version of the same picture with each arrow labelled $d^2$ in the colour of its category (blue $d^2$, red $d^2$, green $d^2$). Below it, the criterion}
+\[ \frac{{\color{keyc}d^2}+{\color{slidec}d^2}+{\color{dblue}d^2}}{{\color{keyc}s^2}+{\color{slidec}s^2}+{\color{dblue}s^2}} \]\ixh{scatter}\ixh{within-class variance}
+\fig{(green, red and blue terms: sum of squared distances of the category centres from the central point, over the sum of the within-category scatters).}
+
+\slide{3}{84}{[untitled --- LDA with three categories: two new axes]}
+\fig{The 3-category Gene X / Gene Y scatterplot (cyan upper-left, red right, green lower-left), with the three large category-centre dots (blue, red, green). Two long straight black lines cross in an ``X'' near the middle of the data (one running from upper left to lower right, the other from lower left to upper right), so that the cyan, red and green groups fall into different wedges. No text on the slide.}
+{\color{figgray}\itshape [note: no text; the two lines are presumably the two new axes LDA creates for three categories (LD1 and LD2, plotted on S3.85).]}\ixh{linear discriminant (LD1, LD2)}
+
+\slide{3}{85}{[untitled --- LDA plot: LD1 vs LD2]}
+\fig{Two copies of an R scatterplot titled ``LDA'': horizontal axis ``\ix{LD1}'' (ticks $-4$ to $2$), vertical axis ``\ix{LD2}'' (ticks $-2$ to $2$). Points in three colours (three classes): red points on the left (LD1 from about $-4.2$ to $-0.8$, LD2 around $-1$ to $1$), black points at upper right (LD1 $0$ to $2$, LD2 $-0.7$ to $2.6$), blue points at lower right (LD1 $-0.2$ to $2.2$, LD2 $-2.7$ to $0$), with a few blue points mixed in among the black ones. In the right copy the three groups are circled: a red circle around the red cluster (left), a black circle around the black cluster (upper right) and a blue circle around the blue cluster (lower right) --- LD1 separates red from the rest; LD2 separates black from blue.}\ixh{linear discriminant (LD1, LD2)}\ixh{projection}
+
+%% ------------------------------------------------------------------
+\subsection{Quadratic discriminant analysis (QDA)}
+\ixh{quadratic discriminant analysis (QDA)}
+
+\slide{3}{86}{Quadratic Discriminant Analysis (QDA)}
+\ixh{quadratic discriminant analysis (QDA)}
+\textbf{Key in Discriminant Analysis}\ixh{discriminant analysis}
+\begin{center}$(X_1,\ldots,X_p)\mid Y$ \textbf{is normally distributed}\end{center}\ixh{multivariate normal distribution}
+\textbf{In LDA, we assume}\ixh{linear discriminant analysis (LDA)}
+\[ (X_1,\ldots,X_p)\mid\boxed{Y=k}\sim N(\boxed{\mu_k},\boxed{\Sigma}) \]\ixh[Sigma]{$\Sigma$ (covariance matrix)}
+\begin{center}\textbf{{\color{warnc}different} mean{\color{warnc}, same} covariance}\end{center}\ixh{common covariance assumption}\ixh{covariance matrix}
+\textbf{In QDA, we assume}\ixh{quadratic discriminant analysis (QDA)}
+\[ (X_1,\ldots,X_p)\mid\boxed{Y=k}\sim N(\boxed{\mu_k},\boxed{\Sigma_k}) \]\ixh[Sigma k]{$\Sigma_k$ (class covariance matrix)}
+\begin{center}\textbf{{\color{warnc}different} mean{\color{warnc}, different} covariance}\end{center}\ixh{covariance matrix}
+\fig{In both distributions ``$Y=k$'', ``$\mu_k$'' and ``$\Sigma$'' / ``$\Sigma_k$'' are boxed in orange-red.}
+
+\slide{3}{87}{QDA classifier}
+\ixh{quadratic discriminant analysis (QDA)}
+\textbf{In QDA\ldots}
+
+\textbf{The {\color{dblue}Bayes} classifier assigns the observation $\mathbf x$ to class for which}\ixh{Bayes classifier}
+\begin{align*}
+\delta_k(\mathbf x)={}&-\frac12\mathbf x^T\Sigma_k^{-1}\mathbf x+\mathbf x^T\Sigma_k^{-1}\mu_k-\frac12\mu_k^T\Sigma_k^{-1}\mu_k\\
+&-\frac12\log|\Sigma_k|+\log\pi_k
+\end{align*}\ixh{discriminant function}\ixh[delta k]{$\delta_k(x)$ (discriminant function)}
+\textbf{is {\color{dblue}largest}}
+
+\textbf{The {\color{warnc}QDA} classifier assigns the observation $\mathbf x$ to class for which}
+\begin{align*}
+\hat\delta_k(\mathbf x)={}&-\frac12\boxed{\mathbf x^T\hat\Sigma_k^{-1}\mathbf x}+\mathbf x^T\hat\Sigma_k^{-1}\hat\mu_k-\frac12\hat\mu_k^T\hat\Sigma_k^{-1}\hat\mu_k\\
+&-\frac12\log|\hat\Sigma_k|+\log\hat\pi_k
+\end{align*}\ixh[delta hat k]{$\hat\delta_k(x)$ (estimated discriminant function)}\ixh[Sigma hat k]{$\hat\Sigma_k$ (estimated class covariance matrix)}
+\textbf{is {\color{warnc}largest}}
+\fig{The term $\mathbf x^T\hat\Sigma_k^{-1}\mathbf x$ is boxed in orange-red and labelled ``{\color{warnc}quadratic in $\mathbf x$}''.}\ixh{quadratic in x}
+
+\slide{3}{88}{Decision boundary}
+\ixh{decision boundary}\ixh{Bayes decision boundary}\ixh{LDA decision boundary}\ixh{QDA decision boundary}
+\fig{Two plots side by side (ISLR-style), axes $X_1$ (horizontal, $-4$ to $4$) and $X_2$ (vertical, $-4$ to $2$+), two classes: orange diamonds (lower left) and blue diamonds (upper right), background dotted in the colour of the predicted class. Three boundaries are drawn in each: \textbf{purple dashed} = Bayesian decision boundary, \textbf{black dotted} = LDA decision boundary, \textbf{green solid} = QDA decision boundary (colour key printed under the plots).
+Left plot, titled $\Sigma_1=\Sigma_2$ (equal covariances): the Bayes (purple dashed) and LDA (black dotted) boundaries are both straight lines running from the top (near $X_1\approx-2.5$) down to the lower right ($X_1\approx3$--$4$ at $X_2=-4$), lying almost on top of each other; the QDA boundary (green) is a curve bending away from them (from $(-4,2.2)$ curving down to $(1.8,-4)$) --- here LDA approximates the Bayes boundary better.
+Right plot, titled $\Sigma_1\ne\Sigma_2$ (unequal covariances): the Bayes boundary (purple dashed) is curved --- nearly flat across the top-left at $X_2\approx1.5$, then bending down steeply to $X_1\approx1.5$ at the bottom; the QDA boundary (green) follows the same curved shape closely (ending near $X_1\approx0.8$); the LDA boundary (black dotted) is a straight line from top ($X_1\approx-1.7$) to bottom right ($X_1\approx2$) and does not match the curved Bayes boundary --- here QDA is better.}\ixh{covariance matrix}
+\begin{center}{\color{slidec}\textbf{Bayesian decision boundary}}\\ \textbf{LDA decision boundary}\\ {\color{keyc}\textbf{QDA decision boundary}}\end{center}
+
+%% ------------------------------------------------------------------
+\subsection{Comparison of classifiers}
+\ixh{model comparison}
+
+\slide{3}{89}{Comparisons}
+\ixh{model comparison}
+\begin{center}
+\begin{tabular}{@{}c|ccc@{}}
+\textbf{Non-parametric}\ixh{non-parametric model} & \multicolumn{3}{c}{\textbf{Parametric}}\ixh{parametric model}\\[1pt]
+$\uparrow$ & $\nearrow$ & $\uparrow$ & $\nwarrow$\\
+{\color{warnc}\textbf{\ix{k-NN} classifier}} & {\color{dblue}\textbf{Logistic regression}}\ixh{logistic regression} & {\color{dblue}\textbf{LDA}}\ixh{linear discriminant analysis (LDA)} & {\color{orange}\textbf{QDA}}\ixh{quadratic discriminant analysis (QDA)}\\
+{\color{warnc}\textbf{nonlinear}} & \multicolumn{2}{c}{\color{dblue}\textbf{linear}} & {\color{orange}\textbf{quadratic}}\\
+\end{tabular}\\[2pt]
+\textbf{\ix{decision boundary}}\ixh{linear decision boundary}\ixh{nonlinear decision boundary}
+\end{center}
+\fig{Diagram: an arrow from ``k-NN classifier'' (orange-red) up to ``Non-parametric''; three arrows from ``Logistic regression'', ``LDA'' (both blue) and ``QDA'' (orange) converge on ``Parametric''. Beneath each method, the shape of its decision boundary: nonlinear (k-NN), linear (logistic regression and LDA, one label between them), quadratic (QDA); the whole row is captioned ``decision boundary''. (The vertical rule in the table above is added only to separate the two groups.)}
+
+\textbf{model \ix{flexibility}:}
+\begin{center}{\color{warnc}\textbf{k-NN classifier}} $>$ {\color{orange}\textbf{QDA}} $>$ {\color{dblue}\textbf{Logistic regression / LDA}}\end{center}
+\textbf{via Bias-Variance tradeoff}\ixh{bias-variance tradeoff}\hfill\textbf{via \ix{interpretability}}\hspace*{2em}
+
+\slide{3}{90}{Logistic regression vs LDA}
+\ixh{logistic regression}\ixh{linear discriminant analysis (LDA)}
+\begin{itemize}
+\item \textbf{Both produce linear decision boundaries}\ixh{linear decision boundary}\ixh{decision boundary}
+\item \textbf{Coefficient estimate procedures are different}\ixh{coefficient}
+\item \textbf{LDA assumes {\color{keyc}normal} distribution of predictors given response class}\ixh{normal distribution}
+\item \textbf{Logistic regression learns $\Pr(Y=k\mid X)$ directly: {\color{dblue}\ix{discriminative learning}}}\ixh{posterior probability}
+\item \textbf{LDA learns $\Pr(Y=k\mid X)$ by modeling $\Pr(Y=k,X)$: {\color{warnc}\ix{generative learning}}}\ixh{joint distribution}
+\end{itemize}
+
+\slide{3}{91}{LDA vs QDA}
+\ixh{linear discriminant analysis (LDA)}\ixh{quadratic discriminant analysis (QDA)}
+\begin{itemize}
+\item \textbf{LDA can be thought as a special case of QDA}
+\item \textbf{QDA is more flexible than LDA}\ixh{flexibility}
+\item \textbf{QDA has more parameters to estimate (those $\Sigma_k$'s)}\ixh[Sigma k]{$\Sigma_k$ (class covariance matrix)}\ixh{number of parameters}\ixh{covariance matrix}
+\item \textbf{via Bias-Variance tradeoff}\ixh{bias-variance tradeoff}
+\end{itemize}
+
+\slide{3}{92}{In summary}
+\begin{itemize}
+\item \textbf{Discriminant Analysis}\ixh{discriminant analysis}
+  \begin{itemize}
+  \item \textbf{LDA}\ixh{linear discriminant analysis (LDA)}
+  \item \textbf{QDA}\ixh{quadratic discriminant analysis (QDA)}
+  \end{itemize}
+\item \textbf{Comparison of classifiers}\ixh{model comparison}
+  \begin{itemize}
+  \item \textbf{Bias-variance tradeoff}\ixh{bias-variance tradeoff}
+  \item \textbf{Interpretability}\ixh{interpretability}
+  \end{itemize}
+\end{itemize}
+
+\slide{3}{93}{Next\ldots}
+\begin{itemize}
+\item \textbf{In practice, we often do not know what assumptions or methods are more reasonable to use\ldots}\ixh{model selection}
+  \begin{itemize}
+  \item \textbf{We need data to tell us\ldots}
+  \item \textbf{How? Cross-validation}\ixh{cross-validation}
+  \end{itemize}
+\end{itemize}

@@ -1,0 +1,17 @@
+Qualitative predictors w/ only 2 levels
+
+Indicator (or dummy) variable that takes on two numeric values
+
+L
+
+1 if ith person is female
+0 if ith person is male
+
+This newly constructed variable x; can be used as a predictor
+
+fyot+f, +e, — if ith person is female
+Pot é; if ith person is male
+
+n= Bo bis re= {
+
+fi: average difference in credit card balance between female and males

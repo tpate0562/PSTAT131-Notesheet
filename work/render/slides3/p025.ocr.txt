@@ -1,0 +1,19 @@
+Interpretation of coefficient
+
+Pr(Y = 1|Xj,...,X,)
+
+log {| ———_—__———_
+1—Pr(¥ = 1|X,...,X,)
+
+B the (additive) change of logit by increasing € by 1-unit,
+conditional on the other predictors
+
+For any j, conditional on 1B; > O then X; 7 => Pr(¥ = 11X,, +X) 7
+
+the other predictors
+Xo Xj Xoo Xp If B< 0 then X; 7 => Pr(Y=1|X, +++) Xp) \
+
+The rate of change in Pr(Y = 1|Xj, ..., X,) per unit change
+in X; depend on the current value of X;
+
+not linear!

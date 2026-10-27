@@ -1,0 +1,14 @@
+Decision boundary: p = 1 case
+
+LDA decision boundary
+
+' Bayesian decision boundary aid
+
+-3 -2 -1 0 1
+
+Transcription for Gene X
+
++9999; 0; pee @ eee:
+
+Fewer Transcrips ——————————— > More transcripts
+

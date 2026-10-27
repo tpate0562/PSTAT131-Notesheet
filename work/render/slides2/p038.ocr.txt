@@ -1,0 +1,17 @@
+Q3: Accuracy of the model
+
+Residual standard error (RSE)
+
+RSE =
+
+an absolute measure of lack of fit
+
+R squared (R”)
+
+p= 1 SSR _} Yi Oi - 5)"
+SST ~.
+
+proportion of the variability in Y that can be explained using X
+
+R? will always increase as more predictors are added to the model!
+Both RSE and R squared favor flexible methods , which may overfit the data!!

@@ -1,0 +1,24 @@
+_ ly ~
+Training error rate = 7 » I (y; x 5,)
+
+i=1 \
+
+predicted class label that f gives
+for the ith training observation
+
+1, ---) 3,2 predicted class label using f, ie., dog cat 1
+J, = dog, }. = dog, §; = cat, ..., },, = cat
+
+Yj, +++» Yq? Class label (qualitative), i.e.,
+y, = dog, yy = cat, y; = cat, ...,y, = dog
+
+cat cat
+
+0
+nm 9; 2 :
+Training error rate: “=+———+ 1190 = 5 = 0.40 bird dog 1
+dog dog 0
+(0)
+
+m £S; 3
+Training accuracy: 1 — ae teh) = 5 = 0.60 dog dog

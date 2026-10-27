@@ -1,0 +1,9 @@
+Correlation of error terms
+
+Y= Po + Xj Py + + Xiph, + &;
+
+We assume that €), ..., €,, are uncorrelated
+
+If they are correlated, then the estimated standard errors will not be accurate
+
+Inaccurate confidence interval or hypothesis testing results

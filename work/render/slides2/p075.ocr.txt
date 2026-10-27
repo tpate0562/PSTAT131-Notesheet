@@ -1,0 +1,31 @@
+How to handle collinearity?
+
+It depends!
+
+PWN Pr
+
+Drop variables
+
+Combine variables
+Feature extraction (PCA)
+Regularization
+
+carat 0.92
+
+Correlation Matrix
+
+,
+
+26
+
+-10
+
+os
+
+-06
+
+04
+
+02
+
+00

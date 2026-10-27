@@ -1,0 +1,20 @@
+ 
+a. Point A 
+b. Point B 
+c. Point C 
+d. All points are equally good 
+e. Not enough information to decide 
+Solution: The problem implies that we are only interested in maximizing our true positive 
+rate (and therefore, minimizing our false negative rate), regardless of our false positive 
+rate. Therefore, we would prefer the threshold corresponding to Point C (despite a false 
+positive rate of almost 50%). 
+20. You have 50,000 observations, two predictors, and clear evidence that the covariance 
+structures differ substantially across levels of your outcome variable. Which would you 
+expect to have the greater potential to capture the true decision boundary? 
+a. LDA 
+b. QDA 
+c. Both would do equally well 
+d. Neither would do well because they are both parametric models 
+Solution: LDA assumes that the covariance structure does not differ and therefore would 
+not do well. QDA would likely excel despite estimating more predictors; p is not large, and 
+there are a huge number of observations (so parametric models are fine). 

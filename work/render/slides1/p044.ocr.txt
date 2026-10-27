@@ -1,0 +1,11 @@
+Unsupervised learning
+
+¢ Learn without a supervisor!
+* You never see the answer key
+
+_— (X1, .., Xp)
+
+NO Response Predictors
+
+(input, features, covariates,
+independent variables)

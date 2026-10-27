@@ -1,0 +1,21 @@
+Simple linear regression
+
+y = confirmed cases x = population
+
+o °
+8
+So
+So
+Nn
+8
+=
+8 10000/,
+8 10000 intercept slope
+84
+S
+°
+4 °
+3 7 T T T T T
+1000000 1500000 2000000 2500000 3000000
+
+population

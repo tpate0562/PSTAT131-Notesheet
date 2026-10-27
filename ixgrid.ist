@@ -1,0 +1,12 @@
+% makeindex style for the grid index (page:cell locations)
+headings_flag 1
+heading_prefix "\\ixletter{"
+heading_suffix "}\n"
+symhead_positive "Symbols \\& operators"
+numhead_positive "Numbers"
+delim_0 "\\enspace "
+delim_1 "\\enspace "
+delim_2 "\\enspace "
+delim_n ""
+line_max 5000
+indent_space ""

@@ -1,0 +1,22 @@
+Lowest training MSE # lowest test MSE
+
+N _
+
+Higher model flexibility >
+o matches data points better
+o
+
+Higher model flexibility >
+© 4 more wiggly curve
++ 4
+
+Higher model flexibility -~
+“7 better fit to the true f
+
+T T T T T T
+0 20 40 60 80 100
+
+Linear regression True f smoothing spline (simple) smoothing spline (complicated)
+
+>
+level of model flexibility

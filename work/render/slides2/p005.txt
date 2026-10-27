@@ -1,0 +1,8 @@
+Assess your data
+• How many rows, columns
+• Missingness
+• Percentage by variable?
+• Reason for missingness?
+• Imputation?
+https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html
+naniar package; vis_miss()

@@ -1,0 +1,9 @@
+Multiple regression
+
+Y=fyt Xf t--+X fp +e
+
+Qualitative predictors
+
+Extensions of the linear structures in (X;, ..., X,)
+
+Linear regression diagnostics

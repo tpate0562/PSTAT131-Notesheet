@@ -1,0 +1,24 @@
+One-hot encoding
+
+abalone_recipe <- recipe(age ~ type, data = abalone_train) %>%
+
+step_dummy(type, one_hot = TRUE)
+
+# A tibble: 3,131 x 4
+
+abalone_recipe %>%
+
+age type_F type_I type_M
+
+prep() %>% <dbl> <dbl> <dbl> <dbl>
+bake(new_data = abalone_train) 8.5 @ 1 1)
+8.5 Q 1 Q
+8.5 1) 1) 1
+9.5 1) (1) 1
+9.5 1 Q 1)
+6.5 Q 1 Q
+6.5 (1) 1 (1)
+5.5 ) 1 )
+8.5 1) 1 4)
+8.5 1 (4) 4)
+# .. with 3,121 more rows

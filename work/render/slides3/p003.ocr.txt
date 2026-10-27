@@ -1,0 +1,13 @@
+This lecture...
+
+Machine Learning vs _ Statistical Machine Learning
+
+a
+
+Supervised Learning vs Unsupervised Learning
+
+[-“
+
+Regression vs lassification
+
+A linear method in classification: Logistic Regression

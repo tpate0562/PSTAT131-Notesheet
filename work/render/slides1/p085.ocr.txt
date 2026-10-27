@@ -1,0 +1,18 @@
+non-random zero-mean noise
+
+| Y=f(X) +e
+
+Bias-variance tradeoff
+
+E |(0 - fo) | = Var (fo) + (Bias(F@o)). + Varce)
+
+Expected test MSE = _ Variance + Bias + _ Irreducible error
+. » .\2 . °
+=E (i — Eft) |+ E L/ex)| = 0%) +Var(e)
+
+If we take
+F(X) = E[Y|X = xo]
+
+then
+
+E (fa - Ef) = 0 ond [ [7ex.)] -f)} =0

@@ -1,0 +1,4 @@
+Regression setting
+• No single method is the best choice for all data sets
+• Selecting a good statistical learning method depends on evaluating its 
+performance

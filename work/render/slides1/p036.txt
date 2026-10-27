@@ -1,0 +1,12 @@
+Speed
+Amount of Yams Consumed
+Training Data
+Speed
+Amount of Yams Consumed
+Training Data
+The green squiggle seems to fit the 
+training data better than the black line 
+but remember – the goal of machine 
+learning is to make predictions!
+𝑌= 𝑓𝑋!, … , 𝑋" + 𝜀
+𝑌= 𝑓𝑋!, … , 𝑋" + 𝜀

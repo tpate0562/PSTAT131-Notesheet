@@ -1,0 +1,23 @@
+Prediction Error
+
+High Bias Low Bias
+
+Low Variance High Variance
+
+Higher model complexity — Higher variance + Lower bias
+
+Lower model complexity > Lower variance + Higher bias
+
+Test Sample
+
+ya
+
+Higher model complexity —> lower training MSE/error rate
+
+/ Higher model complexity + lower test MSE/error rate
+
+Training Sample
+
+Low High
+Model Complexity
+

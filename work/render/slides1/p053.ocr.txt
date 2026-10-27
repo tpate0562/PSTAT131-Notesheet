@@ -1,0 +1,10 @@
+Regression setting
+
+Y=f(X, ++) Xp) +e
+
+we aw
+Training set
+{(X,, yp), (Xp, Yo), wo+3 (Xs Vp) } f
+
+* Different statistical methods give different f()
+* Each function/model has different flexibility & complexity

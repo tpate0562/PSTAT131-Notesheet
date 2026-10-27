@@ -1,0 +1,11 @@
+Variance of the coefficient estimates
+
+Least-squares coefficient estimates
+n = =
+diet (% — 0; - ¥) A
+
+By = Ye (x; _ x) 0
+
+It can be shown that
+
+where o? = Var(e)

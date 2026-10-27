@@ -1,0 +1,16 @@
+Bias-variance decomposition
+• &𝑓 is learned from a training set
+• (𝒙𝟎, +𝑦!  is a test observation, independent of the training set, 
+randomly sampled from the model
+𝐸
+"𝑦! −%𝑓'𝒙𝟎
+#
+= 𝑉𝑎𝑟
+%𝑓'𝒙𝟎
++ 𝐵𝑖𝑎𝑠( %𝑓'𝒙𝟎
+#
++ 𝑉𝑎𝑟(𝜀)
+expected test MSE
+variance on test data
+bias on test data
+irreducible error

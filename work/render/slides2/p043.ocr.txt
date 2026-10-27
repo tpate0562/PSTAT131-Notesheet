@@ -1,0 +1,16 @@
+Qualitative predictors w/ only 2 levels
+
+The coding of the indicator (or dummy) variable is not unique
+
+1 if ith person is female
+x=
+’ 0 if ith person is male
+—_ 1 if ith person is male
+" ™ Lo if ith person is female
+1 if ith person is male
+x=
+’ -1 if ith person is female
+
+The model can still be written as y; = By + /,x; + &;
+
+But the interpretation of fy and f; depend on the coding of x;

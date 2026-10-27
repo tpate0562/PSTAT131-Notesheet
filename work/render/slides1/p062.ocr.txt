@@ -1,0 +1,38 @@
+Higher model flexibility >
+
+10
+L
+
+matches data points better
+(Slower training MSE)
+
+Higher model flexibility -~
+better fit to the true f
+(Slower test MSE)
+
+Linear regression
+
+True f
+
+Mean Squared Error
+
+2.5
+
+1.0 1.5 2.0
+
+0.5
+
+0.0
+
+smoothing spline (simple) smoothing spline (complicated)
+
+a
+Test MSE
+=.
+Training MSE
+T T T
+2 10 20
+> Flexibility
+
+level of model flexibility
+

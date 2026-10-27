@@ -1,0 +1,16 @@
+Y=f(X%, ++) Xp) + €é
+
+Aw
+
+Training set how well does f learn?
+{(X 1, ¥p), Kos Yo), + Xn Yn) f :
+
+We are less interested in how f performs on training set
+
+Consider test set {(X;, )), (%, Jo), ..., (&,,, J,,) }, not seen or used to train f
+
+Test MSE = 4 (X;)
+=¥ 6-Aw)
+
+prediction that f gives
+Test Mean Squared Error for the ith test data

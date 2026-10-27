@@ -1,0 +1,10 @@
+Logistic regression vs LDA
+
+Both produce linear decision boundaries
+
+Coefficient estimate procedures are different
+
+LDA assumes normal distribution of predictors given response class
+Logistic regression learns Pr(Y = k| X) directly: discriminative learning
+
+LDA learns Pr(Y = k|X) by modeling Pr(Y = k, X): generative learning

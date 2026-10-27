@@ -1,0 +1,18 @@
+Removing the additive assumption
+
+One way of removing the additive assumption is to include
+interaction term
+
+from Y= Bo + BX, + BX +€é
+
+One-unit increase in X, results in /,-unit increase in Y (holding X, fixed)
+
+© Y= fo +f,X, + PX, + PyX|X,|+ €
+
+interaction between X, and X,
+
+= fy +\(B, + B3X.)X) + Xf, + €
+
+One-unit increase in X, results in #, + /,X>-unit increase in Y
+
+the effect of X; on Y is no longer constant: adjusting X, will change the impact of X; on Y

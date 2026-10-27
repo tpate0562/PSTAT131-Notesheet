@@ -1,0 +1,22 @@
+Mechanistic 
+ 
+vs.  
+empirically-driven
+Parametric  
+ 
+vs.  
+non-parametric
+• Assume a parametric form 
+for f (i.e., 𝛽! + 𝛽"𝑋" + ⋯)
+• Won’t match true 
+unknown f
+• Can add parameters = 
+more flexibility
+• Too many = overfitting
+• No/few assumptions about f
+• Require a larger # of 
+observations
+• Much more flexible by 
+default
+• Can also overfit
+𝑌= 𝑓𝑋!, … , 𝑋" + 𝜀

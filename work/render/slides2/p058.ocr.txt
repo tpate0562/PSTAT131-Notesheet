@@ -1,0 +1,13 @@
+Linear regression diagnostics
+Y=f{)+X,fh, + ee + X,f,+€
+
+1. Non-linear relationship between response and predictors
+2. Correlation of error terms
+
+3. Non-constant variance of error terms
+
+4. Outliers
+
+5. High-leverage points
+
+6. Collinearity

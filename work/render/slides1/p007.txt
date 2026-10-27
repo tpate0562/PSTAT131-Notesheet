@@ -1,0 +1,5 @@
+What is machine learning?
+• Application of learning algorithms and statistical methods to real-
+world data sets:
+• i.e., how can a machine use data to learn
+• This is a non-trivial problem!

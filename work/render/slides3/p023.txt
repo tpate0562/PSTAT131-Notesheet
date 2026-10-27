@@ -1,0 +1,7 @@
+Will Default
+Balance
+Will Not Default
+Default predicted by Student + Balance + Income ?
+1
+0
+Probability of Defaulting

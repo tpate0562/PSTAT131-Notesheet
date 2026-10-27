@@ -1,0 +1,9 @@
+Practical considerations in regression
+
+Y= fp + X, fh, + ce + Xf, +€
+
+Qualitative predictors
+
+Extensions of the linear structures in (X;, ..., X,)
+
+Linear regression diagnostics

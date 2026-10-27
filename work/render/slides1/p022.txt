@@ -1,0 +1,4 @@
+Machine learning competitions
+• Netflix Challenge
+• 100,000,000+ ratings from 400,000+ users of 17,000+ movies
+• Predict user rating for a film, winner got $1,000,000!

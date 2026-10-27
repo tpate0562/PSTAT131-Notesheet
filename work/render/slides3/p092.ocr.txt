@@ -1,0 +1,11 @@
+In summary
+
+Discriminant Analysis
+LDA
+
+QDA
+
+Comparison of classifiers
+Bias-variance tradeoff
+
+Interpretability

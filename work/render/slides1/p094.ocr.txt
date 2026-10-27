@@ -1,0 +1,11 @@
+Estimating test error rate — same as regression:
+
+* Computing training error is easy — test error, not so much
+* Either testing data is not available or it is, but we don’t want to train on it
+* It would just become another training set!
+
+¢ What do we do?
+
+Cross-validation:
+a method for estimating test MSE using only training data!
+Next week!

@@ -1,0 +1,21 @@
+Bias-variance tradeoff
+
+E (5 - fed) | = Var (fo) + (Bias(f(&)) + Var(é)
+
+Want to simultaneously achieve low variance and low bias
+
+25
+1
+
+A simple model — high bias + low variance
+
+2.0
+
+Test MSE
+
+A flexible model — low bias + high variance
+
+Challenge: find a method for which
+both the variance and (squared) bias are low
+
+Flexibility

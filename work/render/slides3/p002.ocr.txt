@@ -1,0 +1,18 @@
+Machine Learning vs _ Statistical Machine Learning
+
+ao
+
+Supervised Learning vs _ Unsupervised Learning
+
+| —~
+
+vs Classification
+
+Coefficient estimates
+
+Assessing accuracy
+Linear Regression
+
+Practical considerations
+
+Other perspectives...

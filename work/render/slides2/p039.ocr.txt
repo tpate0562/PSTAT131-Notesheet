@@ -1,0 +1,7 @@
+Adjusted R-squared
+
+(1 — R*)(n—1)
+
+Adjusted R* = 1
+juste n—p1
+

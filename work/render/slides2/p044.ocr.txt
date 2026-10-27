@@ -1,0 +1,17 @@
+Qualitative predictors w/ more than 2 levels
+A qualitative predictor with levels need 7 — | dummy variables
+e.g., ethnicity variable has three levels: African American, Asian, Caucasian
+_ fi if ith person is Asian _ {j if ith person is Caucasian
+“=o if ith personis not Asian *?~ lo if ith person is not Caucasian
+
+The level of African American is the baseline level, i.e., no dummy variable needed
+
+Constructed variable x;,, x;. can be used as predictors
+
+Vi = Pot Bix + Boxn + €
+Po+h, +. if ith person is Asian
+= 4f)+f,+6,_ if ith person is Caucasian
+Bot &; if ith person is African American
+
+Both the dummy coding and the choice of baseline level are arbitrary
+But they change the interpretation of coefficients fp, f,, f...

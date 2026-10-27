@@ -1,0 +1,19 @@
+Imputation methods
+
+* Continuous variables
+* step impute bag ()
+* step _impute_knn()
+
+Original Dataset
+
+* step impute linear ()
+
+. : Applying
+* Discrete variables Data imputation
+
+* step impute bag ()
+* step _impute_knn()
+* step impute _mode()
+
+https://recipes.tidymodels.org/reference/index.html
+

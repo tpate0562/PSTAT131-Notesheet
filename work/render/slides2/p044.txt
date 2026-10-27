@@ -1,0 +1,1 @@
+Qualitative predictors w/ more than 2 levels

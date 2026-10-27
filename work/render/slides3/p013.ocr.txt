@@ -1,0 +1,25 @@
+Interpretation of coefficient
+Pr(Y = 1|X)
+
+ToPevy=1jxy) tix
+
+log
+
+f: the (additive) change of logit by increasing X by 1-unit
+
+f,: is NOT the change in Pr(Y = 1 | X) associated with a 1-unit increase in X
+
+If 8, > OthenX 7 => Pr(¥=1[X) 7
+
+If 6; <OthenX 7 => Pr(Y=1|X)\
+
+Probability of Default
+
+The rate of change in Pr(Y = 1|X) per unit change
+in X depend on the current value of X
+
+00 02 04 06 08 1.0
+
+0 500 1000 1500 2000 2500 not linear!
+
+Balance

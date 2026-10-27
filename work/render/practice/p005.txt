@@ -1,0 +1,33 @@
+a. Using a threshold of 0.50, which borrowers would be classified as likely to 
+default? 
+b. Using a threshold of 0.70, which borrowers would be classified as likely to 
+default? 
+c. Explain what happens to the number of positive classifications when the threshold 
+is increased. 
+ 
+16. A logistic regression predicts whether a customer will cancel a subscription. The 
+coefficient for the predictor MonthlyFee is 0.04. 
+ 
+A student writes: “A $1 increase in the monthly fee causes a customer’s probability of 
+canceling to increase by 4%.” 
+ 
+Identify one problem with this interpretation and provide a better interpretation. 
+ 
+17. A model produces the following confusion matrix: 
+ 
+Actually Positive 
+Actually Negative 
+Predicted Positive 
+72 
+18 
+Predicted Negative 
+28 
+182 
+ 
+Calculate accuracy, true positive rate, and false positive rate. 
+18. A student says: “I changed my classification threshold from 0.50 to 0.30, so the ROC 
+AUC of my fitted model will change.” Is this correct? Explain. 
+ 
+19. Suppose the ROC curve below represents a model used to screen patients for a very 
+dangerous disease. A false negative is considered substantially worse than a false 
+positive. Of points A, B, and C, which threshold would you be most inclined to choose? 

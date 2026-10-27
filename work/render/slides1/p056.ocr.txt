@@ -1,0 +1,13 @@
+Regression setting
+
+Y=f(X,...,X,) +
+
+A
+
+Training set how well does f learn?
+{(X1, 4), (Xp; Yo), eeeg (X,Y, } f :
+
+* No single method is the best choice for all data sets
+
+* Selecting a good statistical learning method depends on evaluating its
+performance

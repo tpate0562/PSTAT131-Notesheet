@@ -1,0 +1,25 @@
+In summary:
+
+Practical considerations in regression
+
+Qualitative predictors
+
+Extensions of the linear structures in (X,, ..., X,)
+
+Linear regression diagnostics
+
+1. Non-linear relationship between response and predictors
+2. Correlation of error terms
+
+3. Non-constant variance of error terms
+
+4. Outliers
+
+5. High-leverage points
+
+6. Collinearity
+
+New perspectives on regression
+Compare linear regression with K-NN regression
+
+Bias-variance tradeoff of linear regression

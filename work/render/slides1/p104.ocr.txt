@@ -1,0 +1,35 @@
+Cyt, -y2)
+
+a, x2)
+
+Manhattan Distance in 2D Plane
+d(x,y) = |x - yl] + [x2 - y2]
+
+7
+
+Minkowski,
+
+Minkowski when
+
+Manhattan —_
+
+Euclidean
+
+for p-
+
+= 1 --> Manhattan
+Minkowski when p = 2 --> Bucliclean
+
+(yt, y2)
+
+(x1, x2)
+
+Euclidean Distance in 2D Plane
+
+d(x,y) = V/(a1 — y1)? + (@2 — yo)?
+
+1/p
+
+n
+d(x,y) = | >> lai — ysl? forp>1
+i=1

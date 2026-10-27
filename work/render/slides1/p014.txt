@@ -1,0 +1,11 @@
+Machine learning     vs.      statistical learning?
+• arose as a subfield of AI 
+in CS
+• algorithmic perspective
+• focus on AI and 
+prediction accuracy
+• arose as a subfield of 
+statistics
+• statistical perspective
+• focus on interpretability 
+and inference

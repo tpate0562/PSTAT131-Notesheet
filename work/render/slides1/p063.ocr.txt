@@ -1,0 +1,29 @@
+12
+
+10
+
+Mean Squared Error
+
+20 40 60 80 = 100
+
+2.5
+
+2.0
+
+0.5 1.0 1.5
+
+0.0
+
+Linear regression True f smoothing spline (simple)
+
+a
+SS
+T T T T
+2 5 10 20
+Flexibilitv
+smoothing spline (complicated)
+
+level of model flexibili
+
+>
+

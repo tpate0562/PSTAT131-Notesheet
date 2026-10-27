@@ -1,0 +1,24 @@
+Non-constant variance of error terms
+Yi = By + XB, + + + Xiph, + &;
+
+We also assume that Var(e;) = o* for alli = 1,...,7
+
+Heteroscedasticity: Non-constant variances in the errors
+
+Inaccurate confidence interval or hypothesis testing results
+
+Response Y Response log(Y)
+2 998, bs
+ol
+e 3 er oe
+2 © 2 2 Bee ee
+3 go jee ie
+ee oe ee ee
+9 $
+605
+6 ©
+7 gz or
+T T T T at T T T T T
+10 15 20 25 30 24 26 28 30 32 34
+
+Fitted values Fitted values

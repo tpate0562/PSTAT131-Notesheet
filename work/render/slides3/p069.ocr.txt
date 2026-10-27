@@ -1,0 +1,13 @@
+LDA: p = 1 case
+We only have one predictor X, which we assume [Y = k|~ Ne Hid 0?)
+
+different mean, same variance
+
+1 1
+f(a) = lino exp (-s50 - W)
+TAX)
+moe exp (-4e - uy")
+ya mye exp (-@- 4)
+same for all k
+
+Pr(Y=k|X=x)=

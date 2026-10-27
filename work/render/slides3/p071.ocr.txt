@@ -1,0 +1,13 @@
+LDA: p = 1 case
+2
+MH
+Ox) = x- = - — + log(z)
+o* Oo
+
+For the observation X = x, /obtain]
+
+The Bayes classifier assigns the observation to class | if 6,(x) is the largest
+
+The value of //,, //5, ..-, 4 Hy ++ +5 Hes o” are unknown!
+
+estimate them!

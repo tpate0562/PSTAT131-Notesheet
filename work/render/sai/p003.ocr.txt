@@ -1,0 +1,11 @@
+Question 12
+Qo 3/4 pts
+
+- 0 pts Students should recognize that this results in collinearity, regardless of normalization. One predictor will still
+be a direct function of the other predictor.
+
+- 2 pts Logic is partially correct.
+
+- 4 pts Logic is completely incorrect.
+
+y -1pt Correct answer (that the reasoning is wrong) but doesn't specifically mention collinearity

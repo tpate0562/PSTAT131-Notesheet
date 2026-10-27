@@ -1,0 +1,12 @@
+Regression models vs. classification models
+Regression
+Classification
+Y is quantitative
+Numerical values
+(e.g., price, blood 
+pressure, speed)
+Y is qualitative
+Categorical values
+(e.g., survived/died, 
+spam/not spam, 
+scratch/don’t scratch)

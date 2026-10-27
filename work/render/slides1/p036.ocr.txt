@@ -1,0 +1,22 @@
+Speed
+
+Y =f (X41, ...,Xp) +€ Y =f (Xz, ..Xp) +
+
+@.- se a.
+Training Data *” Training Data A aa
+a 7
+¢
+o* Ss
+a &
+:
+7
+“2
+e.® pee a
+rae
+[t—+— fc |_+—
+Amount of Yams Consumed Amount of Yams Consumed
+
+The green squiggle seems to fit the
+training data better than the black line
+but remember — the goal of machine
+learning is to make predictions!

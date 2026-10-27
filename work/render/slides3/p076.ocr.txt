@@ -1,0 +1,19 @@
+LDA classifier: p = 1 case
+
+number of training observations in the kth class A 1
+~~ =>_— xX:
+i lad
+
+— U
+k total number of training observations Nk iny=
+Si
+a2 2
+= YD oni
+Ki i:y=k
+
+The LDA classifier assigns the observation X = x to class for which
+
+B2 |
+
+Discriminant function
+linear in x

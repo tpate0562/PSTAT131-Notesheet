@@ -1,0 +1,21 @@
+Accuracy of the model
+
+Residual standard error (RSE)
+
+/ 1
+RSE = SSR =
+n—-2
+
+an absolute measure of lack of fit
+
+R squared (R?)
+
+SSR Ye 0-3
+
+i=
+
+€ [0,1]
+
+proportion of the variability in Y that can be explained using X
+
+Both RSE and R? favor flexible methods, which may overfit the datal!

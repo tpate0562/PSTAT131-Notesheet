@@ -1,0 +1,21 @@
+Interactions vs. main effects
+
+’ A Significant, B Not
+
+0--------- @-------- -o A: Detergent #1
+
+Cleanliness
+
+@--------- @--------- e@ A: Detergent #2
+
+1 B
+Cold Warm Hot
+B: Water Temperature
+
+A and B Significant a B Significant, A Not
+
+Cleanliness
+Cleanliness
+
+Cold Warm Hot Cold Warm Hot
+B: Water Temperature B: Water Temperature

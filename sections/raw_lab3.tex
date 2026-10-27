@@ -1,0 +1,660 @@
+%% raw_lab3.tex -- raw transcription of Lab 3 "Intro to Binary Classification"
+%% (source/labs/lab3/lab-3.Rmd + knitted output work/text/lab3_html.txt).
+\section{Lab 3 --- Intro to binary classification (logistic, LDA, QDA, naive Bayes)}
+\ixh{classification}\ixh{logistic regression}\ixh{LDA}\ixh{QDA}\ixh{naive Bayes}%
+{\bfseries Lab 3: Intro to Binary Classification} \quad PSTAT 131/231
+
+\subsection{Introduction}
+\ixh{classification}%
+This lab will be our first experience with \ix{classification} models. These models differ from the \ix{regression} model we saw in the last chapter by the fact that the response variable is a qualitative variable instead of a continuous variable. This chapter will use `\ixc{parsnip}' for model fitting and `\ixc{recipes} and \ixc{workflows}' to perform the transformations.
+
+\subsubsection{Loading Packages}
+We load \ixc{tidymodels} for modeling functions, \ixc{ISLR} and \ixc{ISLR2} for data sets, \ixc{discrim} to give us access to discriminant analysis models such as \ix{LDA} and \ix{QDA}, as well as the Naive Bayes\ixh{naive Bayes}{} model, and \ixc{poissonreg} for Poisson regression. Finally, we load \ixc{corrr} for aid in visualizing correlation matrices\ixh{correlation matrix}.
+\begin{rcode}
+library(tidymodels)                 (*@\ixch{library()}\ixch{tidymodels}@*)
+library(ISLR) # For the Smarket data set     (*@\ixch{ISLR}\ixh{Smarket}@*)
+library(ISLR2) # For the Bikeshare data set  (*@\ixch{ISLR2}\ixh{Bikeshare}@*)
+library(discrim)                    (*@\ixch{discrim}@*)
+library(poissonreg)                 (*@\ixch{poissonreg}@*)
+library(corrr)                      (*@\ixch{corrr}@*)
+library(corrplot)                   (*@\ixch{corrplot}@*)
+library(klaR) # for naive bayes     (*@\ixch{klaR}@*)
+tidymodels_prefer()                 (*@\ixch{tidymodels\_prefer()}@*)
+\end{rcode}
+
+\subsubsection{Data}
+We'll start out by working with the \rc{Smarket}\ixh{Smarket}{} data set for this lab, which contains daily percentage returns for the S\&P 500 stock index between 2001 and 2005. It contains 1,250 observations on 8 numeric variables, plus a factor variable called \rc{Direction}\ixh{Direction (Smarket)}{} which has two levels, ``Up'' and ``Down''.
+
+Before we go on to modeling, we'll explore the data a little, at least to look at possible correlations\ixh{correlation}{} between the variables. \rc{Direction} is our \ix{outcome} variable of interest; we'll attempt to predict it using the volume of shares traded (\rc{Volume}) and the five lag variables (which represent the percentage return for the previous days).
+
+The other data set we'll work with for this lab is the \rc{OJ}\ixh{OJ}, or Orange Juice, data set. It contains 1,070 observations, each of which represents a customer's purchase of either Citrus Hill or Minute Maid Orange Juice. \rc{Purchase}\ixh{Purchase (OJ)}{} is our outcome variable, which indicates the brand purchased. We'll attempt to predict it using the prices charged for each brand, the discounts offered, and a metric of customer loyalty.
+
+\par\textbf{Activities}
+\begin{itemize}
+\item Access the help page for \rc{Smarket}\ixh{Smarket}. What does the \rc{Direction} variable represent? What predictors do you think might be correlated with it?
+\item Access the help page for \rc{OJ}\ixh{OJ}{} and familiarize yourself with it.
+\end{itemize}
+To look at correlations among the continuous variables, we'll try using the \ixc{corrr} package. The \ixc{correlate()} function will calculate the \ix{correlation matrix} between all the variables that it is given. We choose to remove \rc{Direction,} it is not numeric. Then we pass the results to \ixc{rplot()} to visualize the correlation matrix.
+\begin{rcode}
+cor_Smarket <- Smarket %>%     (*@\ixh{Smarket}\ixch{\%>\%}@*)
+  select(-Direction) %>%       (*@\ixch{select()}@*)
+  correlate()                  (*@\ixch{correlate()}@*)
+rplot(cor_Smarket)             (*@\ixch{rplot()}@*)
+\end{rcode}
+\fig{\rc{rplot()} of the \rc{Smarket} correlation matrix: rows and columns Year, Lag1--Lag5, Volume, Today; each cell a dot whose size and colour show the correlation (colour bar $-1$ red, 0 white, $+1$ blue; diagonal left blank). Every dot is essentially invisible (correlation $\approx$0) except two light-blue dots at Year--Volume and Volume--Year ($r\approx0.54$).}
+
+\par\textbf{Activities}
+\begin{itemize}
+\item What do you notice from this correlation matrix?
+\item With this data set, do you need to worry about predictors being highly linearly correlated with each other?\ixh{collinearity}
+\item Does this matrix tell you anything about relationships between predictors and the outcome?
+\end{itemize}
+We could also use \rc{ggplot}\ixh{ggplot2}{} and the \ixc{geom\_tile()} function to create a heatmap-style correlation plot, with a few more lines of code:
+\begin{rcode}
+cor_Smarket %>%
+  stretch() %>%                           (*@\ixch{stretch()}@*)
+  ggplot(aes(x, y, fill = r)) +           (*@\ixch{ggplot()}\ixch{aes()}@*)
+  geom_tile() +                           (*@\ixch{geom\_tile()}@*)
+  geom_text(aes(label = as.character(fashion(r))))  (*@\ixch{geom\_text()}\ixch{fashion()}@*)
+\end{rcode}
+\fig{Heatmap (\rc{geom\_tile()}) of the stretched correlations: x and y both Lag1--Lag5, Today, Volume, Year; fill = $r$ (dark navy $\approx$0 to light blue 0.5); diagonal tiles grey (NA); each tile labelled with $r$ to two decimals. All labels are between $-.05$ and $.04$ (e.g.\ Lag1--Lag2 $-.03$, Volume--Lag4 $-.05$, Year--Lag4 $.04$, Volume--Today $.01$), except the two bright-blue tiles Year--Volume $= .54$.}
+
+Or we could use the function from a previous lab, \ixc{corrplot()}:
+\begin{rcode}
+Smarket %>%
+  select(-Direction) %>%
+  cor() %>%                    (*@\ixch{cor()}@*)
+  corrplot()                   (*@\ixch{corrplot()}@*)
+\end{rcode}
+\fig{\rc{corrplot()} of the full 8$\times$8 \rc{Smarket} correlation matrix (red row/column labels Year, Lag1--Lag5, Volume, Today; circles sized/coloured by $r$, colour bar $-1$ dark red to $+1$ dark blue). Large dark-blue circles on the diagonal ($r=1$), medium blue circles at Year--Volume ($\approx$0.54) in both triangles, and only tiny faint dots everywhere else.}
+
+Notice that the upper and lower triangles of the matrix are identical; that's a common feature of correlation matrices\ixh{correlation matrix}. Again, we see that only \rc{Year} and \rc{Volume} have much of any \ix{correlation} with each other, and it's only about $0.54$.
+
+Let's investigate that correlation a little further. Here's a \ix{boxplot} of \rc{Volume} by \rc{Year}:
+\begin{rcode}
+ggplot(Smarket, aes(factor(Year), Volume)) +   (*@\ixch{ggplot()}\ixch{factor()}@*)
+  geom_boxplot() +                            (*@\ixch{geom\_boxplot()}@*)
+  geom_jitter(alpha = 0.1) +                  (*@\ixch{geom\_jitter()}@*)
+  xlab("Year")                                (*@\ixch{xlab()}@*)
+\end{rcode}
+\fig{Boxplots of Volume (y, $\approx$0.4--3.2) for each Year 2001--2005 (x), with faint jittered points. Medians rise: 2001 $\approx$1.2, 2002 $\approx$1.38, 2003 $\approx$1.40, 2004 $\approx$1.42, 2005 $\approx$1.90 (box $\approx$1.65--2.15, max outlier $\approx$3.15). 2001 and 2002 have many high outliers ($\approx$1.8--2.8). Volume clearly increases with Year, especially in 2005.}
+
+We'll also consider a correlation plot for the orange juice data, restricting our analysis to the continuous predictor variables we'll be including:
+\begin{rcode}
+OJ %>%                                        (*@\ixh{OJ}@*)
+  select(PriceCH, PriceMM, DiscCH, DiscMM,
+         LoyalCH, PctDiscMM, PctDiscCH) %>%
+  cor() %>%                                   (*@\ixch{cor()}@*)
+  corrplot(type = "lower", diag = F)          (*@\ixch{corrplot()}\ixch{type = "lower"}\ixch{diag = F}@*)
+\end{rcode}
+\fig{Lower-triangle \rc{corrplot} (no diagonal) of the 7 \rc{OJ} predictors PriceCH, PriceMM, DiscCH, DiscMM, LoyalCH, PctDiscMM, PctDiscCH (colour bar $-1$ red to $+1$ blue along the bottom). Strongest: PctDiscMM--DiscMM and PctDiscCH--DiscCH, huge dark-blue circles ($r\approx1$); PriceMM--PriceCH a large medium-blue circle ($\approx$0.6--0.7). Small light-blue circles ($\approx$0.1--0.2) for DiscCH, DiscMM, LoyalCH, PctDiscMM, PctDiscCH with PriceCH, for LoyalCH with PriceMM and DiscCH, and for PctDiscCH--LoyalCH; the rest are tiny ($\approx$0, a few faintly negative/orange).}
+
+Here, we set \rc{diag = F} and \rc{type = 'lower'}, which simplifies the plot a bit and may make it easier to read. We can practice interpreting these correlations\ixh{correlation}; for example, \rc{PriceMM} and \rc{PriceCH} are positively correlated. This implies that higher prices for one brand of orange juice are correlated with higher prices for the other, and makes sense; when orange juice in general is cheaper to make, both brands would lower their prices, and vice versa.
+
+\par\textbf{Activities}
+\begin{itemize}
+\item Describe the relationship between \rc{Year} and \rc{Volume}.
+\end{itemize}
+Lastly, it's worth looking at the distribution of our outcome variables\ixh{outcome}.
+\begin{rcode}
+Smarket %>%
+  ggplot(aes(x = Direction)) +    (*@\ixch{ggplot()}@*)
+  geom_bar()                      (*@\ixch{geom\_bar()}\ixh{bar plot}@*)
+\end{rcode}
+\fig{\ix{bar plot} of \rc{Direction} in \rc{Smarket}: x Direction (Down, Up), y count 0--650; Down $\approx$602, Up $\approx$648 --- nearly equal heights.}
+
+When we're working with a categorical outcome, we are often interested in whether the levels of our outcome are \emph{balanced}\ixh{class imbalance}, meaning whether the count of observations at one level is approximately equal to the count at the other level(s).
+\begin{rcode}
+Smarket %>%
+  select(Direction) %>%
+  table()                        (*@\ixch{table()}@*)
+\end{rcode}
+\begin{routput}
+Direction
+Down   Up
+ 602  648
+\end{routput}
+Here, there are 602 \rc{Down} observations and 648 \rc{Up}. These aren't exactly equal, but the \rc{Smarket} data set is fairly \textbf{balanced}. We can probably safely assume that this minor difference in counts won't affect model performance.
+\begin{rcode}
+OJ %>%
+  ggplot(aes(x = Purchase)) +     (*@\ixch{ggplot()}@*)
+  geom_bar()                      (*@\ixch{geom\_bar()}@*)
+\end{rcode}
+\fig{Bar plot of \rc{Purchase} in \rc{OJ}: CH $\approx$653, MM $\approx$417 (y count 0--650) --- CH bar clearly taller.}
+\begin{rcode}
+OJ %>%
+  select(Purchase) %>%
+  table()                         (*@\ixch{table()}@*)
+\end{rcode}
+\begin{routput}
+Purchase
+ CH  MM
+653 417
+\end{routput}
+The orange juice data set is definitely somewhat unbalanced\ixh{class imbalance}; the Citrus Hill brand appears to be more popular overall, with 653 observations representing customers purchasing Citrus Hill and only 417 Minute Maid. For now, we won't adjust for this, but we'll discuss methods of \textbf{upsampling}\ixh{upsampling}{} and \textbf{downsampling}\ixh{downsampling}{} in next week's lab. Also, note that this is by no means the most extreme example of an unbalanced outcome; some outcomes have incredibly rare levels.
+
+We'll split each data set\ixh{data splitting}, stratifying on the outcomes, \rc{Direction} and \rc{Purchase}. Stratifying on the outcome\ixh{stratified sampling}{} ensures that the proportion of observations with each level of the outcome will be approximately the same for each random sample, training and testing.
+\begin{rcode}
+set.seed(3435)                                (*@\ixch{set.seed()}\ixh{random seed}@*)
+smarket_split <- initial_split(Smarket, prop = 0.70,   (*@\ixch{initial\_split()}\ixch{prop}@*)
+                                strata = Direction)    (*@\ixch{strata}@*)
+smarket_train <- training(smarket_split)      (*@\ixch{training()}@*)
+smarket_test <- testing(smarket_split)        (*@\ixch{testing()}@*)
+
+set.seed(3435)
+oj_split <- initial_split(OJ, prop = 0.70,
+                                strata = Purchase)     (*@\ixch{strata}@*)
+oj_train <- training(oj_split)
+oj_test <- testing(oj_split)
+\end{rcode}
+
+\subsection{Logistic Regression}
+\ixh{logistic regression}%
+\subsubsection{Creating a Recipe}
+First, just as with our \ix{linear regression} lab last week, we want to create a recipe\ixh{recipe()}{} to represent the model we'll be fitting -- one for \rc{Direction} and one for \rc{Purchase}. Neither model has categorical predictors\ixh{categorical predictor}, so we won't need to include \rc{step\_dummy}\ixch{step\_dummy()}\ixh{dummy variable}.
+\begin{rcode}
+smarket_recipe <- recipe(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 +   (*@\ixch{recipe()}@*)
+                           Lag5 + Volume, data = smarket_train)
+
+oj_recipe <- recipe(Purchase ~ PriceCH + PriceMM + DiscCH + DiscMM +  (*@\ixch{recipe()}@*)
+         LoyalCH + PctDiscMM + PctDiscCH, data = oj_train)
+\end{rcode}
+
+\subsubsection{Specifying an Engine}
+Then, again like last week, we specify the model type and engine\ixch{engine}:
+\begin{rcode}
+log_reg <- logistic_reg() %>%      (*@\ixch{logistic\_reg()}@*)
+  set_engine("glm") %>%            (*@\ixch{set\_engine()}\ixch{glm}@*)
+  set_mode("classification")       (*@\ixch{set\_mode()}\ixch{mode}@*)
+\end{rcode}
+
+\subsubsection{Workflow}
+We set up a workflow\ixh{workflow()}, one for each recipe, and fit the models to the \ix{training data}:
+\begin{rcode}
+smarketlog_wkflow <- workflow() %>%   (*@\ixch{workflow()}@*)
+  add_model(log_reg) %>%              (*@\ixch{add\_model()}@*)
+  add_recipe(smarket_recipe)          (*@\ixch{add\_recipe()}@*)
+
+smarketlog_fit <- fit(smarketlog_wkflow, smarket_train)   (*@\ixch{fit()}@*)
+
+ojlog_wkflow <- workflow() %>%
+  add_model(log_reg) %>%
+  add_recipe(oj_recipe)
+
+ojlog_fit <- fit(ojlog_wkflow, oj_train)      (*@\ixch{fit()}@*)
+\end{rcode}
+
+\subsubsection{Model Results}
+We can view the results -- for the \rc{Smarket}\ixh{Smarket}{} data:
+\begin{rcode}
+smarketlog_fit %>%
+  tidy()                        (*@\ixch{tidy()}\ixh{coefficient}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 7 x 5
+  term        estimate std.error statistic p.value
+  <chr>          <dbl>     <dbl>     <dbl>   <dbl>
+1 (Intercept) -0.197      0.293    -0.672    0.502
+2 Lag1        -0.00479    0.0601   -0.0797   0.937
+3 Lag2        -0.0537     0.0619   -0.868    0.386
+4 Lag3         0.00265    0.0611    0.0435   0.965
+5 Lag4        -0.0440     0.0594   -0.740    0.459
+6 Lag5         0.0381     0.0605    0.630    0.529
+7 Volume       0.184      0.193     0.952    0.341
+\end{routput}
+\ixh{p-value}\ixh{standard error}\ixh{intercept}%
+And for the \rc{OJ}\ixh{OJ}{} data:
+\begin{rcode}
+ojlog_fit %>%
+  tidy()                        (*@\ixch{tidy()}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 8 x 5
+  term        estimate std.error statistic  p.value
+  <chr>          <dbl>     <dbl>     <dbl>    <dbl>
+1 (Intercept)     4.47     2.21      2.02  4.35e- 2
+2 PriceCH         3.68     1.49      2.48  1.31e- 2
+3 PriceMM        -4.17     0.980    -4.26  2.03e- 5
+4 DiscCH        -10.0     23.2      -0.431 6.66e- 1
+5 DiscMM         27.1     10.1       2.69  7.20e- 3
+6 LoyalCH        -6.07     0.450   -13.5   1.48e-41
+7 PctDiscMM     -51.8     21.0      -2.47  1.36e- 2
+8 PctDiscCH       8.43    43.5       0.194 8.46e- 1
+\end{routput}
+\ixh{coefficient}\ixh{p-value}%
+
+\subsubsection{Assessing Model Performance}
+\ixh{model evaluation}%
+We can use each of these models to generate probability predictions for the training data:
+\begin{rcode}
+predict(smarketlog_fit, new_data = smarket_train, type = "prob")  (*@\ixch{predict()}\ixch{new\_data}\ixch{type = "prob"}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 874 x 2                (*@\ixch{.pred\_Down}\ixch{.pred\_Up}@*)
+   .pred_Down .pred_Up
+        <dbl>    <dbl>
+ 1      0.521    0.479
+ 2      0.470    0.530
+ 3      0.498    0.502
+ 4      0.498    0.502
+ 5      0.467    0.533
+ 6      0.518    0.482
+ 7      0.468    0.532
+ 8      0.478    0.522
+ 9      0.517    0.483
+10      0.521    0.479
+# ... with 864 more rows
+\end{routput}
+Each row represents the probability predicted by the model that a given observation belongs to a given class\ixh{posterior probability}. Notice this is redundant, because one could be calculated directly from the other, but it's useful in multiclass situations\ixh{multiclass classification}.
+
+We haven't stored these, just looked at them to illustrate what's going on ``behind the scenes.'' For the first row, or the first observation in the \rc{Smarket} \textbf{training} set, the logistic regression\ixh{logistic regression}{} model generated a predicted probability of \rc{Down} of about 0.56 and a probability of \rc{Up} of about 0.44. The other rows could be interpreted in much the same way. One thing to note is that none of these first 10 probabilities is below 0.40 or above 0.59; this is a clue that the model is not able to discriminate between the two outcome classes very well. Compare that to the probabilities for the \rc{OJ} data:
+{\color{figgray}\itshape [note: the knitted output above shows 0.521 / 0.479 for row 1; the 0.56 / 0.44 in the text are from an earlier knit.]}
+\begin{rcode}
+predict(ojlog_fit, new_data = oj_train, type = "prob")   (*@\ixch{predict()}\ixch{type = "prob"}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 748 x 2               (*@\ixch{.pred\_CH}\ixch{.pred\_MM}@*)
+   .pred_CH .pred_MM
+      <dbl>    <dbl>
+ 1    0.606  0.394
+ 2    0.898  0.102
+ 3    0.970  0.0300
+ 4    0.958  0.0424
+ 5    0.951  0.0494
+ 6    0.952  0.0484
+ 7    0.994  0.00625
+ 8    0.840  0.160
+ 9    0.846  0.154
+10    0.795  0.205
+# ... with 738 more rows
+\end{routput}
+However, it's more useful to summarize the predicted values. We can use \ixc{augment()} to attach the predicted values to the data, then generate a \ix{confusion matrix} for \rc{Smarket}:
+\begin{rcode}
+augment(smarketlog_fit, new_data = smarket_train) %>%   (*@\ixch{augment()}@*)
+  conf_mat(truth = Direction, estimate = .pred_class)   (*@\ixch{conf\_mat()}\ixch{truth}\ixch{estimate}\ixch{.pred\_class}@*)
+\end{rcode}
+\begin{routput}
+          Truth
+Prediction Down  Up
+      Down  104  98
+      Up    317 355
+\end{routput}
+Or we can create a visual representation of the confusion matrix\ixh{confusion matrix}:
+\begin{rcode}
+augment(smarketlog_fit, new_data = smarket_train) %>%
+  conf_mat(truth = Direction, estimate = .pred_class) %>%
+  autoplot(type = "heatmap")         (*@\ixch{autoplot()}\ixch{type = "heatmap"}@*)
+\end{rcode}
+\fig{Heatmap of the \rc{Smarket} logistic-regression training confusion matrix: rows Prediction (Down top, Up bottom), columns Truth (Down left, Up right); Pred Down: 104 (Truth Down), 98 (Truth Up); Pred Up: 317 (Truth Down), 355 (Truth Up). The bottom (Pred Up) row is dark --- the model predicts Up for most days.}
+
+We'll create a confusion matrix for the orange juice data as well:
+\begin{rcode}
+augment(ojlog_fit, new_data = oj_train) %>%
+  conf_mat(truth = Purchase, estimate = .pred_class) %>%   (*@\ixch{conf\_mat()}@*)
+  autoplot(type = "heatmap")                               (*@\ixch{autoplot()}@*)
+\end{rcode}
+\fig{Heatmap of the \rc{OJ} logistic-regression training confusion matrix (rows Prediction CH/MM, columns Truth CH/MM): Pred CH: 403 (Truth CH), 71 (Truth MM); Pred MM: 54 (Truth CH), 220 (Truth MM). The diagonal (403, 220) is dark --- mostly correct predictions ($623/748 = 0.833$).}
+
+\par\textbf{Activities}
+\begin{itemize}
+\item What do you notice from each of these confusion matrices\ixh{confusion matrix}?
+\item Consider the data sets. For each outcome, do the models tend to overpredict one class or the other? If so, which one?
+\item Do you think the models are doing well? Why or why not?
+\end{itemize}
+Let's calculate the \ix{accuracy} of the logistic regression model, or the average number of correct predictions it made on the \textbf{training} data, for both \rc{OJ} and \rc{Smarket}. This is equivalent to \textbf{1 -} \textbf{training error rate}\ixh{training error}\ixh{error rate}{} for eachmodel.
+\begin{rcode}
+log_reg_acc_smarket <- augment(smarketlog_fit, new_data = smarket_train) %>%
+  accuracy(truth = Direction, estimate = .pred_class)   (*@\ixch{accuracy()}@*)
+log_reg_acc_smarket
+\end{rcode}
+\begin{routput}
+# A tibble: 1 x 3
+  .metric  .estimator .estimate     (*@\ixch{.metric}\ixch{.estimator}\ixch{.estimate}@*)
+  <chr>    <chr>          <dbl>
+1 accuracy binary         0.525
+\end{routput}
+\begin{rcode}
+log_reg_acc_oj <- augment(ojlog_fit, new_data = oj_train) %>%
+  accuracy(truth = Purchase, estimate = .pred_class)    (*@\ixch{accuracy()}@*)
+log_reg_acc_oj
+\end{rcode}
+\begin{routput}
+# A tibble: 1 x 3
+  .metric  .estimator .estimate
+  <chr>    <chr>          <dbl>
+1 accuracy binary         0.833
+\end{routput}
+We will now go on to fit three more models to the \textbf{training} data sets: A \ix{linear discriminant analysis (LDA)} model, a \ix{quadratic discriminant analysis (QDA)} model, and a \ix{naive Bayes} model.
+
+\subsection{LDA}
+\ixh{LDA}%
+The beauty of \ixc{tidymodels} is that we only need to set up the recipe once. Then fitting any number of additional model classes can be done with only a few lines of code:
+\begin{rcode}
+lda_mod <- discrim_linear() %>%     (*@\ixch{discrim\_linear()}@*)
+  set_mode("classification") %>%    (*@\ixch{set\_mode()}@*)
+  set_engine("MASS")                (*@\ixch{set\_engine()}\ixch{MASS}@*)
+
+smarketlda_wkflow <- workflow() %>%  (*@\ixch{workflow()}@*)
+  add_model(lda_mod) %>%             (*@\ixch{add\_model()}@*)
+  add_recipe(smarket_recipe)         (*@\ixch{add\_recipe()}@*)
+
+smarketlda_fit <- fit(smarketlda_wkflow, smarket_train)   (*@\ixch{fit()}@*)
+
+ojlda_wkflow <- workflow() %>%
+  add_model(lda_mod) %>%
+  add_recipe(oj_recipe)
+
+ojlda_fit <- fit(ojlda_wkflow, oj_train)
+\end{rcode}
+
+\subsubsection{Assessing Performance}
+This can be done almost exactly the same way. We can view a confidence matrix and calculate \ix{accuracy} on the \textbf{training data}\ixh{training data}:
+{\color{figgray}\itshape [note: ``confidence matrix'' (sic) = confusion matrix\ixh{confusion matrix}.]}
+\begin{rcode}
+augment(smarketlda_fit, new_data = smarket_train) %>%   (*@\ixch{augment()}@*)
+  conf_mat(truth = Direction, estimate = .pred_class)   (*@\ixch{conf\_mat()}@*)
+\end{rcode}
+\begin{routput}
+          Truth
+Prediction Down  Up
+      Down  103  98
+      Up    318 355
+\end{routput}
+\begin{rcode}
+augment(ojlda_fit, new_data = oj_train) %>%
+  conf_mat(truth = Purchase, estimate = .pred_class)
+\end{rcode}
+\begin{routput}
+          Truth
+Prediction  CH  MM
+        CH 398  70
+        MM  59 221
+\end{routput}
+\begin{rcode}
+smarketlda_acc <- augment(smarketlda_fit, new_data = smarket_train) %>%
+  accuracy(truth = Direction, estimate = .pred_class)    (*@\ixch{accuracy()}@*)
+smarketlda_acc
+\end{rcode}
+\begin{routput}
+# A tibble: 1 x 3
+  .metric  .estimator .estimate
+  <chr>    <chr>          <dbl>
+1 accuracy binary         0.524
+\end{routput}
+\begin{rcode}
+ojlda_acc <- augment(ojlda_fit, new_data = oj_train) %>%
+  accuracy(truth = Purchase, estimate = .pred_class)
+ojlda_acc
+\end{rcode}
+\begin{routput}
+# A tibble: 1 x 3
+  .metric  .estimator .estimate
+  <chr>    <chr>          <dbl>
+1 accuracy binary         0.828
+\end{routput}
+\par\textbf{Activities}
+\begin{itemize}
+\item Compare the results of the \ix{LDA} models to the results of the logistic regression\ixh{logistic regression}{} models.
+\end{itemize}
+
+\subsection{QDA}
+\ixh{QDA}%
+Again, fitting any number of additional model classes can be done with only a few lines of code:
+\begin{rcode}
+qda_mod <- discrim_quad() %>%       (*@\ixch{discrim\_quad()}@*)
+  set_mode("classification") %>%    (*@\ixch{set\_mode()}@*)
+  set_engine("MASS")                (*@\ixch{set\_engine()}\ixch{MASS}@*)
+
+smarketqda_wkflow <- workflow() %>%  (*@\ixch{workflow()}@*)
+  add_model(qda_mod) %>%             (*@\ixch{add\_model()}@*)
+  add_recipe(smarket_recipe)         (*@\ixch{add\_recipe()}@*)
+
+smarketqda_fit <- fit(smarketqda_wkflow, smarket_train)   (*@\ixch{fit()}@*)
+
+ojqda_wkflow <- workflow() %>%
+  add_model(qda_mod) %>%
+  add_recipe(oj_recipe)
+
+ojqda_fit <- fit(ojqda_wkflow, oj_train)
+\end{rcode}
+
+\subsubsection{Assessing Performance}
+And again we can view confidence matrices\ixh{confusion matrix}{} and calculate accuracies\ixh{accuracy}{} on the \textbf{training data}:
+\begin{rcode}
+augment(smarketqda_fit, new_data = smarket_train) %>%   (*@\ixch{augment()}@*)
+  conf_mat(truth = Direction, estimate = .pred_class)   (*@\ixch{conf\_mat()}@*)
+\end{rcode}
+\begin{routput}
+          Truth
+Prediction Down  Up
+      Down  125  99
+      Up    296 354
+\end{routput}
+\begin{rcode}
+smarketqda_acc <- augment(smarketqda_fit, new_data = smarket_train) %>%
+  accuracy(truth = Direction, estimate = .pred_class)    (*@\ixch{accuracy()}@*)
+smarketqda_acc
+\end{rcode}
+\begin{routput}
+# A tibble: 1 x 3
+  .metric  .estimator .estimate
+  <chr>    <chr>          <dbl>
+1 accuracy binary         0.548
+\end{routput}
+\begin{rcode}
+augment(ojqda_fit, new_data = oj_train) %>%
+  conf_mat(truth = Purchase, estimate = .pred_class)
+\end{rcode}
+\begin{routput}
+          Truth
+Prediction  CH  MM
+        CH 370  65
+        MM  87 226
+\end{routput}
+\begin{rcode}
+ojqda_acc <- augment(ojqda_fit, new_data = oj_train) %>%
+  accuracy(truth = Purchase, estimate = .pred_class)
+ojqda_acc
+\end{rcode}
+\begin{routput}
+# A tibble: 1 x 3
+  .metric  .estimator .estimate
+  <chr>    <chr>          <dbl>
+1 accuracy binary         0.797
+\end{routput}
+
+\subsection{Naive Bayes}
+\ixh{naive Bayes}%
+Finally, we'll fit a Naive Bayes\ixh{naive Bayes}{} model to the \textbf{training data}. For this, we will be using the \rc{naive\_bayes()}\ixch{naive\_Bayes()}{} function to create the specification and set the \ixc{usekernel} argument to \rc{FALSE}. This means that we are assuming that the predictors are drawn from Gaussian distributions\ixh{normal distribution}.
+\begin{rcode}
+nb_mod <- naive_Bayes() %>%        (*@\ixch{naive\_Bayes()}@*)
+  set_mode("classification") %>%
+  set_engine("klaR") %>%           (*@\ixch{set\_engine()}\ixch{klaR}@*)
+  set_args(usekernel = FALSE)      (*@\ixch{set\_args()}\ixch{usekernel}@*)
+
+smarketnb_wkflow <- workflow() %>%  (*@\ixch{workflow()}@*)
+  add_model(nb_mod) %>%             (*@\ixch{add\_model()}@*)
+  add_recipe(smarket_recipe)
+
+smarketnb_fit <- fit(smarketnb_wkflow, smarket_train)   (*@\ixch{fit()}@*)
+
+ojnb_wkflow <- workflow() %>%
+  add_model(nb_mod) %>%
+  add_recipe(oj_recipe)
+
+ojnb_fit <- fit(ojnb_wkflow, oj_train)
+\end{rcode}
+
+\subsubsection{Assessing Performance}
+We can view confidence matrices\ixh{confusion matrix}{} and calculate accuracies\ixh{accuracy}{} on the \textbf{training data}:
+\begin{rcode}
+augment(smarketnb_fit, new_data = smarket_train) %>%    (*@\ixch{augment()}@*)
+  conf_mat(truth = Direction, estimate = .pred_class)   (*@\ixch{conf\_mat()}@*)
+\end{rcode}
+\begin{routput}
+          Truth
+Prediction Down  Up
+      Down  107  98
+      Up    314 355
+\end{routput}
+\begin{rcode}
+smarketnb_acc <- augment(smarketnb_fit, new_data = smarket_train) %>%
+  accuracy(truth = Direction, estimate = .pred_class)    (*@\ixch{accuracy()}@*)
+smarketnb_acc
+\end{rcode}
+\begin{routput}
+# A tibble: 1 x 3
+  .metric  .estimator .estimate
+  <chr>    <chr>          <dbl>
+1 accuracy binary         0.529
+\end{routput}
+\begin{rcode}
+augment(ojnb_fit, new_data = oj_train) %>%
+  conf_mat(truth = Purchase, estimate = .pred_class)
+\end{rcode}
+\begin{routput}
+          Truth
+Prediction  CH  MM
+        CH 338  47
+        MM 119 244
+\end{routput}
+\begin{rcode}
+ojnb_acc <- augment(ojnb_fit, new_data = oj_train) %>%
+  accuracy(truth = Purchase, estimate = .pred_class)
+ojnb_acc
+\end{rcode}
+\begin{routput}
+# A tibble: 1 x 3
+  .metric  .estimator .estimate
+  <chr>    <chr>          <dbl>
+1 accuracy binary         0.778
+\end{routput}
+
+\subsection{Comparing Model Performance}
+\ixh{model comparison}%
+Now we can make a table of the accuracy rates\ixh{accuracy}{} from these four models to choose the model that produced the highest accuracy on the \textbf{training data} for each of the two data sets.
+
+For the \rc{Smarket}\ixh{Smarket}{} data:
+\begin{rcode}
+accuracies <- c(log_reg_acc_smarket$.estimate,     (*@\ixch{.estimate}@*)
+                smarketlda_acc$.estimate,
+                smarketnb_acc$.estimate,
+                smarketqda_acc$.estimate)
+models <- c("Logistic Regression", "LDA", "Naive Bayes", "QDA")
+results <- tibble(accuracies = accuracies, models = models)   (*@\ixch{tibble()}@*)
+results %>%
+  arrange(-accuracies)                (*@\ixch{arrange()}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 4 x 2
+  accuracies models
+       <dbl> <chr>
+1      0.548 QDA
+2      0.529 Naive Bayes
+3      0.525 Logistic Regression
+4      0.524 LDA
+\end{routput}
+For the \rc{OJ}\ixh{OJ}{} data set:
+\begin{rcode}
+accuracies <- c(log_reg_acc_oj$.estimate, ojlda_acc$.estimate,
+                ojnb_acc$.estimate, ojqda_acc$.estimate)
+models <- c("Logistic Regression", "LDA", "Naive Bayes", "QDA")
+results <- tibble(accuracies = accuracies, models = models)
+results %>%
+  arrange(-accuracies)                (*@\ixch{arrange()}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 4 x 2
+  accuracies models
+       <dbl> <chr>
+1      0.833 Logistic Regression
+2      0.828 LDA
+3      0.797 QDA
+4      0.778 Naive Bayes
+\end{routput}
+\par\textbf{Activities}
+\begin{itemize}
+\item Which model performed the best on the training data for each data set?
+\item Which model would you choose? Why?\ixh{model comparison}
+\end{itemize}
+
+\subsection{Fitting to Testing Data}
+\ixh{testing data}%
+Since the QDA\ixh{QDA}{} model performed slightly better for \rc{Smarket}, we'll go ahead and fit it to the \ix{testing data}. Note that what we are doing -- that is, selecting a model based on its \emph{training accuracy}\ixh{training error}{} -- is \textbf{not} ideal practice, as we've discussed in class. The model with the highest training accuracy is \textbf{not} guaranteed to have high testing accuracy\ixh{testing error}\ixh{overfitting}.
+
+In future weeks, we'll cover how to use \ix{cross-validation} to get an estimate of our models' performance on \emph{testing data} and use that estimate for selecting a model instead. We choose based on training accuracy here \textbf{only because} we haven't discussed cross-validation yet. Choosing a model based on training performance is \textbf{\emph{not a good idea in general}}\textbf{.}
+
+Since we've chosen a model, however -- QDA -- we can view its \ix{confusion matrix} using the \textbf{testing} data:
+\begin{rcode}
+augment(smarketqda_fit, new_data = smarket_test) %>%   (*@\ixch{augment()}@*)
+  conf_mat(truth = Direction, estimate = .pred_class)  (*@\ixch{conf\_mat()}@*)
+\end{rcode}
+\begin{routput}
+          Truth
+Prediction Down  Up
+      Down   46  58
+      Up    135 137
+\end{routput}
+We can also look at its \textbf{testing} accuracy\ixh{accuracy}. Here, we add two other metrics, \ix{sensitivity} and \ix{specificity}, out of curiosity:
+\begin{rcode}
+multi_metric <- metric_set(accuracy, sensitivity, specificity)   (*@\ixch{metric\_set()}\ixch{accuracy()}\ixch{sensitivity()}\ixch{specificity()}@*)
+
+augment(smarketqda_fit, new_data = smarket_test) %>%
+  multi_metric(truth = Direction, estimate = .pred_class)
+\end{rcode}
+\begin{routput}
+# A tibble: 3 x 3
+  .metric     .estimator .estimate
+  <chr>       <chr>          <dbl>
+1 accuracy    binary         0.487
+2 sensitivity binary         0.254
+3 specificity binary         0.703
+\end{routput}
+Finally, let's look at an \ix{ROC curve} on the testing data:
+\begin{rcode}
+augment(smarketqda_fit, new_data = smarket_test) %>%
+  roc_curve(Direction, .pred_Down) %>%      (*@\ixch{roc\_curve()}\ixch{.pred\_Down}@*)
+  autoplot()                                (*@\ixch{autoplot()}@*)
+\end{rcode}
+\fig{ROC curve of the \rc{Smarket} QDA model on the test set (x ``1 - specificity'', y ``sensitivity'', both 0--1, dotted diagonal): a jagged staircase that hugs the 45$^\circ$ diagonal the whole way, dipping slightly below it (e.g.\ sensitivity $\approx$0.06 at FPR 0.12, $\approx$0.25 at FPR 0.28, $\approx$0.71 at FPR 0.75) and only marginally above it around FPR 0.4--0.6 --- essentially no discrimination (AUC $\approx$0.5; not printed).}
+
+We'll fit the logistic regression\ixh{logistic regression}{} to the \rc{OJ}\ixh{OJ}{} testing set, since it also performed best on the training set, with the same caveats, and view the same things:
+\begin{rcode}
+augment(ojlog_fit, new_data = oj_test) %>%
+  conf_mat(truth = Purchase, estimate = .pred_class)   (*@\ixch{conf\_mat()}@*)
+multi_metric <- metric_set(accuracy, sensitivity, specificity)   (*@\ixch{metric\_set()}@*)
+augment(ojlog_fit, new_data = oj_test) %>%
+  multi_metric(truth = Purchase, estimate = .pred_class)
+augment(ojlog_fit, new_data = oj_test) %>%
+  roc_curve(Purchase, .pred_CH) %>%         (*@\ixch{roc\_curve()}\ixch{.pred\_CH}@*)
+  autoplot()
+\end{rcode}
+\begin{routput}
+          Truth
+Prediction  CH  MM
+        CH 178  36
+        MM  18  90
+\end{routput}
+\begin{routput}
+# A tibble: 3 x 3
+  .metric     .estimator .estimate
+  <chr>       <chr>          <dbl>
+1 accuracy    binary         0.832
+2 sensitivity binary         0.908
+3 specificity binary         0.714
+\end{routput}
+\fig{ROC curve of the \rc{OJ} logistic regression on the test set (same axes, dotted diagonal): bows strongly toward the top-left corner --- rises steeply to sensitivity $\approx$0.68 by FPR $\approx$0.06, $\approx$0.81 by FPR $\approx$0.13, $\approx$0.90 by FPR $\approx$0.25, $\approx$0.95 by FPR $\approx$0.37, then flattens ($\approx$0.97 at 0.45--0.55, $\approx$0.99 at 0.75) to 1.00 at FPR $\approx$0.89. Far above the diagonal = good discrimination (AUC not printed).}
+
+\par\textbf{Activities}
+\begin{itemize}
+\item What do the \ix{sensitivity} and \ix{specificity} values mean? Interpret them in terms of the concepts and data.
+\item How well did the models perform on the \textbf{testing} data?
+\item Why do you think the models performed like they did?
+\item Which model performed better?
+\end{itemize}
+
+\subsection{Resources}
+The free book \emph{Tidy Modeling with R} is strongly recommended.
+
+\subsection{Source}
+Several parts of this lab come directly from the ``ISLR Tidymodels Labs''. Credit to Emil Hvitfeldt for writing and maintaining the open-source book.

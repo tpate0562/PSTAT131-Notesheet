@@ -1,0 +1,15 @@
+Bias of the coefficient estimates
+
+Least-squares coefficient estimates
+
+Die 1 — DO; -5) -
+
+A= : bo =y- Bx
+Die 1 -— ° '
+It can be shown that
+E(p,) = A, E(Ay) = Bo
+
+Recall from the bias definition
+Bias(6,) = E(h.)—f,=0 —_Bias(Bo) = E(B) — By = 0
+
+A and by are unbiased estimator of /, and fp, respectively

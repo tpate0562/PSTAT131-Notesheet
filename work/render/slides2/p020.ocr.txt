@@ -1,0 +1,25 @@
+confirmed
+
+We find the line that best fits the data, by minimizing the sum of squared residuals
+_ 2
+SSR = )! 0;- fo - Bx)
+i
+
+°
+
+200000
+
+150000
+|
+
+y=Pot Pix
+
+100000
+|
+
+50000
+
+T T T T T
+1000000 1500000 2000000 2500000 3000000
+
+population

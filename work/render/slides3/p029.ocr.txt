@@ -1,0 +1,9 @@
+Confounding
+
+Pay extra attention when performing regressions involving only
+a single predictor when other predictors may also be relevant
+
+Confounding
+
+Simpson’s paradox
+

@@ -1,0 +1,449 @@
+%% raw_s1a.tex -- raw transcription of Slide Set 1, PDF pages 1--58
+%% (course intro, what is ML, supervised vs. unsupervised, regression vs. classification,
+%%  parametric vs. non-parametric, flexibility vs. interpretability, training vs. test MSE).
+\section{Slide Set 1 --- Intro to ML, bias--variance tradeoff, KNN (pp.~1--58)}
+
+\subsection{Course overview and introduction}
+
+\slide{1}{1}{Course overview and introduction}
+Course overview and introduction. PSTAT 131/231. Week 1.
+
+\slide{1}{2}{Introductions}
+Ph.D. Quantitative Psychology\\
+B.S. Psychology
+\fig{instructor introduction collage: a photo of the San Jos\'e State University entrance sign with palm trees (next to the B.S.), the University of California, Merced seal and wordmark (``Let there be light'', 2005; next to the Ph.D.), and three photos of the instructor's grey/calico cats (one hugging a red ``I love you 3000'' heart pillow, one lounging in a window hammock).}
+
+\slide{1}{3}{Syllabus}
+Syllabus.
+\fig{thumbnail screenshot of the first page of a sample course syllabus (``Probability and Statistics II, PSTAT 120B, Fall 2021'': instructor/TA list, lecture and section times, ``Course information'', ``Description (from catalog)'', ``Piazza'', ``Format'' paragraphs). It is a placeholder image for the syllabus discussion; no PSTAT 131 content is legible on it.}
+
+\slide{1}{4}{R Setup}
+R Setup. {\color{figgray}\itshape [section divider slide]}
+
+\slide{1}{5}{Introduction}
+Introduction. {\color{figgray}\itshape [section divider slide]}
+
+\slide{1}{6}{Required reading:}
+\begin{itemize}
+\item For \textbf{undergraduates}, ch.~1 of ISLR\ixh{ISLR}
+\item For \textbf{graduate students}, ch.~1 of ESL\ixh{ESL}
+\end{itemize}
+
+\slide{1}{7}{What is machine learning?}
+\ixh{machine learning}
+\begin{itemize}
+\item Application of learning algorithms and statistical methods to real-world data sets:\ixh{learning algorithm}
+\item i.e., how can a \textbf{\color{cyan!70!blue}machine} use \textbf{\color{green!55!black}data} to \textbf{\color{orange}learn}
+\item This is a non-trivial problem!
+\end{itemize}
+{\color{figgray}\itshape [note: ``machine'' is coloured blue, ``data'' green and ``learn'' yellow/orange on the slide.]}
+
+\slide{1}{8}{A silly introduction}
+How a cat decides whether to scratch on something:
+\fig{a hand-drawn \ixh{decision tree}decision tree (flowchart) next to a photo of a black-and-white cat scratching a sofa arm. Root node (blue box): ``Am I supposed to scratch on it?''. Branch \textbf{Yes} $\to$ red leaf ``Don't scratch on it.''. Branch \textbf{No} $\to$ blue node ``Will my owners be mad if I scratch on it?''; from there \textbf{Yes} $\to$ green leaf ``Definitely scratch on it!'' and \textbf{No} $\to$ red leaf ``Don't scratch on it.''. Blue = questions (splits), green/red = final decisions (classes).}
+
+\slide{1}{9}{[untitled: Speed vs.\ amount of yams consumed]}
+Link (top right): \underline{Jamaica's sprinting glory: Is it the yams or the genes?}
+\fig{a toy \ixh{scatterplot}scatterplot with x-axis ``\textbf{Amount of Yams Consumed}'' and y-axis ``\textbf{Speed}'' (three tick marks on each axis, no numbers). Five blue dots trend upward; a black dashed straight line (a fitted \ixh{regression line}regression line) runs through them from lower left to upper right. Annotations: ``This is me:'' points to the lowest-left dot (few yams, slow); ``These are some other people:'' points to three middle dots; ``This is Usain Bolt:'' points to the top-right dot (most yams, fastest). A red \textbf{X} on the x-axis marks a new yam amount; a green dashed arrow goes straight up from it to the dashed line and then a green dashed line goes left to a red \textbf{X} on the y-axis, i.e.\ reading off the \ixh{prediction}predicted speed for a new person from the line. Right side: a photo of Usain Bolt (Jamaica, ``BOLT'', London 2012) crossing the finish line and a photo of a baked yam/sweet potato with butter.}
+
+\slide{1}{10}{[untitled: predictions or classifications]}
+\begin{itemize}
+\item In general, \ix{machine learning} is all about making \textbf{predictions}\ixh{prediction} or \textbf{classifications}\ixh{classification}.
+\end{itemize}
+\fig{two schematic pictures side by side. Left: the yam/speed scatterplot again without labels (five blue dots and a dashed upward fitted line) --- illustrating \ixh{regression}prediction of a number. Right: the cat decision-tree diagram again with the text removed (blue question boxes, arrows down to one green and two red leaf boxes) --- illustrating classification into categories.}
+
+\slide{1}{11}{[untitled: xkcd ``Machine Learning'' comic]}
+\fig{xkcd comic \#1838 (\url{https://xkcd.com/1838/}). One stick figure stands on a big pile (labelled with matrices, $\lambda$, $f$, numbers) holding a paddle; a funnel labelled ``DATA'' feeds into the pile and a box labelled ``ANSWERS'' comes out the other side. Paraphrased dialogue: the other figure asks whether this is your machine learning system; the answer is yes --- pour the data into this big pile of linear algebra and collect the answers on the other side; asked what happens if the answers are wrong, he says to just stir the pile until they start looking right. (Joke: ML as an opaque, trial-and-error ``black box''.)}
+
+\slide{1}{12}{[untitled: xkcd ``Tasks'' comic]}
+\fig{xkcd comic \#1425 (\url{https://xkcd.com/1425/}). A manager asks a programmer at a desk for an app that, when a user takes a photo, checks whether they are in a national park (programmer: easy GIS lookup, a few hours) and also checks whether the photo is of a bird (programmer: that needs a research team and five years). Caption, paraphrased: in CS it can be hard to explain the difference between the easy and the virtually impossible. (Point: image recognition, a classic ML task, is much harder than rule-based lookups.)}
+
+\slide{1}{13}{Machine learning vs.\ statistical learning}
+\ixh{machine learning}\ixh{statistical learning}
+\fig{four-panel meme. Panel 1: a man looks at a crack in a wall labelled ``statistics''. Panel 2: he hangs a picture frame around the crack. Panel 3: the framed crack is now labelled ``Machine Learning'' and he stands proudly with arms crossed. Panel 4: the framed crack, now labelled ``Artificial intelligence'', is displayed to a large admiring audience. (Joke: ML/AI are statistics re-branded.)}
+
+\slide{1}{14}{Machine learning vs.\ statistical learning?}
+\ixh{machine learning}\ixh{statistical learning}\ixh{statistical machine learning}
+Two boxes side by side:\par
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X@{}}
+\textbf{Machine learning} & \textbf{statistical learning}\\\hline
+\textbullet\ arose as a subfield of AI in CS & \textbullet\ arose as a subfield of statistics\\
+\textbullet\ algorithmic perspective & \textbullet\ statistical perspective\\
+\textbullet\ focus on AI and prediction accuracy\ixh{prediction accuracy} & \textbullet\ focus on interpretability\ixh{interpretability} and inference\ixh{inference}\\
+\end{tabularx}
+
+\slide{1}{15}{[untitled: AI $\supset$ machine learning $\supset$ deep learning timeline]}
+\fig{Nvidia infographic (``Source: Nvidia''): a timeline from the 1950's to the 2010's with three nested green blocks. ARTIFICIAL INTELLIGENCE (from the 1950's; early AI stirs excitement; icon of a checkers board), MACHINE LEARNING (from the 1980's; ML begins to flourish; icon of e-mails going into a trash can = spam filtering), and DEEP LEARNING (from the 2010's; deep learning breakthroughs drive the AI boom; icon of a cat picture made of binary digits under a magnifying glass = image recognition). Caption, paraphrased: since the 1950s, successively smaller subsets of AI --- first machine learning, then deep learning (a subset of ML) --- have created ever larger disruptions.}
+\ixh{artificial intelligence (AI)}\ixh{deep learning}
+
+\slide{1}{16}{AI has a long history of being ``the next big thing''\ldots}
+\fig{line chart of AI ``Popularity'' (y-axis) against ``Time'' (x-axis, ticks 1950, 1956, 1974, 1980, 1987, 1993). The curve rises from 1950 (``Birth'' at 1956) to a local peak ``Inflated Hype'' (1974), dips to ``AI winter I'' (1980), rises sharply to a peak ``New Hopes'' (1987), dips to ``AI winter II'' (1993), then climbs steeply to ``Explosive Growth''.}
+\textbf{Timeline of AI Development}
+\begin{itemize}
+\item \textbf{1950s--1960s}: First AI boom --- the age of reasoning, prototype AI developed
+\item \textbf{1970s}: AI winter I
+\item \textbf{1980s--1990s}: Second AI boom: the age of Knowledge representation (appearance of expert systems capable of reproducing human decision-making)
+\item \textbf{1990s}: AI winter II
+\item \textbf{1997}: Deep Blue beats Gary Kasparov
+\item \textbf{2006}: University of Toronto develops Deep Learning\ixh{deep learning}
+\item \textbf{2011}: IBM's Watson won Jeopardy
+\item \textbf{2016}: Go software based on Deep Learning beats world's champions
+\end{itemize}
+
+\slide{1}{17}{[untitled: AI vs.\ ML vs.\ deep learning; classical programming vs.\ ML]}
+\fig{(left) nested-ellipse Venn diagram: the outer ellipse \textbf{Artificial Intelligence} (``Rule-based techniques, expert systems \ldots'') contains \textbf{Machine Learning} (``CART, SVM \ldots''), which contains \textbf{Deep Learning} (``Neural networks \ldots''). (right) two block diagrams: ``Rules'' + ``Data'' $\to$ [Classical programming] $\to$ ``Answers''; and ``Data'' + ``Answers'' $\to$ [Machine learning] $\to$ ``Rules''. I.e.\ ML learns the rules from data with known answers.}
+\ixh{artificial intelligence (AI)}\ixh{machine learning}\ixh{deep learning}\ixh{classical programming}\ixh{CART}\ixh{SVM}\ixh{neural network}
+
+\slide{1}{18}{[untitled: New Yorker quote --- how a child vs.\ a program learns ``dog'']}
+{\color{figgray}\itshape [long magazine quotation, paraphrased here:]} An old-fashioned program to identify a dog would be written by a software engineer as thousands of if-then-else rules (\emph{if} it has ears, a snout, \emph{and} hair, and \emph{is not} a rat \ldots). A child instead learns by seeing dogs and being told they are dogs, makes mistakes (thinks a wolf is a dog), is corrected, and gradually shifts her understanding. The machine-learning algorithm, like the child, pulls information from a \ix{training set}\ixh{training data} that has been classified (``here's a dog, and here's not a dog''), extracts features\ixh{feature} from one set versus the other, and by testing itself against hundreds and thousands of classified images it creates its own way to recognize a dog. It just knows \emph{how} to do it.\\
+Link: \url{https://www.newyorker.com/magazine/2017/04/03/ai-versus-md}
+\fig{photo of a white wolf next to a dog with similar face markings (hard to tell apart), and a grid of brain MRI scans (the article is about AI in medical diagnosis).}
+
+\slide{1}{19}{[untitled: generative AI examples]}
+\fig{collage of generative-AI products: \textbf{LENSA} (AI-generated stylised portrait avatars); \textbf{DALL$\cdot$E} (OpenAI; an AI-generated photo of two teddy bears working on a computer underwater); an AI anime-filter app (a photo of a cat turned into an anime girl); the ChatGPT login screen (``Welcome to ChatGPT'', Log in / Sign up); and OpenAI's \textbf{Jukebox} page (April 30, 2020), a neural net that generates music, including rudimentary singing, as raw audio in a variety of genres and artist styles (Read paper / View code buttons).}
+\ixh{generative AI}
+
+\slide{1}{20}{[untitled: Lee Sedol vs.\ AlphaGo]}
+\fig{photo of Go champion Lee Sedol, head in hand, studying a Go board during his 2016 match against AlphaGo.}
+Caption: Lee Sedol vs.\ AlphaGo in 2016, Source: The New Yorker.\\
+\texttt{https://www.wired.com/2016/03/\allowbreak two-moves-alphago-lee-\allowbreak sedol-redefined-future/}
+\ixh{AlphaGo}
+
+\slide{1}{21}{[untitled: Google self-driving car]}
+\fig{photo of Google's small white two-seat self-driving car (roof-mounted sensor dome) in a parking lot at sunset; ``Image courtesy of Google''.}
+Headline: \textbf{Google's artificial intelligence becomes first non-human to qualify as a driver}\ixh{artificial intelligence (AI)}\ixh{self-driving car}
+
+\slide{1}{22}{Machine learning competitions}
+\begin{itemize}
+\item Netflix Challenge\ixh{Netflix Challenge}
+\item 100,000,000+ ratings from 400,000+ users of 17,000+ movies
+\item Predict user rating for a film, winner got \$1,000,000!\ixh{prediction}
+\end{itemize}
+\fig{screenshot of the Netflix web interface: a row of movie posters (Due Date [highlighted with a red box], Kiss Kiss Bang Bang, Surfer, Dude, The Wedding Planner, Texas Chainsaw Massacre: Next Gen), each with an ``Add'' button, a 1--5 star rating (about 2--3.5 red stars) and a ``Not Interested'' button --- the star ratings are what the competition asked teams to predict.}
+
+\slide{1}{23}{[untitled: Kaggle competitions]}
+\fig{screenshot of the Kaggle ``Competitions'' web page (\url{https://www.kaggle.com/competitions}): left menu Create / Home / Competitions / Datasets / Code / Discussions / Courses / More; main text ``Grow your data science skills by competing in our exciting competitions. Find help in the documentation or learn about Community competitions.'', a ``Host a Competition'' button, a ``Search competitions'' box, filter chips All competitions / Entered / Hosted / Featured / Research, and a ``Get Started'' heading.}
+\ixh{Kaggle}
+
+\slide{1}{24}{Machine learning in research: Examples}
+\begin{itemize}
+\item High-energy physics experiments
+\item Microarrays for gene expression (20,000+ features\ixh{feature})
+\item Genome-wide association studies (millions of features)
+\end{itemize}
+\begin{center}
+\textbf{\color{cyan!80!blue}Unprecedented large scale of data}\\
++\\
+\textbf{\color{cyan!80!blue}Highly complicated underlying structure}
+\end{center}
+\ixh{high-dimensional data}
+
+\slide{1}{25}{A (very) rough ML workflow:}
+\fig{flow diagram of four light-blue boxes connected by arrows: \textbf{Goal} $\to$ \textbf{Data} $\to$ \textbf{Learn} $\to$ \textbf{Evaluate}. A curved black arrow loops back from \textbf{Evaluate} to the arrow between \textbf{Data} and \textbf{Learn}, labelled in red ``a different method/model?'' (i.e.\ after evaluating, go back and try another model on the same data).}
+\ixh{ML workflow}\ixh{model evaluation}
+
+\slide{1}{26}{[untitled: data science workflow diagram]}
+\fig{the R for Data Science workflow diagram inside a box labelled ``Program'': Import $\to$ Tidy $\to$ [grey box ``Understand'': a cycle Transform $\to$ Visualise $\to$ Model $\to$ back to Transform] $\to$ Communicate.}
+\ixh{data science workflow}\ixh{tidy data}
+
+\slide{1}{27}{[untitled: tidymodels website]}
+\fig{screenshot of the tidymodels home page (\url{https://www.tidymodels.org/}; menu PACKAGES, GET STARTED, LEARN, HELP, CONTRIBUTE) with hexagon logos of the packages \textbf{tidymodels}, \textbf{rsample} (boot), \textbf{recipes} (cupcake), \textbf{parsnip} (vegetable), \textbf{yardstick} (red, measuring tape) plus empty hexagons.}
+\textbf{TIDYMODELS}\par
+The \ixc{tidymodels} framework is a collection of packages for modeling and machine learning using \ixc{tidyverse} principles.\par
+Install tidymodels with:
+\begin{rcode}
+install.packages("tidymodels")   (*@\ixch{install.packages()}\ixch{tidymodels}@*)
+\end{rcode}
+\ixch{rsample}\ixch{recipes}\ixch{parsnip}\ixch{yardstick}
+
+\slide{1}{28}{[untitled: tidyverse/tidymodels workflow]}
+\fig{workflow diagram with package hex logos: a top box with the \textbf{tidyverse} logo containing Import $\to$ Tidy $\to$ Transform $\to$ Visualize; an arrow from Visualize goes down to a yellow box with the \textbf{tidymodels} logo containing \textbf{Model}, which loops back up to Transform; an arrow from Model goes down to a bottom box with the \textbf{rmarkdown} and \textbf{Shiny} logos labelled \textbf{Share}.}
+Links: \texttt{https://hansjoerg.me/2020/02/09/\allowbreak tidymodels-for-machine-learning/}\\
+\texttt{https://rviews.rstudio.com/2019/06/19/\allowbreak a-gentle-intro-to-tidymodels/}
+\ixch{tidyverse}\ixch{tidymodels}\ixch{rmarkdown}\ixch{Shiny}
+
+\subsection{The learning set-up: response, predictors, $f$ and error}
+
+\slide{1}{29}{An example:}
+\begin{itemize}
+\item At the population level:
+\end{itemize}
+\begin{tabularx}{\linewidth}{@{}>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
+$Y$ & $(X_1,\ldots,X_p)$\\[2pt]
+\textbf{\color{orange}Response}\ixh{response}\ixh{outcome} & \textbf{\color{blue!70!cyan}Predictors}\ixh{predictor}\\
+\textbf{(output, target, dependent variable)}\ixh{dependent variable}\ixh{target} & \textbf{(input, features, covariates, independent variables)}\ixh{feature}\ixh{covariate}\ixh{independent variable}\\
+$Y$ = {\color{orange}\textbf{wage}} & $X_1$ = employee's {\color{blue!70!cyan}\textbf{age}}\newline $X_2$ = {\color{blue!70!cyan}\textbf{education}} level\newline $X_3$ = calendar {\color{blue!70!cyan}\textbf{year}}\\
+\end{tabularx}
+Goal: Predict an employee's {\color{orange}\textbf{wage}} based on their {\color{blue!70!cyan}\textbf{age}}, {\color{blue!70!cyan}\textbf{education}} level, and the calendar {\color{blue!70!cyan}\textbf{year}}
+\ixh{Wage example}
+
+\slide{1}{30}{Example data:}
+\begin{itemize}
+\item At the observation level:\ixh{observation}
+\end{itemize}
+\[
+\underset{\textbf{wage}}{\begin{pmatrix} y_1\\ y_2\\ y_3\\ \vdots\\ y_9\end{pmatrix}}
+\qquad
+\underset{\textbf{age, education, year}}{\begin{pmatrix} x_{11},x_{12},x_{13}\\ x_{21},x_{22},x_{23}\\ x_{31},x_{32},x_{33}\\ \vdots\ ,\ \vdots\ ,\ \vdots\\ x_{91},x_{92},x_{93}\end{pmatrix}}
+\]
+{\color{figgray}\itshape [note: on the slide ``wage'' is the label above the $y$ vector (orange) and ``age, education, year'' the label above the $x$ matrix (blue).]}\\
+Goal: Predict an employee's wage based on their age, education level, and the calendar year
+
+\slide{1}{31}{Example data: (one observation)}
+\begin{itemize}
+\item At the observation level:\ixh{observation}
+\end{itemize}
+\[
+\text{John}\ \ \underset{\textbf{wage}}{\begin{pmatrix} y_1\\ y_2\\ \colorbox{red!30}{$y_3$}\\ \vdots\\ y_9\end{pmatrix}}
+\qquad
+\underset{\textbf{age, education, year}}{\begin{pmatrix} x_{11},x_{12},x_{13}\\ x_{21},x_{22},x_{23}\\ \colorbox{cyan!35}{$x_{31},x_{32},x_{33}$}\\ \vdots\ ,\ \vdots\ ,\ \vdots\\ x_{91},x_{92},x_{93}\end{pmatrix}}
+\]
+\fig{same layout as S1.30, but the label ``John'' is placed next to row 3: $y_3$ is highlighted red and the whole row $x_{31},x_{32},x_{33}$ is highlighted blue --- one row = one observation (one employee's wage and his age, education, year).}\\
+Goal: Predict an employee's wage based on their age, education level, and the calendar year
+
+\slide{1}{32}{Example data: (one predictor)}
+\begin{itemize}
+\item At the observation level:
+\end{itemize}
+\[
+\underset{\textbf{wage}}{\begin{pmatrix} y_1\\ y_2\\ y_3\\ \vdots\\ y_9\end{pmatrix}}
+\qquad
+\underset{\textbf{age, education, year}}{\begin{pmatrix} x_{11},\colorbox{cyan!35}{$x_{12}$},x_{13}\\ x_{21},\colorbox{cyan!35}{$x_{22}$},x_{23}\\ x_{31},\colorbox{cyan!35}{$x_{32}$},x_{33}\\ \vdots\ ,\ \vdots\ ,\ \vdots\\ x_{91},\colorbox{cyan!35}{$x_{92}$},x_{93}\end{pmatrix}}
+\]
+\fig{the whole 2nd column $x_{12},x_{22},\ldots,x_{92}$ is highlighted blue, with the caption below it ``\textbf{all 9 employees' education levels}'' --- one column = one predictor\ixh{predictor} measured on all observations; $x_{ij}$ = observation $i$, predictor $j$.}\\
+Goal: Predict an employee's wage based on their age, education level, and the calendar year
+
+\slide{1}{33}{A very basic learning model}
+\[
+Y = f\big(X_1,\ldots,X_p\big) + \varepsilon
+\]
+\begin{center}
+{\color{orange}\textbf{Response}} \textbf{is a function of} {\color{blue!70!cyan}\textbf{Predictors}} \textbf{and} {\color{violet}\textbf{Error (``noise'')}}
+\end{center}
+\ixh{response}\ixh{predictor}\ixh{error term}\ixh{noise}\ixh{true function f}
+\begin{itemize}
+\item Goal: {\color{green!55!black}\textbf{learn}} $f$ from observations of data
+\end{itemize}
+
+\slide{1}{34}{[untitled: Regression vs.\ Machine Learning cartoon]}
+\fig{cartoon (credit: Chelsea Parlett Pelleriti). Two identical walking scatterplots with a fitted upward line through the dots: the left one is labelled ``REGRESSION''; the right one wears a top hat, a monocle and carries a cane and is labelled ``MACHINE LEARNING''. Joke: ML is often just \ixh{regression}regression dressed up fancily.}
+
+\slide{1}{35}{Evaluate: How well did the machine learn?}
+\begin{itemize}
+\item In \textbf{supervised learning}\ixh{supervised learning}, the actual data $Y$ is the \textbf{supervisor}
+\item Need to give the model observed output and input
+\end{itemize}
+\begin{center}
+\begin{tabular}{@{}|l|l|@{}}\hline
+\textbf{Learner} & \textbf{Supervisor}\\\hline
+College student & Answer key\\\hline
+Machine & Raw observed output\\\hline
+\end{tabular}
+\end{center}
+
+\slide{1}{36}{[untitled: line vs.\ green squiggle on training data]}
+\fig{two copies of the yam/speed plot (x-axis ``Amount of Yams Consumed'', y-axis ``Speed''), each showing five blue \textbf{Training Data} points. Left panel: title formula $Y=f(X_1,\ldots,X_p)+\varepsilon$ in black and a black dashed straight line fitted through the points (passes near but not through them). Right panel: same points and black dashed line, plus a wiggly green dashed curve (the ``green squiggle'', formula $Y=f(X_1,\ldots,X_p)+\varepsilon$ written in green) that passes exactly through every training point.}
+The {\color{green!55!black}\textbf{green squiggle}} seems to fit the {\color{blue!70!cyan}\textbf{training data}}\ixh{training data} better than the \textbf{black line} but remember -- the goal of machine learning is to make \underline{predictions}\ixh{prediction}!
+\ixh{overfitting}\ixh{flexibility}
+
+\slide{1}{37}{[untitled: training vs.\ testing data]}
+\fig{the yam/speed plot with the five blue training points, the black dashed line and the green squiggle, plus four new red points labelled ``\textbf{Testing Data}'' that do not lie on the squiggle (they are scattered above/below it). On the right, the data matrix with columns ``speed'' and ``yams'': rows $y_1\ x_1,\ldots,y_5\ x_5$ in blue (training) and $y_6\ x_6,\ldots,y_9\ x_9$ in red (testing).}
+\ixh{testing data}\ixh{training data}\ixh{training/testing split}
+\[
+{\color{blue!70!cyan}\{(\boldsymbol{x}_1,y_1),(\boldsymbol{x}_2,y_2),\ldots,(\boldsymbol{x}_5,y_5)\}}
+\]
+\[
+{\color{red}\{(\tilde{\boldsymbol{x}}_6,\tilde y_6),(\tilde{\boldsymbol{x}}_7,\tilde y_7),\ldots,(\tilde{\boldsymbol{x}}_9,\tilde y_9)\}}
+\]
+{\color{figgray}\itshape [note: blue set = training set, red set (tildes) = test set.]}
+
+\slide{1}{38}{[untitled: error of one test prediction]}
+\fig{yam/speed plot with only the black dashed line and the four red \textbf{Testing Data} points. For the left-most test point: a red X on the x-axis marks its yam amount; a dashed line goes up to the line and left (purple) to a red X on the y-axis = the \ixh{prediction}predicted speed $\hat f(\tilde x)$, while a green dashed line from the actual point goes left to a higher red X = the observed speed $\tilde y$. A black vertical bar (error bar) between the point and the line marks the prediction error $\tilde y-\hat f(\tilde x)$ (the \ixh{residual}residual for that test point).}
+
+\slide{1}{39}{[untitled: adding up the test errors of the line]}
+\fig{the same plot with all four red test points, each joined to the black dashed line by a black vertical error bar (two points above the line, two below). An arrow takes the bars to the right side where they are stacked end-to-end into one tall black bar = the total (absolute) test error of the straight line.}
+
+\slide{1}{40}{[untitled: line vs.\ squiggle --- total test error]}
+\[
+\sum_{i=6}^{9}\big|\tilde y_i-\hat f(\tilde x_i)\big|
+\]
+\fig{the four red test points with green vertical error bars to the green squiggle (left). On the right the green bars stacked end-to-end (topped by a green dashed line) are clearly taller than the black stacked bars of the straight line from S1.39 (topped by a black dashed line): the squiggle has the larger sum of absolute test errors, so the simpler black line predicts the \ixh{testing data}test data better even though the squiggle fit the training data perfectly --- \ixh{overfitting}overfitting.}
+\ixh{testing error}
+
+\subsection{Supervised vs.\ unsupervised learning; types of models}
+
+\slide{1}{41}{Supervised learning}
+\ixh{supervised learning}
+\begin{itemize}
+\item Prediction:\ixh{prediction}
+  \begin{itemize}\item accurately predict future response given predictors\end{itemize}
+\item Estimation:\ixh{estimation}
+  \begin{itemize}\item understand how predictors affect response\end{itemize}
+\item Model selection:\ixh{model selection}
+  \begin{itemize}\item find the ``best'' model for response given predictors\end{itemize}
+\item Inference:\ixh{inference}
+  \begin{itemize}\item assess the quality of our predictions and (or) estimation\end{itemize}
+\end{itemize}
+
+\slide{1}{42}{Regression models vs.\ classification models}
+\begin{tabularx}{\linewidth}{@{}>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
+\textbf{\color{blue!70!cyan}Regression}\ixh{regression} & \textbf{\color{blue!70!cyan}Classification}\ixh{classification}\\
+$Y$ is \textbf{quantitative}\ixh{quantitative variable} & $Y$ is \textbf{qualitative}\ixh{qualitative variable}\\[2pt]
+Numerical values (e.g., price, blood pressure, speed) & Categorical values (e.g., survived/died, spam/not spam, scratch/don't scratch)\ixh{categorical variable}\\
+\end{tabularx}
+\fig{under ``Regression'': the yam/speed-style scatterplot (five blue dots and a dashed fitted line). Under ``Classification'': the unlabeled cat decision-tree diagram (blue question boxes, one green and two red leaf boxes).}
+
+\slide{1}{43}{Common error metrics}
+\ixh{error metric}\ixh{model evaluation}
+\begin{tabularx}{\linewidth}{@{}XX@{}}
+\textbf{Regression models} & \textbf{Classification models}\\[2pt]
+Mean squared error\ixh{mean squared error (MSE)} & Accuracy\ixh{accuracy}\\
+Root mean squared error\ixh{RMSE} & Error rate\ixh{error rate}\\
+Mean absolute error\ixh{MAE} & Precision\ixh{precision}\\
+R-squared\ixh{R-squared} & Area under ROC curve\ixh{AUC}\ixh{ROC curve}\\
+\end{tabularx}
+
+\slide{1}{44}{Unsupervised learning}
+\ixh{unsupervised learning}
+\begin{itemize}
+\item Learn without a supervisor!
+\item You never see the answer key
+\end{itemize}
+\begin{tabularx}{\linewidth}{@{}>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
+\texttt{------} & $(X_1,\ldots,X_p)$\\[2pt]
+\textbf{\color{orange}NO Response}\ixh{response} & \textbf{\color{blue!70!cyan}Predictors}\ixh{predictor}\\
+ & \textbf{(input, features, covariates, independent variables)}\\
+\end{tabularx}
+{\color{figgray}\itshape [note: the ``Un'' of the title is in bold; the response slot is shown as a dashed blank.]}
+
+\slide{1}{45}{[untitled: map of supervised and unsupervised methods]}
+\fig{hand-lettered blob diagram (credit: Chelsea Parlett Pelleriti). A large peach region \textbf{SUPERVISED} contains: a purple blob ``CONTINUOUS OUTCOME'' with \textbf{Linear regression}; a pink blob ``CATEGORICAL* OUTCOME'' with \textbf{Logistic regression}, \textbf{Decision tree}, \textbf{Naive bayes}, \textbf{K nearest neighbors}; an orange blob ``REGULARIZATION'' with \textbf{Ridge} and \textbf{LASSO}. A large grey-blue region \textbf{UNSUPERVISED} contains a blue blob ``CLUSTERING'' with \textbf{DBSCAN}, \textbf{Hierarchical clustering}, \textbf{K-means}, \textbf{Gaussian Mixtures (EM)}. A grey ``DIMENSION REDUCTION'' blob straddles both regions, overlapping \textbf{LASSO} (supervised side) and containing \textbf{PCA} (unsupervised side).}
+\ixh{supervised learning}\ixh{unsupervised learning}\ixh{linear regression}\ixh{logistic regression}\ixh{decision tree}\ixh{naive Bayes}\ixh{KNN}\ixh{ridge regression}\ixh{lasso}\ixh{regularization}\ixh{clustering}\ixh{k-means clustering}\ixh{hierarchical clustering}\ixh{dimension reduction}\ixh{principal component analysis (PCA)}
+
+\slide{1}{46}{Supervised learning vs.\ unsupervised learning}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X@{}}
+\textbullet\ \ix{linear regression} & \textbullet\ Principal Component Analysis (PCA)\ixh{principal component analysis (PCA)}\\
+\textbullet\ \ix{logistic regression} & \textbullet\ $k$-means clustering\ixh{k-means clustering}\\
+\textbullet\ $k$-nearest neighbors\ixh{KNN} & \textbullet\ Hierarchical clustering\ixh{hierarchical clustering}\\
+\textbullet\ Decision trees\ixh{decision tree} & \textbullet\ Neural networks\ixh{neural network}\\
+\textbullet\ Random forests\ixh{random forest} & \\
+\textbullet\ Support vector machine(s)\ixh{SVM} & \\
+\textbullet\ Neural networks & \\
+\end{tabularx}
+{\color{figgray}\itshape [note: left box = supervised methods, right box = unsupervised methods.]}\ixh{supervised learning}\ixh{unsupervised learning}
+
+\slide{1}{47}{[untitled: Supervised vs.\ Unsupervised scatterplots]}
+\fig{two ggplot2 scatterplots of the same $\sim$150 points, x-axis \texttt{x\_1} (about $-3.5$ to $7.5$, ticks $-2.5, 0.0, 2.5, 5.0, 7.5$), y-axis \texttt{x\_2} (about $-2$ to $8.5$, ticks $0,3,6,9$). Left panel ``\textbf{Supervised (response known)}'': points coloured by class --- a blue cloud in the upper right (around $x_1\approx 0$--$7$, $x_2\approx 3.5$--$8.5$), and two overlapping clouds near the origin, red (left, $x_1\approx -3.5$--$1.5$) and green (right, $x_1\approx -0.5$--$3.5$). Right panel ``\textbf{Unsupervised (response not known)}'': the identical points all in black --- only the predictors are seen and the task is to discover groups/clusters\ixh{clustering}.}
+\ixh{supervised learning}\ixh{unsupervised learning}
+
+\slide{1}{48}{[untitled: Machine Learning mind map]}
+\fig{mind map with a central grey bubble \textbf{Machine Learning} and three branches. \textbf{Unsupervised Learning} (teal) $\to$ \emph{Dimensionality Reduction} (Meaningful Compression, Structure Discovery, Big data Visualisation, Feature Elicitation) and \emph{Clustering} (Recommender Systems, Targetted Marketing, Customer Segmentation). \textbf{Supervised Learning} (red) $\to$ \emph{Classification} (Image Classification, Customer Retention, Identity Fraud Detection, Diagnostics) and \emph{Regression} (Advertising Popularity Prediction, Weather Forecasting, Market Forecasting, Estimating life expectancy, Population Growth Prediction). \textbf{Reinforcement Learning} (orange) $\to$ Real-time decisions, Game AI, Robot Navigation, Skill Acquisition, Learning Tasks.}
+\ixh{machine learning}\ixh{supervised learning}\ixh{unsupervised learning}\ixh{reinforcement learning}\ixh{classification}\ixh{regression}\ixh{clustering}\ixh{dimension reduction}
+
+\subsection{Parametric vs.\ non-parametric; uses of models}
+
+\slide{1}{49}{Mechanistic vs.\ empirically-driven; Parametric vs.\ non-parametric}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X@{}}
+\textbf{Mechanistic / Parametric}\ixh{parametric model}\ixh{mechanistic model} & \textbf{empirically-driven / non-parametric}\ixh{non-parametric model}\ixh{empirically-driven model}\\[2pt]
+\textbullet\ Assume a parametric form for $f$ (i.e., $\beta_0+\beta_1X_1+\cdots$) & \textbullet\ No/few assumptions about $f$\\
+\textbullet\ Won't match true unknown $f$ & \textbullet\ Require \textbf{a larger} \# of observations\\
+\textbullet\ Can add parameters = more flexibility\ixh{flexibility} & \textbullet\ Much more flexible by default\\
+\textbullet\ Too many = overfitting\ixh{overfitting} & \textbullet\ Can also overfit\\
+\end{tabularx}
+\[
+Y = f\big(X_1,\ldots,X_p\big)+\varepsilon
+\]
+
+\slide{1}{50}{Uses of statistical models:}
+\fig{three overlapping coloured ellipses, one per use (content transcribed below): orange \textbf{PREDICTIVE} at top, green \textbf{DESCRIPTIVE} lower left, blue \textbf{INFERENTIAL} lower right.}
+\textbf{PREDICTIVE:}\ixh{predictive model}\ixh{prediction}
+\begin{itemize}
+\item What combo of features fits best?
+\item Aim is to predict $Y$ with minimum \underline{reducible} error\ixh{reducible error}
+\item Not focused on hypothesis tests\ixh{hypothesis test}
+\end{itemize}
+\textbf{DESCRIPTIVE:}\ixh{descriptive model}
+\begin{itemize}
+\item Choose model to best visually emphasize a trend in data
+\item i.e., using a line on a scatterplot\ixh{scatterplot}
+\end{itemize}
+\textbf{INFERENTIAL:}\ixh{inferential model}\ixh{inference}
+\begin{itemize}
+\item What features are significant?
+\item Aim is to test theories
+\item (Possibly) causal claims\ixh{causal inference}
+\item State relationship between outcome \& predictor(s)
+\end{itemize}
+
+\slide{1}{51}{General comments}
+\begin{itemize}
+\item It's important to:
+\item understand the ideas behind these methods
+\item understand the simpler methods first
+\item accurately evaluate the performance of a method\ixh{model evaluation}
+\end{itemize}
+
+\subsection{Bias--variance tradeoff: flexibility, training MSE and test MSE}
+\ixh{bias-variance tradeoff}
+
+\slide{1}{52}{Bias-variance tradeoff}
+\ix{bias-variance tradeoff}. {\color{figgray}\itshape [section divider slide]}
+
+\slide{1}{53}{Regression setting}
+\ixh{regression}
+\[
+Y = f(X_1,\ldots,X_p)+\varepsilon
+\]
+\fig{workflow of three light-blue boxes \textbf{Data} $\to$ \textbf{Learn} $\to$ \textbf{Evaluate}. Under \textbf{Data}: ``Training set'' $\{(\mathbf{x}_1,y_1),(\mathbf{x}_2,y_2),\ldots,(\mathbf{x}_n,y_n)\}$; under \textbf{Learn}: $\hat f$ (the estimate of $f$ learned from the training set).}
+\ixh{training set}\ixh{training data}\ixh{f hat (estimated function)}
+\begin{itemize}
+\item Different statistical methods give different $f()$
+\item Each function/model has different flexibility\ixh{flexibility} \& complexity\ixh{model complexity}
+\end{itemize}
+
+\slide{1}{54}{[untitled: model flexibility/complexity]}
+\fig{four 3-D perspective plots (the ISLR ch.~2 \texttt{Income} example) with axes \textbf{Years of Education}, \textbf{Seniority} (horizontal) and \textbf{Income} (vertical); red dots are the observations, with short black vertical segments joining each dot to the surface (the errors). Top: the blue surface = the true $f$ (a smooth, gently wavy sheet rising with education and seniority). Bottom row, from left to right under a long arrow labelled ``\textbf{model flexibility/complexity}'': yellow fitted surfaces $\hat f$ --- (1) a flat plane (linear model; misses the curvature, many visible error segments); (2) a moderately smooth surface close to the true blue $f$; (3) a very rough, wiggly surface that bends to pass through (almost) every red point, i.e.\ zero training error but far from the true $f$ (overfitting).}
+\ixh{flexibility}\ixh{model complexity}\ixh{overfitting}\ixh{Income data}
+
+\slide{1}{55}{Model flexibility vs.\ interpretability}
+\ixh{flexibility}\ixh{interpretability}
+\begin{itemize}
+\item Why should we ever choose a less flexible method over a more flexible one?
+\item Better \textbf{interpretability} (this slide) and, sometimes, smaller \textbf{error} (next)
+\end{itemize}
+\fig{ISLR Fig.~2.7: scatter of method names with x-axis \textbf{Flexibility} (Low $\to$ High) and y-axis \textbf{Interpretability} (Low $\to$ High). From top-left (low flexibility, high interpretability) to bottom-right (high flexibility, low interpretability): \textbf{Subset Selection}, \textbf{Lasso} (highest interpretability, lowest flexibility); \textbf{Least Squares}; \textbf{Generalized Additive Models}, \textbf{Trees} (middle); \textbf{Bagging, Boosting}; \textbf{Support Vector Machines} (lowest interpretability, high flexibility). Trade-off: more flexible methods are less interpretable.}
+\ixh{subset selection}\ixh{lasso}\ixh{least squares}\ixh{generalized additive model (GAM)}\ixh{decision tree}\ixh{bagging}\ixh{boosting}\ixh{SVM}
+
+\slide{1}{56}{Regression setting}
+\[
+Y = f(X_1,\ldots,X_p)+\varepsilon
+\]
+\fig{the Data $\to$ Learn $\to$ Evaluate boxes again: ``Training set'' $\{(\mathbf{x}_1,y_1),\ldots,(\mathbf{x}_n,y_n)\}$ under Data, $\hat f$ under Learn, and in red under Evaluate: ``\textbf{how well does $\hat f$ learn?}''.}
+\begin{itemize}
+\item No single method is the best choice for all data sets\ixh{no free lunch}
+\item Selecting a good statistical learning method depends on \textbf{evaluating} its performance\ixh{model evaluation}\ixh{model selection}
+\end{itemize}
+
+\slide{1}{57}{[untitled: Training MSE]}
+\[
+Y = f(X_1,\ldots,X_p)+\varepsilon
+\]
+\fig{the Data $\to$ Learn $\to$ Evaluate boxes with ``Training set'' $\{(\mathbf{x}_1,y_1),(\mathbf{x}_2,y_2),\ldots,(\mathbf{x}_n,y_n)\}$, $\hat f$, and ``how well does $\hat f$ learn?'' (red).}
+\[
+\text{Training MSE} = \frac1n\sum_{i=1}^{n}\Big(y_i-\hat f(\mathbf{x}_i)\Big)^2
+\]
+An arrow points from $\hat f(\mathbf{x}_i)$ to the label: \textbf{prediction that $\hat f$ gives for the $i$th training observation}.\\
+{\color{red!75!orange}\textbf{Training}} {\color{cyan!80!blue}\textbf{Mean}} \textbf{Squared Error}\ixh{training MSE}\ixh{training error}\ixh{mean squared error (MSE)}
+
+\slide{1}{58}{[untitled: Test MSE]}
+\[
+Y = f(X_1,\ldots,X_p)+\varepsilon
+\]
+\fig{the Data $\to$ Learn $\to$ Evaluate boxes with ``Training set'' $\{(\mathbf{x}_1,y_1),(\mathbf{x}_2,y_2),\ldots,(\mathbf{x}_n,y_n)\}$, $\hat f$, and ``how well does $\hat f$ learn?'' (red).}
+\textbf{We are less interested in how $\hat f$ performs on training set}\\
+\textbf{Consider {\color{red!75!orange}test set} {\color{red!75!orange}$\{(\tilde{\mathbf{x}}_1,\tilde y_1),(\tilde{\mathbf{x}}_2,\tilde y_2),\ldots,(\tilde{\mathbf{x}}_m,\tilde y_m)\}$}, not seen or used to train $\hat f$}\ixh{test set}\ixh{testing data}
+\[
+\text{Test MSE} = \frac1m\sum_{i=1}^{m}\Big(\tilde y_i-\hat f(\tilde{\mathbf{x}}_i)\Big)^2
+\]
+An arrow points from $\hat f(\tilde{\mathbf{x}}_i)$ to the label: \textbf{prediction that $\hat f$ gives for the $i$th test data}.\\
+{\color{red!75!orange}\textbf{Test}} {\color{cyan!80!blue}\textbf{Mean}} \textbf{Squared Error}\ixh{test MSE}\ixh{testing error}\ixh{mean squared error (MSE)}

@@ -1,0 +1,9 @@
+Supervised learning
+• Prediction:
+• accurately predict future response given predictors 
+• Estimation:
+• understand how predictors affect response
+• Model selection:
+• find the “best” model for response given predictors
+• Inference:
+• assess the quality of our predictions and (or) estimation

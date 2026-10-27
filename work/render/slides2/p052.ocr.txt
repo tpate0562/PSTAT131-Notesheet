@@ -1,0 +1,14 @@
+Interaction: A data example
+sales = 6, + 6, x TV + #, x radio + £, x TV x radio + €
+= Py + (6, + f; x radio) x TV + f, x radio + ¢
+
+Coefficient Std. error t-statistic p-value
+Bo Intercept 6.7502 0.248 27.23 < 0.0001
+B, TV 0.0191 0.002 12.70 < 0.0001
+Bo radio 0.0289 0.009 3.24 0.0014
+B3 TVXradio 0.0011 0.000 20.73 < 0.0001
+
+Interpretation: an increase in TV advertising of $1,000 is associated with
+(B, + B X radio) x 1000 = 19.1 + 1.1 x radio dollars increase in sales
+
+Practice: what is the effect of an increase in radio advertising of $1,000 on sales?

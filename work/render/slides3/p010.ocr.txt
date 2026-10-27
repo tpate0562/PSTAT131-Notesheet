@@ -1,0 +1,23 @@
+A simple logistic model
+
+To model Pr (defautt = TRUE | balance)
+
+Logistic function
+
+Pr(Y = 1]X) =
+
+€ [0,1]
+
+which is equivalent to...
+
+| Pr(Y = 1]X)
+
+|
+
+Odds
+
+1—Pr(Y=1|X)| |
+
+Bios wee 8
+
+€ [0, + 00) Rolling a 6-sided dice: Odds of rolling a 3 is 1/5

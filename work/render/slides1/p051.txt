@@ -1,0 +1,5 @@
+General comments
+• It’s important to:
+• understand the ideas behind these methods
+• understand the simpler methods first
+• accurately evaluate the performance of a method

@@ -1,0 +1,10 @@
+Imputation methods
+• Continuous variables
+• step_impute_bag()
+• step_impute_knn()
+• step_impute_linear()
+• Discrete variables
+• step_impute_bag()
+• step_impute_knn()
+• step_impute_mode()
+https://recipes.tidymodels.org/reference/index.html

@@ -1,0 +1,14 @@
+From predicted probability to predicted class
+
+Pr (default = TRUE|balance = 1500,income = 40000,student = FALSE) = 0.105
+
+We can predict class (default = TRUE or default = FALSE)
+by thresholding the predicted probability
+
+For example, one might predict default = TRUE for any individual
+for whom the predicted probability > 0.5
+
+Or, if the credit card company is super conservative in predicting individuals who are at risk
+
+for default, one might predict default = TRUE for any individual for whom the predicted
+probability > 0.1

@@ -1,0 +1,17 @@
+Prediction of probability
+
+Coefficient Std. error Z-statistic | P-value
+
+Intercept —10.8690 0.4923 —22.08 <0.0001
+balance 0.0057 0.0002 24.74 <0.0001
+income 0.0030 0.0082 0.37 0.7115
+student [Yes] —0.6468 0.2362 —2.74 0.0062
+
+cot hXi+...-+B,X,
+Pry = VX, « Xp) = a BX
+
+Pr (default = TRUE| balance = 1500,income = 40000,student = FALSE)
+
+e~ 10.8690+0.0057x1500+0.0030x40000—0.6468x0
+
+= 1 + e—10.8690+0.0057x1500+0.0030x40000-—0.6468x0 = 0.105

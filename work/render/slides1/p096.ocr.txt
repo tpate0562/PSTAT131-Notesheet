@@ -1,0 +1,15 @@
+In classification setting, the “best” we can do
+
+Yo = argmax, { Prob (Y= j|X = Xo) \
+conditional probability of Y = j,
+given the observed predictor x,
+
+Bayes classifier: assigns each observation to the most likely class,
+given its predictor values
+
+For example, we want to classify species of an animal (dog, cat, bird) given its picture
+
+Prob (Y = dog|X = xy) = 0.5 A
+Prob (Y = cat|X = xp) = 0.3 — Yo = dog
+
+Prob (Y = bird |X = xq) = 0.2

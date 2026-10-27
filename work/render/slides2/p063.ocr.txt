@@ -1,0 +1,10 @@
+High leverage points
+
+High leverage points: a data point for which x;,, ...,x;, have unusual values
+
+How to find high leverage points?
+
+Calculate the leverage statistics (for simple linear regression)
+1 (x, — x)?
+he=— + =a ap
+n » k=1 (Xx ~ x)

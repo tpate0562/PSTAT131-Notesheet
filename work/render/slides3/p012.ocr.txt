@@ -1,0 +1,13 @@
+Interpretation of coefficient
+
+lo (a) + Bx
+°\T-prvy=1|xy) °° 3
+
+f,: the (additive) change of logit by increasing X by 1-unit
+
+Pr(Y = 1]X)
+
+TS AD 8 hot BX
+1 —Pr(Y¥ = 1|X)
+
+increasing X by 1-unit means multiply the odds by eA

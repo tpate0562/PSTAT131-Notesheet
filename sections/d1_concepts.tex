@@ -1,0 +1,395 @@
+%% d1_concepts.tex -- DISTILLED notes: Slide Set 1 (intro to ML, bias-variance
+%% tradeoff, KNN) + HW1 Q1-6, Lab 2 (KNN part), practice exam Q1-Q6.
+\section{ML foundations, bias--variance, KNN}
+\ixh{machine learning}\ixh{bias-variance tradeoff}\ixh{k-nearest neighbors (KNN)}
+
+%% ==================================================================
+\subsection{What ML is; the basic model}
+\ixh{statistical machine learning}
+
+\begin{topic}{Machine learning vs.\ statistical learning \src{S1.7--18}}
+\ix{machine learning} = applying learning algorithms and statistical methods to real-world data, i.e.\ how a machine can use data to \emph{learn}; ``all about making \ix{prediction}s or \ix{classification}s'' \src{S1.10}.
+\begin{itemize}
+\item \textbf{ML}: subfield of AI in CS; algorithmic perspective; focus on AI and \emph{prediction accuracy}.
+\item \textbf{Statistical learning}\ixh{statistical machine learning}: subfield of statistics; statistical perspective; focus on \ix{interpretability} and \ix{inference} \src{S1.14}.
+\item Classical programming: rules + data $\to$ answers. ML: data + answers $\to$ \emph{rules} \src{S1.17}.
+\item Rough workflow \src{S1.25}: \textbf{Goal $\to$ Data $\to$ Learn $\to$ Evaluate}, looping back (``a different method/model?'').
+\end{itemize}
+\end{topic}
+
+\begin{keybox}[The model everything is built on \src{S1.29--33}]
+\[ Y = f(X_1,\dots,X_p) + \varepsilon \]
+\begin{itemize}
+\item $Y$ = \textbf{response} (\ix{outcome}, output, target, dependent variable).
+\item $X_1,\dots,X_p$ = \textbf{\ix{predictor}s} (inputs, \ix{feature}s, covariates, independent variables); $p$ = \# predictors, $n$ = \# observations, $\mathbf x_i=(x_{i1},\dots,x_{ip})$.
+\item $f$ = fixed, unknown (non-random) function; $\varepsilon$ = random error (``noise''), mean zero.
+\item \textbf{Goal: learn $f$} from data; the estimate is $\hat f$, prediction $\hat y=\hat f(\mathbf x)$.
+\item Ex.\ \src{S1.29}: $Y$=\texttt{wage}, $X_1$=age, $X_2$=education, $X_3$=year.
+\end{itemize}
+\end{keybox}
+
+\begin{topic}{Supervised vs.\ unsupervised \src{S1.35, 44--47; HW1 Q1}}
+\ixh{supervised learning}\ixh{unsupervised learning}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{\ix{supervised learning}} & \textbf{\ix{unsupervised learning}}\\\midrule
+Response $Y$ \emph{known} for training data; the observed $Y$ is the ``supervisor'' (answer key) & No response: only $X_1,\dots,X_p$; ``you never see the answer key''\\
+Learn $f$ to predict/explain $Y$ & Find structure/groups/patterns in $X$\\
+Linear \& \ix{logistic regression}, KNN, decision trees, random forests, SVM, neural nets & PCA, $k$-means clustering, hierarchical clustering, neural nets\\
+Evaluated against the true $Y$ & No direct ``right answer'' to score against\\\bottomrule
+\end{tabularx}
+\fig{S1.47: same 2-D scatter twice; supervised = points coloured by known class, unsupervised = all black (response not known).}
+\end{topic}
+
+\begin{topic}{Regression vs.\ classification; metrics \src{S1.42--43; HW1 Q2--3}}
+Decided by the type of the \textbf{response $Y$} (not the predictors):
+\begin{itemize}
+\item \ix{regression}: $Y$ \textbf{quantitative} / numeric (price, blood pressure, speed). Metrics: \ix{MSE}, \ix{RMSE}, \ix{MAE}, \ix{R-squared}.
+\item \ix{classification}: $Y$ \textbf{qualitative} / categorical (survived/died, spam/not spam). Metrics: \ix{accuracy}, \ix{error rate}, \ix{precision}, area under ROC curve (\ix{AUC}).
+\end{itemize}
+Supervised-learning goals \src{S1.41}: \textbf{prediction} (accurately predict future response), \textbf{estimation} (how predictors affect response), \textbf{model selection} (find the ``best'' model), \textbf{inference} (assess quality of predictions/estimation).
+\end{topic}
+
+\begin{trap}[Regression or classification?]
+\begin{itemize}
+\item \emph{Logistic regression} is a \textbf{classification} method (outputs class probabilities), despite the name.
+\item A 0/1 or 1/2/3 coded label is still categorical $\Rightarrow$ classification (convert with \ixc{factor()}).
+\item KNN does \textbf{both}; in tidymodels you must say which with \ixc{set\_mode()} \src{Lab 2}.
+\end{itemize}
+\end{trap}
+
+\begin{topic}{Uses of models: descriptive / inferential / predictive \src{S1.50; HW1 Q4}}
+\ixh{descriptive model}\ixh{inferential model}\ixh{predictive model}
+\begin{itemize}
+\item \textbf{Descriptive}\ixh{descriptive model}: choose a model to best \emph{visually emphasize a trend} in data (e.g.\ a smooth line on a scatterplot).
+\item \textbf{Inferential}\ixh{inferential model}: ``what features are significant?''; aim is to \emph{test theories}; (possibly) causal claims; state relationship between outcome \& predictor(s) (\ix{p-value}s, CIs, \ix{hypothesis test}s).
+\item \textbf{Predictive}\ixh{predictive model}: ``what combo of features fits best?''; aim is to predict $Y$ with minimum \textbf{\ix{reducible error}}; \emph{not} focused on hypothesis tests.
+\end{itemize}
+\textbf{HW1 Q6 (voter data).} (i) ``Given a voter's profile, how likely are they to vote for the candidate?'' $\Rightarrow$ \textbf{predictive} (we want an accurate probability for each voter; why does not matter). (ii) ``How would support change if the voter had personal contact with the candidate?'' $\Rightarrow$ \textbf{inferential} (effect of one specific predictor on the outcome; a relationship/causal-type question).
+\end{topic}
+
+\begin{topic}{Parametric vs.\ non-parametric \src{S1.49; HW1 Q5}}
+\ixh{parametric model}\ixh{non-parametric model}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Mechanistic}\ixh{mechanistic model} / \textbf{\ix{parametric model}} & \textbf{Empirically-driven}\ixh{empirically-driven model} / \textbf{\ix{non-parametric model}}\\\midrule
+Assume a form for $f$ (e.g.\ $\beta_0+\beta_1X_1+\cdots$), estimate the parameters & No/few assumptions about $f$; shape learned from data\\
+Won't match the true unknown $f$ $\Rightarrow$ \textbf{higher bias} & Much more flexible by default $\Rightarrow$ \textbf{low bias, higher variance}\\
+Adding parameters = more flexibility; too many = \ix{overfitting} & Requires a \textbf{larger \#} of observations; can also overfit\\
+Easier to interpret (few meaningful parameters) & Harder to interpret (``black box'')\\
+e.g.\ \ix{linear regression}, logistic regression, LDA & e.g.\ KNN\\\bottomrule
+\end{tabularx}
+\textbf{Similar:} both are predictive models that estimate $f$ from data and both can overfit. \textbf{Which is easier to understand?} Mechanistic. \textbf{Bias--variance link:} mechanistic = rigid form $\to$ high bias / low variance; empirically-driven = flexible $\to$ low bias / high variance (needs more $n$ to tame variance).
+\end{topic}
+
+\begin{topic}{Flexibility vs.\ interpretability \src{S1.53--56}}
+\ixh{flexibility}\ixh{interpretability}
+Different methods give different $\hat f$, each with its own \ix{flexibility} (complexity). Ranking, interpretability high $\to$ low / flexibility low $\to$ high: subset selection, lasso $\to$ least squares $\to$ GAMs, trees $\to$ bagging, boosting $\to$ SVMs \src{S1.55}.
+\begin{itemize}
+\item Why ever pick a \emph{less} flexible method? Better \textbf{interpretability} and, sometimes, \textbf{smaller test error}.
+\item \textbf{No single method is best for all data sets}; choosing one depends on \emph{evaluating} its performance \src{S1.56}.
+\end{itemize}
+\end{topic}
+
+\begin{trap}[``The most flexible model is always best'' --- wrong \src{PE Q2}]
+(1) If the goal is interpretation/inference, flexible models are harder to interpret. (2) A very flexible model fits patterns in the training data that do not exist in the population $\Rightarrow$ \ix{overfitting}: low training error, high test error.
+\end{trap}
+
+%% ==================================================================
+\subsection{Training vs.\ test error; overfitting}
+\ixh{training error}\ixh{testing error}
+
+\begin{keybox}[Training MSE vs.\ test MSE \src{S1.57--60}]
+Training set $\{(\mathbf x_1,y_1),\dots,(\mathbf x_n,y_n)\}$; test set $\{(\tilde{\mathbf x}_1,\tilde y_1),\dots,(\tilde{\mathbf x}_m,\tilde y_m)\}$ \emph{not seen or used to train} $\hat f$.
+\[ \text{Training MSE}=\frac1n\sum_{i=1}^n\big(y_i-\hat f(\mathbf x_i)\big)^2 \quad \text{Test MSE}=\frac1m\sum_{i=1}^m\big(\tilde y_i-\hat f(\tilde{\mathbf x}_i)\big)^2 \]
+\ixh{training MSE}\ixh{test MSE}\ixh{mean squared error (MSE)}
+$\hat f$ is obtained on the \textbf{training} set. We want the $\hat f$ with the \textbf{smallest test MSE}. \textbf{Lowest training MSE $\neq$ lowest test MSE.}
+\end{keybox}
+
+\begin{topic}{How the errors move with flexibility \src{S1.61--66}}
+\begin{itemize}
+\item Higher flexibility $\to$ matches training points better, more wiggly curve $\to$ \textbf{\ix{training MSE} always decreases} (monotone, can reach 0).
+\item Higher flexibility $\not\to$ better fit to the true $f$: \textbf{\ix{test MSE} is U-shaped} --- falls, hits a minimum, then rises.
+\item Test MSE can never fall below $\operatorname{Var}(\varepsilon)$ (dashed line in the plots); training MSE can.
+\item \textbf{\ix{overfitting}} = small training MSE, large test MSE (the method chases noise). \textbf{\ix{underfitting}} = too inflexible: both errors high (misses real structure).
+\item Speed-vs-yams toy \src{S1.36--40}: a green squiggle interpolates the 5 training points (training error 0), but on the 4 red test points the plain straight line has the smaller total error $\sum_{i=6}^9|\tilde y_i-\hat f(\tilde x_i)|$.
+\end{itemize}
+\textbf{Estimating test MSE} \src{S1.68, 94}: training MSE is easy; test data may be unavailable, or using it repeatedly turns it into ``another training set''. Fix: \textbf{\ix{cross-validation}} --- estimates test MSE using only training data.
+\end{topic}
+
+\begin{qbox}{Practice Q3 --- which model? \src{PE Q3}}
+\begin{tabular}{@{}lccl@{}}
+\toprule
+Model & Train acc. & Test acc. & Reading\\\midrule
+A & 71\% & 70\% & too simple (both low)\\
+B & 86\% & 82\% & \textbf{prefer: highest test acc.}\\
+C & 100\% & 68\% & \textbf{overfitting} (huge gap)\\\bottomrule
+\end{tabular}
+\sol Prefer B (highest \emph{testing} accuracy). C is overfitting; B shows a little overfitting too, but much less.
+\end{qbox}
+
+\begin{qbox}{Lab 2 (diamonds, predict price) --- RMSE \src{Lab 2}}
+\ixh{diamonds}
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+Model & train & test & Reading\\\midrule
+\ix{linear regression} & 1126 & 1146 & no gap, but large error: high bias\\
+KNN, $k=5$ (default) & 386 & \textbf{711} & best test RMSE\\
+KNN, $k=2$ & 152 & 851 & lower train, higher test: overfit\\\bottomrule
+\end{tabular}
+Smaller $k$ = more flexible $\Rightarrow$ lower training error but a bigger train--test gap. The linear model imposes a form on $f$ (even predicts negative prices); KNN learns $f$ from the data.
+\end{qbox}
+
+\begin{trap}[Training-error traps \src{PE Q4}]
+\begin{itemize}
+\item ``A model with lower training error is always preferable'' --- \textbf{false}: training error is a poor estimate of test error; as training error $\to0$, test error almost always increases.
+\item ``A predictor with zero \ix{Pearson correlation} with $Y$ can't improve prediction'' --- \textbf{false}: zero correlation = no \emph{linear} relation; nonlinear/empirically-driven models (e.g.\ KNN) can still use it.
+\item ``Two highly correlated predictors necessarily interact'' --- \textbf{false}: an \ix{interaction term} means the $X_1$--$Y$ relationship changes with $X_2$; unrelated to correlation.
+\end{itemize}
+\end{trap}
+
+%% ==================================================================
+\subsection{Bias--variance decomposition}
+\ixh{bias-variance tradeoff}
+
+\begin{keybox}[Bias--variance decomposition (course form) \src{S1.70--79}]
+\resizebox{\linewidth}{!}{$\displaystyle
+\underbrace{E\Big[\big(\tilde y_0-\hat f(\tilde{\mathbf x}_0)\big)^2\Big]}_{\text{expected test MSE}}
+=\underbrace{\operatorname{Var}\big(\hat f(\tilde{\mathbf x}_0)\big)}_{\text{variance on test data}}
++\underbrace{\Big(\operatorname{Bias}\big(\hat f(\tilde{\mathbf x}_0)\big)\Big)^2}_{\text{bias on test data}}
++\underbrace{\operatorname{Var}(\varepsilon)}_{\text{irreducible error}}$}
+\begin{itemize}
+\item $\hat f$ learned from a training set; $(\tilde{\mathbf x}_0,\tilde y_0)$ = a test observation, \emph{independent} of the training set, randomly sampled from $Y=f(X)+\varepsilon$ ($f$ non-random, $\varepsilon$ zero-mean noise).
+\item \ixh{bias}$\operatorname{Bias}(\hat f(\tilde{\mathbf x}_0))=E[\hat f(\tilde{\mathbf x}_0)]-f(\tilde{\mathbf x}_0)$: how far the \emph{average} fit is from the truth (error from wrong/too-simple assumptions).
+\item \ixh{variance}$\operatorname{Var}(\hat f(\mathbf x_0))=E\big[(\hat f(\mathbf x_0)-E[\hat f(\mathbf x_0)])^2\big]$: how much $\hat f(\mathbf x_0)$ jumps around across different training sets.
+\item $E$ averages over repeated training sets (each gives a different $\hat f$) and over $\varepsilon$.
+\end{itemize}
+Expanded \src{S1.85}: $E[(\hat f(\mathbf x_0)-E\hat f(\mathbf x_0))^2]+[E[\hat f(\mathbf x_0)]-f(\mathbf x_0)]^2+\operatorname{Var}(\varepsilon)$.
+\end{keybox}
+
+\begin{topic}{The tradeoff picture \src{S1.80--84, 101}}
+\ixh{bias-variance tradeoff}
+\begin{tikzpicture}
+\begin{axis}[width=\linewidth,height=4.6cm,xmin=0,xmax=10,ymin=0,ymax=3.4,
+  axis lines=left,xtick=\empty,ytick=\empty,
+  xlabel={flexibility / complexity $\to$},ylabel={error},
+  every axis x label/.style={at={(axis description cs:0.5,-0.04)},anchor=north},
+  every axis y label/.style={at={(axis description cs:-0.03,0.5)},rotate=90,anchor=south},
+  samples=120,domain=0:10,clip=false]
+\addplot[thick,color=slidec] {2.5*exp(-0.7*x)+0.03*exp(0.35*x)+1};
+\addplot[thick,color=black!45] {3.5*exp(-0.45*x)};
+\addplot[thick,color=cyan!70!blue] {2.5*exp(-0.7*x)};
+\addplot[thick,color=orange] {0.03*exp(0.35*x)};
+\addplot[dashed,color=black!70,domain=0:10] {1};
+\draw[dotted,thick] (axis cs:4.87,0) -- (axis cs:4.87,1.25);
+\node[font=\tiny\bfseries,color=slidec,anchor=south] at (axis cs:8.3,1.75) {test MSE};
+\node[font=\tiny\bfseries,color=black!55,anchor=north] at (axis cs:7.6,0.32) {training MSE};
+\node[font=\tiny\bfseries,color=cyan!60!blue,anchor=west] at (axis cs:0.55,2.0) {bias$^2$};
+\node[font=\tiny\bfseries,color=orange,anchor=south east] at (axis cs:9.6,0.95) {variance};
+\node[font=\tiny,anchor=south] at (axis cs:2.5,1.0) {$\operatorname{Var}(\varepsilon)$ irreducible};
+\node[font=\tiny,anchor=north] at (axis cs:4.87,0) {best};
+\node[font=\tiny,align=center,anchor=north west] at (axis cs:0.1,3.45) {underfit:\\high bias, low var.};
+\node[font=\tiny,align=center,anchor=north east] at (axis cs:10,3.45) {overfit:\\low bias, high var.};
+\end{axis}
+\end{tikzpicture}
+
+\vspace{-2pt}{\scriptsize\color{figgray}Sketch: test MSE = bias$^2$ + variance + $\operatorname{Var}(\varepsilon)$; minimum (dotted) where the falling bias$^2$ and rising variance balance.}
+\begin{itemize}
+\item \textbf{Simple model $\to$ high bias + low variance; flexible model $\to$ low bias + high variance} \src{S1.81}. More complexity: variance $\uparrow$, bias $\downarrow$.
+\item Want \emph{simultaneously} low variance and low (squared) bias --- the challenge is finding such a method.
+\item Where the minimum sits depends on the true $f$ \src{S1.82--84}: true $f$ moderately curved $\to$ intermediate flexibility best; $f$ nearly linear $\to$ linear regression already near-optimal (bias$\approx$0, extra flexibility only adds variance); $f$ very nonlinear $\to$ bias falls steeply, flexible methods win.
+\end{itemize}
+\end{topic}
+
+\begin{topic}{Dartboards: bias = off-centre, variance = spread \src{S1.71--76, 80}}
+Bull's-eye $=\tilde y_0$; each dart $=\hat f(\tilde{\mathbf x}_0)$ from a different training set.
+\begin{tabular}{@{}lll@{}}
+1. tight on centre & low bias & low var.\\
+2. scattered around centre & low bias & \textbf{high var.}\\
+3. tight but off-centre & \textbf{high bias} & low var.\\
+4. scattered and off-centre & \textbf{high bias} & \textbf{high var.}
+\end{tabular}
+\end{topic}
+
+\begin{keybox}[Reducible vs.\ irreducible error \src{S1.77, 85--87}]
+\ixh{irreducible error}\ixh{reducible error}
+Variance + bias$^2$ = \textbf{\ix{reducible error}} (depends on the method). $\operatorname{Var}(\varepsilon)$ = \textbf{\ix{irreducible error}}: noise no model can remove (unmeasured variables, randomness).
+The ``best'' we can do: $\hat f(\mathbf x_0)=E[Y\mid X=\mathbf x_0]$ (the true regression function). Then variance $=0$ and bias $=0$, so expected test MSE is \textbf{minimized at $\operatorname{Var}(\varepsilon)$}. But $E[Y\mid X]$ is \textbf{unknown in practice} (the population joint distribution of $X$ and $Y$ is unknown) $\Rightarrow$ we must estimate it (e.g.\ KNN).
+\end{keybox}
+
+\begin{trap}[Bias--variance traps]
+\begin{itemize}
+\item No method can get expected test MSE below $\operatorname{Var}(\varepsilon)$; training MSE \emph{can} go below it (that is overfitting).
+\item Bias and variance describe the \emph{method} over many possible training sets, not one fitted curve.
+\item The ``bias'' term enters \textbf{squared}; all three terms are $\ge0$.
+\item ``Increasing flexibility lowers bias'' is (generally) true; ``\dots lowers test error'' is \textbf{not} necessarily true.
+\end{itemize}
+\end{trap}
+
+%% ==================================================================
+\subsection{Classification: error rate and the Bayes classifier}
+\ixh{error rate}
+
+\begin{keybox}[Training / test error rate \src{S1.88--93}]
+\ixh{training error}\ixh{testing error}\ixh{indicator function}
+\[ \text{Training error rate}=\frac1n\sum_{i=1}^n I(y_i\neq\hat y_i),\qquad I(y_i\neq\hat y_i)=\begin{cases}1 & y_i\neq\hat y_i\\0 & y_i=\hat y_i\end{cases} \]
+= fraction of \emph{incorrect} classifications in the training set; $\hat y_i$ = class label $\hat f$ predicts. \textbf{Test error rate} $=\frac1m\sum_{i=1}^m I(\tilde y_i\neq\hat{\tilde y}_i)$ on the test set (slide writes $\frac1n$). \ix{accuracy} $=1-$ \ix{error rate}.
+\end{keybox}
+
+\begin{topic}{Worked example \src{S1.90}}
+\begin{tabular}{@{}lccccc@{}}
+$y_i$ & dog & cat & bird & dog & dog\\
+$\hat y_i$ & cat & cat & dog & dog & dog\\
+$I(y_i\neq\hat y_i)$ & 1 & 0 & 1 & 0 & 0
+\end{tabular}
+
+Training error rate $=2/5=0.40$; training accuracy $=1-2/5=0.60$. Same story as regression \src{S1.93}: higher flexibility $\to$ lower training error rate, but $\not\to$ lower test error rate; \textbf{overfitting = large test error rate + small training error rate}.
+\end{topic}
+
+\begin{keybox}[Bayes classifier and Bayes error rate \src{S1.96--99}]
+\ixh{Bayes classifier}\ixh{Bayes error rate}
+\textbf{\ix{Bayes classifier}}: assign each observation to the \emph{most likely class given its predictor values}:
+\[ \hat y_0=\operatorname{argmax}_j\ \operatorname{Prob}(Y=j\mid X=\mathbf x_0) \]
+Ex.: $P(\text{dog}\mid\mathbf x_0)=0.5$, $P(\text{cat}\mid\mathbf x_0)=0.3$, $P(\text{bird}\mid\mathbf x_0)=0.2\Rightarrow\hat y_0=$ dog.
+Two classes: $\hat y_0=1$ if $\operatorname{Prob}(Y=1\mid X=\mathbf x_0)>0.5$, else $2$. The \ix{Bayes decision boundary} is where $\operatorname{Prob}(Y=1\mid X=\mathbf x_0)=0.5$ (purple dashed curve on the slides).
+\[ \text{\ix{Bayes error rate}}=1-E\Big[\max_j\operatorname{Prob}(Y=j\mid X)\Big] \]
+= lowest possible test error rate; $>0$ whenever classes overlap (even the Bayes classifier misclassifies points on the ``wrong'' side, red squares on S1.99). It is the classification analogue of $\operatorname{Var}(\varepsilon)$.
+\end{keybox}
+
+\begin{topic}{Regression vs.\ classification summary \src{S1.100}}
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & Regression & Classification\\\midrule
+$Y$ & quantitative & qualitative\\
+error & training/test MSE & training/test error rate\\
+best & $E[Y\mid X=\mathbf x_0]$ & $\operatorname{argmax}_j\operatorname{Prob}(Y=j\mid X=\mathbf x_0)$\\
+floor & $\operatorname{Var}(\varepsilon)$ & $1-E[\max_j\operatorname{Prob}(Y=j\mid X)]$\\\bottomrule
+\end{tabular}
+\end{topic}
+
+\begin{trap}[Bayes classifier]
+It is a theoretical gold standard: it needs the true conditional distribution of $Y$ given $X$, which we never know. Real classifiers (KNN, logistic regression, LDA\dots) \emph{estimate} $\operatorname{Prob}(Y=j\mid X)$ and try to approach it.
+\end{trap}
+
+%% ==================================================================
+\subsection{K-nearest neighbors (KNN)}
+\ixh{k-nearest neighbors (KNN)}
+
+\begin{keybox}[KNN algorithm \src{S1.103--109}]
+We never know $E[Y\mid X]$ or $\operatorname{Prob}(Y=j\mid X)$ --- \textbf{estimate} them locally: look at the $K$ training points closest to $\mathbf x_0$.
+\[ \mathcal N_0=\{i:\ \mathbf x_i \text{ is among the } K \text{ nearest neighbors of } \mathbf x_0\} \]
+\textbf{Regression} (average): \quad $\displaystyle \hat f_K(\mathbf x_0)=\frac1K\sum_{i\in\mathcal N_0}y_i$\\
+\textbf{Classification} (majority vote): \quad $\displaystyle \hat y_K=\operatorname{argmax}_j\Big\{\frac1K\sum_{i\in\mathcal N_0}I(y_i=j)\Big\}$\\
+(the class proportions among the neighbours estimate $\operatorname{Prob}(Y=j\mid X=\mathbf x_0)$).
+Steps: (1) compute the distance from $\mathbf x_0$ to every training point; (2) keep the $K$ closest; (3) average their $y$ / take a vote.
+\end{keybox}
+
+\begin{keybox}[Distances \src{S1.104}]
+\ixh{distance metric}
+\begin{itemize}
+\item \ix{Euclidean distance}: $d(\mathbf x,\mathbf y)=\sqrt{(x_1-y_1)^2+(x_2-y_2)^2}$ (straight line; usual default).
+\item \ix{Manhattan distance}: $d(\mathbf x,\mathbf y)=|x_1-y_1|+|x_2-y_2|$ (grid / city-block).
+\item \ix{Minkowski distance}: $d(\mathbf x,\mathbf y)=\big(\sum_{i=1}^n|x_i-y_i|^p\big)^{1/p}$, $p\ge1$; $p=1$ Manhattan, $p=2$ Euclidean.
+\end{itemize}
+\end{keybox}
+
+\begin{topic}{Worked KNN examples}
+\textbf{3-NN regression} \src{S1.107}: house prices of the 3 nearest (by sq.\,ft) are 50, 55, 51 $\Rightarrow\hat f=(50+55+51)/3=52$.
+
+\textbf{Vote with $k=1,3,5,7$} \src{PE Q5}. Neighbors ordered closest $\to$ farthest:
+\begin{tabular}{@{}lccccccc@{}}
+neighbor & 1&2&3&4&5&6&7\\
+class & A&B&B&A&A&B&B
+\end{tabular}
+
+\begin{tabular}{@{}llll@{}}
+$k=1$: & A & (A 1--0) & $\Rightarrow$ \textbf{A}\\
+$k=3$: & A B B & (A1, B2) & $\Rightarrow$ \textbf{B}\\
+$k=5$: & A B B A A & (A3, B2) & $\Rightarrow$ \textbf{A}\\
+$k=7$: & A B B A A B B & (A3, B4) & $\Rightarrow$ \textbf{B}
+\end{tabular}
+
+Predictions can flip as $k$ changes. Even $k$ can tie (here $k=2$: 1--1, $k=4$: 2--2) --- use odd $k$ for two classes.
+
+\textbf{ISLR picture} \src{S1.110}: $K=3$, the circle around $\times$ holds 2 blue + 1 orange $\Rightarrow$ predict blue; repeating for every point of the plane draws the KNN \ix{decision boundary}.
+\end{topic}
+
+\begin{topic}{Choosing $k$: the KNN bias--variance tradeoff \src{S1.113--115}}
+\ixh{tuning parameter}\ixh{hyperparameter}\ixh{flexibility}
+For fixed $(\mathbf x_0,y_0)$, with $Y=f(X)+\varepsilon$:
+\[ E\big[(y_0-\hat f(\mathbf x_0))^2\big]=\underbrace{\frac{\operatorname{Var}(\varepsilon)}{k}}_{\text{variance}}+\underbrace{\Big[f(\mathbf x_0)-\frac1k\sum_{i\in\mathcal N_0}f(\mathbf x_i)\Big]^2}_{\text{bias}^2}+\operatorname{Var}(\varepsilon) \]
+\begin{tabular}{@{}llll@{}}
+\toprule
+ & variance & bias$^2$ & $\operatorname{Var}(\varepsilon)$\\\midrule
+$k\uparrow$ & decrease & increase & beyond our control\\
+$k\downarrow$ & increase & decrease & beyond our control\\\bottomrule
+\end{tabular}
+\begin{itemize}
+\item \textbf{Small $k$ = flexible}: jagged, island-filled decision boundary; $k=1$ gives \textbf{training error 0} (each point is its own nearest neighbour) $\to$ low bias, high variance, overfits.
+\item \textbf{Large $k$ = smooth / rigid}: boundary nearly linear at $K=100$ $\to$ high bias, low variance, underfits. $k=n$: every prediction = overall mean / majority class.
+\item Flexibility grows with $1/K$ \src{S1.115}: training error falls steadily to 0 at $1/K=1$; test error is U-shaped (min near $K\approx10$), never below the dashed Bayes error rate ($\approx0.13$).
+\item $k$ is a \ix{hyperparameter} (\ix{tuning parameter}): not estimated by fitting; choose it by test/\ix{cross-validation} error, never by training error.
+\end{itemize}
+\end{topic}
+
+\begin{trap}[$k$ direction traps \src{PE Q1; Sai Q1}]
+\begin{itemize}
+\item KNN great on training, worse on new data (overfitting) $\Rightarrow$ \textbf{increase $k$}. Decreasing $k$ makes it worse; up-weighting large-variance variables makes it worse; adding an interaction term is pointless (KNN is non-parametric).
+\item \textbf{Increasing $k$ makes KNN \emph{less} flexible} (adding polynomial/interaction terms to a regression makes it \emph{more} flexible).
+\end{itemize}
+\end{trap}
+
+\begin{topic}{Ties \src{S1.111--112}}
+\ixh{tie-breaking}
+\emph{Distance ties}: several points equidistant at the $k$-th spot (which ones count?). The slide's table keeps all tied points: L $\to$ A\,B; M (3 equidistant) $\to$ A\,A\,B; N (1 obvious + 2 tied) $\to$ A\,A\,B\,B. \emph{Vote ties} (A\,B, A\,A\,B\,B): common fixes are an odd $k$, choosing at random, or going with the nearest neighbour's class / distance-weighted votes.
+\end{topic}
+
+\begin{keybox}[Why standardize predictors \src{PE Q6}]
+\ixh{standardization}\ixh{normalization}
+KNN is \textbf{distance-based}: a predictor with a big spread dominates the distance. Ex.: age (years) vs.\ income (\$): A=(25, 50{,}000), B=(65, 51{,}000), C=(26, 58{,}000). Unscaled, $d(A,B)=\sqrt{40^2+1000^2}\approx1001$ but $d(A,C)=\sqrt{1^2+8000^2}\approx8000$, so B (40 years older!) is A's ``nearest'' neighbour --- age barely matters. Standardizing \emph{only} age does not fix it: income must be standardized too.
+Fix: \ixc{step\_normalize()} (center to mean 0, scale to SD 1) on \textbf{all} numeric predictors, so each contributes on the same scale.
+\end{keybox}
+
+\begin{topic}{Curse of dimensionality; KNN profile \src{S1.116}}
+\ixh{curse of dimensionality}
+KNN works well for \textbf{small $p$} (about $p\le4$) and \textbf{large $n$}. It \textbf{fails when $p$ is very large}: there are very few (almost no) training points ``near'' $\mathbf x_0$, so the ``nearest'' neighbours are actually far away $\Rightarrow$ \textbf{\ix{curse of dimensionality}}. (Classic illustration: to capture 10\% of uniform data in a $p$-dim cube, a neighbourhood needs side $0.1^{1/p}$: 0.10 for $p=1$, 0.32 for $p=2$, 0.79 for $p=10$.) More sophisticated \ix{non-parametric model}s exist (e.g.\ kernel estimators).
+\begin{itemize}
+\item \textbf{Non-parametric}: no assumed form for $f$, no coefficients, no normality / equal-variance assumptions; can draw \textbf{nonlinear decision boundaries} because classification is decided \emph{locally} by neighbours \src{Sai Q2}.
+\item Costs: not interpretable (no coefficients to read); needs the training data at prediction time; sensitive to scale and to irrelevant/noisy predictors; categorical predictors must be dummy-coded (\ixc{step\_dummy()}) so distances can be computed.
+\end{itemize}
+\end{topic}
+
+\begin{topic}{KNN in tidymodels \src{Lab 2; HW3 Q8}}
+\ixh{tidymodels}\ixh{parsnip}\ixh{kknn}
+Model: \ixc{nearest\_neighbor()} with argument \ixc{neighbors} ($k$; default 5 --- Lab 2's fit reports ``Best k: 5''), engine \ixc{set\_engine()}\texttt{("kknn")} (the only engine; needs \texttt{library(}\ixc{kknn}\texttt{)}), and \ixc{set\_mode()} \emph{required} (``regression'' or ``classification'', because KNN can do both).
+\begin{rcode}
+knn_rec <- recipe(y ~ ., data = train) |>   (*@\ixch{recipe()}@*)
+  step_dummy(all_nominal_predictors()) |>   (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}@*)
+  step_normalize(all_numeric_predictors())  (*@\ixch{step\_normalize()}\ixch{all\_numeric\_predictors()}@*)
+
+knn_mod <- nearest_neighbor(neighbors = 7) |> (*@\ixch{nearest\_neighbor()}\ixch{neighbors}@*)
+  set_engine("kknn") |>                     (*@\ixch{set\_engine()}@*)
+  set_mode("classification")    # or "regression"  (*@\ixch{set\_mode()}@*)
+
+knn_wf <- workflow() |>                     (*@\ixch{workflow()}@*)
+  add_model(knn_mod) |>                     (*@\ixch{add\_model()}@*)
+  add_recipe(knn_rec)                       (*@\ixch{add\_recipe()}@*)
+knn_fit <- fit(knn_wf, data = train)        (*@\ixch{fit()}@*)
+
+predict(knn_fit, new_data = test)        # .pred_class / .pred  (*@\ixch{predict()}\ixch{.pred\_class}@*)
+predict(knn_fit, new_data = test, type = "prob")  (*@\ixch{type = "prob"}@*)
+augment(knn_fit, new_data = test) |>        (*@\ixch{augment()}@*)
+  accuracy(truth = y, estimate = .pred_class) (*@\ixch{accuracy()}\ixch{truth}\ixch{estimate}@*)
+\end{rcode}
+Regression version (Lab 2): \texttt{set\_mode("regression")}, then \ixc{predict()} + \ixc{bind\_cols()} with the true \texttt{price} and a \ixc{metric\_set()}\texttt{(rmse, rsq, mae)}. \ixc{extract\_fit\_parsnip()} on a KNN fit shows little (no coefficients). (Engine detail: \texttt{kknn} weights neighbours by distance by default, ``Best kernel: optimal''.)
+\end{topic}
+
+\begin{trap}[Spot-the-bug: KNN code \src{PE Q7}]
+\begin{itemize}
+\item \texttt{y \textasciitilde{} .} silently includes an \ix{identifier variable} (e.g.\ \texttt{application\_id}) and post-outcome info (e.g.\ \texttt{default\_date} = \ix{target leakage}) $\Rightarrow$ drop them.
+\item No \ixc{step\_normalize()} $\Rightarrow$ distances dominated by large-scale variables.
+\item Recipe defined but never used: \texttt{fit(defaulted \textasciitilde{} ., data = loans)} fits the raw data, so the \ixc{step\_dummy()} never happens $\Rightarrow$ put recipe + model in a \ixc{workflow()}.
+\item \ixc{one\_hot}\texttt{ = TRUE} is \textbf{fine} for KNN (no intercept, so no dummy-variable collinearity problem).
+\item Fitting/evaluating on all data (no train/test split) gives an optimistic error estimate.
+\end{itemize}
+\end{trap}

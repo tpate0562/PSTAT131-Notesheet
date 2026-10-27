@@ -1,0 +1,17 @@
+LDA: p = 1 case
+We only have one predictor X, which we assume X Y= k|~ Ne (His o
+
+different mean, same variance
+
+1 2
+Pr (Y= k|X =x) X 7, exp (-s5e—m) )
+
+The Bayes classifier will assign an observation X = x to the class for which
+Pr (Y =k|X= x) is largest...
+
+equivalent to assigning the observation to the class for which
+
+2
+Ox) =X Pe Bk + log() _ is largest
+
+o- o2

@@ -1,0 +1,13 @@
+We're introducing Jukebox, a neural net that
+generates music, including rudimentary
+
+Welcome to ChatGPT singing, as raw audio in a variety of genres
+and artist styles. We're releasing the model
+
+Log in with your OpenAl account to continue weights and code, along with a tool to
+explore the generated samples.
+
+Log in Sign up DREAD PAPER <> VIEW CODE
+
+TOTO AT TATA
+

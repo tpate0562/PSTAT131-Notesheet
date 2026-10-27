@@ -1,0 +1,31 @@
+Mechanistic
+Parametric
+
+¢ Assume a parametric form
+for f (i.e., By + ByX, +)
+
+¢ Won’t match true
+unknown f
+
+* Can add parameters =
+more flexibility
+
+* Too many = overfitting
+
+VS.
+VS.
+
+empirically-driven
+non-parametric
+
+* No/few assumptions about f
+
+¢ Require a larger # of
+observations
+
+* Much more flexible by
+default
+
+* Can also overfit
+
+Y =f(X,..,Xp) +

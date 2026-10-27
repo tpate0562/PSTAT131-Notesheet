@@ -1,0 +1,59 @@
+1. A KNN classifier has excellent performance on the training data but noticeably worse 
+performance on new data. Which change would be most likely to help? 
+a. Decrease k 
+b. Increase k 
+c. Give variables with larger variances more weight 
+d. Include an interaction term 
+ 
+2. A student says, "The most flexible model is always preferable because it can represent 
+more complicated relationships." Explain what is wrong with this reasoning. 
+ 
+3. You fit Models A, B, and C: 
+Model 
+Training accuracy 
+Testing accuracy 
+A 
+71% 
+70% 
+B 
+86% 
+82% 
+C 
+100% 
+68% 
+ 
+Which model would you prefer based only on this information? What appears to be happening 
+with Model C? 
+4. A student makes these three claims: 
+a. A predictor with zero Pearson correlation with the outcome cannot improve 
+prediction. 
+b. Two highly correlated predictors necessarily interact. 
+c. A model with lower training error is always preferable. 
+For each claim, state whether it is true or false and explain. 
+5. A new observation has the following seven nearest neighbors, already ordered from 
+closest to farthest:  
+ 
+Neighbor 1 
+2 
+3 
+4 
+5 
+6 
+7 
+Class 
+A 
+B 
+B 
+A 
+A 
+B 
+B 
+ 
+Predict the new observation’s class using k = 1, 3, 5, and 7. 
+ 
+6. A student standardizes age but forgets to standardize annual income before fitting KNN. 
+Explain why this is a problem even though both variables are numeric. 
+ 
+7. A researcher wants to use KNN to predict whether or not a bank customer will default on 
+a loan. They write the following code: 
+ 

@@ -1,0 +1,11 @@
+Linear regression
+Y=fy+X,h, +e + XB, +€
+
+The conditional expectation of Y is linear in the parameters
+
+Simple Linear Regression Multiple Regression
+
+{(x,, 4), (X,Y), teee &,» Yat
+
+{15 ¥p)> a5 V2), «++» Hae Yn)
+where x; = (xj, X)2, ---» ip)

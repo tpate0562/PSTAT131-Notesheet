@@ -1,0 +1,33 @@
+Actual Class
+
+Predicted Class
+
+Positive Negative
+
+True Positive (TP)
+
+False Positive (FP)
+Type I Error
+
+Precision
+TP
+(TP + FP)
+
+Sensitivity
+TP
+(TP + FN)
+
+False Negative (FN)
+Type Ul Error
+
+Specificity
+True Negative (TN) TN
+(TN + FP)
+
+Negative Predictive Accuracy
+
+Value TP +TN
+TN (TP +TN + FP + FN)
+
+(TN + FN)
+

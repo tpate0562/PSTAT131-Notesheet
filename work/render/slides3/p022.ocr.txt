@@ -1,0 +1,14 @@
+Pr(¥=1|X) \|_
+log | ———>_ J |= fo + BX
+
+1 —Pr(Y = 1|X)
+
+<_—>
+
+logit is linear in X
+Logit, or log-odds
+
+€ (—00, + 00)
+
+Balance
+

@@ -1,0 +1,11 @@
+Coefficient estimates
+
+Least-squares coefficient estimates
+n = -
+vil (; ~ X)(; ~ y) A
+
+=j—pix
+
+B=
+
+optimal in the sense that they minimize the sum of squared residuals (SSR)

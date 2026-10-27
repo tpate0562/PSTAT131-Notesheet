@@ -1,0 +1,25 @@
+Estimating parameters
+
+Different values of {) and /, give us different lines
+
+°
+
+200000
+|
+
+150000
+i
+
+confirmed
+
+y = 8000 + 0.057x
+
+100000
+\
+
+50000
+
+T T
+1000000 1500000 2000000 2500000 3000000
+
+population

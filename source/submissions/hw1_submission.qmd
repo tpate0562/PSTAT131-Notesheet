@@ -1,0 +1,132 @@
+---
+title: "PSTAT131 Homework 1"
+author: "Tejas Patel"
+format:
+  pdf:
+    documentclass: article
+    geometry:
+      - left=1in
+      - right=1in
+editor: visual
+---
+
+```{r setup}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(corrplot)
+```
+
+# Machine Learning Main Ideas
+
+## Question 1
+
+Define supervised and unsupervised learning. What are the difference(s) between them?
+
+Supervised learning is where the data given to fit the model is labeled, unsupervised is where unlabeled data is fed to the model and it finds hidden patterns. Supervised learning gives you a defined output that is easily interpreted where unsupervised learning requires more human interpretation of output results. Unsupervised results may be mathematically optimal but are not defined or labeled so the interpretation is on the creator.
+
+## Question 2
+
+Explain the difference between a regression model and a classification model, specifically in the context of machine learning.
+
+A regression model takes in values and spits out a numerical output. A classification model... classifies things. Either defines boundaries for groups, separates cats from dogs or other animals, etc. A regression model is a function so it does not have a finite number of outputs like a classification model does
+
+## Question 3
+
+Name two commonly used metrics for regression ML problems. Name two commonly used metrics for classification ML problems.
+
+Regression: RMSE, $R^2$
+
+Classification: Accuracy, Recall
+
+## Question 4
+
+Provide a brief description of each type of model.
+
+**Descriptive models:** Finds pattern in existing data, explaining what has happened in the past, not predicting what will happen in the future. Generally infinite outcomes possible
+
+**Inferential models:** Finds patterns in existing data to test hypotheses and draw conclusions about a broader population. It focuses on understanding the relationships and causal links between variables rather than just summarizing them.
+
+**Predictive models:** Predictive models get trained on old data and use that fit to predict the value of a new, unseen data point. Usually it's a mathematical function or algorithm optimized to minimize forecasting errors on future data.
+
+## Question 5
+
+**Define mechanistic. Define empirically-driven. How do these model types differ? How are they similar?**
+
+Mechanistic models explain the relationships in the data given pre-established laws and theory, making the data highly explainable, however the model may be more biased due to the reliance on pre-existing laws as frameworks. Empirically driven models will be more able to catch complex patterns in the data that a mechanistic model could not, as it is solely reliant on mathematics without needing to be bound by physical laws. It will have a higher variance on unseen or confusing data, where a mechanistic model will be highly predictable even when given unseen data. They both explain the same data, but use different methods to reach a conclusion.
+
+**In general, is a mechanistic or empirically-driven model easier to understand? Explain your choice.**
+
+Mechanistic models are much easier to explain as they are created from pre-existing relationships and can be made into a logical, cohesive, progressive explanation of the patterns in the data. Empirical models are closer to black boxes that ingest much more complex relationships and are not as intuitive to understand
+
+**Describe how the bias-variance tradeoff is related to the use of mechanistic or empirically-driven models.**
+
+Mechanistic models are more biased since they force the data into an assumed form that may not match the true relationship, however the variance is lower on mechanistic models as they are hard-coded in known principles that are less likely to give uncertainty. One model gives lower variance but in return for it you get biases due to assumptions you're bound by, where the other (empirical) is unbiased but can give higher variance on unknown data. If a found pattern is inaccurate when generalized well outside the training range, it could add variance that just wouldn't be found in mechanistic models
+
+## Question 6
+
+Classify each question as either predictive or inferential. Explain your reasoning for each.
+
+**Given a voter's profile/data, how likely is it that they will vote in favor of the candidate?**
+
+Predictive. You're predicting an outcome from a finite set space given known information.
+
+**How would a voter's likelihood of support for the candidate change if they had personal contact with the candidate?**
+
+Inferential. You're guessing the effect of personal contact on the outcome of support, not make a prediction on an individual person
+
+# Exploratory Data Analysis
+
+## Exercise 1
+
+```{r}
+ggplot(mpg, aes(x = hwy)) +
+  geom_histogram(binwidth = 2, color = "white") +
+  labs(x = "Highway MPG", y = "Count")
+```
+
+The distribution of highway MPG is bimodal and slightly skewed to the right. The two peaks are around 16-18mpg and 24-28mpg, with a median of 24 and a mean of about 23.4. Most cars fall between 15 and 30mpg. There are a few outliers above 40mpg. The data is from 1999 and 2008, so the lower peak is likely SUVs and large cars/trucks, while more aerodynamically efficient and lighter sedans make up the higher peak.
+
+## Exercise 2
+
+```{r}
+ggplot(mpg, aes(x = hwy, y = cty)) +
+  geom_point() +
+  labs(x = "Highway MPG", y = "City MPG")
+```
+
+There is a strong, positive, linear relationship between hwy and cty, meaning cars that get good gas mileage on the highway also get good gas mileage in the city. City MPG is consistently lower than highway MPG; the fitted line has a slope of about 0.7, so each extra highway MPG goes with about 0.7 extra city MPG. Even though there are 234 cars in the data there aren't 234 dots on the chart due to rounding to the nearest whole number and multiple cars overlapping
+
+## Exercise 3
+
+```{r}
+ggplot(mpg, aes(y = fct_rev(fct_infreq(manufacturer)))) +
+  geom_bar() +
+  labs(x = "Count", y = "Manufacturer")
+
+mpg %>% count(manufacturer, sort = TRUE)
+```
+
+Dodge produced the most cars at 37, followed by Toyota and Volkswagen (34 and 27). Lincoln produced the least, only making 3 cars.
+
+## Exercise 4
+
+```{r}
+ggplot(mpg, aes(x = factor(cyl), y = hwy)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(alpha = 0.3, width = 0.2) +
+  labs(x = "Number of Cylinders", y = "Highway MPG")
+```
+
+There is a clear negative relationship between highway efficiency and cylinder counts: as the number of cylinders goes up, highway mpg goes down. 4-cylinder cars have a median of 29 mpg, 6-cylinder cars have a median of 24mpg, and 8-cylinder cars have a median of 17mpg. This makes sense since if cylinders are not fully utilized their efficiency goes down, and with more cylinders the chance of full utilization drops. The 4cyl group has the widest spread and includes the high-mileage outliers above 40 mpg. There aren't many cars with 5cyl so its not a reliable box. There is also some overlap between groups they're not all disjoint, like some 4cyl get worse mileage than some 8cyls, though on average cylinders are negatively correlated to mpg
+
+## Exercise 5
+
+```{r}
+mpg %>%
+  select(where(is.numeric)) %>%
+  cor() %>%
+  corrplot(type = "lower", method = "number")
+```
+
+`cty` and `hwy` are strongly positively correlated with each other, and `displ` and `cyl` are strongly positively correlated with each other, since the more cylinders you add the more volume the engine displaces on each cycle. Both mileage variables are strongly negatively correlated with both engine size variables, since more displacement means more volume (and in turn mass) that needs to be heated, increasing the fuel burn rate. The only metric that isn't correlated with mpg is the year. That one surprised me, since I expected newer cars to be more fuel efficient, the EPA had been gradually increasing efficiency requirements, but the data only covers 1999 and 2008 so there isn't much of a trend even after 9 years.

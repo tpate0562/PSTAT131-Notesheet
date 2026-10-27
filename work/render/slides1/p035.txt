@@ -1,0 +1,9 @@
+Evaluate: How well did the machine learn?
+• In supervised learning, the actual data 𝑌 is the supervisor
+• Need to give the model observed output and input
+Learner
+Supervisor
+College student
+Answer key
+Machine
+Raw observed output

@@ -1,0 +1,49 @@
+d. X1 and Y have a Pearson correlation of 0.80 
+e. The relationship between X1 and Y is the same across both levels of X2 
+Solution: B is the definition of an interaction. Pearson correlation does not imply the 
+existence of an interaction. Neither does skew. 
+For Questions 10–12, suppose a university wants to predict whether a student will graduate 
+within four years, using information available at the end of the student's first year. 
+Variable 
+Description 
+StudentID 
+Unique identifier 
+HS_GPA 
+High school GPA 
+FirstYearGPA 
+GPA at end of first year 
+Major 
+Major at end of first year 
+CreditsAttempted 
+First-year credits attempted 
+CreditsCompleted 
+First-year credits completed 
+Dorm 
+First-year residence hall name 
+GraduationDate 
+Date of graduation, if graduated 
+FinalGPA 
+GPA upon leaving the university 
+Graduated4Years 
+Outcome 
+ 
+10.  Which variables clearly should not be included as predictors in the model? Select all that 
+apply. 
+a. StudentID 
+b. HS_GPA 
+c. FirstYearGPA 
+d. GraduationDate 
+e. FinalGPA 
+f. Major 
+g. Graduated4Years 
+h. CreditsAttempted 
+i. CreditsCompleted 
+Solution: A is an ID variable. D and E are both variables that would not be known at the 
+end of the first year. G is the outcome. 
+11.  Which predictors would require dummy encoding before fitting a logistic regression? 
+Select all that apply. 
+a. HS_GPA 
+b. FirstYearGPA 
+c. Major 
+d. CreditsCompleted 
+e. Dorm 

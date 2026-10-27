@@ -1,0 +1,6 @@
+How to handle collinearity?
+It depends!
+1. Drop variables
+2. Combine variables
+3. Feature extraction (PCA)
+4. Regularization

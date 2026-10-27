@@ -1,0 +1,15 @@
+What is wrong?
+
+Coefficient Coefficient
+Intercept —3.5041 Intercept —10.8690
+student [Yes] 0.4049 balance 0.0057
+income 0.0030
+student [Yes] —0.6468
+A student is riskier than a non- A student is less risky than a non-
+student, if no other information student with the same credit card
+about the student is available balance
+
+student and balance are correlated
+
+student are more likely to have large credit card balances,
+which tends to be associated with high default rates

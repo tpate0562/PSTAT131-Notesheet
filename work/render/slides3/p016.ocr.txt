@@ -1,0 +1,15 @@
+Probability of Defaulting
+
+ray
+
+o
+
+@ eceee
+
+7 log(odds of default) = log (
+
+p
+
+1-p
+
+)

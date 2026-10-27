@@ -1,0 +1,13 @@
+LDA: A motivating example
+
+Reducing a 2-D graph to a 1-D graph
+
+A 2-D graph (aka X/Y Graph)
+
+wo ~ A1-D graph (aka number line)
+
+e e® \
+
+Gene Y > be
+
+Gene X

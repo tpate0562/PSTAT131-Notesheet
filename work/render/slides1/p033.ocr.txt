@@ -1,0 +1,10 @@
+A very basic learning model
+
+Y =f(Xz,...,Xp) +
+
+isa Error
+Response ; Predictors .
+° function and (’noise”)
+of
+
+* Goal: learn f from observations of data

@@ -1,0 +1,12 @@
+Motivating LDA
+
+Back in Lecture 3, the Bayes classifier is the “best” we can do
+
+argmax;,-),_K {Pr (y= k|X, -.X,) \
+
+Logistic regression (K = 2 case)
+
+e Bot B,X\+...+8,X,
+Pr(Y = 1|X,,...,X,) =
+
+LDA: uses Bayes theorem & makes assumptions on X,, 1X, |Y

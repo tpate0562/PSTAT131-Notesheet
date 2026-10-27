@@ -1,0 +1,7 @@
+Why bother considering LDA?
+
+Reason 1: coefficient estimates in logistic regression can be unstable
+
+Reason 2: when n7 is small & distribution of X is close to normal
+
+Reason 3: multi-class classification problem

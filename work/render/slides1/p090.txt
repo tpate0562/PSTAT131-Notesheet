@@ -1,0 +1,32 @@
+𝒚𝒊
+%𝒚𝒊
+𝑰𝒚𝒊≠%𝒚𝒊
+dog
+cat
+1
+cat
+cat
+0
+bird
+dog
+1
+dog
+dog
+0
+dog
+dog
+0
+Training error rate: 
+∑!"#
+$
+1 2!342!
+5
+Training accuracy: 1 −
+∑!"#
+$
+1 2!342!
+5
+= 2
+5 = 0.40
+= 3
+5 = 0.60

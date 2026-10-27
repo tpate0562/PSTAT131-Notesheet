@@ -1,0 +1,5 @@
+Model flexibility vs. interpretability
+• Why should we ever choose a less flexible method over a more 
+flexible one?
+• Better interpretability (this slide) and, sometimes, smaller error 
+(next)

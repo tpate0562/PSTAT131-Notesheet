@@ -1,0 +1,1206 @@
+%% raw_hw.tex -- Homework 1-3: prompts (verbatim), my graded submissions (HW1, HW2), my own solutions (HW3)
+\section{Homework 1--3: prompts, my submissions, solutions}
+\ixh{homework}%
+{\color{figgray}\itshape How to read: each box = one question. \textbf{Prompt.} = assignment text (verbatim);
+\textbf{\color{dblue}My answer.} = my graded submission, verbatim (HW1, HW2);
+\textbf{\color{keyc}Answer.} = correction/note (HW1, HW2) or my own worked solution, run in R 4.5.3 (HW3, not yet submitted).}
+
+%% =====================================================================
+\subsection{Homework 1 -- ML main ideas; EDA on mpg}
+\ixh{mpg}\ixh{exploratory data analysis (EDA)}%
+\textbf{Prompt (Machine Learning Main Ideas).} Please answer the following questions. Be sure that your solutions are clearly marked and that your document is neatly formatted.
+You don't have to rephrase everything in your own words, but if you quote directly, you should cite whatever materials you use (this can be as simple as ``from the lecture/page \# of book'').
+
+Prompt setup chunk (\texttt{homework 1-131.Rmd}):
+\begin{rcode}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE,
+                      warning = FALSE)
+library(tidyverse)  (*@\ixch{library()}\ixch{tidyverse}@*)
+library(ggthemes)  (*@\ixch{ggthemes}@*)
+\end{rcode}
+My setup chunk (\texttt{hw1\_submission.qmd}, \texttt{\#| message: false}, \texttt{\#| warning: false}):
+\begin{rcode}
+library(tidyverse)
+library(corrplot)  (*@\ixch{corrplot}@*)
+\end{rcode}
+
+\begin{qbox}{HW1 Q1}
+\textbf{Prompt.} Define \ix{supervised learning} and \ix{unsupervised learning}. What are the difference(s) between them?
+\mine Supervised learning\ixh{supervised learning} is where the data given to fit the model is labeled, unsupervised is where unlabeled data is fed to the model and it finds hidden patterns. Supervised learning gives you a defined output that is easily interpreted where unsupervised learning\ixh{unsupervised learning} requires more human interpretation of output results. Unsupervised results may be mathematically optimal but are not defined or labeled so the interpretation is on the creator.
+\end{qbox}
+
+\begin{qbox}{HW1 Q2}
+\textbf{Prompt.} Explain the difference between a \ix{regression} model and a \ix{classification} model, specifically in the context of \ix{machine learning}.
+\mine A regression model takes in values and spits out a numerical output. A classification model\ldots{} classifies things. Either defines boundaries for groups, separates cats from dogs or other animals, etc. A regression model is a function so it does not have a finite number of outputs like a classification model does
+\ans (note) Course wording: regression\ixh{regression} = \ix{quantitative outcome} (numeric $Y$); classification\ixh{classification} = \ix{qualitative outcome} (categorical $Y$; the model predicts a class or class probabilities). Both are functions $\hat f$ of the predictors --- the difference is the type of the \ix{outcome}.
+\end{qbox}
+
+\begin{qbox}{HW1 Q3}
+\textbf{Prompt.} Name two commonly used metrics for regression ML problems. Name two commonly used metrics for classification ML problems.
+\mine Regression: \ix{RMSE}, $R^2$\ixh{R-squared}
+
+Classification: Accuracy\ixh{accuracy}, Recall\ixh{recall}
+\end{qbox}
+
+\begin{qbox}{HW1 Q4}
+\textbf{Prompt.} As discussed, statistical models can be used for different purposes. These purposes can generally be classified into the following three categories. Provide a brief description of each.
+\begin{itemize}
+\item Descriptive models:\ixh{descriptive model}
+\item Inferential models:\ixh{inferential model}
+\item Predictive models:\ixh{predictive model}
+\end{itemize}
+\mine \textbf{Descriptive models:} Finds pattern in existing data, explaining what has happened in the past, not predicting what will happen in the future. Generally infinite outcomes possible
+
+\textbf{Inferential models:} Finds patterns in existing data to test hypotheses and draw conclusions about a broader population. It focuses on understanding the relationships and causal links between variables rather than just summarizing them.\ixh{inference}\ixh{hypothesis test}
+
+\textbf{Predictive models:} Predictive models get trained on old data and use that fit to predict the value of a new, unseen data point. Usually it's a mathematical function or algorithm optimized to minimize forecasting errors on future data.\ixh{prediction}
+\ans (note, \src{S1.50}) \ix{descriptive model}: chosen to best \emph{visually emphasize a trend} in data (e.g.\ a line on a scatterplot) --- ``infinite outcomes'' is not part of the definition. \ix{inferential model}: what features are significant? aim = test theories, (possibly) causal claims, state the relationship between outcome \& predictor(s). \ix{predictive model}: what combination of features fits best? aim = predict $Y$ with minimum \ix{reducible error}; not focused on hypothesis tests.
+\end{qbox}
+
+\begin{qbox}{HW1 Q5}
+\textbf{Prompt.} Predictive models are frequently used in machine learning, and they can usually be described as either \ix{mechanistic model}{s} or \ix{empirically-driven model}{s}. Answer the following questions.
+\begin{itemize}
+\item Define mechanistic. Define empirically-driven. How do these model types differ? How are they similar?
+\item In general, is a mechanistic or empirically-driven model easier to understand? Explain your choice.
+\item Describe how the \ix{bias-variance tradeoff} is related to the use of mechanistic or empirically-driven models.
+\end{itemize}
+\mine \textbf{Define mechanistic. Define empirically-driven. How do these model types differ? How are they similar?}
+
+Mechanistic models\ixh{mechanistic model} explain the relationships in the data given pre-established laws and theory, making the data highly explainable, however the model may be more biased due to the reliance on pre-existing laws as frameworks. Empirically driven models\ixh{empirically-driven model} will be more able to catch complex patterns in the data that a mechanistic model could not, as it is solely reliant on mathematics without needing to be bound by physical laws. It will have a higher variance on unseen or confusing data, where a mechanistic model will be highly predictable even when given unseen data. They both explain the same data, but use different methods to reach a conclusion.
+
+\textbf{In general, is a mechanistic or empirically-driven model easier to understand? Explain your choice.}
+
+Mechanistic models are much easier to explain as they are created from pre-existing relationships and can be made into a logical, cohesive, progressive explanation of the patterns in the data. Empirical models are closer to black boxes that ingest much more complex relationships and are not as intuitive to understand\ixh{interpretability}
+
+\textbf{Describe how the bias-variance tradeoff is related to the use of mechanistic or empirically-driven models.}
+
+Mechanistic models are more biased\ixh{bias} since they force the data into an assumed form that may not match the true relationship, however the variance\ixh{variance} is lower on mechanistic models as they are hard-coded in known principles that are less likely to give uncertainty. One model gives lower variance but in return for it you get biases due to assumptions you're bound by, where the other (empirical) is unbiased but can give higher variance on unknown data. If a found pattern is inaccurate when generalized well outside the training range, it could add variance that just wouldn't be found in mechanistic models
+\ans (correction, \src{S1.49}) In this course \textbf{mechanistic = \ix{parametric model}}: \emph{assume a parametric form for $f$} (e.g.\ $\beta_0+\beta_1X_1+\cdots$); it won't match the true unknown $f$; adding parameters = more \ix{flexibility}; too many = \ix{overfitting}. \textbf{Empirically-driven = \ix{non-parametric model}}: no/few assumptions about $f$; requires a larger number of observations; much more flexible by default; can also overfit. \emph{Similar}: both estimate $f$ in $Y=f(X_1,\dots,X_p)+\epsilon$ and both can overfit. Empirical models are not ``unbiased'' --- they have \emph{lower} bias and higher variance; mechanistic models have higher bias, lower variance.
+\end{qbox}
+
+\begin{qbox}{HW1 Q6}
+\textbf{Prompt.} A political candidate's campaign has collected some detailed voter history data from their constituents. The campaign is interested in two questions:
+\begin{itemize}
+\item Given a voter's profile/data, how likely is it that they will vote in favor of the candidate?
+\item How would a voter's likelihood of support for the candidate change if they had personal contact with the candidate?
+\end{itemize}
+Classify each question as either predictive or inferential. Explain your reasoning for each.
+\mine \textbf{Given a voter's profile/data, how likely is it that they will vote in favor of the candidate?}
+
+Predictive\ixh{prediction}. You're predicting an outcome from a finite set space given known information.
+
+\textbf{How would a voter's likelihood of support for the candidate change if they had personal contact with the candidate?}
+
+Inferential\ixh{inference}. You're guessing the effect of personal contact on the outcome of support, not make a prediction on an individual person
+\end{qbox}
+
+\textbf{Prompt (Exploratory Data Analysis).} This section will ask you to complete several exercises. For this homework assignment, we'll be working with the \ixc{mpg} data set that is loaded when you load the tidyverse. Make sure you load the tidyverse and any other packages you need.
+
+\ix{exploratory data analysis (EDA)} (or EDA) is not based on a specific set of rules or formulas. It is more of a state of curiosity about data. It's an iterative process of:
+\begin{itemize}
+\item generating questions about data
+\item visualize and transform your data as necessary to get answers
+\item use what you learned to generate more questions
+\end{itemize}
+A couple questions are always useful when you start out. These are ``what variation occurs within the variables,'' and ``what covariation occurs between the variables.''
+
+You should use the \ixc{tidyverse} and \ixc{ggplot2} for these exercises.
+
+\begin{qbox}{HW1 Ex1}
+\textbf{Prompt.} We are interested in highway miles per gallon, or the \ixc{hwy} variable. Create a \ix{histogram} of this variable. Describe what you see/learn.
+\mine
+\begin{rcode}
+ggplot(mpg, aes(x = hwy)) +  (*@\ixch{ggplot()}\ixch{aes()}@*)
+  geom_histogram(binwidth = 2, color = "white") +  (*@\ixch{geom\_histogram()}\ixch{binwidth}@*)
+  labs(x = "Highway MPG", y = "Count")  (*@\ixch{labs()}@*)
+\end{rcode}
+\fig{grey histogram, white bar outlines, bin width 2. x = ``Highway MPG'' (ticks 10--40), y = ``Count'' (0--40+). Bin counts (centres 12, 14, \dots, 44): 5, 12, 38, 23, 13, 14, 28, 46, 29, 11, 6, 3, 3, 0, 1, 0, 2. Two peaks: 38 cars at 15--17 mpg and the tallest bar, 46 cars, at 25--27 mpg; a few cars above 40.}
+
+The distribution of highway MPG is bimodal\ixh{bimodal distribution} and slightly skewed to the right\ixh{skewness}. The two peaks are around 16-18mpg and 24-28mpg, with a median of 24 and a mean of about 23.4. Most cars fall between 15 and 30mpg. There are a few outliers\ixh{outlier} above 40mpg. The data is from 1999 and 2008, so the lower peak is likely SUVs and large cars/trucks, while more aerodynamically efficient and lighter sedans make up the higher peak.
+\end{qbox}
+
+\begin{qbox}{HW1 Ex2}
+\textbf{Prompt.} Create a \ix{scatterplot}. Put \ixc{hwy} on the x-axis and \ixc{cty} on the y-axis. Describe what you notice. Is there a relationship between \texttt{hwy} and \texttt{cty}? What does this mean?
+\mine
+\begin{rcode}
+ggplot(mpg, aes(x = hwy, y = cty)) +
+  geom_point() +  (*@\ixch{geom\_point()}@*)
+  labs(x = "Highway MPG", y = "City MPG")
+\end{rcode}
+\fig{black-dot scatterplot, x = ``Highway MPG'' (12--44), y = ``City MPG'' (9--35). Points lie in a tight, straight, upward band from (12, 9) to (44, 35); they sit on a grid of whole numbers, so many cars overlap (only 78 distinct points for 234 cars).}
+
+There is a strong, positive, linear relationship between hwy and cty, meaning cars that get good gas mileage on the highway also get good gas mileage in the city. City MPG is consistently lower than highway MPG; the fitted line has a slope of about 0.7, so each extra highway MPG goes with about 0.7 extra city MPG. Even though there are 234 cars in the data there aren't 234 dots on the chart due to rounding to the nearest whole number and multiple cars overlapping\ixh{correlation}
+\end{qbox}
+
+\begin{qbox}{HW1 Ex3}
+\textbf{Prompt.} Make a \ix{bar plot} of \ixc{manufacturer}. Flip it so that the manufacturers are on the y-axis. Order the bars by height. Which manufacturer produced the most cars? Which produced the least?
+\mine
+\begin{rcode}
+ggplot(mpg, aes(y = fct_rev(fct_infreq(manufacturer)))) +  (*@\ixch{fct\_rev()}\ixch{fct\_infreq()}@*)
+  geom_bar() +  (*@\ixch{geom\_bar()}@*)
+  labs(x = "Count", y = "Manufacturer")
+
+mpg %>% count(manufacturer, sort = TRUE)  (*@\ixch{\%>\%}\ixch{count()}@*)
+\end{rcode}
+\fig{horizontal grey bars, y = ``Manufacturer'', x = ``Count'' (0--37), ordered longest at top: dodge, toyota, volkswagen, ford, chevrolet, audi, hyundai, subaru, nissan, honda, jeep, pontiac, land rover, mercury, lincoln (shortest, at bottom).}
+\begin{routput}
+# A tibble: 15 x 2
+   manufacturer     n
+   <chr>        <int>
+ 1 dodge           37
+ 2 toyota          34
+ 3 volkswagen      27
+ 4 ford            25
+ 5 chevrolet       19
+ 6 audi            18
+ 7 hyundai         14
+ 8 subaru          14
+ 9 nissan          13
+10 honda            9
+11 jeep             8
+12 pontiac          5
+13 land rover       4
+14 mercury          4
+15 lincoln          3
+\end{routput}
+Dodge produced the most cars at 37, followed by Toyota and Volkswagen (34 and 27). Lincoln produced the least, only making 3 cars.
+\end{qbox}
+
+\begin{qbox}{HW1 Ex4}
+\textbf{Prompt.} Make a \ix{boxplot} of \ixc{hwy}, grouped by \ixc{cyl}. Use \ixc{geom\_jitter()} and the \ixc{alpha} argument to add points to the plot.
+
+Describe what you see. Is there a relationship between \texttt{hwy} and \texttt{cyl}? What do you notice?
+\mine
+\begin{rcode}
+ggplot(mpg, aes(x = factor(cyl), y = hwy)) +  (*@\ixch{factor()}@*)
+  geom_boxplot(outlier.shape = NA) +  (*@\ixch{geom\_boxplot()}\ixch{outlier.shape}@*)
+  geom_jitter(alpha = 0.3, width = 0.2) +  (*@\ixch{geom\_jitter()}\ixch{alpha}@*)
+  labs(x = "Number of Cylinders", y = "Highway MPG")
+\end{rcode}
+\fig{white boxplots of ``Highway MPG'' for x = ``Number of Cylinders'' 4, 5, 6, 8, with semi-transparent grey jittered points. 4 cyl: box 26--31, median 29, points 20--44 (three above 40); 5 cyl: only 4 cars, flat box at 28.75--29; 6 cyl: box 19--26, median 24, points 17--29; 8 cyl: box 16--19, median 17, points 12--26. Medians fall left to right.}
+
+There is a clear negative relationship between highway efficiency and cylinder counts: as the number of cylinders goes up, highway mpg goes down. 4-cylinder cars have a median of 29 mpg, 6-cylinder cars have a median of 24mpg, and 8-cylinder cars have a median of 17mpg. This makes sense since if cylinders are not fully utilized their efficiency goes down, and with more cylinders the chance of full utilization drops. The 4cyl group has the widest spread and includes the high-mileage outliers above 40 mpg. There aren't many cars with 5cyl so its not a reliable box. There is also some overlap between groups they're not all disjoint, like some 4cyl get worse mileage than some 8cyls, though on average cylinders are negatively correlated to mpg
+\ans (note) 4-cyl has the widest \emph{range} (20--44), but the widest \emph{box} (IQR) is 6-cyl (19--26, IQR 7 vs.\ 5 for 4-cyl). \texttt{outlier.shape = NA} hides the boxplot's own outlier dots so they are not drawn twice on top of the jittered points.
+\end{qbox}
+
+\begin{qbox}{HW1 Ex5}
+\textbf{Prompt.} Use the \ixc{corrplot} package to make a lower triangle \ix{correlation matrix} of the \texttt{mpg} dataset. (Hint: You can find information on the package here [link: \texttt{cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html}].)
+
+Which variables are positively or negatively correlated with which others? Do these relationships make sense to you? Are there any that surprise you?
+\mine
+\begin{rcode}
+mpg %>%
+  select(where(is.numeric)) %>%  (*@\ixch{select()}\ixch{where()}\ixch{is.numeric()}@*)
+  cor() %>%  (*@\ixch{cor()}@*)
+  corrplot(type = "lower", method = "number")  (*@\ixch{corrplot()}\ixch{type = "lower"}\ixch{method = "number"}@*)
+\end{rcode}
+\fig{lower-triangle corrplot of the 5 numeric variables (displ, year, cyl, cty, hwy), coefficients printed as coloured numbers (dark blue = $+1$, white = 0, dark red = $-1$; colour bar $-1$ to 1 underneath; labels in red). Values: year--displ 0.15; cyl--displ 0.93, cyl--year 0.12; cty--displ $-0.80$, cty--year $-0.04$, cty--cyl $-0.81$; hwy--displ $-0.77$, hwy--year 0.00, hwy--cyl $-0.76$, hwy--cty 0.96; diagonal 1.00.}
+
+\texttt{cty} and \texttt{hwy} are strongly positively correlated with each other, and \texttt{displ} and \texttt{cyl} are strongly positively correlated with each other, since the more cylinders you add the more volume the engine displaces on each cycle. Both mileage variables are strongly negatively correlated with both engine size variables, since more displacement means more volume (and in turn mass) that needs to be heated, increasing the fuel burn rate. The only metric that isn't correlated with mpg is the year. That one surprised me, since I expected newer cars to be more fuel efficient, the EPA had been gradually increasing efficiency requirements, but the data only covers 1999 and 2008 so there isn't much of a trend even after 9 years.\ixh{Pearson correlation}
+\end{qbox}
+
+\textbf{Prompt (231 Students Only)} --- from the 131/231 version \texttt{homework-1-1.html}; \emph{231 only, not required for 131, not in my submission}.
+
+\begin{qbox}{HW1 Ex6 (231 only)}
+\textbf{Prompt.} USing \ixc{ggplot()}, recreate the following graphic as closely as you can. \emph{Hint: Use the \ixc{ggthemes} package.}
+
+\fig{target graphic: horizontal boxplots of x = ``Highway MPG'' (ticks 20, 30, 40) for y = ``Vehicle Class'' (bottom to top: 2seater, compact, midsize, minivan, pickup, subcompact, suv). Unfilled black boxes, outliers as solid black dots, plus grey semi-transparent jittered points. White background, light-grey horizontal and vertical grid lines, a black x-axis line along the bottom, grey sans-serif labels (a Google-Docs-like ggthemes theme). Pickup and suv lowest ($\approx$17), compact/midsize/subcompact highest ($\approx$26--27 medians), subcompact widest.}
+\ans (my recreation, checked in R)
+\begin{rcode}
+ggplot(mpg, aes(x = hwy, y = class)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.3) +
+  theme_gdocs() +  (*@\ixch{theme\_gdocs()}@*)
+  labs(x = "Highway MPG", y = "Vehicle Class")
+\end{rcode}
+\end{qbox}
+
+\begin{qbox}{HW1 Ex7 (231 only)}
+\textbf{Prompt.} Recreate the following graphic.
+
+\fig{target graphic: default grey ggplot theme; side-by-side boxplots of y = \texttt{hwy} (ticks 20, 30, 40) for x = \texttt{class} (2seater, compact, midsize, minivan, pickup, subcompact, suv), boxes filled by legend ``drv'' (4 = red, f = green, r = blue). 2seater: r only ($\approx$25); compact: 4 ($\approx$25) and f ($\approx$29, outliers 37, 44); midsize: 4 ($\approx$24), f ($\approx$27); minivan: f ($\approx$23); pickup: 4 ($\approx$17); subcompact: 4 (flat at 26), f ($\approx$29, up to 44), r ($\approx$23); suv: 4 ($\approx$18, many outliers) and r ($\approx$17).}
+\ans (my recreation, checked in R)
+\begin{rcode}
+ggplot(mpg, aes(x = class, y = hwy, fill = drv)) +  (*@\ixch{fill}@*)
+  geom_boxplot()
+\end{rcode}
+\end{qbox}
+
+\begin{qbox}{HW1 Ex8 (231 only)}
+\textbf{Prompt.} Recreate the following graphic.
+
+\fig{target graphic: default grey theme; scatterplot y = \texttt{hwy} vs.\ x = \texttt{displ} (1.6--7), points coloured by ``drv'' (4 = red, f = green, r = blue) and three blue loess curves without ribbons, one per drv, distinguished by linetype (4 = solid, decreasing from $\approx$27 to $\approx$16 then flat; f = short dashes, from $\approx$33 down to $\approx$25 then flat; r = long dashes, $\approx$25 dipping to $\approx$18 at displ 5.3 then rising to $\approx$25). One merged legend ``drv'' shows coloured point + line type.}
+\ans (my recreation, checked in R)
+\begin{rcode}
+ggplot(mpg, aes(x = displ, y = hwy)) +
+  geom_point(aes(color = drv)) +  (*@\ixch{color}@*)
+  geom_smooth(aes(linetype = drv), se = FALSE)  (*@\ixch{geom\_smooth()}\ixch{linetype}\ixch{se = FALSE}@*)
+\end{rcode}
+\end{qbox}
+
+%% =====================================================================
+\subsection{Homework 2 -- linear regression and KNN (abalone)}
+\ixh{abalone}\ixh{linear regression}\ixh{k-nearest neighbors (KNN)}%
+\textbf{Prompt (Linear Regression and KNN).} For this assignment, we will be working with a data set from the UCI (University of California, Irvine) Machine Learning repository (see website here [link: \texttt{archive.ics.uci.edu/ml/datasets/Abalone}]). The full data set consists of $4{,}177$ observations of abalone in Tasmania. (Fun fact: Tasmania supplies about $25\%$ of the yearly world abalone harvest.)
+
+\fig{``Fig 1. Inside of an abalone shell.'' --- photo of an oval abalone shell seen from the inside: iridescent mother-of-pearl in green, blue and pink, a row of small holes along one edge, reddish-brown outer rim.}
+
+The age of an abalone is typically determined by cutting the shell open and counting the number of rings with a microscope. The purpose of this data set is to determine whether abalone age (\textbf{number of rings + 1.5}) can be accurately predicted using other, easier-to-obtain information about the abalone.
+
+The full \ixc{abalone} data set is located in the \texttt{\textbackslash data} subdirectory. Read it into \emph{R} using \ixc{read\_csv()}. Take a moment to read through the codebook (\texttt{abalone\_codebook.txt}) and familiarize yourself with the variable definitions.
+
+Make sure you load the \ixc{tidyverse} and \ixc{tidymodels}!
+
+Prompt setup chunk:
+\begin{rcode}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE,
+                      warning = FALSE)
+\end{rcode}
+Codebook (\texttt{abalone\_codebook.txt}; Name / Data Type / Measurement Unit / Description):
+{\footnotesize
+\begin{tabular}{@{}l l l l@{}}
+\toprule
+Sex & nominal & -- & M, F, and I (infant)\\
+Length & continuous & mm & Longest shell measurement\\
+Diameter & continuous & mm & perpendicular to length\\
+Height & continuous & mm & with meat in shell\\
+Whole weight & continuous & grams & whole abalone\\
+Shucked weight & continuous & grams & weight of meat\\
+Viscera weight & continuous & grams & gut weight (after bleeding)\\
+Shell weight & continuous & grams & after being dried\\
+Rings & integer & -- & +1.5 gives the age in years\\
+\bottomrule
+\end{tabular}}
+
+{\color{figgray}\itshape [note: in \texttt{abalone.csv} the columns are named \ixc{type}, \ixc{longest\_shell}, \ixc{diameter}, \ixc{height}, \ixc{whole\_weight}, \ixc{shucked\_weight}, \ixc{viscera\_weight}, \ixc{shell\_weight}, \ixc{rings}.]}
+
+\begin{qbox}{HW2 Q1}
+\textbf{Prompt.} Your goal is to predict abalone age, which is calculated as the number of rings plus 1.5. Notice there currently is no \ixc{age} variable in the data set. Add \texttt{age} to the data set.
+
+Assess and describe the distribution of \texttt{age}.
+\mine
+\begin{rcode}
+# R codewriting in this homework was assisted by Anthropic Claude Opus 5.5
+# Everything else is original work
+set.seed(174)  (*@\ixch{set.seed()}@*)
+library(tidyverse)
+library(tidymodels)  (*@\ixch{tidymodels}@*)
+library(kknn)  (*@\ixch{kknn}@*)
+tidymodels_prefer()  (*@\ixch{tidymodels\_prefer()}@*)
+abalone <- read_csv("data/abalone.csv") %>%  (*@\ixch{read\_csv()}\ixch{abalone}@*)
+  mutate(age = rings + 1.5,  (*@\ixch{mutate()}@*)
+         type = factor(type))  (*@\ixch{factor()}@*)
+
+head(abalone)  (*@\ixch{head()}@*)
+\end{rcode}
+\begin{lstlisting}[style=cs/rout,basicstyle=\ttfamily\scriptsize]
+# A tibble: 6 x 10
+  type  longest_shell diameter height whole_weight shucked_weight viscera_weight
+  <fct>         <dbl>    <dbl>  <dbl>        <dbl>          <dbl>          <dbl>
+1 M             0.455    0.365  0.095        0.514         0.224          0.101
+2 M             0.35     0.265  0.09         0.226         0.0995         0.0485
+3 F             0.53     0.42   0.135        0.677         0.256          0.142
+4 M             0.44     0.365  0.125        0.516         0.216          0.114
+5 I             0.33     0.255  0.08         0.205         0.0895         0.0395
+6 I             0.425    0.3    0.095        0.352         0.141          0.0775
+# i 3 more variables: shell_weight <dbl>, rings <dbl>, age <dbl>
+\end{lstlisting}
+\begin{rcode}
+abalone %>%
+  summarise(n = n(),  (*@\ixch{summarise()}\ixch{n()}@*)
+            mean = mean(age),
+            median = median(age),
+            sd = sd(age),
+            min = min(age),
+            q1 = quantile(age, 0.25),  (*@\ixch{quantile()}@*)
+            q3 = quantile(age, 0.75),
+            max = max(age))
+
+abalone %>%
+  ggplot(aes(x = age)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "white") +  (*@\ixch{geom\_histogram()}@*)
+  labs(title = "Distribution of Abalone Age",
+       x = "Age (years)",
+       y = "Count")
+
+abalone %>%
+  ggplot(aes(x = age)) +
+  geom_boxplot(fill = "steelblue") +  (*@\ixch{geom\_boxplot()}@*)
+  labs(title = "Boxplot of Abalone Age",
+       x = "Age (years)")
+\end{rcode}
+\begin{routput}
+# A tibble: 1 x 8
+      n  mean median    sd   min    q1    q3   max
+  <int> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+1  4177  11.4   10.5  3.22   2.5   9.5  12.5  30.5
+\end{routput}
+\fig{``Distribution of Abalone Age'': steel-blue histogram, bin width 1, x = ``Age (years)'' (2.5--30.5), y = ``Count'' (0--$\approx$690). Unimodal, peak $\approx$690 at age 10.5 (next 11.5 $\approx$630, 9.5 $\approx$570, 12.5 $\approx$490), long thin right tail; bars barely visible beyond 24.}
+\fig{``Boxplot of Abalone Age'': one horizontal steel-blue box, x = ``Age (years)''; box 9.5--12.5, median 10.5, whiskers 5.5--16.5; outlier dots at 2.5--4.5 on the left and many from 17.5 to 30.5 on the right (meaningless y-axis $-0.4$ to 0.4).}
+
+It looks like the \texttt{abalone} dataset is right/old-skewed\ixh{skewness} with a mean age of around 11.4 years and a median almost 1 year younger than that. The max is almost 3 times the median, but the 25th and 75th percentiles are only 3 years apart meaning the data is tightly bound around the median. About 6.7\% of points are outliers\ixh{outlier}, with the visible blue bar quantities on the chart ending at 24 years old.
+\ans (check) Correct: \texttt{boxplot.stats()} flags 278 of 4177 = 6.66\% of ages as outliers (outside 9.5 $-$ 1.5$\cdot$3 = 5 and 12.5 + 1.5$\cdot$3 = 17).
+\end{qbox}
+
+\begin{qbox}{HW2 Q2}
+\textbf{Prompt.} Split the abalone data into a training set and a testing set. Use \ix{stratified sampling}. You should decide on appropriate percentages for splitting the data.
+
+\emph{Remember that you'll need to set a seed at the beginning of the document to reproduce your results.}\ixh{random seed}\ixh{reproducibility}
+\mine
+\begin{rcode}
+set.seed(174)
+
+abalone_split <- initial_split(abalone, prop = 0.85, strata = age)  (*@\ixch{initial\_split()}\ixch{prop}\ixch{strata}@*)
+abalone_train <- training(abalone_split)  (*@\ixch{training()}@*)
+abalone_test <- testing(abalone_split)  (*@\ixch{testing()}@*)
+
+dim(abalone_train)  (*@\ixch{dim()}@*)
+dim(abalone_test)
+\end{rcode}
+\begin{routput}
+[1] 3548   10
+[1] 629  10
+\end{routput}
+I chose an 85/15 split since when I took a course on machine learning from Andrew Ng, \emph{I think} he said 85/15 was the split he uses. 629 test rows is perfectly acceptable and the model should train well on 3548 rows.\ixh{training/testing split}\ixh{data splitting}
+\end{qbox}
+
+\begin{qbox}{HW2 Q3}
+\textbf{Prompt.} Using the \textbf{training} data, create a recipe predicting the outcome variable, \texttt{age}, with all other predictor variables. Note that you \textbf{should not} include \ixc{rings} to predict \texttt{age}. \emph{Explain why you shouldn't use \texttt{rings} to predict \texttt{age}.}
+
+Steps for your recipe:
+\begin{enumerate}
+\item dummy code any categorical predictors\ixh{dummy variable}\ixh{categorical predictor}
+\item create interactions between\ixh{interaction term}
+  \begin{itemize}
+  \item \texttt{type} and \texttt{shucked\_weight},
+  \item \texttt{longest\_shell} and \texttt{diameter},
+  \item \texttt{shucked\_weight} and \texttt{shell\_weight}
+  \end{itemize}
+\item center all predictors, and\ixh{centering}
+\item scale all predictors.\ixh{scaling}
+\end{enumerate}
+You'll need to investigate the \texttt{tidymodels} documentation to find the appropriate step functions to use.
+\mine
+\begin{rcode}
+abalone_recipe <- recipe(age ~ type + longest_shell + diameter + height +  (*@\ixch{recipe()}@*)
+                           whole_weight + shucked_weight + viscera_weight +
+                           shell_weight,
+                         data = abalone_train) %>%
+  step_dummy(all_nominal_predictors()) %>%  (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}@*)
+  step_interact(terms = ~ starts_with("type_"):shucked_weight +  (*@\ixch{step\_interact()}\ixch{starts\_with()}\ixch{terms}@*)
+                  longest_shell:diameter +
+                  shucked_weight:shell_weight) %>%
+  step_center(all_predictors()) %>%  (*@\ixch{step\_center()}\ixch{all\_predictors()}@*)
+  step_scale(all_predictors())  (*@\ixch{step\_scale()}@*)
+
+abalone_recipe
+
+abalone_recipe %>%
+  prep() %>%  (*@\ixch{prep()}@*)
+  bake(new_data = NULL) %>%  (*@\ixch{bake()}\ixch{new\_data}@*)
+  head()
+\end{rcode}
+\begin{routput}
+-- Recipe ------------------------------------------------------------
+-- Inputs
+Number of variables by role
+outcome:   1
+predictor: 8
+-- Operations
+* Dummy variables from: all_nominal_predictors()
+* Interactions with: ...
+* Centering for: all_predictors()
+* Scaling for: all_predictors()
+\end{routput}
+\begin{lstlisting}[style=cs/rout,basicstyle=\ttfamily\scriptsize]
+# A tibble: 6 x 14
+  longest_shell diameter height whole_weight shucked_weight viscera_weight
+          <dbl>    <dbl>  <dbl>        <dbl>          <dbl>          <dbl>
+1        -1.62    -1.54  -1.41        -1.27          -1.22          -1.29
+2        -0.828   -1.09  -1.05        -0.975         -0.985         -0.943
+3        -1.41    -1.29  -1.29        -1.10          -1.19          -1.29
+4        -0.496   -0.537 -0.817       -0.715         -0.599         -0.519
+5        -0.621   -0.537 -0.817       -0.627         -0.554         -0.587
+6        -2.66    -2.60  -1.99        -1.61          -1.50          -1.51
+# i 8 more variables: shell_weight <dbl>, age <dbl>, type_I <dbl>,
+#   type_M <dbl>, type_I_x_shucked_weight <dbl>, type_M_x_shucked_weight <dbl>,
+#   longest_shell_x_diameter <dbl>, shucked_weight_x_shell_weight <dbl>
+\end{lstlisting}
+You shouldn't use rings to predict age because rings are directly caused by age, and the model can be determined by inverting the age-\textgreater{}rings function. It makes the rest of the predictors essentially useless since a known causal relationship is being used to predict age.
+\ans (note) The key term is \ix{target leakage}: \texttt{age} $=$ \texttt{rings} $+ 1.5$ exactly, so a model with \texttt{rings} fits perfectly ($R^2=1$) and tells us nothing; and \texttt{rings} is exactly the hard-to-obtain measurement we want to avoid. Note \texttt{step\_dummy()} names the dummies \ixc{type\_I}, \ixc{type\_M} (F = \ix{reference level}), hence \texttt{starts\_with("type\_")} inside \texttt{step\_interact()}; interaction columns are named \texttt{a\_x\_b}.
+\end{qbox}
+
+\begin{qbox}{HW2 Q4}
+\textbf{Prompt.} Create and store a linear regression object using the \texttt{"lm"} engine.
+\mine
+\begin{rcode}
+lm_model <- linear_reg() %>%  (*@\ixch{linear\_reg()}@*)
+  set_engine("lm") %>%  (*@\ixch{set\_engine()}\ixch{lm}@*)
+  set_mode("regression")  (*@\ixch{set\_mode()}@*)
+
+lm_model
+\end{rcode}
+\begin{routput}
+Linear Regression Model Specification (regression)
+
+Computational engine: lm
+\end{routput}
+\end{qbox}
+
+\begin{qbox}{HW2 Q5}
+\textbf{Prompt.} Create and store a KNN object using the \texttt{"kknn"} engine. Specify \texttt{k = 7}.
+\mine
+\begin{rcode}
+knn_model <- nearest_neighbor(neighbors = 7) %>%  (*@\ixch{nearest\_neighbor()}\ixch{neighbors}@*)
+  set_engine("kknn") %>%  (*@\ixch{kknn}@*)
+  set_mode("regression")
+
+knn_model
+\end{rcode}
+\begin{routput}
+K-Nearest Neighbor Model Specification (regression)
+
+Main Arguments:
+  neighbors = 7
+
+Computational engine: kknn
+\end{routput}
+\end{qbox}
+
+\begin{qbox}{HW2 Q6}
+\textbf{Prompt.} Now, for each of these models (linear regression and \ix{KNN}):
+\begin{enumerate}
+\item set up an empty workflow,
+\item add the model, and
+\item add the recipe that you created in Question 3.
+\end{enumerate}
+Note that you should be setting up two separate workflows.
+
+Fit both models to the training set.
+\mine
+\begin{rcode}
+lm_wflow <- workflow() %>%  (*@\ixch{workflow()}@*)
+  add_model(lm_model) %>%  (*@\ixch{add\_model()}@*)
+  add_recipe(abalone_recipe)  (*@\ixch{add\_recipe()}@*)
+
+knn_wflow <- workflow() %>%
+  add_model(knn_model) %>%
+  add_recipe(abalone_recipe)
+
+lm_fit <- fit(lm_wflow, data = abalone_train)  (*@\ixch{fit()}@*)
+knn_fit <- fit(knn_wflow, data = abalone_train)
+
+lm_fit %>%
+  extract_fit_parsnip() %>%  (*@\ixch{extract\_fit\_parsnip()}@*)
+  tidy()  (*@\ixch{tidy()}@*)
+
+knn_fit
+\end{rcode}
+\begin{routput}
+# A tibble: 14 x 5
+   term                       estimate std.error statistic  p.value
+   <chr>                         <dbl>     <dbl>     <dbl>    <dbl>
+ 1 (Intercept)                  11.5      0.0367   312.    0
+ 2 longest_shell                 0.466    0.281      1.66  9.67e- 2
+ 3 diameter                      2.20     0.308      7.16  1.00e-12
+ 4 height                        0.262    0.0689     3.81  1.43e- 4
+ 5 whole_weight                  4.98     0.390     12.8   1.71e-36
+ 6 shucked_weight               -4.26     0.247    -17.3   3.07e-64
+ 7 viscera_weight               -1.02     0.155     -6.54  7.22e-11
+ 8 shell_weight                  1.61     0.209      7.72  1.52e-14
+ 9 type_I                       -0.919    0.111     -8.26  1.99e-16
+10 type_M                       -0.223    0.101     -2.21  2.71e- 2
+11 type_I_x_shucked_weight       0.468    0.0843     5.54  3.16e- 8
+12 type_M_x_shucked_weight       0.237    0.106      2.23  2.59e- 2
+13 longest_shell_x_diameter     -2.79     0.394     -7.06  1.94e-12
+14 shucked_weight_x_shell_weight -0.149   0.201     -0.742 4.58e- 1
+\end{routput}
+{\color{figgray}\itshape [note: term column shortened by 3 spaces to fit; values unchanged.]}\ixh{coefficient}\ixh{p-value}\ixh{standard error}\ixh{t-statistic}
+\begin{routput}
+== Workflow [trained] ================================================
+Preprocessor: Recipe
+Model: nearest_neighbor()
+
+-- Preprocessor ------------------------------------------------------
+4 Recipe Steps
+
+* step_dummy()
+* step_interact()
+* step_center()
+* step_scale()
+
+-- Model -------------------------------------------------------------
+
+Call:
+kknn::train.kknn(formula = ..y ~ ., data = data,
+  ks = min_rows(7, data, 5))
+
+Type of response variable: continuous
+minimal mean absolute error: 1.654218
+Minimal mean squared error: 5.598762
+Best kernel: optimal
+Best k: 7
+\end{routput}
+\end{qbox}
+
+\begin{qbox}{HW2 Q7}
+\textbf{Prompt.} Use your linear regression \texttt{fit()} object to predict the age of a hypothetical female abalone with longest\_shell = 0.50, diameter = 0.10, height = 0.30, whole\_weight = 4, shucked\_weight = 1, viscera\_weight = 2, and shell\_weight = 1.
+\mine
+\begin{rcode}
+new_abalone <- tibble(type = factor("F", levels = levels(abalone$type)),  (*@\ixch{tibble()}\ixch{levels()}@*)
+                      longest_shell = 0.50,
+                      diameter = 0.10,
+                      height = 0.30,
+                      whole_weight = 4,
+                      shucked_weight = 1,
+                      viscera_weight = 2,
+                      shell_weight = 1)
+
+predict(lm_fit, new_data = new_abalone)  (*@\ixch{predict()}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 1 x 1
+  .pred
+  <dbl>
+1  21.8
+\end{routput}
+\ans (note) \ixc{predict()} on a workflow applies the trained recipe (dummies, interactions, centering/scaling with \emph{training} means/SDs) to \texttt{new\_data} automatically; output column \ixc{.pred}. Predicted age $\approx$ 21.8 years. \ixh{prediction}
+\end{qbox}
+
+\begin{qbox}{HW2 Q8}
+\textbf{Prompt.} Now you want to assess your models' performance. To do this, use the \ixc{yardstick} package:
+\begin{enumerate}
+\item Create a metric set that includes \emph{R\textsuperscript{2}}, RMSE (root mean squared error), and MAE (mean absolute error).\ixh{R-squared}\ixh{RMSE}\ixh{MAE}
+\item Use \ixc{augment()} to create a tibble of your model's predicted values from the \textbf{testing data} along with the actual observed ages (these are needed to assess your model's performance).
+\item Finally, apply your metric set to the tibble, report the results, and interpret the \emph{R\textbackslash\textasciicircum{}2} value.
+\end{enumerate}
+Repeat these steps once for the linear regression model and for the KNN model.
+\mine
+\begin{rcode}
+abalone_metrics <- metric_set(rsq, rmse, mae)  (*@\ixch{metric\_set()}\ixch{rsq()}\ixch{rmse()}\ixch{mae()}@*)
+
+lm_test_results <- augment(lm_fit, new_data = abalone_test) %>%  (*@\ixch{augment()}@*)
+  select(age, .pred)
+
+head(lm_test_results)
+
+abalone_metrics(lm_test_results, truth = age, estimate = .pred)  (*@\ixch{truth}\ixch{estimate}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 6 x 2
+    age .pred
+  <dbl> <dbl>
+1   8.5  9.51
+2  11.5 12.5
+3  13.5 12.9
+4   8.5 10.5
+5  12.5  9.91
+6  13.5 12.0
+# A tibble: 3 x 3
+  .metric .estimator .estimate
+  <chr>   <chr>          <dbl>
+1 rsq     standard       0.585
+2 rmse    standard       1.95
+3 mae     standard       1.44
+\end{routput}
+\begin{rcode}
+knn_test_results <- augment(knn_fit, new_data = abalone_test) %>%
+  select(age, .pred)
+
+head(knn_test_results)
+
+abalone_metrics(knn_test_results, truth = age, estimate = .pred)
+\end{rcode}
+\begin{routput}
+# A tibble: 6 x 2
+    age .pred
+  <dbl> <dbl>
+1   8.5  9.31
+2  11.5 12.0
+3  13.5 13.4
+4   8.5 10.9
+5  12.5  8.68
+6  13.5 11.7
+# A tibble: 3 x 3
+  .metric .estimator .estimate
+  <chr>   <chr>          <dbl>
+1 rsq     standard       0.483
+2 rmse    standard       2.21
+3 mae     standard       1.62
+\end{routput}
+\begin{rcode}
+bind_rows(lm_test_results %>% mutate(model = "Linear Regression"),  (*@\ixch{bind\_rows()}@*)
+          knn_test_results %>% mutate(model = "KNN (k = 7)")) %>%
+  ggplot(aes(x = age, y = .pred)) +
+  geom_point(alpha = 0.3) +
+  geom_abline(linetype = "dashed", color = "red") +  (*@\ixch{geom\_abline()}@*)
+  coord_obs_pred() +  (*@\ixch{coord\_obs\_pred()}@*)
+  facet_wrap(~ model) +  (*@\ixch{facet\_wrap()}@*)
+  labs(title = "Predicted vs. Observed Age (Testing Data)",
+       x = "Observed Age",
+       y = "Predicted Age")
+\end{rcode}
+\fig{``Predicted vs.\ Observed Age (Testing Data)'': two square facets, ``KNN (k = 7)'' (left) and ``Linear Regression'' (right); x = ``Observed Age'', y = ``Predicted Age'' (both $\approx$4--23), semi-transparent black points in vertical stripes (ages are whole numbers + 0.5), red dashed 45$^\circ$ line $y=x$. Both clouds follow the line for young abalone but fall below it for old ones (predictions too low above age $\approx$15); the KNN cloud is more spread out.}
+
+The Linear Regression model has an $R^2$\ixh{R-squared} of 0.585, which is higher than the KNN(7) model result of 0.483. Neither is particularly great, but they do capture the essence of the data. The $R^2$ measures what percent of variance in age is explained by the model, with $1-R^2$ measuring how much of the variance in age went unexplained. 41.5\% of the variance in age went unexplained in the linear model, where 51.7\% went unexplained on KNN.
+
+The results: RMSE\ixh{RMSE} is lower on the linear model and same with MAE\ixh{MAE} (1.95 vs 2.21 and 1.44 vs 1.62 respectively).
+\end{qbox}
+
+\begin{qbox}{HW2 Q9}
+\textbf{Prompt.} Which model performed better on the testing data? Explain why you think this might be. Are you surprised by any of your results? Why or why not?\ixh{model comparison}
+\mine
+\begin{rcode}
+bind_rows(
+  abalone_metrics(lm_test_results, truth = age, estimate = .pred) %>%
+    mutate(model = "Linear Regression", data = "Testing"),
+  abalone_metrics(knn_test_results, truth = age, estimate = .pred) %>%
+    mutate(model = "KNN (k = 7)", data = "Testing"),
+  augment(lm_fit, new_data = abalone_train) %>%
+    abalone_metrics(truth = age, estimate = .pred) %>%
+    mutate(model = "Linear Regression", data = "Training"),
+  augment(knn_fit, new_data = abalone_train) %>%
+    abalone_metrics(truth = age, estimate = .pred) %>%
+    mutate(model = "KNN (k = 7)", data = "Training")
+) %>%
+  select(model, data, .metric, .estimate) %>%  (*@\ixch{.estimate}@*)
+  pivot_wider(names_from = .metric, values_from = .estimate) %>%  (*@\ixch{pivot\_wider()}@*)
+  arrange(data, model)  (*@\ixch{arrange()}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 4 x 5
+  model             data       rsq  rmse   mae
+  <chr>             <chr>    <dbl> <dbl> <dbl>
+1 KNN (k = 7)       Testing  0.483  2.21  1.62
+2 Linear Regression Testing  0.585  1.95  1.44
+3 KNN (k = 7)       Training 0.811  1.46  1.02
+4 Linear Regression Training 0.552  2.18  1.57
+\end{routput}
+On testing data the Linear model outperformed, having a higher $R^2$ and lower RMSE and MAE. I would assume this is due to KNN relying on being able to see the answers to the training set, not allowing it to generalize on new data. KNN in testing falls behind, where the relationship found in the linear model during training holds up well to new data. I was initially surprised that KNN outperformed in training but Linear outperformed on testing, since I expected the better training model to also do better on testing. Looking at the numbers, though, this is indicative of overfitting\ixh{overfitting}. When KNN predicts the training set, each point counts itself as one of its 7 neighbors, so training $R^2$ is inflated and falls to 0.483 on new data. The less flexible linear model scores about the same on both, 0.552 training vs.\ 0.585 testing, so training performance alone doesn't show which model will generalize better.\ixh{training error}\ixh{testing error}\ixh{flexibility}
+\ans (note) In course terms: KNN with small $k$ is \emph{flexible} (low \ix{bias}, high \ix{variance}) $\Rightarrow$ big train/test gap; linear regression is rigid (higher bias, low variance) $\Rightarrow$ train $\approx$ test. Here the linear model's lower bias-plus-variance total wins on the test set (\ix{bias-variance tradeoff}).
+\end{qbox}
+
+\textbf{Prompt (Required for 231 Students)} --- \emph{231 only; not answered in my (131) submission, answers below are mine.} In lecture, we presented the general bias-variance tradeoff, which takes the form:
+\[ E[(y_0-\hat{f}(x_0))^2]=Var(\hat{f}(x_0))+[Bias(\hat{f}(x_0))]^2+Var(\epsilon) \]
+where the underlying model $Y=f(X)+\epsilon$ satisfies the following:
+\begin{itemize}
+\item $\epsilon$ is a zero-mean random noise term and $X$ is non-random (all randomness in $Y$ comes from $\epsilon$);
+\item $(x_0, y_0)$ represents a test observation, independent of the training set, drawn from the same model;
+\item $\hat{f}(.)$ is the estimate of $f$ obtained from the training set.
+\end{itemize}
+
+\begin{qbox}{HW2 Q10 (231 only)}
+\textbf{Prompt.} Which term(s) in the bias-variance tradeoff above represent the \ix{reducible error}? Which term(s) represent the \ix{irreducible error}?
+\ans Reducible: $Var(\hat f(x_0)) + [Bias(\hat f(x_0))]^2$ (depend on the method/fit). Irreducible: $Var(\epsilon)$ (noise; no model can remove it).
+\end{qbox}
+
+\begin{qbox}{HW2 Q11 (231 only)}
+\textbf{Prompt.} Using the bias-variance tradeoff above, demonstrate that the expected test error is always at least as large as the irreducible error.\ixh{testing error}
+\ans $Var(\hat f(x_0))\ge 0$ (a variance) and $[Bias(\hat f(x_0))]^2\ge 0$ (a square), so $E[(y_0-\hat f(x_0))^2] = (\text{nonneg.}) + (\text{nonneg.}) + Var(\epsilon) \ge Var(\epsilon)$.
+\end{qbox}
+
+\begin{qbox}{HW2 Q12 (231 only)}
+\textbf{Prompt.} Prove the bias-variance tradeoff.
+
+Hints:
+\begin{itemize}
+\item use the definition of $Bias(\hat{f}(x_0))=E[\hat{f}(x_0)]-f(x_0)$;
+\item reorganize terms in the expected test error by adding and subtracting $E[\hat{f}(x_0)]$
+\end{itemize}
+\ans Write $\hat f=\hat f(x_0)$, $f=f(x_0)$, $y_0=f+\epsilon$. Since $\epsilon$ (test noise) is independent of $\hat f$ (training data) and $E[\epsilon]=0$:
+\begin{align*}
+E[(y_0-\hat f)^2] &= E[(f-\hat f)^2] + 2E[\epsilon]\,E[f-\hat f] + E[\epsilon^2]\\
+ &= E[(f-\hat f)^2] + Var(\epsilon).
+\end{align*}
+Add and subtract $E[\hat f]$ ($f$ and $E[\hat f]$ are constants):
+\begin{align*}
+E[(f-\hat f)^2] &= E[(f-E\hat f + E\hat f-\hat f)^2]\\
+&= (f-E\hat f)^2 + 2(f-E\hat f)\,\underbrace{E[E\hat f-\hat f]}_{=0} + E[(\hat f-E\hat f)^2]\\
+&= [Bias(\hat f)]^2 + Var(\hat f).
+\end{align*}
+Hence $E[(y_0-\hat f(x_0))^2]=Var(\hat f(x_0))+[Bias(\hat f(x_0))]^2+Var(\epsilon)$. $\square$\ixh{bias}\ixh{variance}\ixh{bias-variance tradeoff}
+\end{qbox}
+
+%% =====================================================================
+\subsection{Homework 3 -- binary classification (Titanic)}
+\ixh{titanic}\ixh{classification}\ixh{logistic regression}\ixh{linear discriminant analysis (LDA)}\ixh{quadratic discriminant analysis (QDA)}%
+\textbf{Prompt (Binary Classification).} For this assignment, we will be working with part of a Kaggle data set [link: \texttt{kaggle.com/c/titanic/overview}] that was the subject of a machine learning competition and is often used for practicing ML models. The goal is classification; specifically, to predict which passengers would survive the Titanic shipwreck.
+
+\fig{``Fig. 1: RMS Titanic departing Southampton on April 10, 1912.'' --- black-and-white photo of the ship in side view on open water: long black hull, white superstructure, four tall funnels, two masts.}
+
+Load the data from \texttt{data/titanic.csv} into \emph{R} and familiarize yourself with the variables it contains using the codebook (\texttt{data/titanic\_codebook.txt}).
+
+Notice that \ixc{survived} and \ixc{pclass} should be changed to factors. When changing \texttt{survived} to a factor, you may want to reorder the factor so that \emph{``Yes''} is the first level.\ixh{factor()}\ixh{levels()}
+
+Make sure you load the \texttt{tidyverse} and \texttt{tidymodels}!
+
+\emph{Remember that you'll need to set a seed at the beginning of the document to reproduce your results.}
+
+Prompt setup chunk:
+\begin{rcode}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE,
+                      warning = FALSE)
+\end{rcode}
+Codebook (\texttt{titanic\_codebook.txt}):
+{\footnotesize
+\begin{tabular}{@{}l l@{}}
+survival: & Survival\\
+pclass: & Ticket class \quad 1 = 1st, 2 = 2nd, 3 = 3rd\\
+sex: & Sex\\
+Age: & Age in years\\
+sibsp: & \# of siblings / spouses aboard the Titanic\\
+parch: & \# of parents / children aboard the Titanic\\
+ticket: & Ticket number\\
+fare: & Passenger fare\\
+cabin: & Cabin number\\
+embarked: & Port of Embarkation \quad C = Cherbourg, Q = Queenstown,\\
+ & S = Southampton\\
+\end{tabular}}
+
+{\color{figgray}\itshape [note: CSV columns: \ixc{passenger\_id}, \texttt{survived} (Yes/No), \texttt{pclass}, \texttt{name}, \ixc{sex}, \ixc{age}, \ixc{sib\_sp}, \ixc{parch}, \texttt{ticket}, \ixc{fare}, \ixc{cabin}, \ixc{embarked}; 891 rows.]}
+
+\textbf{My solution setup} (all HW3 code: \texttt{work/tmp/hw3/hw3\_solution.R}; seed 3435 as in Lab 3):
+\begin{rcode}
+library(tidyverse)
+library(tidymodels)
+library(discrim)  (*@\ixch{discrim}@*)
+library(kknn)
+library(corrplot)
+tidymodels_prefer()
+
+set.seed(3435)  (*@\ixch{set.seed()}@*)
+
+titanic <- read_csv("data/titanic.csv") %>%  (*@\ixch{titanic}\ixch{read\_csv()}@*)
+  mutate(survived = factor(survived, levels = c("Yes", "No")),  (*@\ixch{factor()}\ixch{levels}@*)
+         pclass   = factor(pclass))
+levels(titanic$survived)  (*@\ixch{levels()}@*)
+\end{rcode}
+\begin{routput}
+[1] "Yes" "No"
+\end{routput}
+{\small\textbf{Why ``Yes'' first:} \ixc{yardstick} treats the \emph{first} factor level as the event (\texttt{event\_level = "first"}), so \ixc{sensitivity()}, \ixc{roc\_auc()} and \ixc{roc\_curve()} with \ixc{.pred\_Yes} measure survival. (\texttt{glm}, however, models the \emph{second} level --- see Q5.)}
+
+\begin{qbox}{HW3 Q1}
+\textbf{Prompt.} Split the data, stratifying on the outcome variable, \texttt{survived.} You should choose the proportions to split the data into. Verify that the training and testing data sets have the appropriate number of observations. Take a look at the training data and note any potential issues, such as missing data.
+
+Why is it a good idea to use stratified sampling for this data?\ixh{stratified sampling}\ixh{training/testing split}
+\begin{rcode}
+titanic_split <- initial_split(titanic, prop = 0.70, strata = survived)  (*@\ixch{initial\_split()}\ixch{prop}\ixch{strata}@*)
+titanic_train <- training(titanic_split)  (*@\ixch{training()}@*)
+titanic_test  <- testing(titanic_split)  (*@\ixch{testing()}@*)
+dim(titanic); dim(titanic_train); dim(titanic_test)
+nrow(titanic_train) / nrow(titanic)
+colSums(is.na(titanic_train))  (*@\ixch{is.na()}\ixch{colSums()}@*)
+\end{rcode}
+\begin{routput}
+[1] 891  12
+[1] 623  12
+[1] 268  12
+[1] 0.6992144
+passenger_id     survived       pclass         name          sex
+           0            0            0            0            0
+         age       sib_sp        parch       ticket         fare
+         128            0            0            0            0
+       cabin     embarked
+         481            2
+\end{routput}
+\ans 70/30 split: 623 training + 268 testing = 891 \checkmark{} (623/891 = 0.699). Issues in the training data: \ix{missing data} --- \texttt{age} is missing for 128 of 623 (20.5\%; handled by \ixc{step\_impute\_linear()} in Q4), \texttt{cabin} for 481 (77\%, too sparse to use), \texttt{embarked} for 2. \texttt{passenger\_id}, \texttt{name}, \texttt{ticket} are \ix{identifier variable}{s} (unique per passenger), not useful predictors. \texttt{fare} is right-skewed (max 512).
+
+\textbf{Why stratify:} the outcome is imbalanced (38.4\% Yes / 61.6\% No, Q2). Stratifying on \texttt{survived} samples within each class, so training and testing both keep the same class proportions (both 0.384 Yes, see Q2) --- a purely random split could, by chance, put too few survivors in one set and give misleading fits/metrics (\ix{class imbalance}).
+\end{qbox}
+
+\begin{qbox}{HW3 Q2}
+\textbf{Prompt.} Using the \textbf{training} data set, explore/describe the distribution of the outcome variable \texttt{survived}.
+
+Create a percent stacked bar chart [link: \texttt{r-graph-gallery.com/48-grouped-barplot-with-ggplot2}] (recommend using \texttt{ggplot}) with \texttt{survived} on the \emph{x}-axis and \texttt{fill = sex}. Do you think \texttt{sex} will be a good predictor of the outcome?
+
+Create one more percent stacked bar chart of \texttt{survived}, this time with \texttt{fill = pclass}. Do you think passenger class will be a good predictor of the outcome?
+
+Why do you think it might be more useful to use a percent stacked bar chart as opposed to a traditional stacked bar chart?\ixh{percent stacked bar chart}\ixh{bar plot}
+\begin{rcode}
+titanic_train %>% count(survived) %>% mutate(prop = n / sum(n))  (*@\ixch{count()}\ixch{mutate()}@*)
+titanic_test %>% count(survived) %>% mutate(prop = n / sum(n))
+\end{rcode}
+\begin{routput}
+# A tibble: 2 x 3
+  survived     n  prop
+  <fct>    <int> <dbl>
+1 Yes        239 0.384
+2 No         384 0.616
+# A tibble: 2 x 3
+  survived     n  prop
+  <fct>    <int> <dbl>
+1 Yes        103 0.384
+2 No         165 0.616
+\end{routput}
+\begin{rcode}
+ggplot(titanic_train, aes(x = survived, fill = sex)) +  (*@\ixch{fill}@*)
+  geom_bar(position = "fill") +  (*@\ixch{geom\_bar()}\ixch{position = "fill"}@*)
+  labs(x = "Survived", y = "Proportion")
+ggplot(titanic_train, aes(x = survived, fill = pclass)) +
+  geom_bar(position = "fill") +
+  labs(x = "Survived", y = "Proportion")
+\end{rcode}
+\fig{percent stacked bars, fill = sex: x = ``Survived'' (Yes, No), y = ``Proportion'' 0--1. Yes bar: male (teal) 0.347 at bottom, female (salmon) 0.653 on top; No bar: male 0.849, female 0.151.}
+\fig{percent stacked bars, fill = pclass (1 = red, 2 = green, 3 = blue, 3 at bottom): Yes bar: class 3 0.339, class 2 0.255, class 1 0.406; No bar: class 3 0.677, class 2 0.174, class 1 0.148.}
+Numbers behind the charts (row \% within each bar), plus survival rate per group:
+\begin{rcode}
+titanic_train %>% count(survived, sex) %>%
+  group_by(survived) %>% mutate(prop = n / sum(n))  (*@\ixch{group\_by()}@*)
+titanic_train %>% group_by(sex) %>%
+  summarise(n = n(), surv_rate = mean(survived == "Yes"))  (*@\ixch{summarise()}@*)
+\end{rcode}
+\begin{routput}
+  survived sex        n  prop       sex        n surv_rate
+1 Yes      female   156 0.653     1 female   214     0.729
+2 Yes      male      83 0.347     2 male     409     0.203
+3 No       female    58 0.151
+4 No       male     326 0.849
+  survived pclass     n  prop       pclass     n surv_rate
+1 Yes      1         97 0.406     1 1        154     0.630
+2 Yes      2         61 0.255     2 2        128     0.477
+3 Yes      3         81 0.339     3 3        341     0.238
+4 No       1         57 0.148
+5 No       2         67 0.174
+6 No       3        260 0.677
+\end{routput}
+{\color{figgray}\itshape [note: four tibbles printed side by side to save space; same code with \texttt{pclass} for the second pair.]}
+\ans \textbf{Outcome:} 239 survived (38.4\%) vs.\ 384 died (61.6\%) --- moderately imbalanced; always predicting ``No'' would already give 61.6\% \ix{accuracy}.
+\textbf{Sex:} yes, a strong predictor --- 65.3\% of survivors are female but only 15.1\% of non-survivors; survival rate 72.9\% (female) vs.\ 20.3\% (male).
+\textbf{Class:} yes, also a good predictor --- 1st class is 40.6\% of survivors but 14.8\% of non-survivors, 3rd class 33.9\% vs.\ 67.7\%; survival rates 63.0\% / 47.7\% / 23.8\% for classes 1/2/3.
+\textbf{Why percent stacked:} the two bars have very different totals (239 vs.\ 384), so in a raw-count stacked chart the bars have different heights and composition is hard to compare. \texttt{position = "fill"} rescales every bar to 1, so we directly compare \emph{proportions} of each group within survivors vs.\ non-survivors.
+\end{qbox}
+
+\begin{qbox}{HW3 Q3}
+\textbf{Prompt.} Using the \textbf{training} data set, create a \ix{correlation matrix} of all continuous variables. Visualize the matrix and describe any patterns you see. Are any predictors correlated with each other? Which ones, and in which direction?
+\begin{rcode}
+cor_titanic <- titanic_train %>%
+  select(age, sib_sp, parch, fare) %>%  (*@\ixch{select()}@*)
+  cor(use = "pairwise.complete.obs")  (*@\ixch{cor()}\ixch{use = "pairwise.complete.obs"}@*)
+round(cor_titanic, 3)
+corrplot(cor_titanic, method = "number", type = "lower")  (*@\ixch{corrplot()}@*)
+\end{rcode}
+\begin{routput}
+          age sib_sp  parch  fare
+age     1.000 -0.327 -0.173 0.113
+sib_sp -0.327  1.000  0.433 0.145
+parch  -0.173  0.433  1.000 0.254
+fare    0.113  0.145  0.254 1.000
+\end{routput}
+\fig{lower-triangle corrplot with printed coefficients (blue = positive, red = negative, paler = weaker): sib\_sp--age $-0.33$ (light red), parch--age $-0.17$, parch--sib\_sp 0.43 (medium blue), fare--age 0.11, fare--sib\_sp 0.15, fare--parch 0.25; diagonal 1.}
+\ans Continuous variables: \texttt{age}, \texttt{sib\_sp}, \texttt{parch}, \texttt{fare} (\texttt{passenger\_id} is an ID; \texttt{pclass} is now a factor). \texttt{use = "pairwise.complete.obs"} is needed because \texttt{age} has NAs (otherwise \texttt{cor()} returns NA). Patterns (\ix{Pearson correlation}): \texttt{sib\_sp}--\texttt{parch} \textbf{positive} (0.43: families travel together); \texttt{age}--\texttt{sib\_sp} \textbf{negative} ($-0.33$: children travel with siblings), \texttt{age}--\texttt{parch} weakly negative ($-0.17$); \texttt{fare} weakly positive with \texttt{parch} (0.25) and \texttt{sib\_sp} (0.15) (fare is per ticket, families share a ticket) and with \texttt{age} (0.11). All $|r|<0.45$, so \ix{collinearity} is not a concern.
+\end{qbox}
+
+\begin{qbox}{HW3 Q4}
+\textbf{Prompt.} Using the \textbf{training} data, create a recipe predicting the outcome variable \texttt{survived}. Include the following predictors: ticket class, sex, age, number of siblings or spouses aboard, number of parents or children aboard, and passenger fare.
+
+Recall that there were missing values for \texttt{age}. To deal with this, add an imputation step using \ixc{step\_impute\_linear()}. Next, use \ixc{step\_dummy()} to \textbf{dummy} encode categorical predictors. Finally, include interactions between:\ixh{imputation}\ixh{linear imputation}\ixh{dummy variable}
+\begin{itemize}
+\item Sex and passenger fare, and
+\item Age and passenger fare.
+\end{itemize}
+You'll need to investigate the \texttt{tidymodels} documentation to find the appropriate step functions to use.\ixh{interaction term}
+\begin{rcode}
+titanic_recipe <- recipe(survived ~ pclass + sex + age + sib_sp +  (*@\ixch{recipe()}@*)
+                           parch + fare, data = titanic_train) %>%
+  step_impute_linear(age,  (*@\ixch{step\_impute\_linear()}@*)
+                     impute_with = imp_vars(pclass, sex, sib_sp,  (*@\ixch{impute\_with}\ixch{imp\_vars()}@*)
+                                            parch, fare)) %>%
+  step_dummy(all_nominal_predictors()) %>%  (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}@*)
+  step_interact(terms = ~ starts_with("sex"):fare + age:fare)  (*@\ixch{step\_interact()}\ixch{starts\_with()}@*)
+titanic_recipe
+baked <- titanic_recipe %>% prep() %>% bake(new_data = NULL)  (*@\ixch{prep()}\ixch{bake()}@*)
+baked
+sum(is.na(baked$age))
+\end{rcode}
+\begin{routput}
+-- Recipe ------------------------------------------------------
+-- Inputs
+Number of variables by role
+outcome:   1
+predictor: 6
+-- Operations
+* Linear regression imputation for: age
+* Dummy variables from: all_nominal_predictors()
+* Interactions with: starts_with("sex"):fare + age:fare
+# A tibble: 623 x 10
+     age sib_sp parch   fare survived pclass_X2 pclass_X3 sex_male
+   <dbl>  <dbl> <dbl>  <dbl> <fct>        <dbl>     <dbl>    <dbl>
+ 1    22      1     0   7.25 No               0         1        1
+ 2    35      0     0   8.05 No               0         1        1
+ 3    54      0     0  51.9  No               0         0        1
+ 4     2      3     1  21.1  No               0         1        1
+ 5    39      1     5  31.3  No               0         1        1
+ 6    14      0     0   7.85 No               0         1        0
+ 7     2      4     1  29.1  No               0         1        1
+ 8    31      1     0  18    No               0         1        0
+ 9     8      3     1  21.1  No               0         1        0
+10    19      3     2 263    No               0         0        1
+# i 613 more rows
+# i 2 more variables: sex_male_x_fare <dbl>, fare_x_age <dbl>
+[1] 0
+\end{routput}
+\ans Order matters: impute first (a linear model of \texttt{age} on the other five predictors, fit on training rows with \texttt{age} observed), then dummy-code, then interact. \ixc{step\_dummy()} renames \texttt{sex} $\to$ \ixc{sex\_male} (female = \ix{reference level}) and \texttt{pclass} $\to$ \ixc{pclass\_X2}, \ixc{pclass\_X3} (class 1 = reference), so the interaction must use \texttt{starts\_with("sex")} (writing \texttt{sex:fare} after dummying would fail). Result: 9 predictors, no missing \texttt{age}.
+\end{qbox}
+
+\begin{qbox}{HW3 Q5}
+\textbf{Prompt.} Specify a \textbf{\ix{logistic regression}} model for classification using the \texttt{"glm"} engine. Then create a workflow. Add your model and the appropriate recipe. Finally, use \texttt{fit()} to apply your workflow to the \textbf{training} data.
+
+\textbf{\emph{Hint: Make sure to store the results of \texttt{fit()}. You'll need them later on.}}
+\begin{rcode}
+log_mod <- logistic_reg() %>%  (*@\ixch{logistic\_reg()}@*)
+  set_engine("glm") %>%  (*@\ixch{set\_engine()}\ixch{glm}@*)
+  set_mode("classification")  (*@\ixch{set\_mode()}@*)
+log_wkflow <- workflow() %>%  (*@\ixch{workflow()}@*)
+  add_model(log_mod) %>%  (*@\ixch{add\_model()}@*)
+  add_recipe(titanic_recipe)  (*@\ixch{add\_recipe()}@*)
+log_fit <- fit(log_wkflow, titanic_train)  (*@\ixch{fit()}@*)
+log_fit %>% extract_fit_parsnip() %>% tidy()  (*@\ixch{extract\_fit\_parsnip()}\ixch{tidy()}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 10 x 5
+   term             estimate std.error statistic  p.value
+   <chr>               <dbl>     <dbl>     <dbl>    <dbl>
+ 1 (Intercept)     -4.40      0.683       -6.45  1.13e-10
+ 2 age              0.0629    0.0136       4.62  3.77e- 6
+ 3 sib_sp           0.437     0.132        3.30  9.52e- 4
+ 4 parch            0.151     0.153        0.989 3.23e- 1
+ 5 fare            -0.00116   0.0107      -0.108 9.14e- 1
+ 6 pclass_X2        1.25      0.363        3.46  5.48e- 4
+ 7 pclass_X3        2.44      0.382        6.39  1.62e-10
+ 8 sex_male         2.15      0.303        7.09  1.32e-12
+ 9 sex_male_x_fare  0.0139    0.00836      1.66  9.65e- 2
+10 fare_x_age      -0.000360  0.000206    -1.75  8.03e- 2
+\end{routput}
+\ans Fitted and stored in \texttt{log\_fit}. \textbf{Trap:} because ``Yes'' is the \emph{first} level, \texttt{glm} models $P(\texttt{survived} = \text{``No''})$ (the second level), so these \ix{log odds} are of \emph{dying}: \texttt{sex\_male} $= +2.15$ means a male's odds of not surviving are $e^{2.15}\approx 8.6$ times a female's (at \texttt{fare} = 0, others fixed); \texttt{pclass\_X3} $= +2.44$: 3rd class $\approx e^{2.44}\approx 11.5\times$ the odds of dying vs.\ 1st class; \texttt{age} $+0.063$/year. Significant (\ix{p-value} $<0.05$): age, sib\_sp, pclass, sex; the two interactions are borderline ($p\approx0.08$--$0.10$). \texttt{predict(type = "prob")} still labels its columns correctly (\texttt{.pred\_Yes}, \texttt{.pred\_No}).\ixh{coefficient}\ixh{odds ratio}
+\end{qbox}
+
+\begin{qbox}{HW3 Q6}
+\textbf{Prompt.} \textbf{Repeat Question 5}, but this time specify a \ix{linear discriminant analysis (LDA)} model for classification using the \texttt{"MASS"} engine.
+\begin{rcode}
+lda_mod <- discrim_linear() %>%  (*@\ixch{discrim\_linear()}@*)
+  set_engine("MASS") %>%  (*@\ixch{MASS}@*)
+  set_mode("classification")
+lda_wkflow <- workflow() %>%
+  add_model(lda_mod) %>%
+  add_recipe(titanic_recipe)
+lda_fit <- fit(lda_wkflow, titanic_train)
+lda_fit
+\end{rcode}
+\begin{routput}
+== Workflow [trained] ==========================================
+Preprocessor: Recipe
+Model: discrim_linear()
+-- Preprocessor ------------------------------------------------
+3 Recipe Steps
+* step_impute_linear()
+* step_dummy()
+* step_interact()
+-- Model -------------------------------------------------------
+Call:
+lda(..y ~ ., data = data)
+
+Prior probabilities of groups:
+      Yes        No
+0.3836276 0.6163724
+
+Group means:
+         age    sib_sp     parch     fare pclass_X2 pclass_X3
+Yes 28.74378 0.4393305 0.4267782 48.81424 0.2552301 0.3389121
+No  29.64519 0.5807292 0.3463542 22.99299 0.1744792 0.6770833
+     sex_male sex_male_x_fare fare_x_age
+Yes 0.3472803        12.91229   1568.232
+No  0.8489583        19.63018    703.509
+
+Coefficients of linear discriminants:
+                          LD1
+age              0.0358259965
+sib_sp           0.2231961671
+parch            0.0876726369
+fare             0.0032525962
+pclass_X2        0.8724616082
+pclass_X3        1.6983328837
+sex_male         1.9274805785
+sex_male_x_fare  0.0020072010
+fare_x_age      -0.0001487374
+\end{routput}
+{\color{figgray}\itshape [note: the group-means table was printed 9 columns wide in R; re-wrapped here into two blocks.]}
+\ans Fitted (\texttt{lda\_fit}). \ix{prior probability} $\hat\pi_k$ = training class proportions (0.384 / 0.616). Group means show survivors paid more (mean fare 48.8 vs.\ 23.0), were less often male (0.35 vs.\ 0.85) and less often 3rd class (0.34 vs.\ 0.68). LDA assumes each class is \ix{multivariate normal distribution}{} with a \emph{common} \ix{covariance matrix} $\Rightarrow$ linear \ix{decision boundary}; \texttt{LD1} gives the direction of the linear \ix{discriminant function} (positive weights on sex\_male, pclass\_X3 point toward ``No'').
+\end{qbox}
+
+\begin{qbox}{HW3 Q7}
+\textbf{Prompt.} \textbf{Repeat Question 5}, but this time specify a \ix{quadratic discriminant analysis (QDA)} model for classification using the \texttt{"MASS"} engine.
+\begin{rcode}
+qda_mod <- discrim_quad() %>%  (*@\ixch{discrim\_quad()}@*)
+  set_engine("MASS") %>%
+  set_mode("classification")
+qda_wkflow <- workflow() %>%
+  add_model(qda_mod) %>%
+  add_recipe(titanic_recipe)
+qda_fit <- fit(qda_wkflow, titanic_train)
+qda_fit %>% extract_fit_parsnip()
+\end{rcode}
+\begin{routput}
+parsnip model object
+
+Call:
+qda(..y ~ ., data = data)
+
+Prior probabilities of groups:
+      Yes        No
+0.3836276 0.6163724
+
+Group means:  (same 2 x 9 table as LDA above)
+\end{routput}
+\ans Fitted (\texttt{qda\_fit}). Same priors and class means as LDA, but QDA estimates a \emph{separate} covariance matrix for each class $\Rightarrow$ quadratic decision boundary, more parameters (more flexible, higher variance); it prints no LD coefficients.
+\end{qbox}
+
+\begin{qbox}{HW3 Q8}
+\textbf{Prompt.} \textbf{Repeat Question 5}, but this time specify a \emph{k}-nearest neighbors\ixh{k-nearest neighbors (KNN)} model for classification using the \texttt{"kknn"} engine. Choose a value for \emph{k} to try.
+\begin{rcode}
+knn_mod <- nearest_neighbor(neighbors = 10) %>%  (*@\ixch{nearest\_neighbor()}\ixch{neighbors}@*)
+  set_engine("kknn") %>%  (*@\ixch{kknn}@*)
+  set_mode("classification")
+knn_wkflow <- workflow() %>%
+  add_model(knn_mod) %>%
+  add_recipe(titanic_recipe)
+knn_fit <- fit(knn_wkflow, titanic_train)
+knn_fit %>% extract_fit_parsnip()
+\end{rcode}
+\begin{routput}
+parsnip model object
+
+Call:
+kknn::train.kknn(formula = ..y ~ ., data = data,
+  ks = min_rows(10, data, 5))
+
+Type of response variable: nominal
+Minimal misclassification: 0.1990369
+Best kernel: optimal
+Best k: 10
+\end{routput}
+\ans $k = 10$ (\ixc{neighbors} \texttt{= 10}). ``Minimal misclassification 0.199'' is \texttt{train.kknn}'s leave-one-out estimate on the training set ($\approx$80\% accuracy). Note: \ix{KNN} is distance-based, so predictors should be on comparable scales; the Q4 recipe has no \ixc{step\_normalize()}, but \texttt{kknn} standardizes predictors internally by default (\texttt{scale = TRUE}), so \texttt{fare} does not dominate the \ix{Euclidean distance}.\ixh{standardization}
+\end{qbox}
+
+\begin{qbox}{HW3 Q9}
+\textbf{Prompt.} Now you've fit four different models to your training data.
+
+Use \ixc{predict()} and \ixc{bind\_cols()} to generate predictions using each of these 4 models and your \textbf{training} data. Then use the metric of \textbf{area under the ROC curve} to assess the performance of each of the four models.\ixh{AUC}\ixh{ROC curve}
+\begin{rcode}
+log_train <- predict(log_fit, titanic_train, type = "prob") %>%  (*@\ixch{predict()}\ixch{type = "prob"}@*)
+  bind_cols(titanic_train %>% select(survived))  (*@\ixch{bind\_cols()}@*)
+head(log_train)
+lda_train <- predict(lda_fit, titanic_train, type = "prob") %>%
+  bind_cols(titanic_train %>% select(survived))
+qda_train <- predict(qda_fit, titanic_train, type = "prob") %>%
+  bind_cols(titanic_train %>% select(survived))
+knn_train <- predict(knn_fit, titanic_train, type = "prob") %>%
+  bind_cols(titanic_train %>% select(survived))
+
+bind_rows(
+  roc_auc(log_train, truth = survived, .pred_Yes) %>% mutate(model = "Logistic"),  (*@\ixch{roc\_auc()}\ixch{truth}\ixch{.pred\_Yes}@*)
+  roc_auc(lda_train, truth = survived, .pred_Yes) %>% mutate(model = "LDA"),
+  roc_auc(qda_train, truth = survived, .pred_Yes) %>% mutate(model = "QDA"),
+  roc_auc(knn_train, truth = survived, .pred_Yes) %>% mutate(model = "KNN (k=10)"))
+\end{rcode}
+\begin{routput}
+# A tibble: 6 x 3
+  .pred_Yes .pred_No survived
+      <dbl>    <dbl> <fct>
+1    0.114     0.886 No
+2    0.0835    0.916 No
+3    0.310     0.690 No
+4    0.115     0.885 No
+5    0.0219    0.978 No
+6    0.755     0.245 No
+# A tibble: 4 x 4
+  .metric .estimator .estimate model
+  <chr>   <chr>          <dbl> <chr>
+1 roc_auc binary         0.845 Logistic
+2 roc_auc binary         0.844 LDA
+3 roc_auc binary         0.852 QDA
+4 roc_auc binary         0.964 KNN (k=10)
+\end{routput}
+Extra (training accuracy, \texttt{predict()} default \texttt{type = "class"} $\to$ \ixc{.pred\_class}, then \ixc{accuracy()}):
+\begin{routput}
+  model    .metric  .estimator .estimate
+1 Logistic accuracy binary         0.814
+2 LDA      accuracy binary         0.793
+3 QDA      accuracy binary         0.778
+4 KNN      accuracy binary         0.891
+\end{routput}
+\ans Training \ix{AUC}: Logistic 0.845, LDA 0.844, QDA 0.852, KNN 0.964. KNN looks best, but this is \emph{training} data: each training point is its own nearest neighbour (distance 0, largest weight), so KNN's training AUC is inflated (\ix{overfitting}; its leave-one-out error 0.199 is much more modest). The three parametric models are almost identical. Note \texttt{roc\_auc()} needs the \emph{probability} column of the event level (\texttt{.pred\_Yes}), not \texttt{.pred\_class}.
+\end{qbox}
+
+\begin{qbox}{HW3 Q10}
+\textbf{Prompt.} Fit all four models to your \textbf{testing} data and report the AUC of each model on the \textbf{testing} data. Which model achieved the highest AUC on the \textbf{testing} data?
+
+Using your top-performing model, create a \ix{confusion matrix} and visualize it. Create a plot of its ROC curve.
+
+How did your best model perform? Compare its \textbf{training} and \textbf{testing} AUC values. If the values differ, why do you think this is so?\ixh{model evaluation}\ixh{testing data}
+\begin{rcode}
+test_pred <- function(f) predict(f, titanic_test, type = "prob") %>%
+  bind_cols(predict(f, titanic_test)) %>%
+  bind_cols(titanic_test %>% select(survived))
+log_test <- test_pred(log_fit); lda_test <- test_pred(lda_fit)
+qda_test <- test_pred(qda_fit); knn_test <- test_pred(knn_fit)
+# roc_auc() for each, as in Q9, then joined with the training AUCs:
+\end{rcode}
+\begin{routput}
+       model train_auc test_auc
+1   Logistic    0.8451   0.8800
+2        LDA    0.8436   0.8815
+3        QDA    0.8515   0.8589
+4 KNN (k=10)    0.9644   0.8791
+\end{routput}
+Extra --- testing accuracy: Logistic 0.832, LDA 0.806, QDA 0.810, KNN 0.843.
+\begin{rcode}
+best_aug <- augment(lda_fit, new_data = titanic_test)  (*@\ixch{augment()}@*)
+cm <- best_aug %>% conf_mat(truth = survived, estimate = .pred_class)  (*@\ixch{conf\_mat()}\ixch{estimate}\ixch{.pred\_class}@*)
+cm
+autoplot(cm, type = "heatmap")  (*@\ixch{autoplot()}\ixch{type = "heatmap"}@*)
+multi_metric <- metric_set(accuracy, sensitivity, specificity)  (*@\ixch{metric\_set()}\ixch{accuracy()}\ixch{sensitivity()}\ixch{specificity()}@*)
+best_aug %>% multi_metric(truth = survived, estimate = .pred_class)
+best_aug %>% roc_curve(survived, .pred_Yes) %>% autoplot()  (*@\ixch{roc\_curve()}@*)
+best_aug %>% roc_auc(survived, .pred_Yes)
+\end{rcode}
+\begin{routput}
+          Truth
+Prediction Yes  No
+       Yes  73  22
+       No   30 143
+# A tibble: 3 x 3
+  .metric     .estimator .estimate
+  <chr>       <chr>          <dbl>
+1 accuracy    binary         0.806
+2 sensitivity binary         0.709
+3 specificity binary         0.867
+# A tibble: 1 x 3
+  .metric .estimator .estimate
+  <chr>   <chr>          <dbl>
+1 roc_auc binary         0.881
+\end{routput}
+\fig{confusion-matrix heatmap: y = ``Prediction'' (Yes top, No bottom), x = ``Truth'' (Yes, No); cells (Pred, Truth): Yes/Yes 73 (medium grey), Yes/No 22 (light), No/Yes 30 (light), No/No 143 (dark grey).}
+\fig{ROC curve of LDA on the testing set: x = ``1 - specificity'', y = ``sensitivity'', both 0--1, dotted diagonal = random guessing. The step curve rises steeply to sensitivity $\approx$0.70 at 1-spec $\approx$0.05 and $\approx$0.85 at 1-spec $\approx$0.18, then flattens ($\approx$0.90 from 0.25 to 0.6) and reaches (1, 1); far above the diagonal (AUC 0.881).}
+\ans \textbf{Testing AUC:} Logistic 0.880, \textbf{LDA 0.881 (highest)}, QDA 0.859, KNN 0.879 --- LDA, logistic and KNN are essentially tied (differences $\le$0.003); QDA is lowest (most parameters; its extra flexibility doesn't pay off). \textbf{LDA performance:} AUC 0.881 = good discrimination; from the confusion matrix (positive = Yes): \ix{true positive}{s} 73, \ix{false positive}{s} 22, \ix{false negative}{s} 30, \ix{true negative}{s} 143; \ix{accuracy} $=(73+143)/268=0.806$, \ix{sensitivity} $=73/103=0.709$, \ix{specificity} $=143/165=0.867$ --- it is better at identifying non-survivors than survivors (at the default 0.5 \ix{threshold}).
+\textbf{Train vs.\ test AUC:} LDA 0.844 (train) vs.\ 0.881 (test) --- the testing AUC is \emph{higher}. LDA is a rigid, low-variance model, so it barely overfits and its training AUC is not inflated; the gap is sampling variability: the test set is small (268 passengers) and this particular split happened to be a bit ``easier''. A different seed would move both numbers by a few hundredths. Contrast KNN: 0.964 $\to$ 0.879, the classic overfitting drop (\ix{training error} $<$ \ix{testing error}).
+\end{qbox}
+
+\textbf{Prompt (Required for 231 Students)} --- \emph{231 only; concise answers.} In a binary classification problem, let $p$ represent the probability of class label $1$, which implies that $1 - p$ represents the probability of class label $0$. The \emph{\ix{logistic function}} (also called the ``inverse logit'') is the cumulative distribution function of the logistic distribution, which maps a real number \emph{z} to the open interval $(0, 1)$.
+
+\begin{qbox}{HW3 Q11 (231 only)}
+\textbf{Prompt.} Given that:
+\[ p(z)=\frac{e^z}{1+e^z} \]
+Prove that the inverse of a logistic function is indeed the \emph{\ix{logit}} function:
+\[ z(p)=ln\left(\frac{p}{1-p}\right) \]
+\ans $p(1+e^z)=e^z \Rightarrow p = e^z(1-p) \Rightarrow e^z=\dfrac{p}{1-p} \Rightarrow z=\ln\!\left(\dfrac{p}{1-p}\right)$, valid for $p\in(0,1)$. Check: $\dfrac{p}{1-p}=\dfrac{e^z/(1+e^z)}{1/(1+e^z)}=e^z$. So logit $=$ logistic$^{-1}$, and $z$ = \ix{log odds}.\ixh{sigmoid}
+\end{qbox}
+
+\begin{qbox}{HW3 Q12 (231 only)}
+\textbf{Prompt.} Assume that $z = \beta_0 + \beta_{1}x_{1}$ and $p = logistic(z)$. How do the \ix{odds} of the outcome change if you increase $x_{1}$ by two? Demonstrate this.
+
+Assume now that $\beta_1$ is negative. What value does $p$ approach as $x_{1}$ approaches $\infty$? What value does $p$ approach as $x_{1}$ approaches $-\infty$? Demonstrate.
+\ans Odds $=\dfrac{p}{1-p}=e^{z}=e^{\beta_0+\beta_1x_1}$ (Q11). Then
+$\dfrac{\text{odds}(x_1+2)}{\text{odds}(x_1)}=\dfrac{e^{\beta_0+\beta_1(x_1+2)}}{e^{\beta_0+\beta_1x_1}}=e^{2\beta_1}$: the odds are \emph{multiplied} by $e^{2\beta_1}$ (\ix{odds ratio}; log odds increase by $2\beta_1$), regardless of $x_1$.
+If $\beta_1<0$: $x_1\to\infty \Rightarrow z\to-\infty \Rightarrow e^z\to0 \Rightarrow p=\frac{e^z}{1+e^z}\to 0$. $x_1\to-\infty \Rightarrow z\to\infty \Rightarrow p=\frac{1}{1+e^{-z}}\to \frac{1}{1+0}=1$.
+\end{qbox}

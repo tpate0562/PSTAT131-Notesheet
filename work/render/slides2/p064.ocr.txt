@@ -1,0 +1,22 @@
+Influential observations
+
+Observations whose removal from the dataset would cause a large change in the model fit
+An influential observation may or may not be an outlier
+
+An influential observation may or may not have large leverage
+
+An influential observation will tend to have at least one of these two properties
+
+(e9) outlier
+
+high leverage point
+
+12
+15
+
+10
+
+| observation
+
+2 4 6 8 10 12 14 2 4 6 8 10 12 14
+x x x

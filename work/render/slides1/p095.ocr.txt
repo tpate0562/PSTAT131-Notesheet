@@ -1,0 +1,10 @@
+Bias-variance tradeoff
+
+Still want to simultaneously achieve low variance and low bias
+
+A simple model — high bias + low variance
+
+A flexible model — low bias + high variance
+
+Challenge: find a method for which
+both the variance and bias are low

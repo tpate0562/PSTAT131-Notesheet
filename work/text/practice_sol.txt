@@ -1,0 +1,326 @@
+1. A KNN classifier has excellent performance on the training data but noticeably worse 
+performance on new data. Which change would be most likely to help? 
+a. Decrease k 
+b. Increase k 
+c. Give variables with larger variances more weight 
+d. Include an interaction term 
+Solution: A KNN model that is overfitting is likely because the value of k is small. 
+Increasing k will likely improve performance. Decreasing k will only make the problem 
+worse. Weighting variables with larger variances more heavily will worsen performance. 
+Including an interaction term is not necessary (KNN is nonparametric).  
+2. A student says, "The most flexible model is always preferable because it can represent 
+more complicated relationships." Explain what is wrong with this reasoning. 
+Solution: This is not true. There are many cases where the most flexible model is not 
+preferable, either because the more flexible model is less interpretable and the goal is 
+interpretation, or because the more flexible model can fit too closely to patterns in the 
+training data that do not exist in the population, leading to overfitting (low training error 
+and high testing error).  
+3. You fit Models A, B, and C: 
+Model 
+Training accuracy 
+Testing accuracy 
+A 
+71% 
+70% 
+B 
+86% 
+82% 
+C 
+100% 
+68% 
+ 
+Which model would you prefer based only on this information? What appears to be happening 
+with Model C? 
+Solution: You should prefer Model B; it produces the highest testing accuracy. Model C 
+appears to be overfitting. (Model B shows some overfitting also, but less so than Model C.) 
+4. A student makes these three claims: 
+a. A predictor with zero Pearson correlation with the outcome cannot improve 
+prediction. 
+b. Two highly correlated predictors necessarily interact. 
+c. A model with lower training error is always preferable. 
+For each claim, state whether it is true or false and explain. 
+Solution: For (a), this is false. Predictors with zero Pearson correlation with the outcome do 
+not have a linear correlation with the outcome but may very well be able to improve 
+predictions in nonlinear and/or empirically driven models. For (b), this is also false. 
+Interactions have nothing to do with whether predictors are correlated. An interaction 
+means the relationship between X1 and Y differs depending on the value of X2. For (c), this 
+is also false. Training error is not a good estimator of testing error. As training error goes to 
+zero, testing error almost always increases. 
+5. A new observation has the following seven nearest neighbors, already ordered from 
+closest to farthest:  
+ 
+Neighbor 1 
+2 
+3 
+4 
+5 
+6 
+7 
+Class 
+A 
+B 
+B 
+A 
+A 
+B 
+B 
+ 
+Predict the new observation’s class using k = 1, 3, 5, and 7. 
+ 
+Solutions: Using k = 1, we predict A; using k = 3, we predict B; using k = 5, we 
+predict A; using k = 7, we predict B. 
+ 
+6. A student standardizes age but forgets to standardize annual income before fitting KNN. 
+Explain why this is a problem even though both variables are numeric. 
+Solution: This is a problem because KNN is a distance-based algorithm. Income most likely 
+has a much larger variance than age, and therefore will have a much larger impact on 
+distance calculations if it is not also standardized. 
+7. A researcher wants to use KNN to predict whether or not a bank customer will default on 
+a loan. They write the following code: 
+ 
+loan_recipe <- 
+  recipe(defaulted ~ ., data = loans) |> 
+  step_dummy(all_nominal_predictors(), one_hot = TRUE) 
+ 
+loan_model <- 
+  nearest_neighbor(neighbors = 5) |> 
+  set_engine("kknn") |> 
+  set_mode("classification") 
+ 
+loan_fit <- 
+  loan_model |> 
+  fit(defaulted ~ ., data = loans) 
+ 
+Their data contain the following variables: 
+application_id 
+age 
+income 
+employment_type 
+credit_score 
+default_date 
+defaulted 
+ 
+Identify at least four problems with this analysis. For each problem, explain why it 
+matters and how you would correct it. 
+ 
+Solution: Here are all problems with this analysis, along with why they matter and 
+how to correct: 
+- 
+“.” syntax will include all variables, including application_id, which is an 
+identifier, not an actual predictor, and default_date, which would be explicit 
+target leakage. Remove those predictors. 
+- 
+There is no step_normalize(), which is important for KNN because it is distance-
+based. Add that to the recipe. 
+- 
+The recipe is not actually being used; loan_recipe is defined, but the model is fit 
+directly to the raw data. 
+- 
+Employment_type therefore hasn’t actually been dummy encoded for the fitted 
+model. 
+Note that one hot encoding is not a problem for KNN; KNN has no regression intercept 
+creating the linear dependency problem.  
+ 
+8. A scatterplot of X and Y shows a very strong U-shaped relationship. Their Pearson 
+correlation is 0.03. Which statement is best? 
+a. X and Y are essentially unrelated 
+b. The scatterplot is likely wrong 
+c. There is little linear correlation, despite a strong nonlinear relationship 
+d. X will not be a useful variable for predicting Y 
+e. Both C and D 
+Solution: The predictors have a strong U-shaped (nonlinear) relationship, but little linear 
+correlation. This does not mean X will not be useful for predicting Y; nor does it mean they 
+are unrelated. It also does not mean the scatterplot is wrong. 
+9. Which EDA finding is evidence of an interaction? 
+a. X1 and X2 have a Pearson correlation of 0.91 
+b. The relationship between X1 and Y is positive for one level of X2 and 
+negative for the other 
+c. X1 is strongly right-skewed and X2 is strongly left-skewed 
+d. X1 and Y have a Pearson correlation of 0.80 
+e. The relationship between X1 and Y is the same across both levels of X2 
+Solution: B is the definition of an interaction. Pearson correlation does not imply the 
+existence of an interaction. Neither does skew. 
+For Questions 10–12, suppose a university wants to predict whether a student will graduate 
+within four years, using information available at the end of the student's first year. 
+Variable 
+Description 
+StudentID 
+Unique identifier 
+HS_GPA 
+High school GPA 
+FirstYearGPA 
+GPA at end of first year 
+Major 
+Major at end of first year 
+CreditsAttempted 
+First-year credits attempted 
+CreditsCompleted 
+First-year credits completed 
+Dorm 
+First-year residence hall name 
+GraduationDate 
+Date of graduation, if graduated 
+FinalGPA 
+GPA upon leaving the university 
+Graduated4Years 
+Outcome 
+ 
+10.  Which variables clearly should not be included as predictors in the model? Select all that 
+apply. 
+a. StudentID 
+b. HS_GPA 
+c. FirstYearGPA 
+d. GraduationDate 
+e. FinalGPA 
+f. Major 
+g. Graduated4Years 
+h. CreditsAttempted 
+i. CreditsCompleted 
+Solution: A is an ID variable. D and E are both variables that would not be known at the 
+end of the first year. G is the outcome. 
+11.  Which predictors would require dummy encoding before fitting a logistic regression? 
+Select all that apply. 
+a. HS_GPA 
+b. FirstYearGPA 
+c. Major 
+d. CreditsCompleted 
+e. Dorm 
+Solution: These are categorical variables, which would require dummy encoding. 
+12.  A student creates a new variable, CompletionRate. CompletionRate is calculated as the 
+ratio of CreditsCompleted to CreditsAttempted. Would including CompletionRate as a 
+predictor constitute target leakage? Explain. 
+Solution: No. CompletionRate is just the proportion of credits that a student attempted in 
+their first year that they were actually able to complete, and it is not leakage (since the 
+outcome is graduation at the end of four years). One could argue, however, that 
+CompletionRate, CreditsCompleted, and CreditsAttempted should not all be included as 
+predictors simultaneously (though that is not the question being asked). 
+13. A student wants to predict “salary” using “experience” and “department.” They fit the 
+following model: 
+salary_recipe <- recipe(salary ~ experience + department, 
+                        data = employees) %>% 
+  step_dummy(department, one_hot = TRUE) 
+ 
+salary_model <- linear_reg() %>% 
+  set_engine("lm") 
+ 
+salary_workflow <- workflow() %>% 
+  add_recipe(salary_recipe) %>% 
+  add_model(salary_model) 
+ 
+salary_fit <- fit(salary_workflow, data = employees) 
+ 
+Suppose “department” has three levels, “Sales,” “IT,” and “HR.” 
+ 
+After fitting the model, R reports that the model matrix is rank-deficient and that one or 
+more coefficients cannot be uniquely identified. 
+a. What caused the problem? 
+Solution: One-hot encoding; this creates three indicator variables, one per level of 
+“department,” which results in a linear dependency that OLS regression cannot handle. 
+b. Why does “one_hot = TRUE” create this problem for an ordinary linear 
+regression model with an intercept? 
+Solution: Because the model contains an intercept, which is itself a column of ones. 
+Therefore, the design matrix is not full rank. 
+c. How should the code be changed? 
+Solution: Set “one_hot = FALSE.” 
+d. After making this change, how many indicator variables will be created for 
+“department”? 
+Solution: Two. 
+14. A logistic regression model predicts whether a patient has pneumonia based on symptoms 
+and clinical measurements. For one patient, the model produces a predicted probability of 
+0.78. Which interpretation is correct? 
+a. The model is 78% accurate for this patient. 
+b. The patient definitely has pneumonia. 
+c. The fitted model assigns this patient a probability of 0.78 of belonging to the 
+pneumonia class. 
+d. 78% of the patient's symptoms indicate pneumonia. 
+Solution: The model cannot be “78% accurate” for an individual patient. Nor does this 
+predicted probability tell us anything about the patient’s symptoms. We cannot be 
+absolutely certain the patient either does or doesn’t have pneumonia. C is the correct 
+definition. 
+15. A model predicts whether borrowers will default on a loan. Four borrowers receive the 
+following predicted probabilities:  
+ 
+ 
+ 
+ 
+ 
+a. Using a threshold of 0.50, which borrowers would be classified as likely to 
+default? 
+Solution: Borrowers C and D. 
+b. Using a threshold of 0.70, which borrowers would be classified as likely to 
+default? 
+Solution: Only Borrower D. 
+c. Explain what happens to the number of positive classifications when the threshold 
+is increased. 
+Solution: When the threshold is increased, the number of positive classifications will tend to 
+decrease. 
+Borrower 
+Predicted Probability 
+A 
+.31 
+B 
+.48 
+C 
+.63 
+D 
+.81 
+16. A logistic regression predicts whether a customer will cancel a subscription. The 
+coefficient for the predictor MonthlyFee is 0.04. 
+ 
+A student writes: “A $1 increase in the monthly fee causes a customer’s probability of 
+canceling to increase by 4%.” 
+ 
+Identify one problem with this interpretation and provide a better interpretation. 
+ 
+Solution: This statement implies that there is a linear relationship between monthly 
+fee and probability of cancellation. There is not. There is a linear relationship 
+between monthly fee and log odds of cancellation, or logit. Also, we cannot assume 
+that we can draw causal conclusions. A better interpretation would be either “A $1 
+increase in the monthly fee is associated with a 0.04 increase in log odds,” or “An 
+increase in the monthly fee is associated with an increased probability of 
+cancellation” (this is known because the sign of the coefficient is positive). 
+ 
+17. A model produces the following confusion matrix: 
+ 
+Actually Positive 
+Actually Negative 
+Predicted Positive 
+72 
+18 
+Predicted Negative 
+28 
+182 
+ 
+Calculate accuracy, true positive rate, and false positive rate. 
+Solution: Accuracy is (72 + 182)/(72 + 182 + 18 + 28) = 254/300 = 84.67% (or 0.8467). The 
+true positive rate is 72/(72 + 28) = 72/100 = 72% (or 0.72). The false positive rate is 
+18/(18+182) = 9% (or 0.09). 
+18. A student says: “I changed my classification threshold from 0.50 to 0.30, so the ROC 
+AUC of my fitted model will change.” Is this correct? Explain. 
+Solution: This is not correct. The ROC AUC measures the area under the ROC curve, 
+which is a curve that plots true positive rates and false positive rates across thresholds. 
+Therefore, using a different threshold value to classify observations will have no impact 
+whatsoever on the area under the ROC curve.  
+19. Suppose the ROC curve below represents a model used to screen patients for a very 
+dangerous disease. A false negative is considered substantially worse than a false 
+positive. Of points A, B, and C, which threshold would you be most inclined to choose? 
+ 
+a. Point A 
+b. Point B 
+c. Point C 
+d. All points are equally good 
+e. Not enough information to decide 
+Solution: The problem implies that we are only interested in maximizing our true positive 
+rate (and therefore, minimizing our false negative rate), regardless of our false positive 
+rate. Therefore, we would prefer the threshold corresponding to Point C (despite a false 
+positive rate of almost 50%). 
+20. You have 50,000 observations, two predictors, and clear evidence that the covariance 
+structures differ substantially across levels of your outcome variable. Which would you 
+expect to have the greater potential to capture the true decision boundary? 
+a. LDA 
+b. QDA 
+c. Both would do equally well 
+d. Neither would do well because they are both parametric models 
+Solution: LDA assumes that the covariance structure does not differ and therefore would 
+not do well. QDA would likely excel despite estimating more predictors; p is not large, and 
+there are a huge number of observations (so parametric models are fine). 

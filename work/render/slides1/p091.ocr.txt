@@ -1,0 +1,19 @@
+w
+
+Training set
+{(X1,p)s (Xp, Vo)s «++s Xs Yn) } f
+Again, we are less interested in how f performs on training set
+
+Consider test set {(X,, )), (X>, Jo), ..., (XJ) }, not seen or used to train f
+
+ly A
+Test error rate = — » I (5, # 3,)
+n
+i=l
+
+\
+
+predicted class label that f gives
+Test Error Rate for the ith test observation
+
+fraction of incorrect classifications in test set

@@ -1,0 +1,14 @@
+Non-linear relationships
+
+Polynomial regression of Y on X
+
+degree
+
+Y=PytB,X+ PX? +... +B XE4 €
+
+50
+
+— Linear
+— Degree 2
+— Degree 5
+

@@ -1,0 +1,19 @@
+“Imagine an old-fashioned program to identify a dog,” he said. “A
+software engineer would write a thousand if-then-else statements:
+if it has ears, and a snout, and has hair, and is mot a rat . . .and so
+forth, ad infinitum. But that’s not how a child learns to identify a
+dog, of course. At first, she learns by seeing dogs and being told
+that they are dogs. She makes mistakes, and corrects herself. She
+thinks that a wolf is a dog—but is told that it belongs to an
+altogether different category. And so she shifts her understanding
+bit by bit: this is ‘dog,’ that is ‘wolf’ The machine-learning
+algorithm, like the child, pulls information from a training set that
+has been classified. Here’s a dog, and here’s not a dog. It then
+extracts features from one set versus another. And, by testing itself
+against hundreds and thousands of classified images, it begins to
+create its own way to recognize a dog—again, the way a child does.”
+
+It just knows ow to do it.
+
+https://www.newyorker.com/magazine/2017/04/03/ai-versus-md
+

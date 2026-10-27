@@ -1,0 +1,5 @@
+Logistic regression
+
+We will focus on binary classification problem
+
+Multiple-class logistic regression exists

@@ -1,0 +1,21 @@
+Recap: Bias-variance decomposition
+
+Y=f(X)+e
+
+The “best” we can do non-random zero-mean noise
+
+F(X) = E [YX = x)|
+
+Unknown in practice!!
+
+Because the joint distribution of (X, Y) is unknown in practice
+
+What should we do? ~=Make assumptions:
+
+Y= Bo + Xp, foie be XB, + €, Ele]=0, « independent of (X,, ...,X,)
+
+Then
+
+E[Y|X = Xl = Bo + Xo, Pi +e + 0, Bp
+
+The conditional expectation of Y is linear

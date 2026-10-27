@@ -1,0 +1,11 @@
+LDA: A motivating example
+
+More Y transcripts
+
+Gene Y
+
+A
+
+Gene X
+
+> More X transcripts

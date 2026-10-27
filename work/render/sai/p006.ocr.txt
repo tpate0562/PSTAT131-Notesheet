@@ -1,0 +1,49 @@
+@ PatientID, a randomly assigned ening Genter for cach patient.
+
+@®) HospitalID, which identifies which 76 hospitals treated the patient. Hospitals differ in
+their patient populations.
+
+© AamissionID, a unique identifier assigned tohach hospital admission.
+©) RecorazD, a sequential identifier (1, 2, 3, ...) assigned to each row of the dataset.
+@ None of the above.
+
+5. (2 points) Suppose the population covariance matrices really are identical across all classes. What
+advantage does QDA gain from estimating a separate covariance matrix for every class?
+
+@ A closer fit to the populatigh decision boundary
+
+@ No inherent advantage from the extra covariance flexibility; it may simply increase estimation
+
+©) QDA, unlike LDA, is nonparametric
+6. (2 points) Consider the following fitted values:
+
+Treatment A Treatment B
+Low dosage 20 25
+High dosage 30 50.
+
+Which feature of these results most strongly suggests an interaction?
+@) Treatment B always has the larger fitted value
+
+@) Increasing dosage changes the fitted value by 10 under Treatment A but by 25 under Treat-
+ment B
+
+© All four fitted values are different
+
+©) Increasing dosage increases the fitted value across both treatments
+©® Dosage has two levels
+
+@ Both B and D
+
+7. (2 points) In a logistic regression model, the coefficient for age is positive. Increasing one customer’s
+age from 40 to 41 does not change that customer’s predicted class. Why is this possible?
+
+@ A positive coefficient does not affect predicted probabilities
+
+@® The predicted probability can increase without crossing the classification threshold
+© Logistic regression coveficientsfect only training observations
+
+cyl before it can affect classification
+
+©) Age must interact with another pr
+
+Page 3

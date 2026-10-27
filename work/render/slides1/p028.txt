@@ -1,0 +1,3 @@
+https://rviews.rstudio.com/2019/06/19/a-gentle-intro-to-tidymodels/
+https://hansjoerg.me/2020/02/09/tidymodel
+s-for-machine-learning/

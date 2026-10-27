@@ -1,0 +1,393 @@
+% d3_evaluation.tex -- DISTILLED: model evaluation (train vs. test, regression metrics,
+% thresholds, confusion matrix, class imbalance, ROC/AUC, yardstick code)
+\section{Model evaluation: metrics, thresholds, ROC/AUC}
+\ixh{model evaluation}\ixh{model comparison}
+
+%======================================================================
+\subsection{Train vs.\ test: where performance is measured}
+\ixh{training error}\ixh{testing error}
+\begin{keybox}[Training vs.\ test error \src{S1.57--60, S1.89--91}]
+\begin{itemize}
+\item Regression. Training MSE\ixh{training error}\ixh{MSE}
+  $=\frac1n\sum_{i=1}^{n}\big(y_i-\hat f(\mathbf x_i)\big)^2$ on the $n$ training points;
+  test MSE\ixh{testing error} $=\frac1m\sum_{i=1}^{m}\big(\tilde y_i-\hat f(\tilde{\mathbf x}_i)\big)^2$ on $m$
+  points \emph{not seen or used} to fit. In both, $\hat f$ is obtained on the training set.
+\item Classification. \ix{error rate} $=\frac1n\sum_{i=1}^n I(y_i\ne\hat y_i)$ = fraction misclassified;
+  \ix{accuracy} $=1-$ error rate. Toy example \src{S1.90}: 2 of 5 wrong $\Rightarrow$ error rate $0.40$, accuracy $0.60$.
+\item Goal: the $\hat f$ with the smallest \emph{test} MSE / error rate. ``Can we just select $\hat f$ that
+  minimizes training MSE? NO!'' Lowest training MSE $\ne$ lowest test MSE \src{S1.60}.
+\end{itemize}
+\end{keybox}
+
+\textbf{Why training error is optimistic.} $\hat f$ was chosen to fit exactly those training points
+(noise included), so it looks better on them than on new data. As \ix{flexibility} (complexity) grows,
+training MSE/error rate keeps falling, but test error is U-shaped \src{S1.62, S1.101}:
+higher complexity $\to$ lower training error, but higher complexity $\not\to$ lower test error
+(see \ix{bias-variance tradeoff}).
+
+\begin{trap}[Overfitting / underfitting signatures]
+\begin{itemize}
+\item \ix{overfitting}: training performance $\gg$ test performance (train accuracy $\gg$ test accuracy;
+  train RMSE $\ll$ test RMSE). Extreme case: 100\,\% training accuracy.
+\item \ix{underfitting} (too rigid, high \ix{bias}): train $\approx$ test, but both worse than a more flexible model.
+\item Compare models on \textbf{test} performance (or, later, \ix{cross-validation}). Lab 3 picks a model by
+  \emph{training} accuracy only because CV had not been covered: ``not a good idea in general'' \src{Lab 3}.
+\item A model with lower training error is \emph{not} always preferable \src{PE Q4c}.
+\end{itemize}
+\end{trap}
+
+\begin{qbox}{Worked: PE Q3 --- which model?}
+\begin{tabular}{@{}lccl@{}}
+\toprule
+Model & Train acc. & Test acc. & Verdict\\
+\midrule
+A & 71\% & 70\% & no overfit, but weaker\\
+B & 86\% & \textbf{82\%} & \textbf{choose} (best test)\\
+C & 100\% & 68\% & overfitting (gap 32 pts)\\
+\bottomrule
+\end{tabular}
+\sol Prefer B (highest \emph{testing} accuracy). C overfits; B shows some overfitting too, but less. \src{PE Q3}
+\end{qbox}
+
+\begin{qbox}{Worked: Lab 2 \texttt{diamonds} (predict \texttt{price})}
+\ixch{diamonds}%
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Model & train RMSE & test RMSE & test $R^2$\\
+\midrule
+linear reg.\ (\texttt{lm}) & 1126 & 1146 & 0.918\\
+KNN, $k=5$ & 386 & \textbf{711} & \textbf{0.968}\\
+KNN, $k=2$ & 152 & 851 & 0.955\\
+\bottomrule
+\end{tabular}
+\par Best on \emph{test}: \ix{KNN} $k=5$. $k=2$ has the best training RMSE ($R^2_{\text{train}}=0.999$) but the largest
+train--test gap $\Rightarrow$ overfitting. The linear model has train $\approx$ test but both high: a linear form is
+too rigid for $f$ here \src{Lab 2}.
+\end{qbox}
+
+%======================================================================
+\subsection{Regression metrics}
+\ixh{regression}
+\begin{keybox}[Formulas and direction \src{S1.57, S2.30, Lab 2}]
+\begin{tabular}{@{}l l l@{}}
+Metric & Definition & Better\\
+\midrule
+MSE\ixh{MSE} & $\frac1n\sum(y_i-\hat y_i)^2$ \ (units of $Y^2$) & lower\\
+RMSE\ixh{RMSE} & $\sqrt{\text{MSE}}$ \ (units of $Y$) & lower\\
+MAE\ixh{MAE} & $\frac1n\sum|y_i-\hat y_i|$ \ (units of $Y$) & lower\\
+$R^2$\ixh{R-squared} & $1-\frac{\text{SSR}}{\text{SST}}=1-\frac{\sum(y_i-\hat y_i)^2}{\sum(y_i-\bar y)^2}$ & higher\\
+RSE\ixh{residual standard error (RSE)} & $\sqrt{\frac{1}{n-2}\text{SSR}}$ (simple LR) & lower\\
+\end{tabular}
+\begin{itemize}
+\item \ix{RMSE} $\approx$ size of a typical prediction error in $Y$'s units (e.g.\ \$711 for \texttt{price}).
+  Squaring makes RMSE punish large errors more than \ix{MAE}; always MAE $\le$ RMSE.
+\item \ix{R-squared} $\in[0,1]$ = proportion of the variability in $Y$ that can be explained using $X$ \src{S2.30};
+  RSE = an absolute measure of lack of fit.
+\item \ixc{rsq()} in \ixc{yardstick} is the squared correlation of \texttt{truth} and \texttt{.pred}, so it stays in $[0,1]$ on test data too.
+\end{itemize}
+\end{keybox}
+\begin{trap}[RSE and $R^2$ favor flexible models \src{S2.30}]
+``Both RSE and $R^2$ favor \textbf{flexible} methods, which may \textbf{overfit} the data!'' Training $R^2$ never
+decreases when you add predictors $\Rightarrow$ judge models on \emph{test} RMSE/$R^2$.
+\end{trap}
+\begin{rcode}
+lm_test <- predict(lm_fit, new_data = diamonds_test %>% select(-price)) (*@\ixch{predict()}@*)
+lm_test <- bind_cols(lm_test, diamonds_test %>% select(price)) # .pred + truth (*@\ixch{bind\_cols()}\ixch{.pred}@*)
+rmse(lm_test, truth = price, estimate = .pred) (*@\ixch{rmse()}\ixch{truth}\ixch{estimate}@*)
+diamond_metrics <- metric_set(rmse, rsq, mae) (*@\ixch{metric\_set()}\ixch{rsq()}\ixch{mae()}@*)
+diamond_metrics(lm_test, truth = price, estimate = .pred)
+\end{rcode}
+\begin{routput}
+# A tibble: 3 x 3
+  .metric .estimator .estimate          (*@\ixch{.metric}\ixch{.estimator}\ixch{.estimate}@*)
+  <chr>   <chr>          <dbl>
+1 rmse    standard    1146.
+2 rsq     standard       0.918
+3 mae     standard     751.
+\end{routput}
+Output is a tibble: the number is in \ixc{.estimate}; \ixc{.estimator} is \texttt{standard} for regression,
+\texttt{binary} for a 2-class outcome. Extract with \rc{acc\$.estimate} \src{Lab 3}.
+
+%======================================================================
+\subsection{From probabilities to classes: the threshold}
+\ixh{threshold}\ixh{logistic regression}
+\textbf{Thresholding.} \ix{logistic regression} gives $\widehat{\Pr}(Y=1\mid X)$, e.g.\
+$\widehat{\Pr}(\text{default}=\text{TRUE}\mid\text{balance}=1500,\text{income}=40000,\text{student}=\text{FALSE})=0.105$ \src{S3.32}.
+Predict the class by \emph{thresholding the predicted probability}: default $=$ TRUE if $\hat p>0.5$; a ``super
+conservative'' credit-card company might use $\hat p>0.1$ \src{S3.33}. A predicted probability of 0.78 means
+``the model assigns probability 0.78 of belonging to that class'', \emph{not} ``78\% accurate'' \src{PE Q14}.
+
+\begin{keybox}[Moving the threshold $t$ (predict positive if $\hat p\ge t$)]
+\begin{tabular}{@{}l l l@{}}
+ & \textbf{Lower} $t$ & \textbf{Raise} $t$\\
+\midrule
+\# predicted positives & more & fewer\\
+TP, FP & $\uparrow$ (or same) & $\downarrow$ (or same)\\
+FN, TN & $\downarrow$ (or same) & $\uparrow$ (or same)\\
+TPR (sensitivity) & $\uparrow$ & $\downarrow$\\
+FPR ($1-$specificity) & $\uparrow$ & $\downarrow$\\
+specificity & $\downarrow$ & $\uparrow$\\
+ROC point moves & up/right & down/left\\
+\end{tabular}
+\par TPR and FPR move \emph{together}: you trade false negatives for false positives. $t=0$ (or $-\infty$):
+everything positive, TPR $=$ FPR $=1$. $t=1$ (or $\infty$): nothing positive, TPR $=$ FPR $=0$.
+\end{keybox}
+
+\begin{qbox}{Worked: PE Q15 --- four borrowers, $\hat p$ = A .31, B .48, C .63, D .81}
+\textbf{(a)} $t=0.50$: predicted default = \textbf{C, D}. \textbf{(b)} $t=0.70$: only \textbf{D}.
+\textbf{(c)} Raising the threshold $\Rightarrow$ the number of positive classifications tends to \emph{decrease}. \src{PE Q15}
+\end{qbox}
+
+%======================================================================
+\subsection{The confusion matrix and its rates}
+\ixh{confusion matrix}
+For a binary classifier, use a \ix{confusion matrix}. Course layout \src{S3.34}
+(rows = \emph{true} class, columns = \emph{predicted} class, class 0 first):
+\begin{center}\small
+\begin{tabular}{@{}cc|c|c|l@{}}
+\multicolumn{2}{c}{} & \multicolumn{2}{c}{\textbf{Predicted class}} & \\
+\multicolumn{2}{c}{} & \multicolumn{1}{c}{$\hat Y=0$} & \multicolumn{1}{c}{$\hat Y=1$} & \scriptsize row total\\ \cline{3-4}
+\textbf{True} & $Y=0$ & \cellcolor{keyc!15}TN & \cellcolor{warnc!15}FP {\scriptsize(Type I)} & $N=$ TN$+$FP\\ \cline{3-4}
+\textbf{class} & $Y=1$ & \cellcolor{warnc!15}FN {\scriptsize(Type II)} & \cellcolor{keyc!15}TP & $P=$ FN$+$TP\\ \cline{3-4}
+\end{tabular}
+\end{center}
+\ix{true positive} (TP): truly 1, predicted 1. \ix{false positive} (FP): truly 0, predicted 1 = \ix{Type I error}.
+\ix{false negative} (FN): truly 1, predicted 0 = \ix{Type II error}. \ix{true negative} (TN): truly 0, predicted 0.
+Column totals = number \emph{predicted} 0 / 1; row totals = number \emph{actually} 0 / 1.
+
+\begin{keybox}[Rates \src{S3.34, S3.36--37}]
+\begin{itemize}
+\item \ixh{accuracy}Accuracy $=\dfrac{TP+TN}{TP+TN+FP+FN}$; \ \ \ixh{error rate}error rate $=\dfrac{FP+FN}{\text{total}}=1-$ accuracy.
+\item \ix{TPR} $=\dfrac{TP}{TP+FN}=\dfrac{TP}{P}$ = \ix{sensitivity} = \ix{recall} = power $=1-$ Type II error
+  (``probability of detection'').
+\item \ix{FPR} $=\dfrac{FP}{FP+TN}=\dfrac{FP}{N}$ = Type I error $=1-$ specificity (``fall-out'', ``false alarm'').
+\item \ix{specificity} = TNR $=\dfrac{TN}{TN+FP}=1-$ FPR. \quad FNR (miss rate) $=\dfrac{FN}{TP+FN}=1-$ TPR.
+\item \ix{precision} = PPV $=\dfrac{TP}{TP+FP}$ (of those \emph{predicted} positive, fraction truly positive);
+  \ix{negative predictive value (NPV)} $=\dfrac{TN}{TN+FN}$.
+\item \ix{F1 score} $=\dfrac{2}{1/\text{recall}+1/\text{precision}}$; prevalence $=P/\text{total}$ \src{S3.36}.
+\end{itemize}
+\textbf{Memory hook:} TPR, FNR divide by the \emph{actual-positive} total; FPR, specificity divide by the
+\emph{actual-negative} total; precision, NPV divide by a \emph{predicted} total.
+\end{keybox}
+Venn picture \src{S3.38}: sensitivity = ``how many relevant items are selected?'' (sick people correctly
+identified as having the condition); specificity = how many truly negative elements are identified as negative
+(healthy people identified as not having the condition).
+
+\textbf{Multiclass} \src{S3.35}\ixh{multiclass confusion matrix}: a $K\times K$ table; correct predictions on the
+diagonal. Slide example (rows = predicted, cols = true; Apple/Orange/Mango): diagonal $7+2+1=10$ of $36$
+$\Rightarrow$ accuracy $=10/36\approx0.28$.
+
+\begin{qbox}{Worked: PE Q17}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+ & Actually Pos. & Actually Neg.\\
+\midrule
+Predicted Pos. & TP $=72$ & FP $=18$\\
+Predicted Neg. & FN $=28$ & TN $=182$\\
+\bottomrule
+\end{tabular}
+\par (Rows are \emph{predicted} here --- the opposite of S3.34. Find cells by meaning, not position.)
+\par Accuracy $=\frac{72+182}{300}=\frac{254}{300}=0.8467$. \ TPR $=\frac{72}{72+28}=\frac{72}{100}=0.72$.
+\ FPR $=\frac{18}{18+182}=\frac{18}{200}=0.09$.
+\par Extra: specificity $=182/200=0.91$; precision $=72/90=0.80$; error rate $=46/300=0.153$. \src{PE Q17}
+\end{qbox}
+
+\begin{qbox}{Worked: reading yardstick output (Lab 3, \texttt{Smarket} QDA, test set)}
+\ixch{Smarket}%
+\begin{routput}
+          Truth
+Prediction Down  Up
+      Down   46  58
+      Up    135 137
+\end{routput}
+\texttt{Direction} levels are \texttt{Down}, \texttt{Up} $\Rightarrow$ \textbf{Down is the event}: TP $=46$, FP $=58$,
+FN $=135$, TN $=137$. Sensitivity $=46/181=0.254$, specificity $=137/195=0.703$, accuracy $=183/376=0.487$ ---
+exactly the printed \rc{metric\_set(accuracy, sensitivity, specificity)} output. Training accuracy was 0.548,
+so the test accuracy (below 0.5) is the honest number \src{Lab 3}.
+\end{qbox}
+
+%======================================================================
+\subsection{Class imbalance: why accuracy can mislead}
+\ixh{class imbalance}
+\begin{itemize}
+\item With \ix{class imbalance}, the trivial ``always predict the majority class'' rule already gets
+  accuracy = majority proportion. Compare accuracy to that baseline.
+\item \textbf{Titanic Model B} (\texttt{survived} $\sim$ \texttt{sib\_sp} only) \emph{never predicts Yes}: test
+  matrix TP $=0$, FP $=0$, FN $=103$, TN $=165$ $\Rightarrow$ accuracy $165/268\approx0.61$ ``relatively high'',
+  yet TPR $=0$ and \ix{AUC} $=0.496$ (a coin flip) \src{ROC}.
+\item Check \ix{sensitivity} and \ix{specificity} (or AUC), not just accuracy.
+  Lab 3: \ixc{Smarket} is fairly balanced (602 Down / 648 Up); \ixc{OJ} is unbalanced (653 CH / 417 MM) \src{Lab 3}.
+\item Split with \ix{stratified sampling} on the outcome, \rc{initial\_split(data, prop = 0.7,
+  strata = survived)}\ixch{initial\_split()}\ixch{strata}\ixch{prop}, so training and test sets keep the
+  same class proportions \src{ROC, Lab 3}. (Up-/down-sampling: a later lab.)
+\end{itemize}
+
+%======================================================================
+\subsection{ROC curve and AUC}
+\ixh{ROC curve}
+\begin{keybox}[ROC curve \src{S3.39--40, ROC}]
+\begin{itemize}
+\item A popular graphic for displaying the \textbf{2 types of error} for \textbf{all threshold values}:
+  \ix{TPR} (sensitivity, $y$-axis) vs.\ \ix{FPR} ($1-$specificity, $x$-axis).
+\item \textbf{Construction:} for every threshold $t$ (in practice each distinct $\hat p$, plus $\pm\infty$):
+  classify ``Yes'' if $\hat p\ge t$, build the confusion matrix, compute (FPR, TPR), plot the point; connect the points.
+  Each point on the curve = one threshold.
+\item Ends: $t=\infty$ $\to$ (0,\,0); $t=-\infty$ $\to$ (1,\,1). Lowering $t$ moves up and to the right.
+\item \textbf{Perfect classifier} = point (0,\,1), top-left corner. \textbf{Random classifier} = the diagonal
+  TPR $=$ FPR. Curves toward the top-left are better \src{S3.40}.
+\item Useful for \emph{comparing} classifiers (e.g.\ logistic regression vs.\ KNN); methods perform differently in
+  different parts of the curve, i.e.\ at different thresholds, so curves can cross \src{S3.39--40}.
+\end{itemize}
+\end{keybox}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=\linewidth,height=6.1cm,xmin=0,xmax=1,ymin=0,ymax=1.06,
+  xlabel={FPR $=1-$ specificity},ylabel={TPR $=$ sensitivity},
+  xtick={0,0.2,0.4,0.6,0.8,1},ytick={0,0.2,0.4,0.6,0.8,1},
+  grid=major,grid style={black!8},clip=false,
+  ylabel style={yshift=-3pt},xlabel style={yshift=2pt}]
+\addplot[fill=keyc!10,draw=none] coordinates {(0,0) (0.005,0.15) (0.02,0.32) (0.05,0.45) (0.1,0.6)
+  (0.16,0.68) (0.22,0.74) (0.33,0.84) (0.47,0.93) (0.6,0.97) (0.8,0.99) (1,1) (1,0)} \closedcycle;
+\addplot[thick,dblue] coordinates {(0,0) (0.005,0.15) (0.02,0.32) (0.05,0.45) (0.1,0.6)
+  (0.16,0.68) (0.22,0.74) (0.33,0.84) (0.47,0.93) (0.6,0.97) (0.8,0.99) (1,1)};
+\addplot[dashed,black!60] coordinates {(0,0) (1,1)};
+\addplot[only marks,mark=*,mark size=1.6pt,warnc] coordinates {(0.05,0.45) (0.22,0.74) (0.47,0.93)};
+\node[warnc,font=\scriptsize\bfseries,anchor=west] at (axis cs:0.06,0.42) {A};
+\node[warnc,font=\scriptsize\bfseries,anchor=north west] at (axis cs:0.225,0.735) {B};
+\node[warnc,font=\scriptsize\bfseries,anchor=north west] at (axis cs:0.475,0.925) {C};
+\addplot[only marks,mark=star,mark size=2.6pt,keyc] coordinates {(0,1)};
+\node[keyc,font=\tiny,anchor=west] at (axis cs:0.015,1.035) {perfect (0,1)};
+\node[font=\tiny,anchor=north west,align=left] at (axis cs:0.01,0.07) {$t=\infty$: nothing positive};
+\node[font=\tiny,anchor=north east,align=right] at (axis cs:1,0.975) {$t=-\infty$:\\ all positive};
+\node[black!60,font=\tiny,rotate=33] at (axis cs:0.66,0.6) {random, AUC $=0.5$};
+\node[keyc!80!black,font=\tiny,align=center] at (axis cs:0.62,0.3) {shaded area $=$ AUC};
+\draw[-{Stealth[length=3pt]},black!70] (axis cs:0.27,0.6) -- (axis cs:0.4,0.73)
+  node[pos=0,anchor=north,font=\tiny,align=center] {lower $t$\\$\Rightarrow$ up \& right};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+{\scriptsize\color{figgray} Sketch modelled on PE Q19: A $\approx$ (0.05, 0.45), B $\approx$ (0.22, 0.74),
+C $\approx$ (0.47, 0.93). A = high threshold, C = low threshold.\par}
+
+\begin{keybox}[AUC \src{S3.39--40, ROC}]
+\begin{itemize}
+\item \ix{AUC} = area under the ROC curve; measures the \emph{overall} performance of a classifier,
+  \textbf{summarized over all possible thresholds}. Higher AUC, the better.
+\item $1$ = perfect; $0.5$ = random guessing / coin flip (the diagonal); $<0.5$ = worse than random.
+  Slide example: Model A 0.923 $>$ B 0.794 $>$ C 0.588 \src{S3.40}.
+\item It measures the model's \textbf{ability to discriminate between classes}: high when positives get
+  higher $\hat p$ than negatives \src{ROC}.
+\item \textbf{Threshold-free:} the curve is built from \emph{all} thresholds, so changing the cutoff used for
+  \texttt{.pred\_class} (0.5 $\to$ 0.3) does \emph{not} change AUC; it only picks a different point on the
+  same curve \src{PE Q18}.
+\item AUC $=1$ is suspicious: usually the outcome (or a linear combination of it) slipped in as a predictor
+  (\ix{target leakage}) \src{ROC}.
+\end{itemize}
+Two uses of ROC curves \src{ROC}: (1) evaluating and comparing models (prefer AUC closer to 1; overlay curves);
+(2) selecting the optimal threshold for a chosen model.
+\end{keybox}
+
+\begin{qbox}{Worked: PE Q18 and Q19}
+\textbf{Q18.} ``I changed my threshold from 0.50 to 0.30, so the ROC AUC will change.'' \textbf{False}: the ROC
+curve plots TPR and FPR \emph{across} thresholds, so the chosen threshold has no impact on AUC.
+\par\textbf{Q19.} Screening for a very dangerous disease; a false negative is much worse than a false positive.
+Choose \textbf{Point C}: maximize TPR (minimize FNR) regardless of FPR --- even though FPR $\approx$ 50\%. In general:
+FN costly $\Rightarrow$ \emph{lower} the threshold (point up/right); FP costly $\Rightarrow$ raise it (down/left). \src{PE Q18--19}
+\end{qbox}
+
+%======================================================================
+\subsection{Reading ``ROC Curves Deep Dive'': Titanic Model A vs.\ B}
+\ixh{titanic}
+\begin{itemize}
+\item Data \ixc{titanic} (Kaggle; 891 rows): \rc{survived = factor(survived, levels = c("Yes", "No"))}
+  \ixch{factor()}$\Rightarrow$ \textbf{``Yes'' is the first level = the event}; also adds a dummy
+  \ixc{coin\_flip} column (445 zeros then 446 ones). Split 70/30 with \ixc{strata}\texttt{ = survived}
+  because the outcome is imbalanced (more died than survived).
+\item \textbf{Recipe A}: \texttt{pclass + sex + age + sib\_sp + parch + fare}, \rc{step\_impute\_linear(age)},
+  \rc{step\_dummy()}, \rc{step\_interact()}. \textbf{Recipe B}: \texttt{survived \textasciitilde{} sib\_sp} only
+  (intentionally bad). Both: \rc{logistic\_reg()} with engine \texttt{"glm"}.
+\item Training accuracy: A $0.807$, B $0.616$.
+\end{itemize}
+\textbf{Model A (test set: 103 Yes, 165 No).}
+\begin{itemize}
+\item Default $t=0.5$: TP 80, FP 20, FN 23, TN 145 $\Rightarrow$ TPR $=80/103=0.777$, FPR $=20/165=0.121$:
+  one point near the top-left of the curve.
+\item $t\approx0.0013$ (smallest $\hat p$): essentially everything predicted Yes: TP 103, FP 163, FN 0, TN 2
+  $\Rightarrow$ TPR $=1$, FPR $=163/165\approx0.99$: the (1,\,1) corner.
+\item \rc{roc\_curve()} table has 254 rows (one per threshold); predicted-probability histograms are well
+  separated (No near 0, Yes mostly $>0.5$) $\Rightarrow$ good discrimination.
+\end{itemize}
+\textbf{Model B.}
+\begin{itemize}
+\item ROC curve hugs the diagonal; \rc{roc\_auc()} $=0.496$: ``just about as bad as \ldots a coin flip''.
+\item At $t=0.5$ it never predicts Yes $\Rightarrow$ point (0,\,0).
+\item Only 9 thresholds: \texttt{sib\_sp} takes few values, so there are few distinct $\hat p$; max $\hat p=0.408$.
+  At $t\approx0.408$: TP 71, FP 118, FN 32, TN 47 $\Rightarrow$ TPR $=71/103=0.689$, FPR $=118/165=0.715$
+  (a point just under the diagonal).
+\item $\hat p$ distributions of Yes and No overlap almost completely: the model cannot discriminate.
+\end{itemize}
+
+%======================================================================
+\subsection{yardstick code and output}
+\ixh{yardstick}
+\begin{rcode}
+log_fit_a <- fit(log_wkflow_a, titanic_train)      # fit on TRAINING (*@\ixch{fit()}@*)
+res <- augment(log_fit_a, new_data = titanic_test)  (*@\ixch{augment()}@*)
+# adds .pred_class, .pred_Yes, .pred_No to the test data (*@\ixch{.pred\_class}\ixch{.pred\_Yes}@*)
+predict(log_fit_a, new_data = titanic_test, type = "prob") # .pred_Yes .pred_No (*@\ixch{type = "prob"}@*)
+predict(log_fit_a, new_data = titanic_test)        # .pred_class only
+res %>% conf_mat(truth = survived, estimate = .pred_class) (*@\ixch{conf\_mat()}@*)
+res %>% conf_mat(truth = survived, estimate = .pred_class) %>%
+  autoplot(type = "heatmap") (*@\ixch{autoplot()}@*)
+res %>% accuracy(truth = survived, estimate = .pred_class) (*@\ixch{accuracy()}@*)
+m <- metric_set(accuracy, sensitivity, specificity) (*@\ixch{sensitivity()}\ixch{specificity()}@*)
+res %>% m(truth = survived, estimate = .pred_class)
+res %>% roc_auc(survived, .pred_Yes)    # prob. column of FIRST level (*@\ixch{roc\_auc()}@*)
+res %>% roc_curve(survived, .pred_Yes) %>% autoplot() (*@\ixch{roc\_curve()}@*)
+\end{rcode}
+Real outputs (Lab 3 \texttt{OJ} logistic regression on test, event = \texttt{CH}; Titanic Model B):
+\begin{routput}
+          Truth                            # conf_mat: rows = Prediction,
+Prediction  CH  MM                         #           cols = Truth
+        CH 178  36      <- TP  FP
+        MM  18  90      <- FN  TN
+# A tibble: 3 x 3                          # metric_set(accuracy,
+  .metric     .estimator .estimate         #   sensitivity, specificity)
+1 accuracy    binary         0.832         # 268/322
+2 sensitivity binary         0.908         # 178/196
+3 specificity binary         0.714         # 90/126
+# A tibble: 1 x 3                          # roc_auc(survived, .pred_Yes)
+  .metric .estimator .estimate
+1 roc_auc binary         0.496
+# A tibble: 9 x 3                          # roc_curve(survived, .pred_Yes)
+  .threshold specificity sensitivity       (*@\ixch{.threshold}@*)
+1   -Inf          0            1           # everything "Yes": (1,1)
+2      0.113      0            1
+...
+8      0.408      0.285        0.689       # FPR = 1 - 0.285 = 0.715
+9    Inf          1            0           # nothing "Yes": (0,0)
+\end{routput}
+\rc{autoplot()} on a \rc{roc\_curve()} tibble plots \texttt{sensitivity} vs.\ \texttt{1 - specificity} with a dotted diagonal.
+
+\begin{trap}[yardstick traps / spot-the-bug]
+\begin{itemize}
+\item \textbf{\ix{event level} = FIRST factor level.} \ixc{sensitivity()}, \ixc{specificity()},
+  \ixc{roc\_auc()}, \ixc{roc\_curve()} treat \rc{levels(y)[1]} as ``positive''. \rc{factor()} orders levels
+  alphabetically by default (``No'' before ``Yes''), hence Titanic's \rc{levels = c("Yes", "No")}.
+  \ixc{Smarket}: first level \texttt{Down} $\Rightarrow$ \rc{roc\_curve(Direction, .pred\_Down)};
+  \ixc{OJ}: \rc{.pred\_CH} \src{Lab 3}.
+\item Pass the probability column \emph{of the first level}. Using the other class's column
+  (e.g.\ \ixc{.pred\_No} when Yes is first) mirrors the curve: AUC becomes $1-$AUC.
+\item \ixc{roc\_curve()} / \ixc{roc\_auc()} need \textbf{probabilities} (\ixc{.pred\_Yes}), not
+  \ixc{.pred\_class}; given classes they throw an error \src{ROC}. \ixc{accuracy()} and \ixc{conf\_mat()}
+  use \ixc{truth}\,= the factor outcome and \ixc{estimate}\,= \texttt{.pred\_class}.
+\item yardstick's \ixc{conf\_mat()} prints \textbf{Prediction as rows, Truth as columns}, event level first --- the
+  transpose (and reorder) of the slide layout S3.34. Always read the labels.
+\item Evaluate on the test set with the model fit on the training set:
+  \rc{augment(fit\_on\_train, new\_data = test)}. (The reading's code re-fits the workflow on
+  \texttt{titanic\_test} before \rc{augment()}; do not copy that.) Training-set metrics are optimistic.
+\item \ixc{augment()} adds \texttt{.pred\_class} and one \texttt{.pred\_<level>} per class (classification) or
+  \ixc{.pred} (regression); \ixc{predict()} returns only predictions, so you \ixc{bind\_cols()} the truth.
+\end{itemize}
+\end{trap}

@@ -1,0 +1,9 @@
+Import Visualize
+
+Tidy > Transtorm
+
+https://hansjoerg.me/2020/02/09/tidymodel 5 h
+s-for-machine-learning/ aS d re
+
+https://rviews.rstudio.com/2019/06/19/a-gentle-intro-to-tidymodels/
+

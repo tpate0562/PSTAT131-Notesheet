@@ -1,0 +1,50 @@
+salary_recipe <- recipe(salary ~ experience + department, 
+                        data = employees) %>% 
+  step_dummy(department, one_hot = TRUE) 
+ 
+salary_model <- linear_reg() %>% 
+  set_engine("lm") 
+ 
+salary_workflow <- workflow() %>% 
+  add_recipe(salary_recipe) %>% 
+  add_model(salary_model) 
+ 
+salary_fit <- fit(salary_workflow, data = employees) 
+ 
+Suppose “department” has three levels, “Sales,” “IT,” and “HR.” 
+ 
+After fitting the model, R reports that the model matrix is rank-deficient and that one or 
+more coefficients cannot be uniquely identified. 
+a. What caused the problem? 
+b. Why does “one_hot = TRUE” create this problem for an ordinary linear 
+regression model with an intercept? 
+c. How should the code be changed? 
+d. After making this change, how many indicator variables will be created for 
+“department”? 
+ 
+14. A logistic regression model predicts whether a patient has pneumonia based on symptoms 
+and clinical measurements. For one patient, the model produces a predicted probability of 
+0.78. Which interpretation is correct? 
+a. The model is 78% accurate for this patient. 
+b. The patient definitely has pneumonia. 
+c. The fitted model assigns this patient a probability of 0.78 of belonging to the 
+pneumonia class. 
+d. 78% of the patient's symptoms indicate pneumonia. 
+ 
+15. A model predicts whether borrowers will default on a loan. Four borrowers receive the 
+following predicted probabilities:  
+ 
+ 
+ 
+ 
+ 
+Borrower 
+Predicted Probability 
+A 
+.31 
+B 
+.48 
+C 
+.63 
+D 
+.81 

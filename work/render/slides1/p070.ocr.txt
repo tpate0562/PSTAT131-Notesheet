@@ -1,0 +1,14 @@
+Bias-variance decomposition
+
+E (5% - f@)) | = Var (f(%)) + (Bias(f %)). + Var(e)
+
+expected test MSE variance on test data bias on test data irreducible error
+
++ f is learned from a training set
+
+* (X09, Vo) is a test observation, independent of the training set,
+randomly sampled from the model
+
+Y=f(X)+e
+
+non-random zero-mean noise

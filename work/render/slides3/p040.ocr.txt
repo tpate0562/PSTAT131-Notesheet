@@ -1,0 +1,39 @@
+ROC_CURVE
+
+10"
+
+TRUE POSITIVE RATE
+9 ° °
+£ n o
+i u I
+
+°
+B
+1
+
+0.0 =|
+
+@ ~Q— PERFECT CLASSIFIER
+
+[] 7
+Ou 06
+FALSE POSITINE RATE
+
+True Positive Rate (Sensitivity)
+
+08
+
+06
+
+04
+
+02
+
+ROC Curve
+
+02 04 06 os
+False Positive Rate (1 - Specificity)
+
+¢ Model A: AUC = 0.923
+e Model B: AUC = 0.794
+¢ Model C: AUC = 0.588

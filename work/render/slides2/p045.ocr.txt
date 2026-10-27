@@ -1,0 +1,22 @@
+tidymodels
+
+Create traditional dummy
+variables
+
+Source: R/dummy.8 # A tibble: 3,131 x 3
+age type_I type_M
+step_dummy() creates a specification of a recipe step that will convert nominal data (e.g. <dbl> <dbl> <dbl>
+character or factors) into one or more numeric binary model terms for the levels of the original 8.5 1 @
+data. 8.5 1 1)
+8.5 ) 1
+. : : 9.5 ) 1
+abalone_recipe <- recipe(age ~ type, data = abalone_train) %>% 9.5 @ @
+step_dummy(type) 6.5 1 Q
+abalone_recipe %>% 6.5 1 @
+prep() %>% a ' 4
+
+bake(new_data = abalone_train) .
+
+8.5 7) )
+
+# .. with 3,121 more rows

@@ -1,0 +1,13 @@
+Extensions of the linear model
+
+Relationship between Y and X;,, 1X is additive and linear
+
+Additive: the effect of changes in a predictor X; on Yis
+
+independent of the values of all other predictors
+Interaction terms!
+
+Linear: the change in the response Y due to one unit change
+of a predictor X; is constant, regardless of the value of X;
+
+polynomial regression

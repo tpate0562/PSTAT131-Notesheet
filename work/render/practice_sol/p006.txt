@@ -1,0 +1,43 @@
+Solution: Set “one_hot = FALSE.” 
+d. After making this change, how many indicator variables will be created for 
+“department”? 
+Solution: Two. 
+14. A logistic regression model predicts whether a patient has pneumonia based on symptoms 
+and clinical measurements. For one patient, the model produces a predicted probability of 
+0.78. Which interpretation is correct? 
+a. The model is 78% accurate for this patient. 
+b. The patient definitely has pneumonia. 
+c. The fitted model assigns this patient a probability of 0.78 of belonging to the 
+pneumonia class. 
+d. 78% of the patient's symptoms indicate pneumonia. 
+Solution: The model cannot be “78% accurate” for an individual patient. Nor does this 
+predicted probability tell us anything about the patient’s symptoms. We cannot be 
+absolutely certain the patient either does or doesn’t have pneumonia. C is the correct 
+definition. 
+15. A model predicts whether borrowers will default on a loan. Four borrowers receive the 
+following predicted probabilities:  
+ 
+ 
+ 
+ 
+ 
+a. Using a threshold of 0.50, which borrowers would be classified as likely to 
+default? 
+Solution: Borrowers C and D. 
+b. Using a threshold of 0.70, which borrowers would be classified as likely to 
+default? 
+Solution: Only Borrower D. 
+c. Explain what happens to the number of positive classifications when the threshold 
+is increased. 
+Solution: When the threshold is increased, the number of positive classifications will tend to 
+decrease. 
+Borrower 
+Predicted Probability 
+A 
+.31 
+B 
+.48 
+C 
+.63 
+D 
+.81 

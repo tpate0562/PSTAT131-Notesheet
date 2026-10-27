@@ -1,0 +1,108 @@
+=== PAGE 1 ===
+Graded
+Midterm Exam
+Student
+Sai Kadiyala
+Total Points
+20 / 26 pts
+Question 1
+Q1
+2 / 2 pts
+− 0 pts Correct answer is C. All other answers would all result in a less flexible model.
+− 2 pts A, B, D, or E
+Question 2
+Q2
+2 / 2 pts
+− 0 pts Correct answer is C. KNN does not make any assumptions about normality or equality of variances, it also 
+doesn't create squared terms.
+− 1 pt Partial credit for an answer of B; students could be remembering that this assumption allows QDA to 
+represent nonlinear decision boundaries
+− 2 pts A, D, E, or F
+Question 3
+Q3
+2 / 2 pts
+− 0 pts Correct answer is B. Moving from Point A to Point C represents an increase in both true positive rate and 
+false positive rate; this corresponds to decreasing the threshold, resulting in more predicted positives 
+overall.
+− 1 pt Partial credit for an answer of A (wrong direction, but still recognizing that the threshold would be changing).
+− 2 pts C or D.
+Question 4
+Q4
+1 / 2 pts
+− 0 pts Correct answer is Hospital ID. The other variables are specifically defined as unique identifiers, which should 
+not be included as predictors, while patient populations differ across hospital.
+− 1 pt Partial credit for answering all variables.
+− 2 pts A, C, or D
+Question 5
+Q5
+2 / 2 pts
+− 0 pts Correct answer is B; if the primary assumption of LDA is being met, fitting QDA will not provide any 
+advantage, and will only increase variance.
+− 2 pts A, C, or D
+
+
+=== PAGE 2 ===
+Question 6
+Q6
+0 / 2 pts
+− 0 pts Correct answer is B. The definition of an interaction is that the relationship between one variable and the 
+outcome differs across levels of the other variable. A change in dosage has more of an effect on Treatment B 
+than it does on Treatment A; this is what suggests an interaction.
+− 2 pts A, C, D, E, or F
+Question 7
+Q7
+0 / 2 pts
+− 0 pts Correct answer is B. An increase in age of 1 unit will have a positive effect on the log odds (and therefore on 
+the predicted probability), but that will only result in a changing classification if it results in crossing the 
+threshold.
+− 2 pts A, C, or D
+Question 8
+Q8a
+2 / 2 pts
+− 0 pts Sensitivity is the true positive rate (TPR). Increasing the threshold makes it harder to classify observations as 
+positive. This will result in a lower sensitivity.
+− 2 pts Incorrectly saying that sensitivity would increase or stay the same.
+− 1 pt Partial credit
+Question 9
+Q8b
+2 / 2 pts
+− 0 pts Specificity is the true negative rate (or 1 minus the false positive rate). Increasing the threshold will result in a 
+higher specificity.
+− 2 pts Incorrectly saying that specificity would decrease or stay the same.
+− 1 pt Partial credit
+Question 10
+Q8c
+2 / 2 pts
+− 0 pts A change in threshold will have no effect on the ROC curve at all. The ROC curve exists at the model level and 
+is made up of many different thresholds' combinations of true and false positive rates.
+− 2 pts Any other answer.
+− 1 pt Partial credit
+Question 11
+Q8d
+2 / 2 pts
+− 0 pts The number of transactions flagged for investigation will generally decrease as the threshold is raised.
+− 2 pts Any other answer.
+
+=== PAGE 3 ===
+Question 12
+Q9
+3 / 4 pts
+− 0 pts Students should recognize that this results in collinearity, regardless of normalization. One predictor will still 
+be a direct function of the other predictor.
+− 2 pts Logic is partially correct.
+− 4 pts Logic is completely incorrect.
+− 1 pt Correct answer (that the reasoning is wrong) but doesn't specifically mention collinearity
+
+=== PAGE 4 ===
+
+=== PAGE 5 ===
+
+=== PAGE 6 ===
+
+=== PAGE 7 ===
+
+=== PAGE 8 ===
+
+=== PAGE 9 ===
+
+=== PAGE 10 ===

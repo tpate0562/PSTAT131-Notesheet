@@ -1,0 +1,36 @@
+Outliers
+
+Outlier: a data point for which y; is far from }; given by the model
+
+e.g., incorrect recording of an observation during data collection
+
+How to find outliers?
+
+Calculate the studentized residuals
+
+200 4 200
+2
+3
+s 4
+3
+° 4
+gs «
+3 ©0 0 8 4
+fed ° = 20 0
+to} i=!
+BQ PD 3 009, ©
+ak ‘0 a oF as oct
+B50 8 Jog og
+oO oo ° oO Oo fo}
+2 io, T T T T
+
+T T T T
+2 0 2 4
+
+Fitted Values
+
+T
+6
+
+Fitted Values
+

@@ -1,0 +1,9 @@
+Regression Classification
+
+X 4
+quantitative Y qualitative Y
+Training/Test Training/Test
+Mean Squared Error (MSE) Error Rate
+F(X) = E [Y|X = xo] Jo = argmax; { Prob (¥ = j1X =x) }
+
+Var(e) 1-E max Prob (Y = i1%)|

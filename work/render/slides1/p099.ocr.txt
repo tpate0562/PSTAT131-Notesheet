@@ -1,0 +1,9 @@
+Jo = argmax; { Prob (Y =j|X= Xo) \
+conditional probability of Y = j,
+given the observed predictor x,
+
+Bayes error rate
+
+1 — E |max Prob (Y=j|X)] ,
+J
+

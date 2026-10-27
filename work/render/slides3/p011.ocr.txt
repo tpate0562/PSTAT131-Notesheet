@@ -1,0 +1,17 @@
+A simple logistic model
+Pr(Y = 1]X)
+
+Ne eFot BX
+1 — Pry = 1]X)
+
+taking logarithm of both sides...
+
+( Pr(Y = 1|X)
+log
+
+a) = Pot Pix
+
+logit is linear in X
+Logit, or log-odds
+
+E (-w, + &)

@@ -1,0 +1,16 @@
+QDA classifier
+
+In QDA...
+
+The Bayes classifier assigns the observation x to class for which
+
+1 1 1
+6(x) = — ax Kx +x EO My heme Me "5 log | Z,| + log x,
+
+is largest
+
+The QDA classifier assigns the observation x to class for which
+
+. 1 iy i, log .
+quadratic in x
+is largest

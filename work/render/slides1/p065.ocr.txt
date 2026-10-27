@@ -1,0 +1,8 @@
+Overfitting = Small train MSE, large test MSE
+
+Under-fitting Optimal-fitting Over-fitting
+
+Classification
+
+Deep learning
+

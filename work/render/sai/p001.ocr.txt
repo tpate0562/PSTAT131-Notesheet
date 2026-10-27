@@ -1,0 +1,56 @@
+Midterm Exam @ Graded
+
+Student
+Sai Kadiyala
+
+Total Points
+20 / 26 pts
+
+Question 1
+
+Qi 2/2 pts
+
+y -0pts Correct answer is C. All other answers would all result in a less flexible model.
+
+-2pts A,B, D, or E
+
+Question 2
+
+Q2 2/2 pts
+
+y -0pts Correct answer is C. KNN does not make any assumptions about normality or equality of variances, it also
+doesn't create squared terms.
+
+- 1 pt Partial credit for an answer of B; students could be remembering that this assumption allows QDA to.
+represent nonlinear decision boundaries
+
+-2pts A,D,E, or F
+
+Question 3
+Q3 2/2 pts
+y -0pts Correct answer is B. Moving from Point A to Point C represents an increase in both true positive rate and
+
+false positive rate; this corresponds to decreasing the threshold, resulting in more predicted positives
+overall.
+
+- 1 pt Partial credit for an answer of A (wrong direction, but still recognizing that the threshold would be changing).
+
+-2pts CorD.
+
+Question 4
+Q4 1/2 pts
+
+- 0 pts Correct answer is Hospital ID. The other variables are specifically defined as unique identifiers, which should
+not be included as predictors, while patient populations differ across hospital.
+
+y -1pt Partial credit for answering all variables.
+-2ptsA,C,orD
+
+Question 5
+
+Q5 2/2 pts
+
+y -0pts Correct answer is B; if the primary assumption of LDA is being met, fitting QDA will not provide any
+advantage, and will only increase variance.
+
+-2ptsA,C,orD

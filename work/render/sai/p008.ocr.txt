@@ -1,0 +1,33 @@
+2%
+step_normalize(all_numeric_predictors())
+
+A student argues that because both square_feet and square_meters are normalized, it is appropriate
+to keep both in an ordinary linear regression. Is this reasoning correct or incorrect? Explain.
+
+ian we have this formola : X=BoeBy¥te S— epror/ncis ©
+sis
+
+Jv
+bejperse a alter slope
+
+Voriabl € mlereegy
+
+Ln simple \inear vagres
+
+, (iy believe or 5 0
+
+The pant Twn getting to io Hts F peel da same Cif only
+appropriate Decase the resulting volue we both in deem of
+gne of tHe te [5 ose). Te MES
+
+‘ ie
+ye ewe vent! woud be pane oF stendewelizwng / petra jing
+
+7 t tinted cue.
+mens PIO o-dsn 4 SNK tormely ats
+
+se T beteve (+ isnt
+
+yoo nema
+
+Page 5

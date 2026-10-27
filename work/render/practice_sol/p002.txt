@@ -1,0 +1,52 @@
+Interactions have nothing to do with whether predictors are correlated. An interaction 
+means the relationship between X1 and Y differs depending on the value of X2. For (c), this 
+is also false. Training error is not a good estimator of testing error. As training error goes to 
+zero, testing error almost always increases. 
+5. A new observation has the following seven nearest neighbors, already ordered from 
+closest to farthest:  
+ 
+Neighbor 1 
+2 
+3 
+4 
+5 
+6 
+7 
+Class 
+A 
+B 
+B 
+A 
+A 
+B 
+B 
+ 
+Predict the new observation’s class using k = 1, 3, 5, and 7. 
+ 
+Solutions: Using k = 1, we predict A; using k = 3, we predict B; using k = 5, we 
+predict A; using k = 7, we predict B. 
+ 
+6. A student standardizes age but forgets to standardize annual income before fitting KNN. 
+Explain why this is a problem even though both variables are numeric. 
+Solution: This is a problem because KNN is a distance-based algorithm. Income most likely 
+has a much larger variance than age, and therefore will have a much larger impact on 
+distance calculations if it is not also standardized. 
+7. A researcher wants to use KNN to predict whether or not a bank customer will default on 
+a loan. They write the following code: 
+ 
+loan_recipe <- 
+  recipe(defaulted ~ ., data = loans) |> 
+  step_dummy(all_nominal_predictors(), one_hot = TRUE) 
+ 
+loan_model <- 
+  nearest_neighbor(neighbors = 5) |> 
+  set_engine("kknn") |> 
+  set_mode("classification") 
+ 
+loan_fit <- 
+  loan_model |> 
+  fit(defaulted ~ ., data = loans) 
+ 
+Their data contain the following variables: 
+application_id 
+age 

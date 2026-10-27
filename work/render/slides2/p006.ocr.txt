@@ -1,0 +1,52 @@
+(a) Univariate Pattern
+
+(b) Monotone Pattern
+
+Y: Y2 Ys Ys Yi: Yo Y3 Ys
+(c) General Pattern (d) Planned Missingness
+Yi Y2 Y3 Ys Y: Y2 Y3 Ya
+
+https://twitter.com/rlmcelreath/status/1101435108995805185
+
+H: Homework
+
+H*: Homework with missing values
+
+A: Attribute of student
+
+D: Dog (missingness mechanism)
+
+DOG EATS
+ANY
+HOMEWORK
+
+A ———~> H
+
+D ————— +*
+
+MISSING COMPLETELY
+
+AT RANDOM
+
+DOG EATS
+STUDENTS’
+
+HOMEWORK
+
+A ———— H
+
+D ———> l*
+
+MISSING
+AT RANDOM
+
+DOG EATS
+
+HOMEWORK
+
+A ———~ H
+
+D —————> l*
+
+MISSING NOT
+AT RANDOM

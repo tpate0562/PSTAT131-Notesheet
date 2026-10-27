@@ -1,0 +1,37 @@
+Interaction: Credit example
+
+1400
+i
+1400
+|
+
+— student
+— non-student
+
+1000
+|
+1000
+|
+
+Balance
+Balance
+
+600
+|
+600
+|
+
+200
+|
+200
+!
+
+T T T T
+0 50 100 150 0 50 100 150
+
+Income Income
+
+FIGURE 3.7. For the Credit data, the least squares lines are shown for pre-
+diction of balance from income for students and non-students. Left: The model
+(3.34) was fit. There is no interaction between income and student. Right: The
+model (3.35) was fit. There is an interaction term between income and student.

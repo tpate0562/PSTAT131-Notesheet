@@ -1,0 +1,27 @@
+relevant elements
+re |
+
+selected elements
+
+true negatives
+
+How many relevant
+items are selected?
+e.g. How many sick
+people are correctly
+identified as having
+
+the condition.
+
+Sensitivity= ————
+
+Specificity =
+
+How many negative
+selected elements
+are truly negative?
+e.g. How many
+
+healthy people are
+identified as not
+having the condition.

@@ -1,0 +1,7 @@
+A few important questions
+
+Q1: Is at least one of the predictors X}, aX, useful in predicting Y?
+
+Q2: Do all the predictors help to explain Y, or is only a subset of the predictors useful?
+
+Q3: How well does the model fit the data?

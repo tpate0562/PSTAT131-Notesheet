@@ -1,0 +1,52 @@
+Multiple Choice Questions
+
+1. (2 points) Which change generally makes a statistical learning method more flexible?
+@ Increasing kin KNN
+@) Removing predic
+
+@ Aadding polynomial or interaction terms to a regression model
+©) Using LDA instead of QDA
+© Allof the’above
+
+rs from a linear model
+
+2. (2 points) Why can KNN represent nonlinear decision boundaries even without explicitly including
+polynomial or interaction terms?
+
+@) It assumes predictors are normally distributed
+@® It does not assume equal variances across levels of the outcome
+@ Classification is determined locally by neighboring observations
+
+©) It estimates
+
+® It automatically creates squared terms
+® Both A and B
+
+a different regression coefficient. for every observation
+
+ROC Curve
+1.0
+
+e 2 ¢2
+g & &
+
+True Positive Rate
+
+s
+N
+
+00 02 04 06 08 1.0
+False Positive Rate
+
+3. (2 points) Moving along the ROC curve from Point A toward Point C corresponds generally to:
+@) Increasing the classification threshold
+@ Decreasing the classification threshold
+
+© increasing the AUC
+©) Decreasing the AUC
+
+4. (2 points) A hospital is developing a model to predict whether a patient will be readmitted within
+30 days after discharge. Which of the following variables would be most reasonable to include as a
+predictor?
+
+Page 2

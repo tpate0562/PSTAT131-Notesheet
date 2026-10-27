@@ -1,0 +1,8 @@
+LDA vs QDA
+
+LDA can be thought as a special case of QDA
+QDA is more flexible than LDA
+
+QDA has more parameters to estimate (those 2,’s)
+
+via Bias-Variance tradeoff

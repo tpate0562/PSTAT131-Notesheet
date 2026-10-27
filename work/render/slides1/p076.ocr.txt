@@ -1,0 +1,1 @@
+E (5 - fed) | = Var (fo) + (Bias(f %o)) + Var(e)

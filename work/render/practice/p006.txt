@@ -1,0 +1,14 @@
+ 
+a. Point A 
+b. Point B 
+c. Point C 
+d. All points are equally good 
+e. Not enough information to decide 
+ 
+20. You have 50,000 observations, two predictors, and clear evidence that the covariance 
+structures differ substantially across levels of your outcome variable. Which would you 
+expect to have the greater potential to capture the true decision boundary? 
+a. LDA 
+b. QDA 
+c. Both would do equally well 
+d. Neither would do well because they are both parametric models 

@@ -1,0 +1,13 @@
+Ties in KNN
+
+Figure i. Of the three neighbors
+shown, the two nearest are
+obvious.
+
+Figure ii. Three neighbors are
+equidistant. Which two should be
+chosen?
+
+Figure iii. Of the three neighbors
+shown, one is obvious, but which
+of the other two should be chosen?

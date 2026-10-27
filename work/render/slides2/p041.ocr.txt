@@ -1,0 +1,11 @@
+Qualitative predictors
+
+In regression setting, Y is quantitative
+But some of the predictors X,, ..., X, can be qualitative
+
+Qualitative predictors: categorical predictors or factor variables
+
+Example: investigate the relationship between credit card
+balance and the gender of the card holder
+
+Predictor gender takes 2 levels: female or male

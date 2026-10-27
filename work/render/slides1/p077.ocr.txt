@@ -1,0 +1,8 @@
+Bias-variance decomposition
+
+E | (3 - Fo) | = Var (#@o)) + (Bias(F@)) + Var(e)
+Expected test MSE Irreducible error
+
+Y=f(X)+e
+
+non-random zero-mean noise

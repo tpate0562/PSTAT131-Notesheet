@@ -1,0 +1,9 @@
+Get to know your data!
+• Real data is messy
+• Any unusual values?
+• Extremely large/small
+• Impossible
+• Unusual within context
+• What types of variables are 
+there?
+https://www.allisonhorst.com/

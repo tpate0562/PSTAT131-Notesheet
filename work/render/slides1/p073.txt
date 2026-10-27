@@ -1,0 +1,13 @@
+expected test MSE
+variance on test data
+bias on test data
+irreducible error
+1.
+𝐸
+"𝑦! −%𝑓'𝒙𝟎
+#
+= 𝑉𝑎𝑟
+%𝑓'𝒙𝟎
++ 𝐵𝑖𝑎𝑠( %𝑓'𝒙𝟎
+#
++ 𝑉𝑎𝑟(𝜀)

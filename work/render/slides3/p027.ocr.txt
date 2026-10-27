@@ -1,0 +1,17 @@
+What is wrong?
+
+A simple logistic regression of default on student
+
+Coefficient Std. error Z-statistic | P-value
+Intercept —3.5041 0.0707 —49.55 <0.0001
+student [Yes] 0.4049 0.1150 3.52 0.0004
+
+A multiple logistic regression of default on balance, income, and student
+
+Coefficient Std. error Z-statistic P-value
+Intercept —10.8690 0.4923 —22.08 <0.0001
+balance 0.0057 0.0002 24.74 <0.0001
+income 0.0030 0.0082 0.37 0.7115
+student [Yes] 0.2362 —2.74 0.0062
+
+Contradicting signs!

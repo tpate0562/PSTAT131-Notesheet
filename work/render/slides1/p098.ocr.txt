@@ -1,0 +1,14 @@
+Each circle is an observation
+location: predictor X
+
+color: class label Y, Y = | vs. Y = 2
+
+x
+
+x
+
+Areas:
+
+Prob (Y = 1|X = xy) > 50%
+Prob (Y = 2|X = Xp) > 50%
+

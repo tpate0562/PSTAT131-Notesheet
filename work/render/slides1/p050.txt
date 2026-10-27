@@ -1,0 +1,24 @@
+Uses of statistical models:
+DESCRIPTIVE:
+• Choose model to 
+best visually 
+emphasize a trend 
+in data
+• i.e., using a line on 
+a scatterplot
+PREDICTIVE:
+• What combo of 
+features fits best? 
+• Aim is to predict Y 
+with minimum 
+reducible error
+• Not focused on 
+hypothesis tests
+INFERENTIAL:
+• What features are 
+significant?
+• Aim is to test theories
+• (Possibly) causal claims
+• State relationship 
+between outcome & 
+predictor(s)

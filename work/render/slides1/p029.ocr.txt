@@ -1,0 +1,25 @@
+An example:
+
+¢ At the population level:
+
+Y
+
+Response
+
+(output, target, dependent
+variable)
+
+Y = wage
+
+(X1, Xp)
+
+Predictors
+
+(input, features, covariates,
+independent variables)
+
+X1 = employee’s age
+X2 = education level
+X3 = calendar year
+
+Goal: Predict an employee’s wage based on their age, education level, and the calendar year

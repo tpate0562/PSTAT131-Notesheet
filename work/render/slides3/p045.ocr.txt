@@ -1,0 +1,25 @@
+Why bother considering LDA?
+
+Reason 1: coefficient estimates in logistic regression can be unstable
+
+Consider this example:
+
+Y= 0 if xX <50
+
+1 if x>50
+
+Perfectly separable!
+
+> x <- seq(100)
+
+> y <- cCrep(@, 50), rep(1, 50))
+
+> fit <- glm(y~x, family = "binomial")
+
+Warning messages:
+
+1: glm.fit: algorithm did not converge
+
+2: glm.fit: fitted probabilities numerically @ or 1 occurred
+
+LDA does not suffer from this problem!

@@ -1,0 +1,36 @@
+Solution: These are categorical variables, which would require dummy encoding. 
+12.  A student creates a new variable, CompletionRate. CompletionRate is calculated as the 
+ratio of CreditsCompleted to CreditsAttempted. Would including CompletionRate as a 
+predictor constitute target leakage? Explain. 
+Solution: No. CompletionRate is just the proportion of credits that a student attempted in 
+their first year that they were actually able to complete, and it is not leakage (since the 
+outcome is graduation at the end of four years). One could argue, however, that 
+CompletionRate, CreditsCompleted, and CreditsAttempted should not all be included as 
+predictors simultaneously (though that is not the question being asked). 
+13. A student wants to predict “salary” using “experience” and “department.” They fit the 
+following model: 
+salary_recipe <- recipe(salary ~ experience + department, 
+                        data = employees) %>% 
+  step_dummy(department, one_hot = TRUE) 
+ 
+salary_model <- linear_reg() %>% 
+  set_engine("lm") 
+ 
+salary_workflow <- workflow() %>% 
+  add_recipe(salary_recipe) %>% 
+  add_model(salary_model) 
+ 
+salary_fit <- fit(salary_workflow, data = employees) 
+ 
+Suppose “department” has three levels, “Sales,” “IT,” and “HR.” 
+ 
+After fitting the model, R reports that the model matrix is rank-deficient and that one or 
+more coefficients cannot be uniquely identified. 
+a. What caused the problem? 
+Solution: One-hot encoding; this creates three indicator variables, one per level of 
+“department,” which results in a linear dependency that OLS regression cannot handle. 
+b. Why does “one_hot = TRUE” create this problem for an ordinary linear 
+regression model with an intercept? 
+Solution: Because the model contains an intercept, which is itself a column of ones. 
+Therefore, the design matrix is not full rank. 
+c. How should the code be changed? 

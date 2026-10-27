@@ -1,0 +1,13 @@
+Classification in general
+
+Qualitative response
+
+Predicting a qualitative response for an observation
+
+= classifying that observation, i.e., assign the observation to a class
+
+Classification methods (classifiers): K-NN, logistic
+regression, discriminant analysis, and many more...
+
+Related to Regression: often we predict the probability (which
+is quantitative) of each class of a qualitative response

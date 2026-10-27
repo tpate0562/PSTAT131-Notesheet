@@ -1,0 +1,14 @@
+Training MSE vs. test MSE
+
+Training set Test set
+Training MSE Test MSE
+
+m
+
+) (v,-Awy), wd (i> fe)
+
+NO
+
+ha is obtained on the training set!
+
+We want f for which the test MSE is as small as possible

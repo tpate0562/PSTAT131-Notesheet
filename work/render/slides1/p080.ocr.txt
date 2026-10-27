@@ -1,0 +1,5 @@
+Bias-variance tradeoff
+
+E (5 — f@&)) | = Var (f(%)) + (Bias(f&)) + Var(é)
+
+Low Variance High Variance

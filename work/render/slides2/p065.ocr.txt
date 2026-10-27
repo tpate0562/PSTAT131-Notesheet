@@ -1,0 +1,12 @@
+To consider in diagnostics of data
+
+A high-leverage point / outlier / influential observation in one model may not be
+
+a high-leverage point / outlier / influential observation in another model
+
+What should we do once we find such observations?
+
+1. Check if there is data-entry error
+2. Exclude the points
+
+3. Try re-including them later if the model is changed

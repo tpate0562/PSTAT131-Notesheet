@@ -1,0 +1,6 @@
+Estimating test MSE
+• Computing training MSE is easy – test MSE, not so much
+• Either testing data is not available or it is, but we don’t want to use it too 
+much
+• It would just become another training set!
+• What do we do?

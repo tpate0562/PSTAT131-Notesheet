@@ -1,0 +1,19 @@
+Bias
+E |(0 - f@o)) | = var (F@0)) + (Bias(f@)) + Var)
+Bias(f (Xo) = E|f %o)| — f (Xp)
+
+wo
+a
+
+2.0
+
+1.5
+
+Mean Squared Error
+1.0
+
+0.5
+
+0.0
+
+x Flexibility

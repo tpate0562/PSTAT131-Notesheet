@@ -1,0 +1,39 @@
+Non-linearity of the data
+We assume...
+Y=f\y+Xjh, +s + X,f,+€
+
+but this is not necessarily the true relationship between Y and X;,..., X,
+
+How can we tell if we made the wrong linear assumption?
+
+Residual plot _ plot the residual y; — }; v.s the fitted value (prediction) $;
+
+Residuals
+
+Residual Plot for Linear Fit
+
+@
+
+»
+
+0
+
+-10 -5
+
+15
+
+323
+320
+334
+
+Sega
+
+T T T i T
+5 10 15 20 25 30
+
+Fitted values
+
+If our linear assumption is correct,
+then the residual plot will NOT
+show discernible pattern
+

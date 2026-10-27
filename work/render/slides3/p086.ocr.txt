@@ -1,0 +1,13 @@
+Quadratic Discriminant Analysis (QDA)
+Key in Discriminant Analysis
+
+(X, ...,X,) | Yis normally distributed
+
+In LDA, we assume
+
+different mean, same covariance
+
+In QDA, we assume
+
+different mean, different covariance
+

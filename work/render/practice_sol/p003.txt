@@ -1,0 +1,42 @@
+income 
+employment_type 
+credit_score 
+default_date 
+defaulted 
+ 
+Identify at least four problems with this analysis. For each problem, explain why it 
+matters and how you would correct it. 
+ 
+Solution: Here are all problems with this analysis, along with why they matter and 
+how to correct: 
+- 
+“.” syntax will include all variables, including application_id, which is an 
+identifier, not an actual predictor, and default_date, which would be explicit 
+target leakage. Remove those predictors. 
+- 
+There is no step_normalize(), which is important for KNN because it is distance-
+based. Add that to the recipe. 
+- 
+The recipe is not actually being used; loan_recipe is defined, but the model is fit 
+directly to the raw data. 
+- 
+Employment_type therefore hasn’t actually been dummy encoded for the fitted 
+model. 
+Note that one hot encoding is not a problem for KNN; KNN has no regression intercept 
+creating the linear dependency problem.  
+ 
+8. A scatterplot of X and Y shows a very strong U-shaped relationship. Their Pearson 
+correlation is 0.03. Which statement is best? 
+a. X and Y are essentially unrelated 
+b. The scatterplot is likely wrong 
+c. There is little linear correlation, despite a strong nonlinear relationship 
+d. X will not be a useful variable for predicting Y 
+e. Both C and D 
+Solution: The predictors have a strong U-shaped (nonlinear) relationship, but little linear 
+correlation. This does not mean X will not be useful for predicting Y; nor does it mean they 
+are unrelated. It also does not mean the scatterplot is wrong. 
+9. Which EDA finding is evidence of an interaction? 
+a. X1 and X2 have a Pearson correlation of 0.91 
+b. The relationship between X1 and Y is positive for one level of X2 and 
+negative for the other 
+c. X1 is strongly right-skewed and X2 is strongly left-skewed 

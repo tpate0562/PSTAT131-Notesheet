@@ -1,0 +1,6 @@
+Variance
+2
+E (70 - fo) | = Var (f@%)) + (Bias(f %)) +Var(e)
+
+Var (F(x) =E (Fo) _ ELF (xo)I) |
+

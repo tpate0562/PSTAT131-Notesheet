@@ -1,0 +1,55 @@
+%% PSTAT 131/231 (Fall 2026) -- Midterm sheet (Wed Oct 28, 2026)
+%% Build:  latexmk main.tex          (uses ./latexmkrc: pdflatex + makeindex -s ixgrid.ist)
+%%   or:   pdflatex main; makeindex -s ixgrid.ist main.idx; pdflatex main
+%% The index locations (page:cell on an invisible 8x11 grid, A-H x 1-11) are
+%% recomputed from the final layout on every compile -- see cheatsheet.sty.
+\documentclass[9pt,twocolumn]{extarticle}
+\usepackage{cheatsheet}
+\input{index_aliases}
+
+% \gridmarksfalse   % uncomment to hide the tiny grid letters/numbers in the margins
+% \gridlinestrue    % uncomment to draw the full 8x11 grid (to check the index)
+
+\newcommand{\inputsection}[1]{\IfFileExists{sections/#1.tex}{\input{sections/#1}}{\par\textbf{\color{warnc}[missing section: #1]}\par}}
+
+\begin{document}
+\ixwritealiases
+
+\noindent{\color{dblue}\bfseries\Large PSTAT 131/231 Midterm Sheet}\hfill{\small Fall 2026 \textbullet\ Midterm Wed Oct 28, 5:00--6:15 pm, CHEM 1179}\par
+{\footnotesize\textbf{Coverage (Canvas \emph{Midterm Information Page}):} Slide Set 1 (Intro to ML; bias--variance tradeoff; KNN) \textbullet\ Slide Set 2 (Linear models; feature engineering; EDA) \textbullet\ Slide Set 3 (Logistic regression; LDA/QDA; model evaluation, \emph{up until Slide 42}) \textbullet\ Reading: \emph{ROC Curves Deep Dive} \textbullet\ HW 1--3 \textbullet\ Labs 1--3. Format: $\le$12 multiple choice + 4 short answer; open book/notes, paper only.
+Also included: practice exam + solutions, Sai's graded midterm from last quarter, and Slide Set 3 slides 43--93 (LDA/QDA; past the Slide-42 cutoff but tested by practice Q20, Lab 3 and HW 3).\par
+\textbf{Index:} last pages. \textbf{\color{dblue}Bold blue} locations = distilled notes, plain = raw transcription; \texttt{12:C4} = page 12, grid column C (of A--H, left$\to$right), row 4 (of 1--11, top$\to$bottom).\par}
+\vspace{2pt}
+{\footnotesize\setlength{\parskip}{0pt}\tableofcontents}
+
+% =====================================================================
+\sheetpart{Distilled}{PART I \quad DISTILLED NOTES}
+\ixdistilled
+\inputsection{d1_concepts}
+\inputsection{d2_models}
+\inputsection{d2b_classification}
+\inputsection{d3_evaluation}
+\inputsection{d4_rcode}
+\inputsection{d5_exam}
+
+% =====================================================================
+\clearpage
+\sheetpart{Raw}{PART II \quad RAW TRANSCRIBED MATERIAL}
+\ixraw
+\small
+\inputsection{raw_s1a}
+\inputsection{raw_s1b}
+\inputsection{raw_s2}
+\inputsection{raw_s3a}
+\inputsection{raw_s3b}
+\inputsection{raw_roc}
+\inputsection{raw_lab1}
+\inputsection{raw_lab2}
+\inputsection{raw_lab3}
+\inputsection{raw_hw}
+\inputsection{raw_exams}
+\normalsize
+
+% =====================================================================
+\printgridindex
+\end{document}

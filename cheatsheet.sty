@@ -1,0 +1,376 @@
+%% cheatsheet.sty -- layout, boxes, code listings and the self-locating grid index
+%% for the PSTAT 131 midterm sheet.
+%%
+%% GRID INDEX
+%%   Every page is cut into an invisible 8 x 11 grid: columns A-H (left to right,
+%%   each 1/8 of the paper width) and rows 1-11 (top to bottom, each 1/11 of the
+%%   paper height, i.e. one inch on letter paper).  \ix, \ixh, \ixc and \ixch
+%%   record the exact spot of the term on the page *when the page is shipped out*
+%%   (\pdfsavepos), so the index is always computed from the final layout -- edit
+%%   anything, recompile, and every coordinate moves with the text.
+%%
+%%   Each location is written to <jobname>.idx as a single integer
+%%       page*1000 + row*20 + col*2
+%%   (steps of 2 so makeindex never merges neighbours into page ranges) and
+%%   decoded back to "page:ColRow" (e.g. 12:C4) by \ixD / \ixR when the index is
+%%   typeset.  \ixD = location in the distilled notes (bold blue),
+%%   \ixR = location in the raw transcriptions (plain).
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{cheatsheet}[2026/10/26 PSTAT 131 midterm sheet]
+
+% ------------------------------------------------------------------ layout
+\RequirePackage[letterpaper,left=0.42in,right=0.42in,top=0.55in,bottom=0.45in,
+  headheight=10pt,headsep=5pt,footskip=0pt,columnsep=0.24in]{geometry}
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[default,semibold]{sourcesanspro}
+\RequirePackage[varqu,varl]{zi4}
+\RequirePackage{amsmath,amssymb}
+\RequirePackage[dvipsnames,svgnames,table]{xcolor}
+\RequirePackage{microtype}
+\RequirePackage{enumitem}
+\RequirePackage{booktabs,tabularx,array,multirow}
+\RequirePackage{listings}
+\RequirePackage[most]{tcolorbox}
+\RequirePackage{titlesec}
+\RequirePackage{fancyhdr}
+\RequirePackage{eso-pic}
+\RequirePackage{graphicx}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric,decorations.pathreplacing}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18,every axis/.append style={font=\scriptsize,label style={font=\scriptsize},tick label style={font=\tiny}}}
+\RequirePackage[hidelinks,hyperindex=false,bookmarksnumbered]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt plus 1pt}
+\setlength{\columnseprule}{0.3pt}
+\def\columnseprulecolor{\color{black!25}}
+\setlist{nosep,leftmargin=1.1em,labelsep=0.35em}
+\setlist[itemize]{label=\textbullet}
+\setlist[itemize,2]{label=--}
+\renewcommand{\arraystretch}{1.05}
+\setlength{\tabcolsep}{3pt}
+\emergencystretch=2em
+\raggedbottom
+
+% colours
+\definecolor{dblue}{HTML}{1F4E9A}
+\definecolor{rawc}{HTML}{6B4C00}
+\definecolor{slidec}{HTML}{8A1C2B}
+\definecolor{figgray}{HTML}{5A5A5A}
+\definecolor{codebg}{HTML}{F4F6F8}
+\definecolor{outbg}{HTML}{FBF8EF}
+\definecolor{keyc}{HTML}{0B6E4F}
+\definecolor{warnc}{HTML}{B03A00}
+
+% headings (compact)
+\titleformat{\section}{\normalfont\large\bfseries\color{dblue}}{\thesection}{0.4em}{}[{\color{dblue}\titlerule[0.6pt]}]
+\titlespacing*{\section}{0pt}{5pt}{2pt}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries\color{dblue}}{\thesubsection}{0.35em}{}
+\titlespacing*{\subsection}{0pt}{4pt}{1pt}
+\titleformat{\subsubsection}[runin]{\normalfont\normalsize\bfseries\color{black}}{}{0pt}{}[.]
+\titlespacing*{\subsubsection}{0pt}{3pt}{0.4em}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+
+% header: section on the left, BIG page number on the right
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancyhead[L]{\scriptsize\sffamily\color{black!70}\csname cs@partname\endcsname\enspace\textbar\enspace\nouppercase{\leftmark}}
+\fancyhead[R]{\small\sffamily\bfseries Page \thepage}
+\fancyhead[C]{\scriptsize\sffamily\color{black!55}PSTAT 131 Midterm Sheet}
+\renewcommand{\sectionmark}[1]{\markboth{\thesection\ #1}{}}
+\fancypagestyle{plain}{\fancyhf{}\fancyhead[R]{\small\sffamily\bfseries Page \thepage}\renewcommand{\headrulewidth}{0pt}}
+
+% big part banners
+\newcommand\cs@partname{}
+\newcommand{\sheetpart}[2]{% #1 short name for header, #2 banner text
+  \gdef\cs@partname{#1}%
+  \par\vspace{2pt}%
+  \noindent\colorbox{dblue}{\parbox{\dimexpr\linewidth-2\fboxsep}{\centering\color{white}\bfseries\large #2}}%
+  \addcontentsline{toc}{part}{#2}%
+  \par\vspace{2pt}}
+
+% ------------------------------------------------------------------ boxes
+\tcbset{cs/base/.style={enhanced,breakable,boxrule=0.5pt,arc=1pt,left=2pt,right=2pt,top=1pt,bottom=1pt,
+  boxsep=1pt,before skip=3pt,after skip=3pt,fonttitle=\bfseries\small,
+  coltitle=white,toptitle=0.5pt,bottomtitle=0.5pt,lefttitle=3pt}}
+% distilled topic box
+\newtcolorbox{topic}[1]{cs/base,colback=white,colframe=dblue,title={#1}}
+% key fact / formula box
+\newtcolorbox{keybox}[1][Key]{cs/base,colback=keyc!5,colframe=keyc,title={#1}}
+% pitfall / trap box
+\newtcolorbox{trap}[1][Exam trap]{cs/base,colback=warnc!5,colframe=warnc,title={#1}}
+% raw-transcription wrapper for a whole source (no colour fill, just a rule)
+\newtcolorbox{rawsrc}[1]{cs/base,colback=white,colframe=rawc,title={#1}}
+% question / answer blocks used for HW, practice exam, Sai's exam
+\newtcolorbox{qbox}[1]{cs/base,colback=black!3,colframe=black!60,title={#1}}
+\newcommand{\ans}{\par\textbf{\color{keyc}Answer.}~}
+\newcommand{\sol}{\par\textbf{\color{keyc}Official solution.}~}
+\newcommand{\mine}{\par\textbf{\color{dblue}My answer.}~}
+\newcommand{\grader}{\par\textbf{\color{warnc}Grader / rubric.}~}
+
+% slide marker: \slide{set}{number}{title}
+\newcommand{\slide}[3]{\par\vspace{2.5pt}%
+  \noindent{\color{slidec}\bfseries\footnotesize\fbox{\rule[-1pt]{0pt}{6.5pt}S#1.#2}}\hspace{0.35em}{\bfseries #3}\par\nopagebreak[4]}
+% figure / image description (what a picture on a slide shows)
+\newcommand{\fig}[1]{{\color{figgray}\itshape[Figure: #1]}}
+% short source citation inside the distilled notes, e.g. \src{S1.23}
+\newcommand{\src}[1]{{\color{figgray}\scriptsize(#1)}}
+% inline R code (argument must be LaTeX-safe: \_ \% \$ \# \& \{ \})
+\newcommand{\rc}[1]{\texttt{#1}}
+\newcommand{\pipe}{\texttt{\%>\%}}
+\newcommand{\npipe}{\texttt{|>}}
+\newcommand{\assign}{\texttt{<-}}
+
+% ------------------------------------------------------------------ listings
+\lstdefinelanguage{Rx}[]{R}{%
+  morekeywords={TRUE,FALSE,NULL,NA,library,function,if,else,for,in,return},
+  sensitive=true}
+\lstdefinestyle{cs/rcode}{language=Rx,basicstyle=\ttfamily\small,
+  keywordstyle=\color{dblue}\bfseries,commentstyle=\color{keyc}\itshape,
+  stringstyle=\color{slidec},backgroundcolor=\color{codebg},
+  breaklines=true,breakatwhitespace=false,columns=fullflexible,keepspaces=true,
+  showstringspaces=false,upquote=true,frame=l,framerule=1.2pt,rulecolor=\color{dblue!60},
+  xleftmargin=3pt,framexleftmargin=3pt,aboveskip=2pt,belowskip=2pt,
+  postbreak=\mbox{\textcolor{figgray}{$\hookrightarrow$}\space},
+  escapeinside={(*@}{@*)},tabsize=2}
+\lstdefinestyle{cs/rout}{basicstyle=\ttfamily\footnotesize,backgroundcolor=\color{outbg},
+  breaklines=true,columns=fixed,keepspaces=true,showstringspaces=false,upquote=true,
+  frame=l,framerule=1.2pt,rulecolor=\color{rawc!70},xleftmargin=3pt,framexleftmargin=3pt,
+  aboveskip=2pt,belowskip=2pt,escapeinside={(*@}{@*)},tabsize=2,
+  postbreak=\mbox{\textcolor{figgray}{$\hookrightarrow$}\space}}
+\lstnewenvironment{rcode}{\lstset{style=cs/rcode}}{}
+\lstnewenvironment{routput}{\lstset{style=cs/rout}}{}
+
+% ------------------------------------------------------------------ grid index
+\newwrite\cs@ixfile
+\newcommand\cs@ixW{0}\newcommand\cs@ixH{0}
+\AtBeginDocument{%
+  \edef\cs@ixW{\number\paperwidth}\edef\cs@ixH{\number\paperheight}%
+  \immediate\openout\cs@ixfile=\jobname.idx\relax
+  \typeout{Writing index file \jobname.idx}}% <- latexmk looks for this line
+% pdfTeX / LuaTeX position primitives
+\ifdefined\pdfsavepos
+  \let\cs@savepos\pdfsavepos \let\cs@lastx\pdflastxpos \let\cs@lasty\pdflastypos
+\else
+  \let\cs@savepos\savepos \let\cs@lastx\lastxpos \let\cs@lasty\lastypos
+\fi
+% 0-based column/row numbers from the last saved position (expandable)
+\def\cs@colz{\the\numexpr(16*\cs@lastx-\cs@ixW)/(2*\cs@ixW)\relax}
+\def\cs@rowz{\the\numexpr(22*(\cs@ixH-\cs@lasty)-\cs@ixH)/(2*\cs@ixH)\relax}
+\def\cs@col{\ifnum\cs@colz<0 1\else\ifnum\cs@colz>7 8\else\the\numexpr\cs@colz+1\relax\fi\fi}
+\def\cs@row{\ifnum\cs@rowz<0 1\else\ifnum\cs@rowz>10 11\else\the\numexpr\cs@rowz+1\relax\fi\fi}
+\def\cs@ixcode{\the\numexpr\c@page*1000+20*\cs@row+2*\cs@col\relax}
+
+% decode a location code into page:ColRow (used by the .ind file)
+\def\cs@decode#1#2{% #1 code, #2 formatting macro taking {page}{col letter}{row}
+  \begingroup
+  \count@=\numexpr(#1-500)/1000\relax
+  \@tempcnta=\numexpr#1-1000*\count@\relax
+  \@tempcntb=\numexpr(\@tempcnta-10)/20\relax
+  \edef\x{\noexpand#2{\the\count@}{\@Alph{\numexpr(\@tempcnta-20*\@tempcntb)/2\relax}}{\the\@tempcntb}}%
+  \expandafter\endgroup\x}
+% Locations of one entry are grouped by page:  12:C4,D7; 15:A2
+% (makeindex puts no delimiter between locations; these macros add ',' or '; ')
+\gdef\cs@ixlastpg{0}
+\newcommand\cs@ixsep[1]{%
+  \ifnum#1=\cs@ixlastpg\relax ,\allowbreak
+  \else\ifnum\cs@ixlastpg=0 \else;\hskip 0.3em plus 0.2em\allowbreak\fi\fi}
+\newcommand\cs@ixpg[1]{\ifnum#1=\cs@ixlastpg\relax\else#1:\fi}
+\newcommand\cs@fmtD[3]{\cs@ixsep{#1}\hyperlink{page.#1}{\textbf{\color{dblue}\cs@ixpg{#1}#2#3}}\xdef\cs@ixlastpg{#1}}
+\newcommand\cs@fmtR[3]{\cs@ixsep{#1}\hyperlink{page.#1}{\cs@ixpg{#1}#2#3}\xdef\cs@ixlastpg{#1}}
+\newcommand\ixD[1]{\cs@decode{#1}\cs@fmtD}
+\newcommand\ixR[1]{\cs@decode{#1}\cs@fmtR}
+
+\ExplSyntaxOn
+\str_new:N \l__cs_term_str
+\str_new:N \l__cs_key_str
+\str_new:N \l__cs_disp_str
+\tl_new:N  \l__cs_entry_tl
+\tl_new:N  \g_cs_ix_mode_tl
+\tl_gset:Nn \g_cs_ix_mode_tl { ixD }
+\prop_new:N \g_cs_ix_alias_prop
+\cs_generate_variant:Nn \prop_gput:Nnn { Nee }
+\bool_new:N \g_cs_ix_on_bool
+\bool_gset_true:N \g_cs_ix_on_bool
+
+\NewDocumentCommand \ixdistilled {} { \tl_gset:Nn \g_cs_ix_mode_tl { ixD } }
+\NewDocumentCommand \ixraw       {} { \tl_gset:Nn \g_cs_ix_mode_tl { ixR } }
+\NewDocumentCommand \ixoff       {} { \bool_gset_false:N \g_cs_ix_on_bool }
+\NewDocumentCommand \ixon        {} { \bool_gset_true:N  \g_cs_ix_on_bool }
+
+% \ixalias{variant}{canonical}: index `variant' under `canonical'
+\NewDocumentCommand \ixalias { m m }
+  {
+    \prop_gput:Nee \g_cs_ix_alias_prop
+      { \tl_to_str:n {#1} } { \tl_to_str:n {#2} }
+  }
+
+% quote makeindex's special characters  " ! @ |
+\cs_new_protected:Npn \__cs_mi_escape:N #1
+  {
+    \str_replace_all:Nnn #1 { " } { "" }
+    \str_replace_all:Nnn #1 { ! } { "! }
+    \str_replace_all:Nnn #1 { @ } { "@ }
+    \str_replace_all:Nnn #1 { | } { "| }
+  }
+
+% build a sort key: drop \ $ { } , lower-case, trim
+\cs_new_protected:Npn \__cs_make_key:NN #1 #2
+  {
+    \str_set_eq:NN #1 #2
+    \exp_args:NNe \str_remove_all:Nn #1 { \c_backslash_str }
+    \str_remove_all:Nn #1 { $ }
+    \exp_args:NNe \str_remove_all:Nn #1 { \c_left_brace_str }
+    \exp_args:NNe \str_remove_all:Nn #1 { \c_right_brace_str }
+    \tl_trim_spaces:N #1
+    \str_set:Ne #1 { \str_lowercase:f { #1 } }
+  }
+
+% core: #1 optional sort key (may be empty), #2 term, #3 = c for code style
+\cs_new_protected:Npn \__cs_ix:nnn #1 #2 #3
+  {
+    \bool_if:NT \g_cs_ix_on_bool
+      {
+        \str_set:Ne \l__cs_term_str { \tl_to_str:n {#2} }
+        \prop_get:NVNT \g_cs_ix_alias_prop \l__cs_term_str \l__cs_disp_str
+          { \str_set_eq:NN \l__cs_term_str \l__cs_disp_str }
+        \tl_if_blank:nTF {#1}
+          { \__cs_make_key:NN \l__cs_key_str \l__cs_term_str }
+          { \str_set:Ne \l__cs_key_str { \str_lowercase:n {#1} } }
+        \str_if_eq:nnTF {#3} { c }
+          { \str_set:Ne \l__cs_disp_str { \c_backslash_str ixcodefmt \c_left_brace_str \l__cs_term_str \c_right_brace_str } }
+          { \str_set_eq:NN \l__cs_disp_str \l__cs_term_str }
+        \__cs_mi_escape:N \l__cs_key_str
+        \__cs_mi_escape:N \l__cs_disp_str
+        \tl_set:Ne \l__cs_entry_tl
+          {
+            \c_backslash_str indexentry \c_left_brace_str
+              \l__cs_key_str @ \l__cs_disp_str | \tl_use:N \g_cs_ix_mode_tl
+            \c_right_brace_str \c_left_brace_str
+            \exp_not:N \cs@ixcode
+            \c_right_brace_str
+          }
+        \cs@savepos
+        \exp_args:NNV \iow_shipout_e:Nn \cs@ixfile \l__cs_entry_tl
+      }
+  }
+
+% \ix[sort]{term}   prints term and indexes it
+% \ixh[sort]{term}  indexes only (hidden)
+% \ixc[sort]{code}  prints \texttt{code} and indexes it in typewriter
+% \ixch[sort]{code} hidden code entry
+\NewDocumentCommand \ix   { O{} m } { \__cs_ix:nnn {#1} {#2} {} #2 }
+\NewDocumentCommand \ixh  { O{} m } { \__cs_ix:nnn {#1} {#2} {} \ignorespaces }
+\NewDocumentCommand \ixc  { O{} m } { \__cs_ix:nnn {#1} {#2} { c } \texttt{#2} }
+\NewDocumentCommand \ixch { O{} m } { \__cs_ix:nnn {#1} {#2} { c } \ignorespaces }
+
+% "see" cross references from the alias table, written once
+\cs_new_protected:Npn \cs_ix_write_aliases:
+  {
+    \prop_map_inline:Nn \g_cs_ix_alias_prop
+      {
+        \str_set:Nn \l__cs_term_str {##1}
+        \str_set:Nn \l__cs_disp_str {##2}
+        \__cs_make_key:NN \l__cs_key_str \l__cs_term_str
+        \__cs_mi_escape:N \l__cs_key_str
+        \__cs_mi_escape:N \l__cs_term_str
+        \__cs_mi_escape:N \l__cs_disp_str
+        \str_if_eq:NNF \l__cs_term_str \l__cs_disp_str
+          {
+            \iow_now:Ne \cs@ixfile
+              {
+                \c_backslash_str indexentry \c_left_brace_str
+                \l__cs_key_str @ \l__cs_term_str | see \c_left_brace_str \l__cs_disp_str \c_right_brace_str
+                \c_right_brace_str \c_left_brace_str 0 \c_right_brace_str
+              }
+          }
+      }
+  }
+\NewDocumentCommand \ixwritealiases {} { \cs_ix_write_aliases: }
+\ExplSyntaxOff
+\newcommand\ixcodefmt[1]{\texttt{#1}}
+
+% close .idx after the last page is shipped, then try to run makeindex
+% (allowed under TeX Live's default restricted \write18; latexmk also runs it)
+\AddToHook{enddocument/afterlastpage}{%
+  \immediate\closeout\cs@ixfile
+  \ifnum0\ifdefined\pdfshellescape\the\pdfshellescape\fi>0
+    \immediate\write18{makeindex -q -s ixgrid.ist -o \jobname.ind \jobname.idx}%
+  \fi}
+
+% printing the index
+\newcommand\cs@ixletter[1]{\par\vspace{3pt}{\color{dblue}\bfseries\small #1}\par\nopagebreak}
+\let\ixletter\cs@ixletter
+\newcommand{\printgridindex}{%
+  \clearpage\onecolumn
+  \gdef\cs@partname{Index}\markboth{Index}{}%
+  \sheetpart{Index}{INDEX \quad--\quad page\,:\,grid cell}%
+  \addcontentsline{toc}{section}{Index}%
+  {\small How to read: \textbf{\color{dblue}12:C4,D7} = distilled notes, page 12, grid cells C4 and D7;
+   \ 45:B2 = raw transcription, page 45, column B, row 2; pages are separated by `;'.
+   Columns A--H run left$\to$right across the sheet (A--D $\approx$ left text column,
+   E--H $\approx$ right text column); rows 1--11 run top$\to$bottom, one inch each.
+   The small grey letters/numbers in the page margins mark the grid.\par}
+  \vspace{3pt}%
+  \begingroup
+  \footnotesize
+  \setlength{\columnseprule}{0.3pt}%
+  \renewcommand\see[2]{\textit{see} ##1}%
+  \IfFileExists{\jobname.ind}{%
+    \begin{multicols}{4}\raggedright
+    \def\item{\par\hangindent=1em\hangafter=1 \gdef\cs@ixlastpg{0}}%
+    \def\subitem{\par\hangindent=2em\hangafter=1 \hspace*{0.5em}\gdef\cs@ixlastpg{0}}%
+    \def\indexspace{\par\vspace{1pt}}%
+    \renewenvironment{theindex}{}{}%
+    \input{\jobname.ind}%
+    \end{multicols}}%
+   {\textbf{(Index not built yet -- run latexmk, or pdflatex + makeindex -s ixgrid.ist \jobname.idx + pdflatex.)}}%
+  \endgroup}
+\providecommand\see[2]{}
+\RequirePackage{multicol}
+
+% ------------------------------------------------------------------ grid marks
+% Tiny grey labels in the margins (A-H top & bottom, 1-11 left & right).
+% \gridmarksfalse hides them; \gridlinestrue draws the full grid (debugging).
+\newif\ifgridmarks \gridmarkstrue
+\newif\ifgridlines \gridlinesfalse
+\AddToShipoutPictureBG{%
+  \ifgridmarks
+  \begingroup
+  \setlength{\unitlength}{1sp}%
+  \fontsize{5}{5}\selectfont\color{black!45}%
+  \@tempcnta=0
+  \loop\ifnum\@tempcnta<8
+    \@tempcntb=\numexpr(2*\@tempcnta+1)*\paperwidth/16\relax
+    \put(\@tempcntb,\numexpr\paperheight-11*65536\relax){\makebox(0,0){\@Alph{\numexpr\@tempcnta+1\relax}}}%
+    \put(\@tempcntb,\numexpr 8*65536\relax){\makebox(0,0){\@Alph{\numexpr\@tempcnta+1\relax}}}%
+    \advance\@tempcnta by 1
+  \repeat
+  \@tempcnta=0
+  \loop\ifnum\@tempcnta<11
+    \@tempcntb=\numexpr\paperheight-(2*\@tempcnta+1)*\paperheight/22\relax
+    \put(\numexpr 9*65536\relax,\@tempcntb){\makebox(0,0){\the\numexpr\@tempcnta+1\relax}}%
+    \put(\numexpr\paperwidth-9*65536\relax,\@tempcntb){\makebox(0,0){\the\numexpr\@tempcnta+1\relax}}%
+    \advance\@tempcnta by 1
+  \repeat
+  \ifgridlines
+    \color{red!35}\linethickness{0.2pt}%
+    \@tempcnta=1
+    \loop\ifnum\@tempcnta<8
+      \put(\numexpr\@tempcnta*\paperwidth/8\relax,0){\line(0,1){\number\paperheight}}%
+      \advance\@tempcnta by 1
+    \repeat
+    \@tempcnta=1
+    \loop\ifnum\@tempcnta<11
+      \put(0,\numexpr\@tempcnta*\paperheight/11\relax){\line(1,0){\number\paperwidth}}%
+      \advance\@tempcnta by 1
+    \repeat
+  \fi
+  \endgroup
+  \fi}
+
+\endinput

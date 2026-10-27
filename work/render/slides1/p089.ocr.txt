@@ -1,0 +1,17 @@
+how well does f learn?
+
+w
+
+Training set f
+{(X1,Y1), (Ka, Va)s +++ Ke In} Indicator function
+
+I(y,#3,) =
+
+a ly ~
+Training error rate = 7 » I (y; # 5)
+
+i=l N\
+predicted class label that f gives
+
+Training Error Rate for the ith training observation
+fraction of incorrect classifications in training set

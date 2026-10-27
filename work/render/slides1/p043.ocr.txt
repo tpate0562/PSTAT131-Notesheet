@@ -1,0 +1,15 @@
+Common error metrics
+
+Regression models
+
+Mean squared error
+Root mean squared error
+Mean absolute error
+R-squared
+
+Classification models
+
+Accuracy
+Error rate
+Precision
+Area under ROC curve

@@ -1,0 +1,22 @@
+K-nearest neighbors bias-variance tradeoff
+
+: 1
+IxX%o) =| » Y=fiX)+e
+
+non-random zero-mean noise
+iEV
+
+For fixed (Xo, yo)
+
+A 2 ~ ~ 2
+E (v — ftx,)) | = Var(ftx)) + [Bias(/(xp))|” + Varte),
+
+k iENy
+
+2
+V. 1
+— Vane) -j Zr + Vane)
+
+k increase decrease increase
+beyond our control
+k decrease increase decrease

@@ -1,0 +1,3 @@
+k-nearest neighbors (KNN)
+
+A starter machine learning model

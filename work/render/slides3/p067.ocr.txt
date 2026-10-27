@@ -1,0 +1,14 @@
+LDA: A motivating example
+
+> More X transcripts
+
+Gene X
+
+LDA uses both genes to create a new axis...
+
+x2
+x1
+x2
+x1
+
+Lo1

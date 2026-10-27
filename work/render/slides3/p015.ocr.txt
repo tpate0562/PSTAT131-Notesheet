@@ -1,0 +1,18 @@
+Pr(¥ = 1|X)
+
+log
+1—Pr(Y = 1|X)
+
+) = avs ox
+
+Logit, or log-odds
+€ (—00, + 00)
+
+—<—_—_—
+log(odds of default)
+
+logit is linear in X
+
+@ eceee
+
+Balance

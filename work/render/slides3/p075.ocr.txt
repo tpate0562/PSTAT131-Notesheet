@@ -1,0 +1,14 @@
+The separation
+isn’t great...
+
+If we only maximize
+the distance between
+
+means...
+
+We get nice separation!
+
+However, if we
+optimize the distance
+between means and
+scatter...

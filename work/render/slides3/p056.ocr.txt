@@ -1,0 +1,11 @@
+LDA: A motivating example
+
+In summary, Gene X does an OK job at telling us who should
+take the drug (and who shouldn’t).
+
++9999; 0; 909 @ eee,
+
+Fewer Transcripts ———————— VW > More transcripts
+
+© = The drug works!
+@ = The drug does not work :(

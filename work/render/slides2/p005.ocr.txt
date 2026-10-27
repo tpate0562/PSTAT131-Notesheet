@@ -1,0 +1,22 @@
+naniar package; vis_miss()
+
+Assess your data ar rr ee
+
+* How many rows, columns
+
+* Missingness
+* Percentage by variable?
+
+Observations
+
+* Reason for missingness?
+
+150
+
+¢ Imputation?
+
+Missing Present
+(4.8%) (95.2%)
+
+https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html
+

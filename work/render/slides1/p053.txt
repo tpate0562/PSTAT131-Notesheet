@@ -1,0 +1,3 @@
+Regression setting
+• Different statistical methods give different f()
+• Each function/model has different flexibility & complexity

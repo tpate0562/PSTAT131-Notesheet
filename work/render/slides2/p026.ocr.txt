@@ -1,0 +1,16 @@
+Accuracy of the coefficient estimates
+
+Least-squares coefficient estimates
+
+ey GH -DO;-H wn
+on o =Y— Bix
+
+-_ 3)
+j=1 % — ¥)
+
+a
+
+Bo and f, are random variables themselves
+need to assess how “close” fy and f; are to fy and f,, respectively
+
+In terms of bias and variance

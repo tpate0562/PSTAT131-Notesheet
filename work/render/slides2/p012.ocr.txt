@@ -1,0 +1,15 @@
+Recap: Bias-variance decomposition
+
+If we take Y = f(X) +e
+F(X) = E [Y| X = Xo| non-random zero-mean noise
+
+A 2 . er 2
+E ( — fx) = Vartfiay)) + [Bias(fix)] + Varte),
+
+Expected test MSE = _ Variance + Bias’ + _ Irreducible error
+
+-§ (fas - Eft) | + E Ker) - Fes) “+¥ate
+
+minimized!
+
+= 0+0+ Var(e)

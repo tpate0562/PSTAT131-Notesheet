@@ -1,0 +1,5 @@
+In a two-class problem:
+
+. 1 if Prob (Y= 1|X =xp) > 0.5
+%O 2 if Prob (¥ = 1|X =x) < 0.5
+

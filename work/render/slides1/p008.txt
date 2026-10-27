@@ -1,0 +1,14 @@
+A silly introduction
+How a cat decides whether to scratch on something:
+Am I supposed to scratch on 
+it?
+Don’t scratch on it.
+Will my owners be mad if I 
+scratch on it?
+Don’t scratch on it.
+Definitely scratch 
+on it!
+No
+Yes
+Yes
+No

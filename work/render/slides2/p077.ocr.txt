@@ -1,0 +1,18 @@
+Bias-variance tradeoff
+
+Assume that Y = f(X) +e = fy +f,X,+...+ 6X, +e
+
+2
+
+2
+E (0 - flx)) = Var(ftx)) + [Bias(ftxa))] + Var(e),
+
+For f = Bo + Bixo1 tit B,Xop where By sees B, are least-squares estimates
+
+Property 1: Unbiased, i.e., Bias(f(xp)) = EL/(Xo)] — f(x) = 0
+
+Property 2: Least-squares has the smallest expected test error
+among all unbiased linear estimates (Gauss-Markov Theorem)
+
+Modern regression methods can outperform least-squares in terms of expected test MSE,
+by having small bias but having much smaller variance

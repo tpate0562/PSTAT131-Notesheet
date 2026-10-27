@@ -1,0 +1,3 @@
+Example data:
+• At the observation level:
+Goal: Predict an employee’s wage based on their age, education level, and the calendar year

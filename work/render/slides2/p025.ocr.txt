@@ -1,0 +1,6 @@
+Accuracy of the coefficient estimates
+
+Y= fy+ BX Y= fot fix Y=,)+ A,X
+
+each computed on the basis of a separate
+random set of observations

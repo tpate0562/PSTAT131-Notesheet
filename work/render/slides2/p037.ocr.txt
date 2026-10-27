@@ -1,0 +1,29 @@
+Forward stepwise selection example with 5 variables: Backward stepwise selection example with 5 variables:
+
+Start with a model that contains all the
+
+Start with a model with no variables variables
+
+Null Model Full Model
+
+CELLS) (es Q@
+
+SF FS)
+
+Add the most significant variable
+
+Remove the least significant variable
+
+Model with 1 variable
+
+Keep adding the most significant variable until reaching
+the stopping rule or running out of variables Keep removing the least significant variable until
+reaching the stopping rule or running out of variables
+
+Lorie with 3 variables
+aan)
+
+Model with 2 variables
+
+https://quantifyinghealth.com/stepwise-selection/
+

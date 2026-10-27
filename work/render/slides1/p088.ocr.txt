@@ -1,0 +1,24 @@
+Classification setting
+
+w
+
+Training set
+{(X1, 1)» Kp, V2), «++» Xn Yn) t f
+
+V1, +++) ¥,2 Class label (qualitative), i.e.,
+y, = dog, y, = cat, y; = cat, ..., y, = dog
+
+J1, ---» 3,2 predicted class label using ‘ i.e.,
+J, = dog, }, = dog, }3 = cat, ..., §,, = cat
+
+i=
+
+Xj
+
+il? Xi» oe
+
++X;
+
+(p
+
+)

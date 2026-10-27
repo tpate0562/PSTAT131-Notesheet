@@ -1,0 +1,29 @@
+12
+
+10
+
+80
+
+100
+
+0.5 1.0 1.5 2.0 2.5
+
+0.0
+
+Training MSE
+
+ie)
+a
+
+10
+
+Flexibility
+
+20
+
+0.5
+
+0.0
+
+Flexibility
+

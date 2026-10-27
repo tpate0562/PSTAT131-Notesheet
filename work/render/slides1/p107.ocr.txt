@@ -1,0 +1,7 @@
+housing price
+
+3-NN for regression
+
+50+55+51/3=52
+
+total sq. ft

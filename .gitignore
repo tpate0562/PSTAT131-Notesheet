@@ -1,0 +1,14 @@
+.DS_Store
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.idx
+*.ilg
+*.ind
+work/tmp/
+.httr-oauth
+._.httr-oauth

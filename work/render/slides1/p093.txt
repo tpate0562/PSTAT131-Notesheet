@@ -1,0 +1,3 @@
+Same discussion as in regression setting
+• Having the lowest training error rate does not necessarily imply that 
+a method also has the lowest test error rate

@@ -1,0 +1,14 @@
+Example data:
+
+¢ At the observation level:
+age, education, year
+
+wage
+yy 1112, %13
+Yo X15 X73
+¥3 X315 X33
+Yo Xg15 %99, X93
+
+all 9 employees’ education levels
+
+Goal: Predict an employee’s wage based on their age, education level, and the calendar year

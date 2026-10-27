@@ -1,0 +1,44 @@
+1. A KNN classifier has excellent performance on the training data but noticeably worse 
+performance on new data. Which change would be most likely to help? 
+a. Decrease k 
+b. Increase k 
+c. Give variables with larger variances more weight 
+d. Include an interaction term 
+Solution: A KNN model that is overfitting is likely because the value of k is small. 
+Increasing k will likely improve performance. Decreasing k will only make the problem 
+worse. Weighting variables with larger variances more heavily will worsen performance. 
+Including an interaction term is not necessary (KNN is nonparametric).  
+2. A student says, "The most flexible model is always preferable because it can represent 
+more complicated relationships." Explain what is wrong with this reasoning. 
+Solution: This is not true. There are many cases where the most flexible model is not 
+preferable, either because the more flexible model is less interpretable and the goal is 
+interpretation, or because the more flexible model can fit too closely to patterns in the 
+training data that do not exist in the population, leading to overfitting (low training error 
+and high testing error).  
+3. You fit Models A, B, and C: 
+Model 
+Training accuracy 
+Testing accuracy 
+A 
+71% 
+70% 
+B 
+86% 
+82% 
+C 
+100% 
+68% 
+ 
+Which model would you prefer based only on this information? What appears to be happening 
+with Model C? 
+Solution: You should prefer Model B; it produces the highest testing accuracy. Model C 
+appears to be overfitting. (Model B shows some overfitting also, but less so than Model C.) 
+4. A student makes these three claims: 
+a. A predictor with zero Pearson correlation with the outcome cannot improve 
+prediction. 
+b. Two highly correlated predictors necessarily interact. 
+c. A model with lower training error is always preferable. 
+For each claim, state whether it is true or false and explain. 
+Solution: For (a), this is false. Predictors with zero Pearson correlation with the outcome do 
+not have a linear correlation with the outcome but may very well be able to improve 
+predictions in nonlinear and/or empirically driven models. For (b), this is also false. 

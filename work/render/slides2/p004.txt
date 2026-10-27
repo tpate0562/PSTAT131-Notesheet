@@ -1,0 +1,6 @@
+Some goals of EDA
+• Data cleaning and quality check
+• Descriptive statistics
+• Data visualization
+• Feature engineering?
+• Discovering relationships among variables

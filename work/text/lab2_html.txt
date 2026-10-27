@@ -1,0 +1,727 @@
+Code
+
+- Show All Code
+- Hide All Code
+
+Lab 2
+
+PSTAT 131/231
+
+Introduction: Model Fitting
+
+    library(tidyverse)
+    library(tidymodels)
+    library(ggplot2)
+    library(corrplot)
+    library(ggthemes)
+    library(kableExtra)
+    tidymodels_prefer()
+
+    set.seed(3435)
+
+    diamonds_split <- initial_split(diamonds, prop = 0.80,
+                                    strata = price)
+    diamonds_train <- training(diamonds_split)
+    diamonds_test <- testing(diamonds_split)
+
+Creating a Recipe
+
+You’ll notice that the textbooks use the lm() function to fit a linear regression. The tidymodels framework, however, has its own structure and flow, which is designed to work with multiple different machine learning models and packages seamlessly.
+
+To fit any model with tidymodels, the first step is to create a recipe. The structure of this recipe is similar to that of lm(); the outcome is listed first, then the features are added:
+
+    simple_diamonds_recipe <-
+      recipe(price ~ ., data = diamonds_train)
+
+Note that . is a placeholder for “all other variables.” If we call the recipe object now, we can see some information:
+
+    simple_diamonds_recipe
+
+    ## Recipe
+    ## 
+    ## Inputs:
+    ## 
+    ##       role #variables
+    ##    outcome          1
+    ##  predictor          9
+
+More specifically, we see that there are 9 predictors.
+
+We should dummy-code all categorical predictors. We can do that easily with step functions:
+
+    diamonds_recipe <- recipe(price ~ ., data = diamonds_train) %>% 
+      step_dummy(all_nominal_predictors())
+
+Note that we haven’t specified what type of model we’ll be fitting yet. The other beauty of the recipe is that it can then be directly given to one of many machine learning model “engines.”
+
+Running the above code is essentially like writing down the instructions for a recipe on a sheet of paper. We’ve prepared the recipe to give to the workflow, but we are probably interested in seeing what the results of the recipe itself actually look like. Did the dummy coding work, for example? To apply the recipe to a data set and view the results, we can use prep(), which is akin to setting out a mise en place of ingredients, and bake().
+
+We’ll also use kbl() and kable_styling() from the kableExtra package, which we installed above. It’s not necessary to use these functions, but doing so allows the table of data to display more neatly, so that all the columns and rows are actually legible. We also use head() to select only the first few rows; otherwise the entire data frame would print, which would be time-consuming. Also note the use of scroll_box(), allowing us to scroll through the entire data set.
+
+    prep(diamonds_recipe) %>% 
+      bake(new_data = diamonds_train) %>% 
+      head() %>% 
+      kable() %>% 
+      kable_styling(full_width = F) %>% 
+      scroll_box(width = "100%", height = "200px")
+
+    carat   depth   table      x      y      z   price        cut_1        cut_2        cut_3        cut_4      color_1     color_2      color_3      color_4      color_5      color_6    clarity_1    clarity_2    clarity_3    clarity_4    clarity_5    clarity_6    clarity_7
+  ------- ------- ------- ------ ------ ------ ------- ------------ ------------ ------------ ------------ ------------ ----------- ------------ ------------ ------------ ------------ ------------ ------------ ------------ ------------ ------------ ------------ ------------
+     0.23    61.5      55   3.95   3.98   2.43     326    0.6324555    0.5345225    0.3162278    0.1195229   -0.3779645   0.0000000    0.4082483   -0.5640761    0.4364358   -0.1973855   -0.3857584    0.0771517    0.3077287   -0.5237849    0.4921546   -0.3077287    0.1194880
+     0.21    59.8      61   3.89   3.84   2.31     326    0.3162278   -0.2672612   -0.6324555   -0.4780914   -0.3779645   0.0000000    0.4082483   -0.5640761    0.4364358   -0.1973855   -0.2314550   -0.2314550    0.4308202   -0.1208734   -0.3637664    0.5539117   -0.3584641
+     0.23    56.9      65   4.05   4.07   2.31     327   -0.3162278   -0.2672612    0.6324555   -0.4780914   -0.3779645   0.0000000    0.4082483   -0.5640761    0.4364358   -0.1973855    0.0771517   -0.3857584   -0.1846372    0.3626203    0.3209704   -0.3077287   -0.5974401
+     0.29    62.4      58   4.20   4.23   2.63     334    0.3162278   -0.2672612   -0.6324555   -0.4780914    0.3779645   0.0000000   -0.4082483   -0.5640761   -0.4364358   -0.1973855   -0.0771517   -0.3857584    0.1846372    0.3626203   -0.3209704   -0.3077287    0.5974401
+     0.31    63.3      58   4.34   4.35   2.75     335   -0.3162278   -0.2672612    0.6324555   -0.4780914    0.5669467   0.5455447    0.4082483    0.2417469    0.1091089    0.0328976   -0.3857584    0.0771517    0.3077287   -0.5237849    0.4921546   -0.3077287    0.1194880
+     0.24    62.8      57   3.94   3.96   2.48     336    0.0000000   -0.5345225    0.0000000    0.7171372    0.5669467   0.5455447    0.4082483    0.2417469    0.1091089    0.0328976    0.2314550   -0.2314550   -0.4308202   -0.1208734    0.3637664    0.5539117    0.3584641
+
+Activities:
+
+- Use the Internet to find documentation about the possible step functions. Name three step functions that weren’t used here and describe what they do.
+
+Linear Regression
+
+Next, we can specify the model engine that we want to fit:
+
+    lm_model <- linear_reg() %>% 
+      set_engine("lm")
+
+We set up a workflow. This step might seem unnecessary now, with only one model and one recipe, but it can make life easier when you are trying out a series of models or several different recipes later on.
+
+    lm_wflow <- workflow() %>% 
+      add_model(lm_model) %>% 
+      add_recipe(diamonds_recipe)
+
+Finally, we can fit the linear model to the training set:
+
+    lm_fit <- fit(lm_wflow, diamonds_train)
+
+We can view the model results:
+
+    lm_fit %>% 
+      # This returns the parsnip object:
+      extract_fit_parsnip() %>% 
+      # Now tidy the linear model object:
+      tidy()
+
+    ## # A tibble: 24 × 5
+    ##    term        estimate std.error statistic   p.value
+    ##    <chr>          <dbl>     <dbl>     <dbl>     <dbl>
+    ##  1 (Intercept)  5317.      496.      10.7   8.54e- 27
+    ##  2 carat       11282.       54.3    208.    0        
+    ##  3 depth         -58.4       6.25    -9.33  1.07e- 20
+    ##  4 table         -24.1       3.23    -7.45  9.40e- 14
+    ##  5 x            -970.       49.0    -19.8   5.16e- 87
+    ##  6 y               9.08     19.9      0.456 6.49e-  1
+    ##  7 z            -127.       73.2     -1.74  8.23e-  2
+    ##  8 cut_1         596.       25.0     23.8   1.22e-124
+    ##  9 cut_2        -300.       19.9    -15.0   4.77e- 51
+    ## 10 cut_3         153.       17.2      8.90  5.99e- 19
+    ## # … with 14 more rows
+
+Activities:
+
+- Explain what the intercept represents.
+
+- Describe the effect of carat. Is it a significant predictor of price? Holding everything else constant, what is the effect on price of a one-unit increase in carat?
+
+The following code generates predicted values for price for each observation in the training set:
+
+    diamond_train_res <- predict(lm_fit, new_data = diamonds_train %>% select(-price))
+    diamond_train_res %>% 
+      head()
+
+    ## # A tibble: 6 × 1
+    ##    .pred
+    ##    <dbl>
+    ## 1 -1363.
+    ## 2  -667.
+    ## 3   199.
+    ## 4  -815.
+    ## 5 -3472.
+    ## 6 -1373.
+
+Now we attach a column with the actual observed price observations:
+
+    diamond_train_res <- bind_cols(diamond_train_res, diamonds_train %>% select(price))
+    diamond_train_res %>% 
+      head()
+
+    ## # A tibble: 6 × 2
+    ##    .pred price
+    ##    <dbl> <int>
+    ## 1 -1363.   326
+    ## 2  -667.   326
+    ## 3   199.   327
+    ## 4  -815.   334
+    ## 5 -3472.   335
+    ## 6 -1373.   336
+
+We might be interested in a plot of predicted values vs. actual values, here for the training data:
+
+    diamond_train_res %>% 
+      ggplot(aes(x = .pred, y = price)) +
+      geom_point(alpha = 0.2) +
+      geom_abline(lty = 2) + 
+      theme_bw() +
+      coord_obs_pred()
+
+[]
+
+It’s fairly clear that the model didn’t do very well. If it predicted every observation accurately, the dots would form a straight line. We also have predicted some negative values for price, and once the actual price is approximately over \(\$5,000\), the model does a pretty poor job.
+
+The odds are that a linear model is simply not the best tool for this machine learning task. It is likely not an accurate representation of f(); remember that by using a linear regression, we are imposing a specific form on the function, rather than learning the function from the data.
+
+In future labs, we’ll try out different models and compare them. Finally, we can calculate the training root mean squared error (RMSE) and the testing RMSE.
+
+    diamond_test_res <- predict(lm_fit, new_data = diamonds_test %>% select(-price))
+    diamond_test_res <- bind_cols(diamond_test_res, diamonds_test %>% select(price))
+      
+    rmse(diamond_train_res, truth = price, estimate = .pred)
+
+    ## # A tibble: 1 × 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rmse    standard       1126.
+
+    rmse(diamond_test_res, truth = price, estimate = .pred)
+
+    ## # A tibble: 1 × 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rmse    standard       1146.
+
+We can create and view a “metric set” of RMSE, MSE, and \(R^2\) as shown:
+
+    diamond_metrics <- metric_set(rmse, rsq, mae)
+    diamond_metrics(diamond_train_res, truth = price, 
+                    estimate = .pred)
+
+    ## # A tibble: 3 × 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rmse    standard    1126.   
+    ## 2 rsq     standard       0.920
+    ## 3 mae     standard     736.
+
+    diamond_metrics(diamond_test_res, truth = price,
+                    estimate = .pred)
+
+    ## # A tibble: 3 × 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rmse    standard    1146.   
+    ## 2 rsq     standard       0.918
+    ## 3 mae     standard     751.
+
+Activities:
+
+- Is there a difference between the three metrics for the training data and the testing data?
+
+- Do your best to explain why this difference does (or does not) exist.
+
+k-Nearest Neighbors
+
+Now we’ll take the recipe we’ve already created and try fitting a KNN (k-nearest neighbors) model with it! To do this, we’ll use the nearest_neighbor() function, rather than the linear_reg() function, but we’ll still need to select an engine. There is only one R package, or engine, that works with nearest_neighbor(), and that is the kknn package.
+
+[]
+
+To use an engine, we must make sure that the related package is installed and loaded on our machine. The code to do that is below – however, remember that you must keep the install_packages() line commented out to successfully knit this file.
+
+    # install.packages("kknn")
+    library(kknn)
+
+    knn_model <- nearest_neighbor() %>% 
+      set_engine("kknn") %>% 
+      set_mode("regression")
+
+Unlike a linear regression, however, there is a parameter – more specifically, a hyperparameter – that we have to set to fit a k-nearest neighbors model. That hyperparameter is k – the number of neighbors for the model to consider.
+
+How do we know the “right” or the optimal value of k to use? Well, we don’t! Eventually we’ll discuss the concepts of resampling, cross-validation, and tuning, which will allow us to determine the optimal value of a hyperparameter with relative ease. For now, we’ll go with the default value of k.
+
+Also unlike a linear regression, we need to specify whether our model is for regression or classification using set_mode(). Simply by fitting a linear regression model, it’s implied that the problem must be for regression, but KNN models can be used for either regression or classification.
+
+Activities:
+
+- What IS the default value of k here, if we do not specify a value? How did you find out?
+
+Now we add the model and recipe to the workflow and fit the model to the training data set:
+
+    knn_wflow <- workflow() %>% 
+      add_model(knn_model) %>% 
+      add_recipe(simple_diamonds_recipe)
+
+    knn_fit <- fit(knn_wflow, diamonds_train)
+
+Trying to view the results, as we did with the linear regression, is not very informative:
+
+    knn_fit %>% 
+      extract_fit_parsnip()
+
+    ## parsnip model object
+    ## 
+    ## 
+    ## Call:
+    ## kknn::train.kknn(formula = ..y ~ ., data = data, ks = min_rows(5,     data, 5))
+    ## 
+    ## Type of response variable: continuous
+    ## minimal mean absolute error: 373.8765
+    ## Minimal mean squared error: 515091.1
+    ## Best kernel: optimal
+    ## Best k: 5
+
+It tells us that the “best” value of k is 5, but that is also because it’s the only value we tried, so it doesn’t mean much.
+
+We’ll generate the predictions from this model for the training set and testing set, and then compare the metrics for each, as before:
+
+    diamond_train_knn <- predict(knn_fit, new_data = diamonds_train %>% select(-price))
+    diamond_train_knn <- bind_cols(diamond_train_knn, diamonds_train %>% select(price))
+
+    diamond_test_knn <- predict(knn_fit, new_data = diamonds_test %>% select(-price))
+    diamond_test_knn <- bind_cols(diamond_test_knn, diamonds_test %>% select(price))
+
+    diamond_metrics(diamond_train_knn, truth = price, 
+                    estimate = .pred)
+
+    ## # A tibble: 3 × 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rmse    standard     386.   
+    ## 2 rsq     standard       0.991
+    ## 3 mae     standard     201.
+
+    diamond_metrics(diamond_test_knn, truth = price,
+                    estimate = .pred)
+
+    ## # A tibble: 3 × 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rmse    standard     711.   
+    ## 2 rsq     standard       0.968
+    ## 3 mae     standard     373.
+
+Let’s try a different value for k. We can manually specify a value by adding it inside the nearest_neighbor() function. Later, when we introduce cross-validation, that’s also where we’ll specify the parameter to be tuned. The value we try is arbitrary; we can try basically any value of k from 1 to n. Then we have to fit the new model, etc.:
+
+    knn_model2 <- nearest_neighbor(neighbors = 2) %>% 
+      set_engine("kknn") %>% 
+      set_mode("regression")
+
+    knn_wflow2 <- workflow() %>% 
+      add_model(knn_model2) %>% 
+      add_recipe(diamonds_recipe)
+
+    knn_fit2 <- fit(knn_wflow2, diamonds_train)
+
+    diamond_train_knn2 <- predict(knn_fit2, new_data = diamonds_train %>% select(-price))
+    diamond_train_knn2 <- bind_cols(diamond_train_knn2, diamonds_train %>% select(price))
+
+    diamond_test_knn2 <- predict(knn_fit2, new_data = diamonds_test %>% select(-price))
+    diamond_test_knn2 <- bind_cols(diamond_test_knn2, diamonds_test %>% select(price))
+
+    diamond_metrics(diamond_train_knn2, truth = price, 
+                    estimate = .pred)
+
+    ## # A tibble: 3 × 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rmse    standard     152.   
+    ## 2 rsq     standard       0.999
+    ## 3 mae     standard      74.6
+
+    diamond_metrics(diamond_test_knn2, truth = price,
+                    estimate = .pred)
+
+    ## # A tibble: 3 × 3
+    ##   .metric .estimator .estimate
+    ##   <chr>   <chr>          <dbl>
+    ## 1 rmse    standard     851.   
+    ## 2 rsq     standard       0.955
+    ## 3 mae     standard     421.
+
+Activities:
+
+- Which of the three models – linear regression, k-nearest neighbors with \(k = 5\), or k-nearest neighbors with \(k = 2\) – performed better on the testing data? Why do you think this is so?
+
+- What do you think explains the difference between the training and testing metrics for the KNN models?
+
+- How many predictors are included in our KNN model(s)?
+
+- Do you think changing the number of predictors might improve the performance of the KNN model(s)?
+
+Missing Data
+
+We’ll use the airquality data set, which comes installed with base R, to illustrate some ways of handling missing data. Let’s start by loading the naniar package. Usually it’s considered good practice to load all packages in the same place – at the beginning of the Markdown file – but we’ll make an exception. If this is your first time using the package, you’ll need to uncomment and run the install.packages() line.
+
+Try running ?airquality to learn about the variables in the data set. There are 153 observations on six variables.
+
+It often makes sense to look at missingness in the data prior to splitting it. vis_miss() is a good function for this:
+
+    # install.packages("naniar")
+    library(naniar)
+    vis_miss(airquality)
+
+[]
+
+This plot shows us at a glance that 4.8% of the entire dataset is missing; that missingness is on two of six variables, Ozone and Solar.R. 24.16% of Ozone observations are missing and 4.56% of Solar.R observations are. We can see that these observations are missing also by directly looking at the data:
+
+    airquality %>% 
+      kable() %>% 
+      kable_styling(full_width = F) %>% 
+      scroll_box(width = "100%", height = "200px")
+
+    Ozone   Solar.R   Wind   Temp   Month   Day
+  ------- --------- ------ ------ ------- -----
+       41       190    7.4     67       5     1
+       36       118    8.0     72       5     2
+       12       149   12.6     74       5     3
+       18       313   11.5     62       5     4
+       NA        NA   14.3     56       5     5
+       28        NA   14.9     66       5     6
+       23       299    8.6     65       5     7
+       19        99   13.8     59       5     8
+        8        19   20.1     61       5     9
+       NA       194    8.6     69       5    10
+        7        NA    6.9     74       5    11
+       16       256    9.7     69       5    12
+       11       290    9.2     66       5    13
+       14       274   10.9     68       5    14
+       18        65   13.2     58       5    15
+       14       334   11.5     64       5    16
+       34       307   12.0     66       5    17
+        6        78   18.4     57       5    18
+       30       322   11.5     68       5    19
+       11        44    9.7     62       5    20
+        1         8    9.7     59       5    21
+       11       320   16.6     73       5    22
+        4        25    9.7     61       5    23
+       32        92   12.0     61       5    24
+       NA        66   16.6     57       5    25
+       NA       266   14.9     58       5    26
+       NA        NA    8.0     57       5    27
+       23        13   12.0     67       5    28
+       45       252   14.9     81       5    29
+      115       223    5.7     79       5    30
+       37       279    7.4     76       5    31
+       NA       286    8.6     78       6     1
+       NA       287    9.7     74       6     2
+       NA       242   16.1     67       6     3
+       NA       186    9.2     84       6     4
+       NA       220    8.6     85       6     5
+       NA       264   14.3     79       6     6
+       29       127    9.7     82       6     7
+       NA       273    6.9     87       6     8
+       71       291   13.8     90       6     9
+       39       323   11.5     87       6    10
+       NA       259   10.9     93       6    11
+       NA       250    9.2     92       6    12
+       23       148    8.0     82       6    13
+       NA       332   13.8     80       6    14
+       NA       322   11.5     79       6    15
+       21       191   14.9     77       6    16
+       37       284   20.7     72       6    17
+       20        37    9.2     65       6    18
+       12       120   11.5     73       6    19
+       13       137   10.3     76       6    20
+       NA       150    6.3     77       6    21
+       NA        59    1.7     76       6    22
+       NA        91    4.6     76       6    23
+       NA       250    6.3     76       6    24
+       NA       135    8.0     75       6    25
+       NA       127    8.0     78       6    26
+       NA        47   10.3     73       6    27
+       NA        98   11.5     80       6    28
+       NA        31   14.9     77       6    29
+       NA       138    8.0     83       6    30
+      135       269    4.1     84       7     1
+       49       248    9.2     85       7     2
+       32       236    9.2     81       7     3
+       NA       101   10.9     84       7     4
+       64       175    4.6     83       7     5
+       40       314   10.9     83       7     6
+       77       276    5.1     88       7     7
+       97       267    6.3     92       7     8
+       97       272    5.7     92       7     9
+       85       175    7.4     89       7    10
+       NA       139    8.6     82       7    11
+       10       264   14.3     73       7    12
+       27       175   14.9     81       7    13
+       NA       291   14.9     91       7    14
+        7        48   14.3     80       7    15
+       48       260    6.9     81       7    16
+       35       274   10.3     82       7    17
+       61       285    6.3     84       7    18
+       79       187    5.1     87       7    19
+       63       220   11.5     85       7    20
+       16         7    6.9     74       7    21
+       NA       258    9.7     81       7    22
+       NA       295   11.5     82       7    23
+       80       294    8.6     86       7    24
+      108       223    8.0     85       7    25
+       20        81    8.6     82       7    26
+       52        82   12.0     86       7    27
+       82       213    7.4     88       7    28
+       50       275    7.4     86       7    29
+       64       253    7.4     83       7    30
+       59       254    9.2     81       7    31
+       39        83    6.9     81       8     1
+        9        24   13.8     81       8     2
+       16        77    7.4     82       8     3
+       78        NA    6.9     86       8     4
+       35        NA    7.4     85       8     5
+       66        NA    4.6     87       8     6
+      122       255    4.0     89       8     7
+       89       229   10.3     90       8     8
+      110       207    8.0     90       8     9
+       NA       222    8.6     92       8    10
+       NA       137   11.5     86       8    11
+       44       192   11.5     86       8    12
+       28       273   11.5     82       8    13
+       65       157    9.7     80       8    14
+       NA        64   11.5     79       8    15
+       22        71   10.3     77       8    16
+       59        51    6.3     79       8    17
+       23       115    7.4     76       8    18
+       31       244   10.9     78       8    19
+       44       190   10.3     78       8    20
+       21       259   15.5     77       8    21
+        9        36   14.3     72       8    22
+       NA       255   12.6     75       8    23
+       45       212    9.7     79       8    24
+      168       238    3.4     81       8    25
+       73       215    8.0     86       8    26
+       NA       153    5.7     88       8    27
+       76       203    9.7     97       8    28
+      118       225    2.3     94       8    29
+       84       237    6.3     96       8    30
+       85       188    6.3     94       8    31
+       96       167    6.9     91       9     1
+       78       197    5.1     92       9     2
+       73       183    2.8     93       9     3
+       91       189    4.6     93       9     4
+       47        95    7.4     87       9     5
+       32        92   15.5     84       9     6
+       20       252   10.9     80       9     7
+       23       220   10.3     78       9     8
+       21       230   10.9     75       9     9
+       24       259    9.7     73       9    10
+       44       236   14.9     81       9    11
+       21       259   15.5     76       9    12
+       28       238    6.3     77       9    13
+        9        24   10.9     71       9    14
+       13       112   11.5     71       9    15
+       46       237    6.9     78       9    16
+       18       224   13.8     67       9    17
+       13        27   10.3     76       9    18
+       24       238   10.3     68       9    19
+       16       201    8.0     82       9    20
+       13       238   12.6     64       9    21
+       23        14    9.2     71       9    22
+       36       139   10.3     81       9    23
+        7        49   10.3     69       9    24
+       14        20   16.6     63       9    25
+       30       193    6.9     70       9    26
+       NA       145   13.2     77       9    27
+       14       191   14.3     75       9    28
+       18       131    8.0     76       9    29
+       20       223   11.5     68       9    30
+
+Since the data set is meant to measure air quality, it makes sense that we might want to predict the ozone levels. We can look at a histogram of the variable:
+
+    ggplot(aes(x = Ozone), data = airquality) +
+      geom_histogram()
+
+[]
+
+If we tried to run this code in the R console – outside of the .Rmd environment – we would receive a warning message that 37 rows containing non-finite values were removed. That is R’s way of informing us that it handled the missing values, or NAs, by dropping those observations entirely. That message doesn’t appear in the knitted .html file for this lab because in the global options chunk, at the very top of this document, we set message=FALSE and warning=FALSE for the sake of neatness.
+
+Some R functions, like geom_histogram(), will handle missing data in one way or another by default and will give a reasonable response or value. Others will not:
+
+    airquality %>% 
+      summarise(mean(Ozone))
+
+    ##   mean(Ozone)
+    ## 1          NA
+
+If there is even one NA value, for instance, mean() will report NA. We can tell it to drop any rows with NA and get a value instead:
+
+    airquality %>% 
+      summarise(mean(Ozone, na.rm = T))
+
+    ##   mean(Ozone, na.rm = T)
+    ## 1               42.12931
+
+One way we could choose to handle the missingness is to remove the variables with any missing data by simply not including them. However, here one of those variables is our outcome, and it would make very little sense to remove it.
+
+Another way is to remove all observations with missing data from the dataset, which is what geom_histogram() and mean() do by default. We could do that before we split the data like so:
+
+    airquality_droprow <- airquality %>% drop_na()
+
+However, dropping those observations reduced the overall number of observations from 135 to 111, a reduction of approximately 17.78%, which is a fairly large reduction for a dataset that was already fairly small.
+
+The other option is to use some form of imputation and generate values for the missing observations. There are several functions we can use for imputation; you can find more about them here. The primary downside to mean, median, and mode imputation are that they result in a reduction in variance. Imputation using KNN, bagging, or a linear model tends to perform better.
+
+Since only two variables have missingness, we’ll take a relatively easy route and use linear imputation to handle them. This can be incorporated in the recipe like so:
+
+    airquality_split <- initial_split(airquality, prop = 0.80,
+                                    strata = Ozone)
+    airquality_train <- training(airquality_split)
+    airquality_test <- testing(airquality_split)
+
+    air_recipe <- recipe(Ozone ~ ., data = airquality_train) %>% 
+      step_impute_linear(Ozone, impute_with = 
+                           imp_vars(Wind, Temp, Month, Day)) %>% 
+      step_impute_linear(Solar.R, impute_with = 
+                           imp_vars(Wind, Temp, Month, Day))
+
+And we can prep() and bake() the recipe to verify that it worked – these missing values were imputed, or predicted, using the complete variables!
+
+    prep(air_recipe) %>% 
+      bake(new_data = airquality_train) %>% 
+      kable() %>% 
+      kable_styling(full_width = F) %>% 
+      scroll_box(width = "100%", height = "200px")
+
+    Solar.R   Wind   Temp   Month   Day   Ozone
+  --------- ------ ------ ------- ----- -------
+        149   12.6     74       5     3      12
+        313   11.5     62       5     4      18
+         19   20.1     61       5     9       8
+        206    6.9     74       5    11       7
+        256    9.7     69       5    12      16
+        290    9.2     66       5    13      11
+        274   10.9     68       5    14      14
+         65   13.2     58       5    15      18
+        334   11.5     64       5    16      14
+         78   18.4     57       5    18       6
+          8    9.7     59       5    21       1
+        320   16.6     73       5    22      11
+        332   13.8     80       6    14      36
+        120   11.5     73       6    19      12
+        135    8.0     75       6    25      52
+         47   10.3     73       6    27      40
+         31   14.9     77       6    29      31
+        139    8.6     82       7    11      55
+        264   14.3     73       7    12      10
+         48   14.3     80       7    15       7
+          7    6.9     74       7    21      16
+         77    7.4     82       8     3      16
+        137   11.5     86       8    11      48
+         64   11.5     79       8    15      36
+        255   12.6     75       8    23      27
+        153    5.7     88       8    27      79
+         24   10.9     71       9    14       9
+        112   11.5     71       9    15      13
+         27   10.3     76       9    18      13
+        201    8.0     82       9    20      16
+        238   12.6     64       9    21      13
+         49   10.3     69       9    24       7
+         20   16.6     63       9    25      14
+        191   14.3     75       9    28      14
+        162   14.3     56       5     5     -11
+        195   14.9     66       5     6      28
+        299    8.6     65       5     7      23
+         99   13.8     59       5     8      19
+        194    8.6     69       5    10      37
+        322   11.5     68       5    19      30
+         66   16.6     57       5    25     -12
+         13   12.0     67       5    28      23
+        286    8.6     78       6     1      47
+        191   14.9     77       6    16      21
+         37    9.2     65       6    18      20
+        127    8.0     78       6    26      58
+         98   11.5     80       6    28      49
+        175   14.9     81       7    13      27
+         81    8.6     82       7    26      20
+        273   11.5     82       8    13      28
+         71   10.3     77       8    16      22
+        244   10.9     78       8    19      31
+        252   10.9     80       9     7      20
+        220   10.3     78       9     8      23
+        230   10.9     75       9     9      21
+        259    9.7     73       9    10      24
+        259   15.5     76       9    12      21
+        238   10.3     68       9    19      24
+        193    6.9     70       9    26      30
+        223   11.5     68       9    30      20
+        118    8.0     72       5     2      36
+        307   12.0     66       5    17      34
+         92   12.0     61       5    24      32
+        252   14.9     81       5    29      45
+        279    7.4     76       5    31      37
+        287    9.7     74       6     2      36
+        186    9.2     84       6     4      57
+        264   14.3     79       6     6      29
+        323   11.5     87       6    10      39
+        259   10.9     93       6    11      70
+        322   11.5     79       6    15      43
+         59    1.7     76       6    22      77
+         91    4.6     76       6    23      66
+        248    9.2     85       7     2      49
+        236    9.2     81       7     3      32
+        101   10.9     84       7     4      48
+        314   10.9     83       7     6      40
+        274   10.3     82       7    17      35
+        220   11.5     85       7    20      63
+        258    9.7     81       7    22      52
+        295   11.5     82       7    23      48
+         82   12.0     86       7    27      52
+        275    7.4     86       7    29      50
+        254    9.2     81       7    31      59
+         83    6.9     81       8     1      39
+        211    7.4     85       8     5      35
+         51    6.3     79       8    17      59
+        212    9.7     79       8    24      45
+         92   15.5     84       9     6      32
+        236   14.9     81       9    11      44
+        237    6.9     78       9    16      46
+        139   10.3     81       9    23      36
+        145   13.2     77       9    27      27
+        266   14.9     58       5    26      -3
+        128    8.0     57       5    27      22
+        223    5.7     79       5    30     115
+        273    6.9     87       6     8      73
+        150    6.3     77       6    21      61
+        269    4.1     84       7     1     135
+        175    4.6     83       7     5      64
+        276    5.1     88       7     7      77
+        267    6.3     92       7     8      97
+        272    5.7     92       7     9      97
+        187    5.1     87       7    19      79
+        294    8.6     86       7    24      80
+        223    8.0     85       7    25     108
+        216    6.9     86       8     4      78
+        213    4.6     87       8     6      66
+        255    4.0     89       8     7     122
+        229   10.3     90       8     8      89
+        157    9.7     80       8    14      65
+        238    3.4     81       8    25     168
+        215    8.0     86       8    26      73
+        203    9.7     97       8    28      76
+        225    2.3     94       8    29     118
+        237    6.3     96       8    30      84
+        188    6.3     94       8    31      85
+        167    6.9     91       9     1      96
+        197    5.1     92       9     2      78
+        183    2.8     93       9     3      73
+        189    4.6     93       9     4      91
+
+vis_miss() on the prepped data would tell us no observations are missing now:
+
+    prep(air_recipe) %>% 
+      bake(new_data = airquality_train) %>% 
+      vis_miss()
+
+[]
+
+Note that you don’t need to handle missingness on all variables in the same way. You could choose to use mean imputation for one, KNN imputation for another, drop a third completely, etc. The most important aspects here are that you should (a) handle all missingness in some way, (b) if possible consider why observations are missing, and (c) report what you did for the sake of transparency.
+
+Activities
+
+- Fit a linear regression model using the imputed data.
+
+- Compare the results of that model to a linear regression fit using mean imputation for both variables. Discuss the similarities and differences.
+
+Resources
+
+The free book Tidy Modeling with R is strongly recommended.
+
+You can view all the ISLR textbook code written with tidymodels here.

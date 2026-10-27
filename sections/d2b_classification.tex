@@ -1,0 +1,565 @@
+%% d2b_classification.tex -- DISTILLED notes: classification models
+%% (logistic regression, LDA, QDA, naive Bayes) -- Slide Set 3 pp. 1-33 & 43-93,
+%% Lab 3, HW 3 (Q4-Q12), practice exam Q14/Q15/Q16/Q20.
+\section{Classification models: logistic regression, LDA, QDA, naive Bayes}
+\ixh{classification}
+
+%% ==================================================================
+\subsection{Classification set-up; why not linear regression?}
+\ixh{classification}
+
+\begin{topic}{Classification in general}
+\begin{itemize}
+\item Predicting a \ix{qualitative response} for an observation $=$ \ix{classification}: assign the
+  observation to a class. Usually we first predict the \emph{probability} of each class
+  (a quantitative number) and then classify \src{S3.4}.
+\item Classifiers in this course: \ix{KNN}, \ix{logistic regression}, \ix{discriminant analysis}
+  (\ix{LDA}, \ix{QDA}), \ix{naive Bayes}.
+\item Running example: \ixc{Default} data (ISLR): $Y=$ \texttt{default} (Yes/No);
+  $X_1=$ annual \texttt{income}, $X_2=$ monthly credit-card \texttt{balance}, $X_3=$ \texttt{student}.
+  Defaulters have much higher balances; income barely differs \src{S3.8}.
+\end{itemize}
+\end{topic}
+
+\begin{keybox}[Why not linear regression for a categorical Y?]
+\begin{itemize}
+\item \textbf{Binary} $Y\in\{0,1\}$: \ix{linear regression} models
+  $\Pr(Y=1\mid X)=\beta_0+\beta_1X_1+\dots+\beta_pX_p$, an unbounded line
+  $\Rightarrow$ fitted ``probabilities'' can be $<0$ (Default data: \textbf{negative probability} for
+  balance $\lesssim 500$) or $>1$. Logistic regression's S-curve stays in $[0,1]$ \src{S3.5}.
+\item \textbf{$>2$ classes}: coding $Y=1$ (stroke), 2 (drug overdose), 3 (seizure) imposes an
+  \textbf{ordering} and equal spacing (stroke$\to$overdose gap $=$ overdose$\to$seizure gap); a different
+  coding (1 stroke, 2 seizure, 3 overdose) gives a different model; $\{$dog, cat, fish$\}$ has no
+  order at all \src{S3.6}.
+\item Course focuses on \textbf{binary} classification (multi-class logistic regression exists) \src{S3.7}.
+\end{itemize}
+\end{keybox}
+
+%% ==================================================================
+\subsection{The logistic regression model}
+\ixh{logistic regression}
+
+\begin{keybox}[Logistic regression: three equivalent forms]
+With $p(X)=\Pr(Y=1\mid X)$ \src{S3.10--11, S3.24}:
+\begin{align*}
+p(X)&=\frac{e^{\beta_0+\beta_1X}}{1+e^{\beta_0+\beta_1X}}\in[0,1] &&\text{\ix{logistic function}}\\[2pt]
+\frac{p(X)}{1-p(X)}&=e^{\beta_0+\beta_1X}\in[0,\infty) &&\text{\ix{odds}}\\[2pt]
+\log\Bigl(\frac{p(X)}{1-p(X)}\Bigr)&=\beta_0+\beta_1X\in(-\infty,\infty) &&\text{\ix{log odds} $=$ \ix{logit}}
+\end{align*}
+\textbf{The logit is linear in $X$} (not $p$!). Multiple predictors: replace $\beta_0+\beta_1X$ by
+$\beta_0+\beta_1X_1+\dots+\beta_pX_p$ everywhere \src{S3.24}. $\log=\ln$ (natural log).
+Equivalent: $p=\frac{1}{1+e^{-z}}$ with $z=\beta_0+\beta_1X$ (the \ix{sigmoid}).
+
+\textbf{Odds} $=p/(1-p)$, \emph{not} $p$: rolling a 3 on a fair die has $p=1/6$, odds $=\frac{1/6}{5/6}=1/5$
+\src{S3.10}. $p=0.8\Rightarrow$ odds $=4$ (``4 to 1'').
+\end{keybox}
+
+\noindent
+\begin{minipage}[c]{0.56\linewidth}
+\begin{tikzpicture}
+\begin{axis}[scale only axis,width=0.80\linewidth,height=2.3cm,
+  xmin=-6,xmax=6,ymin=0,ymax=1,axis lines=left,
+  xtick={-6,-3,0,3,6},ytick={0,0.5,1},
+  xlabel={$z=\beta_0+\beta_1X$ (logit)},ylabel={$p$},
+  ylabel style={yshift=-6pt},xlabel style={yshift=3pt},
+  samples=120,domain=-6:6]
+\addplot[very thick,dblue] {1/(1+exp(-x))};
+\addplot[densely dashed,gray] coordinates {(-6,0.5) (0,0.5) (0,0)};
+\node[font=\tiny,anchor=west,align=left] at (axis cs:-5.8,0.83) {$p=\frac{e^z}{1+e^z}$};
+\node[font=\tiny,anchor=west] at (axis cs:0.3,0.12) {$z=0\Leftrightarrow p=0.5$};
+\end{axis}
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\linewidth}\footnotesize
+\begin{tabular}{@{}rrr@{}}
+\toprule
+$p$ & odds & log odds\\ \midrule
+0 & 0 & $-\infty$\\
+0.269 & 0.368 & $-1$\\
+0.5 & 1 & 0\\
+0.731 & 2.72 & 1\\
+0.88 & 7.33 & 2\\
+0.95 & 19 & 3\\
+1 & $\infty$ & $+\infty$\\ \bottomrule
+\end{tabular}\\[1pt]
+{\scriptsize $p$ on $[0,1]$ $\mapsto$ log odds on $(-\infty,\infty)$ \src{S3.16--21}}
+\end{minipage}
+
+\begin{topic}{Interpreting logistic coefficients}
+\src{S3.12--13, S3.25}
+\begin{itemize}
+\item $\beta_1$ $=$ the \textbf{additive} change in the \ix{logit} (log odds) for a 1-unit increase in $X$.
+\item $e^{\beta_1}$ $=$ the \textbf{multiplicative} change in the \ix{odds}:
+  $\text{odds}(X{+}1)/\text{odds}(X)=e^{\beta_1}$ (the \ix{odds ratio}). A $c$-unit increase multiplies the odds by
+  $e^{c\beta_1}$ (HW3 Q12: $+2$ units $\Rightarrow\times e^{2\beta_1}$). \% change in odds $=100(e^{\beta_1}-1)\%$.
+\item $\beta_1$ is \textbf{NOT} the change in $\Pr(Y=1\mid X)$ per unit of $X$. Only the \textbf{sign} carries over:
+  $\beta_1>0\Rightarrow X\nearrow\Rightarrow p\nearrow$;\; $\beta_1<0\Rightarrow X\nearrow\Rightarrow p\searrow$;\;
+  $\beta_1=0\Rightarrow$ no association.
+\item The rate of change of $p$ per unit $X$ \textbf{depends on the current value of $X$} --- not linear
+  (calculus: $dp/dX=\beta_1p(1-p)$, steepest, $=\beta_1/4$, at $p=0.5$).
+\item Multiple logistic regression: $\beta_j$ $=$ change in logit per unit $X_j$
+  \textbf{conditional on (holding fixed) the other predictors} \src{S3.25}.
+\item $\beta_0$ $=$ log odds when all $X$'s $=0$. Regression on observational data shows
+  \textbf{association, not causation}\ixh{causation}.
+\end{itemize}
+\end{topic}
+
+\begin{trap}[PE Q16: coefficient 0.04 is NOT ``+4\% probability'']
+\ixh{coefficient interpretation}Logistic regression for cancelling a subscription; coefficient of \texttt{MonthlyFee} $=0.04$.\\
+\textbf{Wrong:} ``A \$1 increase in the monthly fee \emph{causes} a customer's probability of cancelling to
+increase by 4\%.'' Problems: (1) it treats the probability as linear in the fee --- the relationship is
+linear in the \ix{log odds}, and the change in $p$ depends on the current fee; (2) ``causes'' ---
+only \textbf{association} can be claimed.\\
+\textbf{Right:} ``A \$1 increase in the monthly fee is associated with a 0.04 increase in the log odds of
+cancelling'' (equivalently, odds $\times e^{0.04}\approx1.041$, about $+4.1\%$ in the \emph{odds}), or
+``a higher fee is associated with a higher probability of cancelling'' (sign is positive) \src{PE Q16}.
+\end{trap}
+
+\begin{keybox}[HW3 Q11--Q12 (231): logit is the inverse of the logistic]
+$p=\frac{e^z}{1+e^z}\Rightarrow p+pe^z=e^z\Rightarrow p=e^z(1-p)\Rightarrow e^z=\frac{p}{1-p}
+\Rightarrow z=\ln\frac{p}{1-p}$ \src{HW3 Q11}.\quad
+$z=\beta_0+\beta_1x_1$: odds at $x_1{+}2$ $=e^{\beta_0+\beta_1(x_1+2)}=e^{\beta_0+\beta_1x_1}\cdot e^{2\beta_1}$, so the odds are
+multiplied by $e^{2\beta_1}$. If $\beta_1<0$: $x_1\to\infty\Rightarrow z\to-\infty\Rightarrow p\to0$;\;
+$x_1\to-\infty\Rightarrow z\to+\infty\Rightarrow p=\frac{1}{1+e^{-z}}\to1$ \src{HW3 Q12}.
+\end{keybox}
+
+%% ==================================================================
+\subsection{Estimating the coefficients: maximum likelihood}
+\ixh{maximum likelihood}
+
+\begin{topic}{Fitting with glm()}
+\begin{itemize}
+\item Coefficients are estimated by \ix{maximum likelihood} (MLE), \emph{not} least squares \src{S3.26}:
+  choose $\hat\beta$'s so $\hat p(x_i)$ is near 1 when $y_i=1$ and near 0 when $y_i=0$, i.e.\ maximise
+  $\ell(\beta_0,\beta_1)=\prod_{i:y_i=1}p(x_i)\prod_{i':y_{i'}=0}\bigl(1-p(x_{i'})\bigr)$ (ISLR 4.3.2).
+\item Base R: \ixc{glm()} with \ixc{family = binomial} (``generalized linear model''):
+\end{itemize}
+\begin{rcode}
+glm.fit <- glm(default ~ student + balance + income,      (*@\ixch{glm()}\ixch{Default}@*)
+               data = Default, family = binomial)        (*@\ixch{family = binomial}@*)
+summary(glm.fit)                                          (*@\ixch{summary()}@*)
+\end{rcode}
+\begin{routput}
+              Estimate Std. Error z value Pr(>|z|)
+(Intercept) -1.087e+01  4.923e-01 -22.080  < 2e-16 ***
+studentYes  -6.468e-01  2.363e-01  -2.738  0.00619 **
+balance      5.737e-03  2.319e-04  24.738  < 2e-16 ***
+income       3.033e-06  8.203e-06   0.370  0.71152
+    Null deviance: 2920.6  on 9999  degrees of freedom
+Residual deviance: 1571.5  on 9996  degrees of freedom
+AIC: 1579.5
+\end{routput}
+\begin{itemize}
+\item \texttt{z value} $=$ Estimate$/$Std.\ Error (a \ix{z-statistic}, not $t$); small \ix{p-value}
+  $\Rightarrow$ reject $H_0{:}\ \beta_j=0$ given the other predictors. Here income is not significant
+  ($p=0.71$) once balance and student are in the model.
+\item \texttt{studentYes} is the \ix{dummy variable} for student $=$ Yes (\ix{reference level} $=$ No).
+\item Units: \texttt{income} coefficient is $3.033\times10^{-6}$ per \$1; the slide tables show
+  $0.0030$ because there income is in \$1000s.
+\item \ix{deviance}: residual deviance $<$ null deviance $\Rightarrow$ predictors help; lower \ix{AIC} is better.
+\end{itemize}
+\end{topic}
+
+\begin{trap}[Perfect separation makes logistic regression unstable]
+\ixh{perfect separation}If $Y=0$ for $X\le50$ and $Y=1$ for $X>50$ (\textbf{perfectly separable}),
+\texttt{glm(y\textasciitilde x, family = "binomial")} warns
+``\texttt{algorithm did not converge}'' and ``\texttt{fitted probabilities numerically 0 or 1 occurred}'':
+the MLE $\hat\beta_1\to\infty$, so the coefficient estimates are unstable. \textbf{LDA does not suffer
+from this problem} \src{S3.45}.
+\end{trap}
+
+%% ==================================================================
+\subsection{Multiple logistic regression and confounding}
+\ixh{multiple logistic regression}\ixh{confounding}
+
+\begin{topic}{The student paradox on the Default data}
+\src{S3.27--29}\quad
+\begin{tabular}{@{}lrr@{}}
+\toprule
+ & \texttt{default\textasciitilde student} & \texttt{\textasciitilde balance+income+student}\\ \midrule
+Intercept & $-3.5041$ & $-10.8690$\\
+balance & --- & $0.0057$ \;($p<.0001$)\\
+income (\$1000s) & --- & $0.0030$ \;($p=.7115$)\\
+student[Yes] & $\mathbf{0.4049}$ \;($p=.0004$) & $\mathbf{-0.6468}$ \;($p=.0062$)\\ \bottomrule
+\end{tabular}
+\begin{itemize}
+\item \textbf{Contradicting signs!} Simple model: a student is \textbf{riskier} than a non-student
+  \emph{if no other information} about the student is available. Multiple model: a student is
+  \textbf{less risky} than a non-student \emph{with the same credit-card balance} (and income).
+\item Why: \textbf{student and balance are correlated} --- students are more likely to carry large balances,
+  which are associated with high default rates. Balance \ix{confounding} the student effect.
+\item Lesson: pay extra attention when regressing on a \textbf{single predictor} while other relevant predictors
+  exist (\ix{confounding}; \ix{Simpson's paradox}: S3.30 shows two groups each with a positive
+  $y$--$x$ trend, but the pooled data trend is negative) \src{S3.29--31}.
+\end{itemize}
+\end{topic}
+
+%% ==================================================================
+\subsection{Predicted probabilities and the threshold}
+\ixh{predicted probability}\ixh{threshold}
+
+\begin{keybox}[Worked prediction (Default data)]
+\ixh{predicted probability}$\widehat{\Pr}(\text{default}=\text{Yes}\mid \text{balance}=1500,\ \text{income}=\$40\text{k},\ \text{student}=\text{No})$
+\[
+=\frac{e^{-10.869+0.00574(1500)+0.0030(40)-0.6468(0)}}{1+e^{-10.869+0.00574(1500)+0.0030(40)-0.6468(0)}}
+=\frac{e^{-2.14}}{1+e^{-2.14}}=0.105
+\]
+Same person but student $=$ Yes: $z=-2.14-0.6468=-2.79\Rightarrow\hat p=0.058$ \src{S3.32}.
+{\footnotesize Recipe: (1) $z=\hat\beta_0+\sum\hat\beta_jx_j$; (2) $\hat p=e^z/(1+e^z)$. The slide writes
+``$0.0030\times40000$'', but with income in \$1000s you must plug in 40 (40000 would give $\hat p\approx1$);
+fully rounded $\hat\beta$'s give $\approx0.10$.}
+\end{keybox}
+
+\begin{topic}{From predicted probability to predicted class}
+\src{S3.33}
+\begin{itemize}
+\item Classify by \textbf{thresholding} the \ix{predicted probability}: predict default $=$ Yes if
+  $\hat p>0.5$ (the usual \ix{threshold}; $\hat p>0.5\iff$ logit $>0$).
+\item A \textbf{conservative} credit company might predict default $=$ Yes whenever $\hat p>0.1$
+  $\Rightarrow$ more individuals flagged: more \ix{true positive}s \emph{and} more \ix{false positive}s.
+\item Raising the threshold $\Rightarrow$ fewer positive classifications \src{PE Q15}: $\hat p=.31,.48,.63,.81$ for
+  borrowers A--D; threshold $0.5\Rightarrow$ C, D; threshold $0.7\Rightarrow$ only D.
+\item Changing the threshold changes the \ix{confusion matrix}, \ix{sensitivity}, \ix{specificity} --- but
+  \textbf{not} the \ix{ROC curve} or \ix{AUC} (PE Q18). Details: see the model-evaluation section.
+\end{itemize}
+\end{topic}
+
+\begin{trap}[PE Q14: what a predicted probability means]
+Pneumonia model gives one patient $\hat p=0.78$. Correct: \textbf{(c)} ``the fitted model assigns this patient
+a probability of 0.78 of belonging to the pneumonia class.'' NOT ``the model is 78\% accurate for this patient'',
+NOT ``definitely has pneumonia'', NOT ``78\% of the symptoms indicate pneumonia'' \src{PE Q14}.
+\end{trap}
+
+\begin{topic}{Logistic regression in tidymodels (Lab 3)}
+\src{Lab 3}\quad Data: \ixc{Smarket} (outcome \texttt{Direction}: Down/Up; predictors
+\texttt{Lag1}--\texttt{Lag5}, \texttt{Volume}) and \ixc{OJ} (outcome \texttt{Purchase}: CH/MM).
+\begin{rcode}
+library(tidymodels); library(discrim); library(klaR)  (*@\ixch{tidymodels}\ixch{discrim}\ixch{klaR}@*)
+set.seed(3435)
+oj_split <- initial_split(OJ, prop = 0.70, strata = Purchase)  (*@\ixch{initial\_split()}\ixch{strata}@*)
+oj_train <- training(oj_split); oj_test <- testing(oj_split)
+oj_recipe <- recipe(Purchase ~ PriceCH + PriceMM + DiscCH + DiscMM +
+                      LoyalCH + PctDiscMM + PctDiscCH, data = oj_train)
+log_reg <- logistic_reg() %>%                     (*@\ixch{logistic\_reg()}@*)
+  set_engine("glm") %>%                           (*@\ixch{set\_engine()}\ixch{glm}@*)
+  set_mode("classification")                      (*@\ixch{set\_mode()}@*)
+ojlog_wkflow <- workflow() %>%                    (*@\ixch{workflow()}@*)
+  add_model(log_reg) %>% add_recipe(oj_recipe)    (*@\ixch{add\_model()}\ixch{add\_recipe()}@*)
+ojlog_fit <- fit(ojlog_wkflow, oj_train)          (*@\ixch{fit()}@*)
+ojlog_fit %>% tidy()                              (*@\ixch{tidy()}@*)
+predict(ojlog_fit, new_data = oj_train, type = "prob")  (*@\ixch{predict()}\ixch{type = "prob"}@*)
+augment(ojlog_fit, new_data = oj_train) %>%       (*@\ixch{augment()}@*)
+  conf_mat(truth = Purchase, estimate = .pred_class)  (*@\ixch{conf\_mat()}\ixch{.pred\_class}@*)
+\end{rcode}
+\begin{routput}
+  term        estimate std.error statistic  p.value
+1 (Intercept)     4.47     2.21      2.02  4.35e- 2
+6 LoyalCH        -6.07     0.450   -13.5   1.48e-41
+...
+# predict(type = "prob"):   .pred_CH .pred_MM
+                         1     0.606    0.394
+                         2     0.898    0.102
+\end{routput}
+\begin{itemize}
+\item \ixc{predict()} default (\texttt{type = "class"}) returns \ixc{.pred\_class} (threshold 0.5);
+  \ixc{type = "prob"} returns one column per level, \texttt{.pred\_<level>} (rows sum to 1).
+  \ixc{augment()} attaches \emph{both} to the data. \ixc{tidy()} gives the coefficient table.
+\item Smarket: training probabilities all $\approx0.4$--$0.6$ $\Rightarrow$ the model cannot discriminate Up/Down
+  (training accuracy 0.525); OJ: probabilities near 0/1, training accuracy 0.833.
+\end{itemize}
+\end{topic}
+
+\begin{trap}[Which level is ``Y = 1''? (factor levels)]
+\ixh{factor levels}\ixh{event level}\ixc{glm} (and \ixc{logistic\_reg()} with \texttt{"glm"}) models the probability of the
+\textbf{second} factor level; the first is the baseline. OJ levels are (CH, MM), so the coefficients are log odds
+of buying \textbf{MM}: \texttt{LoyalCH} $=-6.07$ means more Citrus-Hill loyalty $\Rightarrow$ lower odds of MM.
+\textbf{yardstick} metrics, in contrast, treat the \textbf{first} level as the event
+(\texttt{event\_level = "first"}). HW3 therefore reorders \texttt{survived} so ``Yes'' is first
+(\texttt{factor(survived, levels = c("Yes","No"))}) and uses \ixc{.pred\_Yes} in \ixc{roc\_auc()} ---
+but then the glm coefficients describe the log odds of \emph{No} (flip the sign to talk about survival).
+\end{trap}
+
+%% ==================================================================
+\subsection{Discriminant analysis: Bayes' theorem and the idea}
+\ixh{discriminant analysis}\ixh{Bayes' theorem}
+
+\begin{topic}{Why bother with LDA?}
+\src{S3.45--46}\quad\textbf{(1)} \ix{logistic regression} coefficient estimates can be \textbf{unstable}
+(e.g.\ well/perfectly separated classes); \textbf{(2)} $n$ is \textbf{small} and the distribution of $X$ is
+close to \textbf{normal} (in each class); \textbf{(3)} \ix{multi-class classification} ($K>2$) problems.
+\end{topic}
+
+\begin{keybox}[Bayes' theorem for classification]
+The \ix{Bayes classifier} $\operatorname{argmax}_{k=1,\dots,K}\Pr(Y=k\mid X_1,\dots,X_p)$ is the ``best'' we can do
+\src{S3.48}. Logistic regression models $\Pr(Y=1\mid X)$ directly; \ix{LDA} instead uses \ix{Bayes' theorem}
+and makes assumptions on $X_1,\dots,X_p\mid Y$ \src{S3.48--49}:
+\begin{itemize}
+\item \ix{prior probability} $\pi_k=\Pr(Y=k)$;\quad
+  \ix{density function} of $X$ in class $k$: $f_k(x)=\Pr(X=x\mid Y=k)$.
+\end{itemize}
+\[
+\underbrace{\Pr(Y=k\mid X=x)}_{\text{\ix{posterior probability}}}
+=\frac{\Pr(Y=k,\,X=x)}{\Pr(X=x)}
+=\frac{\pi_k\,f_k(x)}{\sum_{j=1}^{K}\pi_j\,f_j(x)}
+\]
+The denominator is the same for every $k$ $\Rightarrow$ classify to the $k$ with the largest $\pi_kf_k(x)$.\\
+\textbf{Discriminant analysis in one sentence:} assume $f_k$ is the \textbf{normal} density, i.e.\
+$(X_1,\dots,X_p)\mid Y$ is normally distributed \src{S3.68}.\\
+{\footnotesize Example (mine): $\pi_1=0.3,\ \pi_2=0.7$, $f_1(x_0)=0.4,\ f_2(x_0)=0.1$ $\Rightarrow$
+$\Pr(Y=1\mid x_0)=\frac{0.12}{0.12+0.07}=0.63$ $\Rightarrow$ class 1, despite the smaller prior.}
+\end{keybox}
+
+%% ==================================================================
+\subsection{LDA with one predictor ($p=1$)}
+\ixh{linear discriminant analysis (LDA)}
+
+\begin{keybox}[LDA, p = 1: model, discriminant function, estimates]
+\textbf{Assume} $X\mid Y=k\sim N(\mu_k,\sigma^2)$ --- \textbf{different mean, same variance} \src{S3.69}:
+\[ f_k(x)=\frac{1}{\sqrt{2\pi}\,\sigma}\exp\Bigl(-\frac{1}{2\sigma^2}(x-\mu_k)^2\Bigr),\qquad
+\Pr(Y=k\mid X=x)\propto\pi_k\exp\Bigl(-\frac{1}{2\sigma^2}(x-\mu_k)^2\Bigr) \]
+($\tfrac{1}{\sqrt{2\pi}\sigma}$ and the denominator are the same for all $k$ and cancel.) Taking logs and dropping
+terms that do not depend on $k$, assign $x$ to the class whose \ix{discriminant function}
+\[ \delta_k(x)=x\cdot\frac{\mu_k}{\sigma^2}-\frac{\mu_k^2}{2\sigma^2}+\log(\pi_k)\quad\text{is largest} \]
+{\footnotesize (S3.70--76 print the middle term as $\mu_k^2/\sigma^2$; the algebra gives $2\sigma^2$, as in ISLR.)}\\
+$\mu_1,\dots,\mu_K,\pi_1,\dots,\pi_K,\sigma^2$ are unknown $\Rightarrow$ \textbf{estimate them} \src{S3.71, S3.76}:
+\[ \hat\pi_k=\frac{n_k}{n},\qquad \hat\mu_k=\frac{1}{n_k}\sum_{i:y_i=k}x_i,\qquad
+\hat\sigma^2=\frac{1}{n-K}\sum_{k=1}^{K}\sum_{i:y_i=k}(x_i-\hat\mu_k)^2 \]
+($n_k=$ \# training obs.\ in class $k$; $\hat\sigma^2$ is the \ix{pooled variance}.) The LDA classifier plugs these into
+$\hat\delta_k(x)=x\,\hat\mu_k/\hat\sigma^2-\hat\mu_k^2/(2\hat\sigma^2)+\log\hat\pi_k$, which is
+\textbf{linear in $x$} --- hence ``linear'' discriminant analysis.
+\end{keybox}
+
+\begin{topic}{Decision boundary ($p=1$, $K=2$)}
+\ixh{decision boundary}\src{S3.77}
+\begin{itemize}
+\item \ix{decision boundary}: $\delta_1(x)=\delta_2(x)$. With equal priors $\pi_1=\pi_2$:
+  $x^*=\frac{\mu_1+\mu_2}{2}$ (midpoint of the means). Unequal priors (ISLR):
+  $x^*=\frac{\mu_1+\mu_2}{2}+\frac{\sigma^2\log(\pi_2/\pi_1)}{\mu_1-\mu_2}$ --- the boundary moves toward the
+  \emph{less} likely class, enlarging the region of the more likely one.
+\item S3.77: left, densities $N(\mu_1,\sigma^2)$ (green) and $N(\mu_2,\sigma^2)$ (purple) cross at 0 $=$
+  \ix{Bayes decision boundary} (dashed); right, histograms of training samples with the \textbf{LDA decision
+  boundary} (solid, slightly left of 0) --- LDA estimates the Bayes boundary from data.
+\item Intuition (S3.52--75, gene-transcription/drug example): LDA builds a \textbf{new axis} that
+  \textbf{maximises} $\dfrac{d^2}{s_1^2+s_2^2}$ --- squared distance between class means over the within-class
+  ``scatter'' --- rather than ignoring a predictor (projecting on Gene X alone loses separation). For 3 classes:
+  $\frac{d_1^2+d_2^2+d_3^2}{s_1^2+s_2^2+s_3^2}$ with $d_k$ $=$ distance from class centroid to the overall centroid;
+  data are projected onto LD1, LD2 (S3.82--85).
+\end{itemize}
+\end{topic}
+
+%% ==================================================================
+\subsection{LDA with several predictors ($p>1$)}
+\ixh{linear discriminant analysis (LDA)}
+
+\begin{keybox}[LDA, p > 1]
+\textbf{Assume} $(X_1,\dots,X_p)\mid Y=k\sim N(\mu_k,\Sigma)$ --- \textbf{different mean vector, same
+\ix{covariance matrix}} $\Sigma$ ($p\times p$, shared by all classes) \src{S3.78}
+(\ix{multivariate normal distribution}):
+\[ f_k(\mathbf x)=\frac{1}{(2\pi)^{p/2}|\Sigma|^{1/2}}
+\exp\Bigl(-\tfrac12(\mathbf x-\mu_k)^T\Sigma^{-1}(\mathbf x-\mu_k)\Bigr) \]
+``With a lot of algebra'', the Bayes classifier assigns $\mathbf x$ to the class with the largest
+\[ \delta_k(\mathbf x)=\mathbf x^T\Sigma^{-1}\mu_k-\tfrac12\mu_k^T\Sigma^{-1}\mu_k+\log\pi_k . \]
+LDA plugs in $\hat\mu_k$, $\hat\Sigma$ (pooled), $\hat\pi_k$: $\hat\delta_k(\mathbf x)$ is \textbf{linear in $\mathbf x$}
+(only the term $\mathbf x^T\hat\Sigma^{-1}\hat\mu_k$ involves $\mathbf x$) \src{S3.79}.
+Posterior probabilities: $\widehat{\Pr}(Y=k\mid\mathbf x)=e^{\hat\delta_k(\mathbf x)}\big/\sum_j e^{\hat\delta_j(\mathbf x)}$.\\
+\textbf{Boundary} \src{S3.81}: Bayes $=\{\mathbf x:\delta_k(\mathbf x)=\delta_j(\mathbf x)\}$, LDA
+$=\{\mathbf x:\hat\delta_k(\mathbf x)=\hat\delta_j(\mathbf x)\}$, $k\neq j$ $\Rightarrow$ \textbf{linear
+boundary, i.e.\ a hyperplane} (a line when $p=2$; with $K=3$, three line pieces meeting at a point). In S3.81 the
+LDA (solid) and Bayes (dashed) boundaries nearly coincide.
+\end{keybox}
+
+%% ==================================================================
+\subsection{Quadratic discriminant analysis (QDA)}
+\ixh{quadratic discriminant analysis (QDA)}
+
+\begin{keybox}[QDA]
+Key in discriminant analysis: $(X_1,\dots,X_p)\mid Y$ is normal \src{S3.86}.
+\textbf{LDA:} $N(\mu_k,\Sigma)$ --- different mean, \textbf{same} covariance.
+\textbf{\ix{QDA}:} $N(\mu_k,\Sigma_k)$ --- different mean, \textbf{different} covariance (each class its own $\Sigma_k$).
+Assign $\mathbf x$ to the class with the largest \src{S3.87}
+\begin{align*}
+\delta_k(\mathbf x)=&-\tfrac12\mathbf x^T\Sigma_k^{-1}\mathbf x+\mathbf x^T\Sigma_k^{-1}\mu_k\\
+&-\tfrac12\mu_k^T\Sigma_k^{-1}\mu_k-\tfrac12\log|\Sigma_k|+\log\pi_k
+\end{align*}
+(QDA: hats on $\mu_k,\Sigma_k,\pi_k$.) The term $-\tfrac12\mathbf x^T\hat\Sigma_k^{-1}\mathbf x$ no longer cancels
+across classes $\Rightarrow$ \textbf{quadratic in $\mathbf x$} $\Rightarrow$ curved (quadratic)
+\ix{decision boundary}.\\
+\textbf{Parameter count} (covariances): LDA one $\Sigma$: $p(p+1)/2$; QDA: $K\cdot p(p+1)/2$
+(e.g.\ $p=50$: 1275 vs.\ $1275K$) \src{S3.91}.
+\end{keybox}
+
+\begin{topic}{S3.88: LDA vs QDA boundaries (purple dashed $=$ Bayes, black dotted $=$ LDA, green $=$ QDA)}
+\begin{itemize}
+\item $\Sigma_1=\Sigma_2$: the Bayes boundary is \textbf{linear}; LDA is close to it, QDA's curve deviates
+  (extra variance, no bias gain).
+\item $\Sigma_1\neq\Sigma_2$: the Bayes boundary is \textbf{curved}; QDA tracks it, LDA's straight line cannot (bias).
+\end{itemize}
+\end{topic}
+
+%% ==================================================================
+\subsection{Comparing classifiers}
+\ixh{model comparison}
+
+\begin{keybox}[KNN vs logistic vs LDA vs QDA vs naive Bayes]
+\ixh{parametric model}\ixh{non-parametric model}\ixh{decision boundary}
+{\footnotesize
+\begin{tabularx}{\linewidth}{@{}l c l X@{}}
+\toprule
+Method & Param.? & Boundary & Models / assumes\\ \midrule
+\ix{KNN} & no & nonlinear (any shape) & majority vote of the $k$ nearest training points; no assumption on $f$\\
+Logistic & yes & linear & $\Pr(Y=1\mid X)$ directly via the logit (\ix{discriminative model}); fit by MLE\\
+LDA & yes & linear & $X\mid Y=k\sim N(\mu_k,\Sigma)$, common $\Sigma$ (\ix{generative model})\\
+QDA & yes & quadratic & $X\mid Y=k\sim N(\mu_k,\Sigma_k)$, class-specific $\Sigma_k$\\
+Naive Bayes & yes & quadratic, no cross terms & predictors independent within each class\\ \bottomrule
+\end{tabularx}}
+\textbf{Model \ix{flexibility}} \src{S3.89}: KNN $>$ QDA $>$ logistic regression $=$ LDA
+(choose via the \ix{bias-variance tradeoff}); \ix{interpretability} runs the other way. KNN is
+\ix{non-parametric model}; logistic, LDA, QDA are \ix{parametric model}s.
+\end{keybox}
+
+\begin{topic}{Logistic regression vs LDA}
+\src{S3.90}
+\begin{itemize}
+\item \textbf{Both produce linear decision boundaries}; the coefficient-estimation procedures differ
+  (logistic: \ix{maximum likelihood}; LDA: plug in estimated normal means/variance/priors).
+\item LDA assumes a \textbf{normal} distribution of the predictors given the response class.
+\item Logistic regression learns $\Pr(Y=k\mid X)$ \textbf{directly}: \ix{discriminative model} (discriminative learning).
+  LDA learns $\Pr(Y=k\mid X)$ by modelling $\Pr(Y=k,X)=\pi_kf_k(x)$: \ix{generative model} (generative learning).
+\item Rule of thumb: normality roughly holds / small $n$ / well-separated classes / $K>2$ $\Rightarrow$ LDA;
+  normality doubtful $\Rightarrow$ logistic regression is more robust.
+\end{itemize}
+\end{topic}
+
+\begin{topic}{LDA vs QDA (bias--variance)}
+\src{S3.91}
+\begin{itemize}
+\item LDA is a \textbf{special case} of QDA (all $\Sigma_k=\Sigma$). QDA is \textbf{more flexible}, but has
+  \textbf{more parameters} to estimate (the $\Sigma_k$'s) $\Rightarrow$ lower \ix{bias}, higher \ix{variance}.
+\item Prefer \textbf{LDA}: few training observations (small $n$) relative to $p$, or class covariances similar
+  --- reducing variance is crucial. Prefer \textbf{QDA}: large $n$ (variance less of a concern) or the
+  common-covariance assumption is clearly untenable.
+\item In practice we often do not know which assumptions are reasonable --- let the data decide via
+  \ix{cross-validation} \src{S3.93}.
+\end{itemize}
+\end{topic}
+
+\begin{qbox}{PE Q20 (LDA vs QDA)}
+50{,}000 observations, two predictors, clear evidence that the covariance structures differ substantially
+across outcome levels. Which has greater potential to capture the true decision boundary?
+(a) LDA (b) QDA (c) equal (d) neither (both parametric).
+\ans \textbf{(b) QDA.} LDA assumes a common covariance, so it would not do well; QDA estimates more
+parameters, but $p=2$ is small and $n$ is huge, so the extra variance is negligible (parametric is fine)
+\src{PE Q20}.
+\end{qbox}
+
+\begin{trap}[LDA/QDA traps]
+\begin{itemize}
+\item \textbf{QDA only helps if the class covariances really differ}; if $\Sigma_1\approx\Sigma_2$ it just adds
+  variance (more parameters, no bias reduction) and LDA usually wins on test data.
+\item ``Linear'' in LDA refers to the \textbf{decision boundary} (linear $\hat\delta_k$), not to linear regression.
+  LDA and logistic regression share the boundary shape but are estimated differently.
+\item LDA/QDA assume \textbf{normal} predictors within each class --- categorical/dummy predictors violate this
+  (they still run, but the assumption is wrong).
+\item Higher \ix{training error} rate is not the criterion: the most flexible model (QDA/KNN) tends to win on
+  \emph{training} data and can lose on \ix{testing data} (\ix{overfitting}).
+\end{itemize}
+\end{trap}
+
+%% ==================================================================
+\subsection{Naive Bayes (Lab 3)}
+\ixh{naive Bayes}
+
+\begin{topic}{Naive Bayes}
+\begin{itemize}
+\item Same Bayes'-theorem idea, $\Pr(Y=k\mid x)\propto\pi_kf_k(x)$, but instead of a multivariate normal,
+  assume the $p$ predictors are \textbf{independent within each class}:
+  $f_k(x)=f_{k1}(x_1)\times f_{k2}(x_2)\times\dots\times f_{kp}(x_p)$.
+\item With \ixc{usekernel} \texttt{= FALSE} each $f_{kj}$ is a \textbf{normal (Gaussian)} density
+  (\texttt{TRUE} $\Rightarrow$ a kernel density estimate) \src{Lab 3}. Gaussian naive Bayes $\approx$ QDA with
+  \emph{diagonal} $\Sigma_k$ (no within-class correlations).
+\item ``Naive'' $=$ the independence assumption (usually false); it slashes the number of parameters
+  $\Rightarrow$ higher bias, much lower variance; useful when $p$ is large relative to $n$.
+\end{itemize}
+\end{topic}
+
+\begin{topic}{LDA / QDA / naive Bayes in tidymodels (Lab 3)}
+\ixh{discrim}Needs \ixc{library(discrim)} (and \ixc{klaR} for naive Bayes). The recipe/workflow is reused; only the
+model spec changes:
+\begin{rcode}
+lda_mod <- discrim_linear() %>%                     (*@\ixch{discrim\_linear()}@*)
+  set_mode("classification") %>% set_engine("MASS") (*@\ixch{MASS}\ixch{set\_engine()}@*)
+qda_mod <- discrim_quad() %>%                       (*@\ixch{discrim\_quad()}@*)
+  set_mode("classification") %>% set_engine("MASS")
+nb_mod <- naive_Bayes() %>%                         (*@\ixch{naive\_Bayes()}@*)
+  set_mode("classification") %>% set_engine("klaR") %>%  (*@\ixch{klaR}@*)
+  set_args(usekernel = FALSE)                       (*@\ixch{set\_args()}\ixch{usekernel}@*)
+smarketqda_wkflow <- workflow() %>% add_model(qda_mod) %>%
+  add_recipe(smarket_recipe)
+smarketqda_fit <- fit(smarketqda_wkflow, smarket_train)
+augment(smarketqda_fit, new_data = smarket_train) %>%
+  accuracy(truth = Direction, estimate = .pred_class)    (*@\ixch{accuracy()}@*)
+\end{rcode}
+\textbf{Spelling:} \ixc{naive\_Bayes()} (capital B), \ixc{discrim\_linear()}, \ixc{discrim\_quad()};
+engines \texttt{"MASS"} (LDA, QDA), \texttt{"klaR"} (naive Bayes).
+
+\textbf{Lab 3 training accuracies} (picked by training accuracy only because CV had not been taught):\\[1pt]
+{\footnotesize
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Model & \ixc{Smarket} & \ixc{OJ}\\ \midrule
+Logistic regression & 0.525 & \textbf{0.833}\\
+LDA & 0.524 & 0.828\\
+QDA & \textbf{0.548} & 0.797\\
+Naive Bayes & 0.529 & 0.778\\ \bottomrule
+\end{tabular}}\\[1pt]
+\textbf{Test set:} Smarket QDA accuracy \textbf{0.487} (sensitivity 0.254, specificity 0.703) --- worse than a
+coin flip despite the best training accuracy; OJ logistic accuracy 0.832 (sens.\ 0.908, spec.\ 0.714).
+Lesson: choosing a model by \ix{training error} is \textbf{not} a good idea in general; use
+\ix{cross-validation}. Test metrics via \ixc{metric\_set()}\texttt{(accuracy, sensitivity, specificity)}
+and \ixc{roc\_curve()}\texttt{(Direction, .pred\_Down)} (see model evaluation).
+\end{topic}
+
+%% ==================================================================
+\subsection{HW3: four classifiers on the Titanic data}
+\ixh{titanic}
+
+\begin{topic}{HW3 pipeline (Q1, Q4--Q10)}
+\src{HW3}\quad \ixc{titanic} (891 passengers; \texttt{survived} Yes $\approx38\%$; \texttt{age} has 177 NAs).
+Make \texttt{survived} and \texttt{pclass} factors (``Yes'' first), split with \ixc{strata} \texttt{= survived}
+(\ix{stratified sampling} keeps the $\approx$38/62 class ratio in both sets --- \ix{class imbalance}).
+\begin{rcode}
+titanic <- read_csv("data/titanic.csv") %>%                (*@\ixch{read\_csv()}@*)
+  mutate(survived = factor(survived, levels = c("Yes", "No")),  (*@\ixch{factor()}@*)
+         pclass = factor(pclass))
+set.seed(131)
+t_split <- initial_split(titanic, prop = 0.7, strata = survived)
+t_train <- training(t_split); t_test <- testing(t_split)
+t_recipe <- recipe(survived ~ pclass + sex + age + sib_sp + parch + fare,
+                   data = t_train) %>%
+  step_impute_linear(age, impute_with = imp_vars(sib_sp, parch, fare)) %>%  (*@\ixch{step\_impute\_linear()}\ixch{imp\_vars()}@*)
+  step_dummy(all_nominal_predictors()) %>%                 (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}@*)
+  step_interact(terms = ~ starts_with("sex"):fare + age:fare)  (*@\ixch{step\_interact()}\ixch{starts\_with()}@*)
+log_spec <- logistic_reg() %>% set_engine("glm") %>% set_mode("classification")
+lda_spec <- discrim_linear() %>% set_engine("MASS") %>% set_mode("classification")
+qda_spec <- discrim_quad() %>% set_engine("MASS") %>% set_mode("classification")
+knn_spec <- nearest_neighbor(neighbors = 10) %>%           (*@\ixch{nearest\_neighbor()}\ixch{neighbors}@*)
+  set_engine("kknn") %>% set_mode("classification")        (*@\ixch{kknn}@*)
+log_fit <- workflow() %>% add_model(log_spec) %>% add_recipe(t_recipe) %>%
+  fit(t_train)                                  # repeat for lda/qda/knn
+predict(log_fit, new_data = t_train, type = "prob") %>%    (*@\ixch{type = "prob"}@*)
+  bind_cols(t_train %>% select(survived)) %>%             (*@\ixch{bind\_cols()}@*)
+  roc_auc(truth = survived, .pred_Yes)                     (*@\ixch{roc\_auc()}\ixch{.pred\_Yes}@*)
+augment(log_fit, new_data = t_test) %>%
+  conf_mat(truth = survived, estimate = .pred_class) %>% autoplot(type = "heatmap")  (*@\ixch{autoplot()}@*)
+augment(log_fit, new_data = t_test) %>% roc_curve(survived, .pred_Yes) %>% autoplot()  (*@\ixch{roc\_curve()}@*)
+\end{rcode}
+\begin{itemize}
+\item Order of steps: \textbf{impute} $\to$ \textbf{dummy} $\to$ \textbf{interact}. After \ixc{step\_dummy()}
+  \texttt{sex} becomes \texttt{sex\_male}, so the \ix{interaction term} must use \ixc{starts\_with()}\texttt{("sex")}.
+  (\ixc{imp\_vars()} lists the predictors of the linear \ix{imputation} model; use complete columns.)
+\item \ix{AUC} needs \textbf{probabilities} (\texttt{type = "prob"}, column \texttt{.pred\_Yes}), not
+  \texttt{.pred\_class}. Compare \textbf{training vs testing} AUC: a big drop (typical for KNN with small $k$,
+  and for the more flexible QDA) signals \ix{overfitting}.
+\item HW3 Q11--12 (231): see the logit-inverse box above.
+\end{itemize}
+\end{topic}

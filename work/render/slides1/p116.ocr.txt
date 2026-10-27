@@ -1,0 +1,8 @@
+Limitations of K-nearest neighbors
+
+K-nearest neighbors methods can be pretty good for small p (i.e., p < 4) and large n
+
+Many more sophisticated versions of non-parametric methods, e.g., kernel estimators...
+Fail when p is very large: there are very few (almost no) data points in the neighbors
+
+Curse of Dimensionality!

@@ -1,0 +1,8 @@
+Confusion matrices (multiclass)
+
+True Class
+
+Apple Orange Mango
+
+Predicted Class
+Mango Orange Apple

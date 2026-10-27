@@ -1,0 +1,10 @@
+Same discussion as in regression setting
+
+¢ Having the lowest training error rate does not necessarily imply that
+a method also has the lowest test error rate
+
+Higher model flexibility — lower training error rate
+
+Higher model flexibility > lower test error rate
+
+Overfitting = Large test error rate + small training error rate

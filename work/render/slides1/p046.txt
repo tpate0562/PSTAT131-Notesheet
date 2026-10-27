@@ -1,0 +1,13 @@
+Supervised learning vs. unsupervised learning
+• Linear regression
+• Logistic regression
+• k-nearest neighbors
+• Decision trees
+• Random forests
+• Support vector machine(s)
+• Neural networks
+• Principal Component 
+Analysis (PCA)
+• k-means clustering
+• Hierarchical clustering
+• Neural networks

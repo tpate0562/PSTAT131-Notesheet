@@ -1,0 +1,14 @@
+LDA classifier: p > 1 case
+
+The Bayes classifier assigns the observation x to class for which
+
+1
+5X) = XT Ey — FEE Me + log
+
+is largest
+
+The LDA classifier assigns the — X to class for which
+
+5,00 = Sta l- 5 AfS-'a, + log a,
+
+is largest linear in x

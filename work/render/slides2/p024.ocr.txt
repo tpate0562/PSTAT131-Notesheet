@@ -1,0 +1,20 @@
+Coefficient estimates
+
+Least-squares coefficient estimates
+n = -
+vil (; ~ X)(; ~ y) A
+
+B= Y (= yp =I fx
+
+optimal in the sense that they minimize the sum of squared residuals (SSR)
+
+Model: Y= Bo + XxX, B, +e €: catch-all for what we
+
+miss with this simple model
+
+Assumed to have mean zero and
+independent of everything else
+
+We want: By = fy and B, = B,
+
+But this is impossible, since the data are random

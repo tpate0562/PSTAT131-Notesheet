@@ -1,0 +1,11 @@
+Machine learning in research: Examples
+
+¢ High-energy physics experiments
+¢ Microarrays for gene expression (20,000+ features)
+* Genome-wide association studies (millions of features)
+
+Unprecedented large scale
+of data
++
+Highly complicated
+underlying structure

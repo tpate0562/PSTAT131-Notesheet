@@ -1,0 +1,721 @@
+%% raw_s3a.tex -- Slide Set 3 ("Logistic models", Week 3), PDF pages 1-42 (the tested part).
+%% Raw transcription: every slide in order, figures described with \fig{}.
+\section{Slide Set 3 --- Logistic regression \& model evaluation (pp.~1--42, the tested part)}
+\ixh{logistic regression}\ixh{model evaluation}
+
+\subsection{Overview: classification}
+\ixh{classification}
+
+%% ---------------------------------------------------------------- S3.1
+\slide{3}{1}{Logistic models}
+\textbf{Logistic models}\ixh{logistic regression} --- PSTAT 131/231 --- Week 3. \fig{title slide, no picture.}
+
+%% ---------------------------------------------------------------- S3.2
+\slide{3}{2}{[recap diagram: where we were last lecture]}
+\begin{itemize}
+\item \textbf{Machine Learning}\ixh{machine learning} \quad vs \quad \textbf{Statistical Machine Learning}\ixh{statistical machine learning}
+\item \textbf{Supervised Learning}\ixh{supervised learning} \quad vs \quad \textbf{Unsupervised Learning}\ixh{unsupervised learning}
+\item \fbox{\textbf{Regression}}\ixh{regression} \quad vs \quad \textbf{Classification}\ixh{classification}
+\end{itemize}
+\textcolor{dblue}{\textbf{Linear Regression}}\ixh{linear regression}: \textbf{Coefficient estimates}\ixh{coefficient}; \textbf{Assessing accuracy}; \textbf{Practical considerations}; \textbf{Other perspectives\dots}
+\fig{a tree diagram. Arrows from both ``Machine Learning'' and ``Statistical Machine Learning'' point down to
+``Supervised Learning''; from ``Supervised Learning'' two arrows point down to ``Regression'' and ``Classification''.
+``Regression'' is boxed in red (= the topic of the previous lecture). Bottom: ``Linear Regression'' in light blue on the
+left, and to its right a vertical list of the sub-topics covered for it (Coefficient estimates, Assessing accuracy,
+Practical considerations, Other perspectives\dots).}
+
+%% ---------------------------------------------------------------- S3.3
+\slide{3}{3}{This lecture\dots}
+\begin{itemize}
+\item \textbf{Machine Learning} \quad vs \quad \textbf{Statistical Machine Learning}
+\item \textbf{Supervised Learning}\ixh{supervised learning} \quad vs \quad \textbf{Unsupervised Learning}
+\item \textbf{Regression} \quad vs \quad \fbox{\textbf{Classification}}\ixh{classification}
+\end{itemize}
+\textbf{A \textcolor{dblue}{linear} method in \textcolor{dblue}{classification}: \textcolor{dblue}{Logistic Regression}}\ixh{logistic regression}
+\fig{the same tree diagram as S3.2 (Machine Learning / Statistical ML $\to$ Supervised Learning $\to$ Regression,
+Classification), but now ``Classification'' is boxed in red: this lecture is about classification.}
+
+%% ---------------------------------------------------------------- S3.4
+\slide{3}{4}{Classification in general}
+\textcolor{dblue}{\textbf{Qualitative response}}\ixh{qualitative response}
+
+\textbf{Predicting a qualitative response for an observation}\\
+\textbf{= classifying\ixh{classification} that observation, i.e., assign the observation to a class}
+
+\textbf{Classification methods (classifiers\ixh{classifier}):} K-NN\ixh{KNN}, \ix{logistic regression}, discriminant analysis\ixh{discriminant analysis}, and many more\dots
+
+\textbf{Related to \textcolor{dblue}{Regression}\ixh{regression}: often we predict the \textcolor{dblue}{probability} (which is \textcolor{dblue}{quantitative}) of each class of a qualitative response}\ixh{class probability}
+
+%% ---------------------------------------------------------------- S3.5
+\slide{3}{5}{Why not Linear Regression?}
+\ixh{linear regression}\ixh{linear probability model}
+\textbf{You said we can predict class probability, then why not just\dots}\\
+\textbf{Suppose $Y\in\{0,1\}$, we model}
+\begin{align*}
+\Pr(Y=1\mid X)&=\beta_0+\beta_1X_1+\ldots+\beta_pX_p\\
+\Pr(Y=0\mid X)&=1-\Pr(Y=1\mid X)
+\end{align*}
+\fig{two side-by-side plots of \emph{Probability of Default} (y-axis, ticks 0.0, 0.2, \dots, 1.0, dashed horizontal
+lines at 0 and 1) against \emph{Balance} (x-axis, 0--2500). Orange rug ticks: at $y=0$ the non-defaulters (balances
+from 0 to about 2400) and at $y=1$ the defaulters (balances about 1000--2600). \textbf{Left, ``Linear Regression''}:
+the fitted blue straight line starts below zero (about $-0.1$ at balance 0), crosses 0 near balance 500--600 and
+only reaches about 0.28 at balance 2700; a red box in the lower-left corner around the part of the line below 0 is
+labelled \textcolor{slidec}{``negative probability!''}. \textbf{Right, ``Logistic Regression''}: the blue fitted
+curve is S-shaped (\ix{sigmoid}): essentially 0 up to balance $\approx1000$, rising steeply between $\approx1500$
+and $\approx2200$ (0.5 at about 1950--2000), and levelling off near 0.98 at 2650 --- it always stays inside
+$[0,1]$.}
+
+%% ---------------------------------------------------------------- S3.6
+\slide{3}{6}{Why not Linear Regression?}
+\textbf{We know how to code \textcolor{dblue}{qualitative predictors}\ixh{categorical predictor}\ixh{dummy variable}, why can't we code the dummy response similarly?}
+
+\textbf{For example, suppose $Y\in\{$stroke, drug overdose, seizure$\}$, then}
+\[
+Y=\begin{cases}1 & \text{if stroke}\\ 2 & \text{if drug overdose}\\ 3 & \text{if seizure}\end{cases}
+\]
+\textbf{This implicitly implies an \textcolor{slidec}{ordering} on the response classes}\ixh{ordering of response classes}
+\begin{itemize}
+\item[] \textbf{difference between stroke and drug overdoes = between drug overdose and seizure}
+\end{itemize}
+\textbf{What about}
+\(
+Y=\begin{cases}1 & \text{if stroke}\\ 2 & \text{if seizure}\\ 3 & \text{if drug overdose}\end{cases}
+\)
+
+\textbf{What about $Y\in\{$dog, cat, fish$\}$}
+
+\subsection{Logistic regression: the model}
+\ixh{logistic regression}
+
+%% ---------------------------------------------------------------- S3.7
+\slide{3}{7}{Logistic regression}
+\textbf{We will focus on \ix{binary classification} problem}
+
+\textbf{Multiple-class logistic regression\ixh{multiclass logistic regression} exists}
+
+%% ---------------------------------------------------------------- S3.8
+\slide{3}{8}{A data example}
+\ixh{Default data set}
+\textbf{$Y$: whether an individual will default on his/her credit card payment}\ixh{outcome}
+
+\textbf{$X_1=$ annual income \quad $X_2=$ monthly credit card balance \quad $X_3=$ is he/she a student}\ixh{predictor}
+\fig{three panels (the ISLR \texttt{Default} data). \textbf{Left}: \ix{scatterplot} of \emph{Income} (y, 0 to
+$\approx70000$, ticks 0, 20000, 40000, 60000) vs.\ \emph{Balance} (x, 0 to $\approx2700$, ticks 0, 500, \dots, 2500);
+light-blue open circles = individuals who did \emph{not} default, orange ``+'' = individuals who defaulted. The orange
+pluses sit almost entirely at the right (balance $\gtrsim1200$, most of them 1500--2500) at every income level, the
+blue circles fill balances 0--$\approx2000$; income does not separate the classes. \textbf{Middle}: side-by-side
+\ix{boxplot}s of \emph{Balance} by \emph{Default} (No = blue, Yes = orange): No has median $\approx800$, box
+$\approx470$--$1130$, whiskers 0 to $\approx2120$ and high outliers up to $\approx2390$; Yes has median
+$\approx1790$, box $\approx1510$--$1990$, whiskers $\approx960$--$2650$ and low outliers at $\approx650$--$780$ ---
+defaulters have much larger balances. \textbf{Right}: boxplots of \emph{Income} by \emph{Default}: No median
+$\approx34500$ (box $\approx21500$--$44000$, whiskers $\approx800$--$73500$), Yes median $\approx31500$ (box
+$\approx19000$--$43000$, whiskers $\approx10000$--$66500$) --- nearly the same, so income alone says little about
+default.}
+
+%% ---------------------------------------------------------------- S3.9
+\slide{3}{9}{[cartoon: probability of defaulting vs.\ balance]}
+\fig{hand-drawn style cartoon. Vertical axis ``Probability of Defaulting'' with only two marked levels, ``Will Not
+Default'' (bottom) and ``Will Default'' (top); horizontal axis ``Balance'' with tick marks. Blue dots: four at the
+``Will Not Default'' level at low balances plus one at a middle balance; six at the ``Will Default'' level spread over
+middle-to-high balances. A blue dashed S-shaped curve runs from the bottom level on the left to the top level on the
+right. Three red \textsf{X} marks on the balance axis (low, middle, high balance) each have a green dashed arrow going
+straight up to a red open circle on the S-curve: low balance $\to$ probability near 0, middle balance $\to$ a value
+part-way up (around the middle), high balance $\to$ probability near 1. Message: for a given balance, read the
+predicted \ix{probability of default} off the fitted S-shaped curve.}
+
+%% ---------------------------------------------------------------- S3.10
+\slide{3}{10}{A simple logistic model}
+\ixh{simple logistic regression}
+\textbf{To model $\Pr\big(\text{default}=\mathrm{TRUE}\mid\text{balance}\big)$}
+\[
+\Pr(Y=1\mid X)=\boxed{\frac{e^{\beta_0+\beta_1X}}{1+e^{\beta_0+\beta_1X}}}\ \ \textcolor{slidec}{\text{\textbf{Logistic function}}}
+\qquad \textcolor{dblue}{\in[0,1]}
+\]
+\ixh{logistic function}
+\textbf{which is equivalent to\dots}
+\[
+\textcolor{slidec}{\text{\textbf{Odds}}}\ \ \boxed{\frac{\Pr(Y=1\mid X)}{1-\Pr(Y=1\mid X)}}=e^{\beta_0+\beta_1X}
+\qquad \textcolor{dblue}{\in[0,+\infty)}
+\]
+\ixh{odds}
+\textbf{Rolling a 6-sided dice: \ix{odds} of rolling a 3 is 1/5}
+\fig{at the left, a dice picture drawn as a fraction: one die (showing six pips) above a fraction bar, and five dice
+(showing 5, 4, 3, 2, 1 pips) below it --- one favourable outcome over the five unfavourable ones, i.e.\ odds
+$=1/5$ (whereas the probability is $1/6$).}
+
+%% ---------------------------------------------------------------- S3.11
+\slide{3}{11}{A simple logistic model}
+\[
+\frac{\Pr(Y=1\mid X)}{1-\Pr(Y=1\mid X)}=e^{\beta_0+\beta_1X}
+\]
+\textbf{taking logarithm of both sides\dots}
+\[
+\boxed{\log\left(\frac{\Pr(Y=1\mid X)}{1-\Pr(Y=1\mid X)}\right)}=\underline{\beta_0+\beta_1X}
+\]
+\textcolor{slidec}{\textbf{Logit, or log-odds}}\ixh{logit}\ixh{log odds} \ $\textcolor{dblue}{\in(-\infty,+\infty)}$
+\hfill \textcolor{dblue}{\textbf{logit is linear in $X$}}
+
+%% ---------------------------------------------------------------- S3.12
+\slide{3}{12}{Interpretation of coefficient}
+\ixh{coefficient interpretation}
+\[
+\log\left(\frac{\Pr(Y=1\mid X)}{1-\Pr(Y=1\mid X)}\right)=\beta_0+\beta_1X
+\]
+\textbf{$\beta_1$: the (\textcolor{dblue}{additive}) change of \ix{logit} by increasing $X$ by 1-unit}\ixh{slope}
+\[
+\frac{\Pr(Y=1\mid X)}{1-\Pr(Y=1\mid X)}=e^{\beta_0+\beta_1X}
+\]
+\textbf{increasing $X$ by 1-unit means \textcolor{dblue}{multiply} the \ix{odds} by $e^{\beta_1}$}\ixh{odds ratio}
+
+%% ---------------------------------------------------------------- S3.13
+\slide{3}{13}{Interpretation of coefficient}
+\ixh{coefficient interpretation}
+\[
+\log\left(\frac{\Pr(Y=1\mid X)}{1-\Pr(Y=1\mid X)}\right)=\beta_0+\beta_1X
+\]
+\textbf{$\beta_1$: the (\textcolor{dblue}{additive}) change of logit\ixh{logit} by increasing $X$ by 1-unit}
+
+\textbf{$\beta_1$: is \textcolor{slidec}{NOT} the change in $\Pr(Y=1\mid X)$ associated with a 1-unit increase in $X$}
+\begin{itemize}
+\item[] If $\beta_1>0$ then $X\nearrow\ \Longrightarrow\ \Pr(Y=1\mid X)\nearrow$
+\item[] If $\beta_1<0$ then $X\nearrow\ \Longrightarrow\ \Pr(Y=1\mid X)\searrow$
+\end{itemize}
+\textbf{The \textcolor{slidec}{rate of change} in $\Pr(Y=1\mid X)$ per unit change in $X$ depend on the \textcolor{slidec}{current value} of $X$} \quad \textcolor{dblue}{\textbf{not linear!}}\ixh{nonlinear relationship}
+\fig{the ``Logistic Regression'' plot from S3.5: \emph{Probability of Default} (0--1, dashed lines at 0 and 1,
+orange rug ticks of the observed 0/1 outcomes) vs.\ \emph{Balance} (0--2500), with the blue S-shaped fitted curve
+(flat near 0 until $\approx1000$, steepest around 1800--2000, flattening near 1 by 2600). Written over the plot:
+$\Pr(Y=1\mid X)=\dfrac{e^{\beta_0+\beta_1X}}{1+e^{\beta_0+\beta_1X}}$. The slope of the curve is different at
+different balances, which is why $\beta_1$ is not a constant change in probability.}
+
+%% ---------------------------------------------------------------- S3.14
+\slide{3}{14}{[cartoon: linear regression line vs.\ bounded probability]}
+\fig{two hand-drawn panels. \textbf{Left}: a plain regression picture --- five blue dots rising from lower-left to
+upper-right with a black dashed straight fitted line; a long red double-headed vertical arrow beside the y-axis shows
+that a linear-regression response is unbounded (any real value). \textbf{Right}: the probability-of-default cartoon
+(y-axis ``Probability of Defaulting'', x-axis ``Balance''; blue dots at the bottom level for low balances plus one at a
+middle balance, six dots at the top level; blue dashed S-curve). A red bracket in front of its y-axis marks the
+range from \textbf{0} (bottom) to \textbf{1} (top): a probability is bounded in $[0,1]$, so a straight line cannot be
+fitted to it directly.}
+
+%% ---------------------------------------------------------------- S3.15
+\slide{3}{15}{[cartoon: from probability to log-odds]}
+\[
+\boxed{\log\left(\frac{\Pr(Y=1\mid X)}{1-\Pr(Y=1\mid X)}\right)}=\underline{\beta_0+\beta_1X}
+\]
+\textcolor{slidec}{\textbf{Logit, or log-odds}}\ixh{logit}\ixh{log odds} \ $\textcolor{dblue}{\in(-\infty,+\infty)}$
+\hfill \textcolor{dblue}{\textbf{logit is linear in $X$}}
+\fig{right: the probability-of-default cartoon (dots at 0 and 1 vs.\ Balance, dashed S-curve) with the red bracket
+marking the $[0,1]$ range of the y-axis. A black arrow labelled \textbf{``log(odds of default)''} points from that
+bracket to a new vertical axis on the left that runs from $-\infty$ (bottom) to $+\infty$ (top), with four tick
+marks: the log-odds transformation stretches the bounded probability scale $[0,1]$ onto the whole real line.}
+
+%% ---------------------------------------------------------------- S3.16
+\slide{3}{16}{[cartoon: the probability axis is transformed]}
+\[
+\text{log(odds of default)}=\log\left(\frac{p}{1-p}\right)
+\]
+\ixh{log odds}\ixh{logit}
+\fig{the probability-of-defaulting cartoon: y-axis ``Probability of Defaulting'' with levels \textbf{0} and
+\textbf{1}, x-axis ``Balance''; five dots at 0 (four at low balance, one at a middle balance), six dots at 1, blue
+dashed S-curve. The y-axis and its 0/1 range are enclosed in a red rectangle, and a black arrow from it points right
+to the text ``log(odds of default) $=\log\big(\frac{p}{1-p}\big)$'' --- i.e.\ each probability $p$ on the y-axis is
+going to be replaced by its log-odds.}
+
+%% ---------------------------------------------------------------- S3.17
+\slide{3}{17}{[cartoon: $p=0.5$ maps to log-odds 0]}
+\fig{two panels. \textbf{Left}: the 0/1 probability cartoon vs.\ Balance (dots at 0 and 1, dashed S-curve) with a
+red horizontal line at $p=0.5$ crossing the S-curve in its middle; next to the curve is written
+$\log\big(\frac{p}{1-p}\big)$. \textbf{Right}: the new \ix{log odds} axis --- a vertical axis with three tick marks
+above and three below the horizontal (balance) axis, which crosses it at the level labelled
+$\log(1)=0$ (because $p=0.5$ gives odds $0.5/0.5=1$). The six defaulters (observed $p=1$) are drawn far above the
+top of the axis and the five non-defaulters (observed $p=0$) far below the bottom, since their log-odds are
+$\pm\infty$. An orange dashed \emph{straight} line with arrowheads at both ends rises from lower-left to upper-right,
+crossing 0 at the middle balance tick: on the log-odds scale the fitted relationship with balance is a line.}
+
+%% ---------------------------------------------------------------- S3.18
+\slide{3}{18}{[cartoon: $p=0.731$ maps to log-odds 1]}
+\[
+p=0.731:\qquad \log\left(\frac{p}{1-p}\right)=\left(\frac{.731}{.269}\right)=2.717=1
+\]
+{\color{figgray}\itshape [note: written exactly as on the slide; meant is $\log(.731/.269)=\log(2.717)=1$, since
+$.731/.269\approx2.717\approx e$.]}
+\fig{same two panels as S3.17. Left: red lines at $p=0.5$ and at $p=0.731$ (labelled ``$p=0.731$''). Right:
+log-odds axis now labelled $+\infty$ at the top, 0 at the balance axis and $-\infty$ at the bottom; the equation
+above is written at the first tick above 0, i.e.\ $p=0.731$ corresponds to log-odds $=1$. Defaulter dots at the top
+($+\infty$), non-defaulter dots at the bottom ($-\infty$), orange dashed straight line.}
+
+%% ---------------------------------------------------------------- S3.19
+\slide{3}{19}{[cartoon: $p=0.88$ maps to log-odds 2]}
+\[
+p=0.88=\log\left(\frac{p}{1-p}\right)=\log(7.33)=2
+\]
+\fig{left: red lines at $p=0.5$, $0.731$ and $0.88$ (labelled ``$p=0.88$''). Right: log-odds axis with ticks
+labelled 0 and 1, $+\infty$ on top and $-\infty$ at the bottom; the equation is written at the second tick above 0
+(log-odds $=2$). Dots at $\pm\infty$ and the orange dashed straight line as before.}
+
+%% ---------------------------------------------------------------- S3.20
+\slide{3}{20}{[cartoon: $p=0.95$ maps to log-odds 3]}
+\[
+p=0.95=\log\left(\frac{p}{1-p}\right)=\log(19)=3
+\]
+\fig{left: red lines at $p=0.5$, $0.731$, $0.88$ and $0.95$ (labelled ``$p=0.95$'') --- the lines bunch up
+towards 1. Right: log-odds ticks labelled 0, 1, 2; the equation is written at the third tick above 0 (log-odds
+$=3$); $+\infty$ / $-\infty$ at the ends; equally spaced log-odds steps correspond to ever smaller probability
+steps near 1.}
+
+%% ---------------------------------------------------------------- S3.21
+\slide{3}{21}{[cartoon: $p=1$ maps to $+\infty$]}
+\fig{left: red lines at $p=0.5$, $0.731$, $0.88$, $0.95$ and at $p=1$ (labelled ``$p=1$'', drawn through the row of
+defaulter dots). Right: the log-odds axis fully labelled 0, 1, 2, 3 with $+\infty$ at the top and $-\infty$ at the
+bottom; the defaulters ($p=1$) sit at $+\infty$ and the non-defaulters ($p=0$) at $-\infty$; orange dashed straight
+line through the origin region. Summary of the sequence S3.16--S3.21: $p=0.5\mapsto0$, $0.731\mapsto1$,
+$0.88\mapsto2$, $0.95\mapsto3$, $1\mapsto+\infty$ (and $0\mapsto-\infty$).}
+
+%% ---------------------------------------------------------------- S3.22
+\slide{3}{22}{[cartoon: S-curve in probability = straight line in log-odds]}
+\[
+\boxed{\log\left(\frac{\Pr(Y=1\mid X)}{1-\Pr(Y=1\mid X)}\right)}=\underline{\beta_0+\beta_1X}
+\]
+\textcolor{slidec}{\textbf{Logit, or log-odds}}\ixh{logit}\ixh{log odds} \ $\textcolor{dblue}{\in(-\infty,+\infty)}$
+\hfill \textcolor{dblue}{\textbf{logit is linear in $X$}}
+\fig{an orange dashed double-headed horizontal arrow sits under ``$\beta_0+\beta_1X$''. \textbf{Left}: just the
+blue dashed S-curve on the probability scale (y from 0 to 1) vs.\ Balance, no data points. \textbf{Right}: the
+log-odds axis (ticks 0, 1, 2, 3, with $+\infty$ top and $-\infty$ bottom) with the orange dashed straight line
+rising from lower-left to upper-right: the same fit is an S-shaped \ix{logistic function} of balance on the
+probability scale and a straight line on the \ix{logit} scale.}
+
+%% ---------------------------------------------------------------- S3.23
+\slide{3}{23}{[cartoon: more predictors?]}
+\fig{the probability-of-defaulting cartoon with y-levels ``Will Not Default / 0'' and ``Will Default / 1'',
+x-axis ``Balance'', dots at 0 (five) and 1 (six), and the blue dashed S-curve.}
+
+\textbf{Default} predicted by \textbf{Student} + \textbf{Balance} + \textbf{Income} ?\ixh{multiple logistic regression}
+
+%% ---------------------------------------------------------------- S3.24
+\slide{3}{24}{Multiple logistic regression}
+\ixh{multiple logistic regression}
+\[
+\Pr(Y=1\mid X_1,\ldots,X_p)=\frac{e^{\beta_0+\beta_1X_1+\ldots+\beta_pX_p}}{1+e^{\beta_0+\beta_1X_1+\ldots+\beta_pX_p}}
+\ \ \textcolor{dblue}{\in[0,1]}
+\]
+\ixh{logistic function}
+\textbf{which is equivalent to\dots}
+\[
+\frac{\Pr(Y=1\mid X_1,\ldots,X_p)}{1-\Pr(Y=1\mid X_1,\ldots,X_p)}=e^{\beta_0+\beta_1X_1+\ldots+\beta_pX_p}
+\ \ \textcolor{dblue}{\in[0,+\infty)}
+\]
+\ixh{odds}
+\textbf{taking logarithm of both sides\dots}
+\begin{align*}
+&\log\left(\frac{\Pr(Y=1\mid X_1,\ldots,X_p)}{1-\Pr(Y=1\mid X_1,\ldots,X_p)}\right)\\
+&\qquad=\beta_0+\beta_1X_1+\ldots+\beta_pX_p\ \ \textcolor{dblue}{\in(-\infty,+\infty)}
+\end{align*}
+\ixh{log odds}\ixh{logit}
+
+\subsection{Interpreting and estimating the coefficients}
+\ixh{coefficient interpretation}
+
+%% ---------------------------------------------------------------- S3.25
+\slide{3}{25}{Interpretation of coefficient}
+\ixh{coefficient interpretation}\ixh{multiple logistic regression}
+\[
+\log\left(\frac{\Pr(Y=1\mid X_1,\ldots,X_p)}{1-\Pr(Y=1\mid X_1,\ldots,X_p)}\right)=\beta_0+\beta_1X_1+\ldots+\beta_pX_p
+\]
+\textbf{$\beta_j$: the (\textcolor{dblue}{additive}) change of \ix{logit} by increasing $X_j$ by 1-unit,
+\textcolor{dblue}{conditional on the other predictors}}\ixh{holding other predictors fixed}
+
+\begin{tabular}{@{}p{0.30\linewidth}@{\ \ }p{0.66\linewidth}@{}}
+\raggedright\textbf{For any $j$, conditional on the other predictors} $X_1,\ldots,X_{j-1},X_j\ldots,X_p$
+&
+If $\beta_j>0$ then $X_j\nearrow\ \Longrightarrow\ \Pr(Y=1\mid X_1,\ldots,X_p)\nearrow$\par
+If $\beta_j<0$ then $X_j\nearrow\ \Longrightarrow\ \Pr(Y=1\mid X_1,\ldots,X_p)\searrow$
+\end{tabular}
+{\color{figgray}\itshape [note: the slide's list reads ``$X_1,\ldots,X_{j-1},X_j\ldots,X_p$''; the intended list of
+the \emph{other} predictors is $X_1,\ldots,X_{j-1},X_{j+1},\ldots,X_p$.]}
+
+\textbf{The \textcolor{slidec}{rate of change} in $\Pr(Y=1\mid X_1,\ldots,X_p)$ per unit change in $X_j$ depend on the \textcolor{slidec}{current value} of $X_j$} \quad \textcolor{dblue}{\textbf{not linear!}}
+
+%% ---------------------------------------------------------------- S3.26
+\slide{3}{26}{Estimating coefficients}
+\textbf{Maximum Likelihood Estimation (MLE)}\ixh{maximum likelihood}\ixh{MLE}
+\begin{rcode}
+glm.fit <- glm(default ~ student + balance + income, data = Default, family = binomial)  (*@\ixch{glm()}\ixch{family = binomial}\ixch{Default}@*)
+summary(glm.fit)  (*@\ixch{summary()}@*)
+\end{rcode}
+\begin{routput}
+Call:
+glm(formula = default ~ student + balance + income,
+    family = binomial, data = Default)
+
+Deviance Residuals:
+    Min       1Q   Median       3Q      Max
+-2.4691  -0.1418  -0.0557  -0.0203   3.7383
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)  (*@\ixh{z-statistic}\ixh{standard error}\ixh{p-value}@*)
+(Intercept) -1.087e+01  4.923e-01 -22.080  < 2e-16 ***
+studentYes  -6.468e-01  2.363e-01  -2.738  0.00619 **
+balance      5.737e-03  2.319e-04  24.738  < 2e-16 ***
+income       3.033e-06  8.203e-06   0.370  0.71152
+---
+Signif. codes:
+0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 2920.6  on 9999  degrees of freedom  (*@\ixh{deviance}@*)
+Residual deviance: 1571.5  on 9996  degrees of freedom
+AIC: 1579.5  (*@\ixh{AIC}@*)
+
+Number of Fisher Scoring iterations: 8
+\end{routput}
+\fig{an R console screenshot (commands in blue). On the first line, the function name \texttt{glm} and the argument
+\texttt{family = binomial} are each boxed in red --- logistic regression is fitted with \ixc{glm()} and
+\ixc{family = binomial}. (On the slide the \texttt{Call:} and the \texttt{Signif.\ codes} line each fit on one/two
+lines; they are wrapped here only for width.)}
+
+\subsection{Confounding}
+\ixh{confounding}
+
+%% ---------------------------------------------------------------- S3.27
+\slide{3}{27}{What is wrong?}
+A simple logistic regression of \textbf{default} on \textbf{student}\ixh{simple logistic regression}
+
+\begin{tabular}{@{}l r r r r@{}}
+\toprule
+ & Coefficient & Std.\ error & Z-statistic & P-value\\
+\midrule
+\texttt{\textcolor{rawc}{Intercept}} & $-3.5041$ & 0.0707 & $-49.55$ & $<0.0001$\\
+\texttt{\textcolor{rawc}{student[Yes]}} & \fbox{0.4049} & 0.1150 & 3.52 & 0.0004\\
+\bottomrule
+\end{tabular}
+\ixh{coefficient}\ixh{standard error}\ixh{z-statistic}\ixh{p-value}
+
+A multiple logistic regression of \textbf{default} on \textbf{balance}, \textbf{income}, and \textbf{student}\ixh{multiple logistic regression}
+
+\begin{tabular}{@{}l r r r r@{}}
+\toprule
+ & Coefficient & Std.\ error & Z-statistic & P-value\\
+\midrule
+\texttt{\textcolor{rawc}{Intercept}} & $-10.8690$ & 0.4923 & $-22.08$ & $<0.0001$\\
+\texttt{\textcolor{rawc}{balance}} & 0.0057 & 0.0002 & 24.74 & $<0.0001$\\
+\texttt{\textcolor{rawc}{income}} & 0.0030 & 0.0082 & 0.37 & 0.7115\\
+\texttt{\textcolor{rawc}{student[Yes]}} & \fbox{$-0.6468$} & 0.2362 & $-2.74$ & 0.0062\\
+\bottomrule
+\end{tabular}
+
+\textcolor{slidec}{\textbf{Contradicting signs!}}\ixh{sign reversal}
+\fig{the two student[Yes] coefficients, $0.4049$ (simple model) and $-0.6468$ (multiple model), are boxed in red.}
+
+%% ---------------------------------------------------------------- S3.28
+\slide{3}{28}{What is wrong?}
+\begin{tabular}{@{}l r@{}}
+\toprule
+ & Coefficient\\
+\midrule
+\texttt{\textcolor{rawc}{Intercept}} & $-3.5041$\\
+\texttt{\textcolor{rawc}{student[Yes]}} & 0.4049\\
+\bottomrule
+\end{tabular}
+\hfill
+\begin{tabular}{@{}l r@{}}
+\toprule
+ & Coefficient\\
+\midrule
+\texttt{\textcolor{rawc}{Intercept}} & $-10.8690$\\
+\texttt{\textcolor{rawc}{balance}} & 0.0057\\
+\texttt{\textcolor{rawc}{income}} & 0.0030\\
+\texttt{\textcolor{rawc}{student[Yes]}} & $-0.6468$\\
+\bottomrule
+\end{tabular}
+
+\begin{tabular}{@{}p{0.48\linewidth}@{\ \ }p{0.48\linewidth}@{}}
+\raggedright A student is \textbf{riskier} than a non-student, if \textbf{no other information about the student is available}
+&
+\raggedright\arraybackslash A student is \textbf{less risky} than a non-student with the \textbf{same credit card balance}
+\end{tabular}
+\ixh{coefficient interpretation}
+
+\textbf{student} and \textbf{balance} are correlated\ixh{correlation}\ixh{collinearity}
+
+\textbf{student} are more likely to have large credit card balances, \textbf{which tends to be associated with high default rates}\ixh{confounding}
+
+%% ---------------------------------------------------------------- S3.29
+\slide{3}{29}{Confounding}
+\ixh{confounding}
+\textbf{Pay extra attention when performing regressions involving only a single predictor when other predictors may also be relevant}\ixh{omitted variable}
+
+\textcolor{dblue}{\textbf{Confounding}}\ixh{confounding} \qquad \textcolor{dblue}{\textbf{Simpson's paradox}}\ixh{Simpson's paradox}
+\fig{a cartoon scatter plot built from Simpsons characters' heads (black axes with arrows, no labels). The members of
+the family form separate groups, each lying along its own \emph{downward}-sloping band: Homer heads and baby Maggie at
+the lower left, a column of Bart heads running down from upper-left to lower-right in the middle, a column of Lisa
+heads running down to the right of it, and two Marge heads (tall blue hair) at the upper right. A thick red straight
+line drawn through all of them rises steeply from lower-left to upper-right: the pooled trend across groups is
+positive although the trend \emph{within} each person/group is negative --- the group variable is a confounder
+(Simpson's paradox).}
+
+%% ---------------------------------------------------------------- S3.30
+\slide{3}{30}{[Simpson's paradox example]}
+\ixh{Simpson's paradox}
+\fig{a scatter plot of $y$ (vertical, ticks 0, 2, \dots, 10) vs.\ $x$ (horizontal, ticks 0, 2, \dots, 12). Blue
+group: points $(1,6),(2,7),(3,8),(4,9)$ with a solid blue line of slope $+1$ through them. Red group: points
+$(8,1),(9,2),(10,3),(11,4)$ with a solid red line of slope $+1$. A black dashed line fitted to all eight points
+together slopes \emph{downward}, from $y\approx9.2$ at the left edge ($x\approx-1.5$) to $y\approx0.8$ at the right
+edge ($x\approx13.5$), i.e.\ slope $\approx-0.56$. Within each group $y$ increases with $x$, but ignoring the group
+variable the fitted relationship is negative.}
+
+%% ---------------------------------------------------------------- S3.31
+\slide{3}{31}{[Simpson's paradox: scatter with clusters]}
+\ixh{Simpson's paradox}\ixh{correlation}
+\textsf{Korrelation:}
+\fig{a ggplot-style \ix{scatterplot} (light grey grid, title ``Korrelation:'' with no value shown --- a frame of an
+animation) of about 500 black points, $Y$ (vertical, ticks 0, 5, 10, 15) vs.\ $X$ (horizontal, ticks 0, 5, 10).
+The points form about five overlapping clusters arranged along a diagonal from the upper left ($X\approx1$--$5$,
+$Y\approx7$--$13$) to the lower right ($X\approx9$--$13$, $Y\approx1$--$6$), so the overall correlation of $X$ and
+$Y$ is clearly negative, while inside each cluster the points tilt upward (positive within-cluster relationship). A
+few stray points: $(-0.2, 7.8)$, $(4.5, 14.6)$, $(6.6, -1.8)$, $(13.6, 8.4)$.}
+
+\subsection{From probabilities to classes}
+\ixh{prediction}\ixh{threshold}
+
+%% ---------------------------------------------------------------- S3.32
+\slide{3}{32}{Prediction of probability}
+\ixh{predicted probability}
+
+\begin{tabular}{@{}l r r r r@{}}
+\toprule
+ & Coefficient & Std.\ error & Z-statistic & P-value\\
+\midrule
+\texttt{\textcolor{rawc}{Intercept}} & $-10.8690$ & 0.4923 & $-22.08$ & $<0.0001$\\
+\texttt{\textcolor{rawc}{balance}} & 0.0057 & 0.0002 & 24.74 & $<0.0001$\\
+\texttt{\textcolor{rawc}{income}} & 0.0030 & 0.0082 & 0.37 & 0.7115\\
+\texttt{\textcolor{rawc}{student[Yes]}} & $-0.6468$ & 0.2362 & $-2.74$ & 0.0062\\
+\bottomrule
+\end{tabular}
+\ixh{multiple logistic regression}
+\[
+\Pr(Y=1\mid X_1,\ldots,X_p)=\frac{e^{\beta_0+\beta_1X_1+\ldots+\beta_pX_p}}{1+e^{\beta_0+\beta_1X_1+\ldots+\beta_pX_p}}
+\]
+\ixh{logistic function}
+\[
+\widehat{\Pr}(\text{default}=\text{TRUE}\mid\text{balance}=1500,\text{income}=40000,\text{student}=\text{FALSE})
+\]
+\vspace{-6pt}
+\[
+=\frac{e^{-10.8690+0.0057\times1500+0.0030\times40000-0.6468\times0}}{1+e^{-10.8690+0.0057\times1500+0.0030\times40000-0.6468\times0}}=0.105
+\]
+{\color{figgray}\itshape [note: in this table (ISLR Table 4.3) income is in \emph{thousands} of dollars --- the glm
+output on S3.26 gives \texttt{3.033e-06} per dollar --- so the income term is really $0.0030\times40\approx0.12$; with
+the unrounded estimates the linear predictor is $\approx-2.14$ and $e^{-2.14}/(1+e^{-2.14})=0.105$.]}
+
+%% ---------------------------------------------------------------- S3.33
+\slide{3}{33}{From predicted probability to predicted class}
+\ixh{predicted class}
+\[
+\widehat{\Pr}(\text{default}=\text{TRUE}\mid\text{balance}=1500,\text{income}=40000,\text{student}=\text{FALSE})=0.105
+\]
+We can predict class $(\text{default}=\text{TRUE}$ \textbf{or} $\text{default}=\text{FALSE})$ by \textbf{thresholding the predicted probability}\ixh{threshold}
+
+For example, one might predict $\text{default}=\text{TRUE}$ for any individual for whom the \textbf{predicted probability > 0.5}\ixh{threshold}
+
+Or, if the credit card company is super \textbf{conservative} in predicting individuals who are at risk for default, one might predict $\text{default}=\text{TRUE}$ for any individual for \textbf{whom the predicted probability > 0.1}\ixh{threshold}
+
+\subsection{Classification performance: confusion matrix, TPR / FPR}
+\ixh{model evaluation}\ixh{confusion matrix}
+
+%% ---------------------------------------------------------------- S3.34
+\slide{3}{34}{Classification performance}
+\ixh{classification performance}
+For a binary classifier\ixh{binary classification}, use \textcolor{dblue}{\ix{confusion matrix}}
+
+\begin{tabular}{@{}l l l l@{}}
+ & & \multicolumn{2}{c}{\textbf{Predicted Class}}\\
+ & & $\hat Y=0$ & $\hat Y=1$\\[2pt]
+\multirow{2}{*}{\shortstack[l]{\textbf{True}\\\textbf{Class}}} & $Y=0$ & True Negative (\textbf{TN}) & False Positive (\textbf{FP})\\
+ & $Y=1$ & False Negative (\textbf{FN}) & True Positive (\textbf{TP})\\
+\end{tabular}
+\ixh{true negative}\ixh{false positive}\ixh{false negative}\ixh{true positive}
+
+\textcolor{dblue}{\textbf{True positive rate (TPR) =}}\ixh{TPR} \textbf{TP / (TP + FN), a.k.a.\ 1 - \textcolor{dblue}{Type II error, power, sensitivity, recall}}\ixh{Type II error}\ixh{power}\ixh{sensitivity}\ixh{recall}
+
+\textcolor{dblue}{\textbf{False positive rate (FPR) =}}\ixh{FPR} \textbf{FP / (FP + TN), a.k.a.\ \textcolor{dblue}{Type I error,} 1 - \textcolor{dblue}{Specificity}}\ixh{Type I error}\ixh{specificity}
+
+%% ---------------------------------------------------------------- S3.35
+\slide{3}{35}{Confusion matrices (multiclass)}
+\ixh{confusion matrix}\ixh{multiclass classification}
+
+\begin{tabular}{@{}l l c c c@{}}
+ & & \multicolumn{3}{c}{\textcolor{OliveGreen}{\textbf{True Class}}}\\
+ & & Apple & Orange & Mango\\
+\cmidrule(l){3-5}
+\multirow{3}{*}{\rotatebox{90}{\textcolor{Salmon}{\textbf{Predicted}}}} & Apple & \cellcolor{green!20}7 & \cellcolor{red!25}8 & \cellcolor{red!25}9\\
+ & Orange & \cellcolor{red!25}1 & \cellcolor{green!20}2 & \cellcolor{red!25}3\\
+ & Mango & \cellcolor{red!25}3 & \cellcolor{red!25}2 & \cellcolor{green!20}1\\
+\end{tabular}
+\fig{a $3\times3$ grid: columns = \emph{True Class} (Apple, Orange, Mango; header in green), rows =
+\emph{Predicted Class} (Apple, Orange, Mango; label in salmon, written vertically). Diagonal cells (correct
+predictions: 7, 2, 1) are green; all off-diagonal cells (errors: 8, 9, 1, 3, 3, 2) are red. Note the orientation:
+here rows are predictions and columns the truth, the transpose of S3.34. Total $=36$, correct $=10$.}
+
+%% ---------------------------------------------------------------- S3.36
+\slide{3}{36}{Many definitions and synonyms}
+\ixh{confusion matrix}
+A large table (Wikipedia ``Receiver operating characteristic''): \url{https://en.wikipedia.org/wiki/Receiver_operating_characteristic}
+
+\textbf{Core $2\times2$ block} (columns = \textbf{True condition}: Condition positive / Condition negative;
+rows = \textbf{Predicted condition}: Predicted condition positive / negative; top-left corner cell: Total population):
+
+\begin{tabular}{@{}l l l@{}}
+\toprule
+ & Condition positive & Condition negative\\
+\midrule
+Pred.\ cond.\ positive & \textbf{True positive} & \textbf{False positive} (Type I error)\\
+Pred.\ cond.\ negative & \textbf{False negative} (Type II error) & \textbf{True negative}\\
+\bottomrule
+\end{tabular}
+\ixh{true positive}\ixh{false positive}\ixh{false negative}\ixh{true negative}\ixh{Type I error}\ixh{Type II error}
+
+\textbf{Column ratios} (below the block):
+\begin{itemize}
+\item \textbf{True positive rate (TPR), Recall, Sensitivity, probability of detection}
+$=\dfrac{\Sigma\,\text{True positive}}{\Sigma\,\text{Condition positive}}$\ixh{TPR}\ixh{recall}\ixh{sensitivity}
+\item \textbf{False positive rate (FPR), Fall-out, probability of false alarm}
+$=\dfrac{\Sigma\,\text{False positive}}{\Sigma\,\text{Condition negative}}$\ixh{FPR}\ixh{fall-out}
+\item \textbf{False negative rate (FNR), Miss rate}
+$=\dfrac{\Sigma\,\text{False negative}}{\Sigma\,\text{Condition positive}}$\ixh{false negative rate (FNR)}
+\item \textbf{True negative rate (TNR), Specificity (SPC)}
+$=\dfrac{\Sigma\,\text{True negative}}{\Sigma\,\text{Condition negative}}$\ixh{specificity}
+\end{itemize}
+\textbf{Row ratios} (right of the block):
+\begin{itemize}
+\item \textbf{Prevalence} $=\dfrac{\Sigma\,\text{Condition positive}}{\Sigma\,\text{Total population}}$\ixh{prevalence}
+\item \textbf{Accuracy (ACC)} $=\dfrac{\Sigma\,\text{True positive}+\Sigma\,\text{True negative}}{\Sigma\,\text{Total population}}$\ixh{accuracy}
+\item \textbf{Positive predictive value (PPV), Precision} $=\dfrac{\Sigma\,\text{True positive}}{\Sigma\,\text{Predicted condition positive}}$\ixh{precision}\ixh{positive predictive value (PPV)}
+\item \textbf{False discovery rate (FDR)} $=\dfrac{\Sigma\,\text{False positive}}{\Sigma\,\text{Predicted condition positive}}$\ixh{false discovery rate (FDR)}
+\item \textbf{False omission rate (FOR)} $=\dfrac{\Sigma\,\text{False negative}}{\Sigma\,\text{Predicted condition negative}}$\ixh{false omission rate (FOR)}
+\item \textbf{Negative predictive value (NPV)} $=\dfrac{\Sigma\,\text{True negative}}{\Sigma\,\text{Predicted condition negative}}$\ixh{negative predictive value (NPV)}
+\end{itemize}
+\textbf{Ratios of ratios} (bottom right):
+\begin{itemize}
+\item \textbf{Positive likelihood ratio (LR+)} $=\dfrac{\text{TPR}}{\text{FPR}}$; \quad
+\textbf{Negative likelihood ratio (LR$-$)} $=\dfrac{\text{FNR}}{\text{TNR}}$\ixh{likelihood ratio}
+\item \textbf{Diagnostic odds ratio (DOR)} $=\dfrac{\text{LR+}}{\text{LR}-}$\ixh{diagnostic odds ratio}
+\item \textbf{F$_1$ score} $=\dfrac{2}{\frac{1}{\text{recall}}+\frac{1}{\text{precision}}}$\ixh{F1 score}
+\end{itemize}
+\fig{the table is colour-coded (positives green/yellow, negatives pink/tan; TP and TN cells green, FP and FN
+cells pink). The TPR cell's denominator ``$\Sigma$ Condition positive'' is highlighted in blue. A small grey legend
+thumbnail at the bottom-left repeats the layout with abbreviations --- row 1: pop., C+, C$-$, prev., ACC; row 2: Pc+,
+T+, F+, PPV, FDR; row 3: Pc$-$, F$-$, T$-$, FOR (printed ``POR''), NPV; row 4: TPR, FPR, LR+, DOR; row 5: FNR, TNR,
+LR$-$ --- with dotted/dashed connector lines and ``+'' / ``$\div$'' signs showing which cells are summed or divided
+to form each ratio.}
+
+%% ---------------------------------------------------------------- S3.37
+\slide{3}{37}{[confusion matrix with the derived metrics]}
+\ixh{confusion matrix}
+
+\begin{tabular}{@{}l p{0.24\linewidth} p{0.24\linewidth} p{0.24\linewidth}@{}}
+ & \multicolumn{2}{c}{\textbf{Predicted Class}} & \\
+\textbf{Actual Class} & \textbf{Positive} & \textbf{Negative} & \\
+\midrule
+\textbf{Positive} & True Positive (TP) & False Negative (FN) \textcolor{magenta}{\textbf{Type II Error}} & \textbf{Sensitivity} $\frac{TP}{(TP+FN)}$\\[3pt]
+\textbf{Negative} & False Positive (FP) \textcolor{magenta}{\textbf{Type I Error}} & True Negative (TN) & \textbf{Specificity} $\frac{TN}{(TN+FP)}$\\[3pt]
+\midrule
+ & \textbf{Precision} $\frac{TP}{(TP+FP)}$ & \textbf{Negative Predictive Value} $\frac{TN}{(TN+FN)}$ & \textbf{Accuracy} $\frac{TP+TN}{(TP+TN+FP+FN)}$\\
+\end{tabular}
+\ixh{sensitivity}\ixh{specificity}\ixh{precision}\ixh{negative predictive value (NPV)}\ixh{accuracy}\ixh{Type I error}\ixh{Type II error}
+\fig{a pink-shaded table. Braces mark the column header \emph{Predicted Class} (Positive, Negative) and the row header
+\emph{Actual Class} (Positive, Negative); the four count cells are outlined by a magenta rectangle. Here rows are the
+actual class and the \emph{positive} class comes first, so TP is top-left and TN bottom-right; ``Type II Error'' (FN)
+and ``Type I Error'' (FP) are written in magenta. The row-wise metrics (Sensitivity, Specificity) are in the right
+column; the column-wise metrics (Precision, NPV) and Accuracy are in the bottom row.}
+
+%% ---------------------------------------------------------------- S3.38
+\slide{3}{38}{[sensitivity and specificity picture]}
+\ixh{sensitivity}\ixh{specificity}
+\begin{itemize}
+\item \textbf{Sensitivity} $=$ \textit{How many relevant items are selected? e.g.\ How many sick people are correctly identified as having the condition.}
+\item \textbf{Specificity} $=$ \textit{How many negative selected elements are truly negative? e.g.\ How many healthy people are identified as not having the condition.}
+\end{itemize}
+\fig{(the Wikipedia ``precision and recall'' diagram.) Left: a square split into a dark-green-grey left half bracketed
+``relevant elements'' (the actual positives, drawn as filled grey dots) and a light-grey right half (actual negatives,
+open circles). An ellipse in the middle labelled ``selected elements'' (predicted positive) covers both halves: its
+left part (light green) is labelled ``true positives'' (5 filled dots), its right part (pink/red) ``false positives''
+(3 open circles); outside the ellipse the left half is labelled ``false negatives'' (7 filled dots) and the right half
+``true negatives'' (7 open circles). Right: ``Sensitivity ='' a fraction whose numerator is the green half-ellipse
+(true positives) and whose denominator is the whole dark-green rectangle containing the green half-ellipse (all
+relevant elements, TP + FN); a vertical grey divider; ``Specificity ='' a fraction whose numerator is the grey
+rectangle with the white half-ellipse cut out (true negatives) and whose denominator is the grey rectangle containing
+the red half-ellipse (all negatives, TN + FP).}
+
+\subsection{ROC curve and AUC}
+\ixh{ROC curve}\ixh{AUC}
+
+%% ---------------------------------------------------------------- S3.39
+\slide{3}{39}{ROC}
+\ixh{ROC curve}
+\begin{itemize}
+\item A popular graphic for displaying the \textbf{2 types of error}, for \textcolor{dblue}{\textbf{all threshold values}}\ixh{threshold}\ixh{Type I error}\ixh{Type II error}
+\item Useful in \textbf{comparing} different classifiers, e.g., \ix{logistic regression} v.s.\ K-NN\ixh{KNN}\ixh{model comparison}
+\item Methods perform differently in different parts of the curve (i.e., different thresholds)\ixh{threshold}
+\end{itemize}
+\fig{plot titled ``ROC Curve'': \emph{True positive rate} (y, 0.0--1.0) vs.\ \emph{False positive rate} (x,
+0.0--1.0), with a thin dotted diagonal from $(0,0)$ to $(1,1)$. The blue step-like ROC curve rises almost vertically
+from $(0,0)$ to TPR $\approx0.5$ at FPR $\approx0.01$, reaches $\approx0.8$ at FPR $\approx0.07$, $\approx0.9$ at
+FPR $\approx0.15$, $\approx0.95$ at FPR $\approx0.25$, $\approx0.99$ by FPR $\approx0.4$ and 1.0 from FPR
+$\approx0.6$ on: a curve hugging the top-left corner, far above the diagonal (an excellent classifier, AUC close
+to 1).}
+\begin{itemize}
+\item Area under curve (AUC)\ixh{AUC} measures the overall performance of a classifier
+\item Area under curve (AUC)\ixh{AUC} summarized over all possible thresholds\ixh{threshold}
+\item Higher \ix{AUC}, the better
+\end{itemize}
+
+%% ---------------------------------------------------------------- S3.40
+\slide{3}{40}{[ROC curve examples]}
+\ixh{ROC curve}\ixh{AUC}
+\fig{\textbf{Left} (hand-drawn ``xkcd'' style), titled ``ROC CURVE'': TRUE POSITIVE RATE (y, 0.0--1.0) vs.\ FALSE
+POSITIVE RATE (x, 0.0--1.0). A blue dot at $(0,1)$ with an arrow and label ``PERFECT CLASSIFIER''. A red dashed
+diagonal from $(0,0)$ to $(1,1)$ labelled ``RANDOM CLASSIFIER''. Three ROC curves from $(0,0)$ to $(1,1)$: green just
+above the diagonal (weak), orange in between, blue highest (jumps to TPR $\approx0.45$ almost immediately, $\approx0.7$
+at FPR 0.2, $\approx0.85$ at FPR 0.5 --- the best). A black double-headed arrow perpendicular to the diagonal points
+up-left towards ``BETTER'' and down-right towards ``WORSE''. \textbf{Right}, titled ``ROC Curve'': True Positive Rate
+(Sensitivity) (y, 0--1) vs.\ False Positive Rate (1 - Specificity) (x, 0--1), three curves: A (purple) rises steeply
+to TPR $\approx0.85$ by FPR $\approx0.12$ then flattens towards 1; B (blue) starts with a jump to $\approx0.17$ at FPR
+0 (so it is above A for FPR $\lesssim0.03$), then rises more gradually ($\approx0.6$ at FPR 0.2, $\approx0.8$ at 0.5);
+C (red) rises slowly and almost linearly ($\approx0.4$ at FPR 0.2, $\approx0.55$ at 0.4, $\approx0.87$ at 0.8). All end
+at $(1,1)$.}
+\begin{itemize}
+\item \textbf{Model A:} AUC = 0.923
+\item \textbf{Model B:} AUC = 0.794
+\item \textbf{Model C:} AUC = 0.588
+\end{itemize}
+\ixh{AUC}\ixh{model comparison}
+
+%% ---------------------------------------------------------------- S3.41
+\slide{3}{41}{Detour on ROC curves}
+\ixh{ROC curve}
+\begin{itemize}
+\item[] \textcolor{dblue}{\textbf{Lecture Slides: Logistic Regression}}
+\item[] \quad \textcolor{dblue}{\textbf{ROC Curves: Deep Dive}}\ixh{ROC Curves Deep Dive (reading)} $\longleftarrow\cdots$ (dotted purple arrow from the picture)
+\end{itemize}
+\fig{a screenshot of two Canvas links (a PDF icon next to ``Lecture Slides: Logistic Regression'', and a page icon
+next to the indented ``ROC Curves: Deep Dive'', which is the assigned reading). A purple dotted arrow points to the
+reading link from a photo of a road barricade with a ``ROAD CLOSED'' sign and an orange ``$\leftarrow$ DETOUR'' sign
+(i.e.\ the lecture takes a detour into the reading). Bottom left: an old painting of a steamship with crowded lifeboats
+in the sea (an allusion to the Titanic, whose passenger data are used in the ROC reading).}
+
+%% ---------------------------------------------------------------- S3.42
+\slide{3}{42}{In summary}
+\begin{itemize}
+\item \textbf{Logistic regression}\ixh{logistic regression}
+  \begin{itemize}
+  \item[] \textbf{Model}
+  \item[] \textbf{Coefficient interpretation}\ixh{coefficient interpretation}
+  \item[] \textbf{Confounding}\ixh{confounding}
+  \end{itemize}
+\item \textbf{Classification performance}\ixh{classification performance}
+  \begin{itemize}
+  \item[] \textbf{TPR/FPR}\ixh{TPR}\ixh{FPR}
+  \item[] \textbf{ROC curve and AUC}\ixh{ROC curve}\ixh{AUC}
+  \end{itemize}
+\end{itemize}

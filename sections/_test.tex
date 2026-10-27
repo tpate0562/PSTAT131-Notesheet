@@ -1,0 +1,88 @@
+\section{Test section}
+\slide{1}{12}{The bias--variance tradeoff}
+Some text about the \ix{bias-variance tradeoff} and \ix{KNN}. \ixh{overfitting}Overfitting means low training error.
+\fig{U-shaped test error curve vs. flexibility}
+\begin{topic}{KNN in tidymodels}
+Use \ixc{nearest\_neighbor()} with \ixc{set\_engine("kknn")}, and \ixc{\%>\%} or \ixc{|>}. Also $\hat\beta$: \ix{$\hat\beta_1$} and the special chars \ix{a!b@c"d}.
+\begin{rcode}
+knn_spec <- nearest_neighbor(neighbors = 5) %>%   (*@\ixch{neighbors}@*)
+  set_engine("kknn") |> set_mode("classification") # comment ~ tilde
+x <- c(1, 2, 3); y <- x^2 & TRUE; z <- "a_b$c#d%e"
+\end{rcode}
+\end{topic}
+\begin{routput}
+# A tibble: 3 x 2
+  .metric  .estimate
+  <chr>        <dbl>
+1 accuracy     0.812
+\end{routput}
+\begin{keybox}[Formula]
+$\displaystyle \mathrm{MSE} = \frac1n\sum_{i=1}^n (y_i-\hat f(x_i))^2$ -- \ix{MSE}
+\end{keybox}
+\begin{trap}
+Accuracy is misleading with \ix{class imbalance}.
+\end{trap}
+\begin{qbox}{Q1 (practice)}
+Which? \ans B. \sol Because. \mine Mine. \grader -1.
+\end{qbox}
+
+Filler line 1 with \ix{term1} and more words to fill the column text so it wraps across lines nicely.
+Filler line 2 with \ix{term2} and more words to fill the column text so it wraps across lines nicely.
+Filler line 3 with \ix{term3} and more words to fill the column text so it wraps across lines nicely.
+Filler line 4 with \ix{term4} and more words to fill the column text so it wraps across lines nicely.
+Filler line 5 with \ix{term5} and more words to fill the column text so it wraps across lines nicely.
+Filler line 6 with \ix{term6} and more words to fill the column text so it wraps across lines nicely.
+Filler line 7 with \ix{term0} and more words to fill the column text so it wraps across lines nicely.
+Filler line 8 with \ix{term1} and more words to fill the column text so it wraps across lines nicely.
+Filler line 9 with \ix{term2} and more words to fill the column text so it wraps across lines nicely.
+Filler line 10 with \ix{term3} and more words to fill the column text so it wraps across lines nicely.
+Filler line 11 with \ix{term4} and more words to fill the column text so it wraps across lines nicely.
+Filler line 12 with \ix{term5} and more words to fill the column text so it wraps across lines nicely.
+Filler line 13 with \ix{term6} and more words to fill the column text so it wraps across lines nicely.
+Filler line 14 with \ix{term0} and more words to fill the column text so it wraps across lines nicely.
+Filler line 15 with \ix{term1} and more words to fill the column text so it wraps across lines nicely.
+Filler line 16 with \ix{term2} and more words to fill the column text so it wraps across lines nicely.
+Filler line 17 with \ix{term3} and more words to fill the column text so it wraps across lines nicely.
+Filler line 18 with \ix{term4} and more words to fill the column text so it wraps across lines nicely.
+Filler line 19 with \ix{term5} and more words to fill the column text so it wraps across lines nicely.
+Filler line 20 with \ix{term6} and more words to fill the column text so it wraps across lines nicely.
+Filler line 21 with \ix{term0} and more words to fill the column text so it wraps across lines nicely.
+Filler line 22 with \ix{term1} and more words to fill the column text so it wraps across lines nicely.
+Filler line 23 with \ix{term2} and more words to fill the column text so it wraps across lines nicely.
+Filler line 24 with \ix{term3} and more words to fill the column text so it wraps across lines nicely.
+Filler line 25 with \ix{term4} and more words to fill the column text so it wraps across lines nicely.
+Filler line 26 with \ix{term5} and more words to fill the column text so it wraps across lines nicely.
+Filler line 27 with \ix{term6} and more words to fill the column text so it wraps across lines nicely.
+Filler line 28 with \ix{term0} and more words to fill the column text so it wraps across lines nicely.
+Filler line 29 with \ix{term1} and more words to fill the column text so it wraps across lines nicely.
+Filler line 30 with \ix{term2} and more words to fill the column text so it wraps across lines nicely.
+Filler line 31 with \ix{term3} and more words to fill the column text so it wraps across lines nicely.
+Filler line 32 with \ix{term4} and more words to fill the column text so it wraps across lines nicely.
+Filler line 33 with \ix{term5} and more words to fill the column text so it wraps across lines nicely.
+Filler line 34 with \ix{term6} and more words to fill the column text so it wraps across lines nicely.
+Filler line 35 with \ix{term0} and more words to fill the column text so it wraps across lines nicely.
+Filler line 36 with \ix{term1} and more words to fill the column text so it wraps across lines nicely.
+Filler line 37 with \ix{term2} and more words to fill the column text so it wraps across lines nicely.
+Filler line 38 with \ix{term3} and more words to fill the column text so it wraps across lines nicely.
+Filler line 39 with \ix{term4} and more words to fill the column text so it wraps across lines nicely.
+Filler line 40 with \ix{term5} and more words to fill the column text so it wraps across lines nicely.
+Filler line 41 with \ix{term6} and more words to fill the column text so it wraps across lines nicely.
+Filler line 42 with \ix{term0} and more words to fill the column text so it wraps across lines nicely.
+Filler line 43 with \ix{term1} and more words to fill the column text so it wraps across lines nicely.
+Filler line 44 with \ix{term2} and more words to fill the column text so it wraps across lines nicely.
+Filler line 45 with \ix{term3} and more words to fill the column text so it wraps across lines nicely.
+Filler line 46 with \ix{term4} and more words to fill the column text so it wraps across lines nicely.
+Filler line 47 with \ix{term5} and more words to fill the column text so it wraps across lines nicely.
+Filler line 48 with \ix{term6} and more words to fill the column text so it wraps across lines nicely.
+Filler line 49 with \ix{term0} and more words to fill the column text so it wraps across lines nicely.
+Filler line 50 with \ix{term1} and more words to fill the column text so it wraps across lines nicely.
+Filler line 51 with \ix{term2} and more words to fill the column text so it wraps across lines nicely.
+Filler line 52 with \ix{term3} and more words to fill the column text so it wraps across lines nicely.
+Filler line 53 with \ix{term4} and more words to fill the column text so it wraps across lines nicely.
+Filler line 54 with \ix{term5} and more words to fill the column text so it wraps across lines nicely.
+Filler line 55 with \ix{term6} and more words to fill the column text so it wraps across lines nicely.
+Filler line 56 with \ix{term0} and more words to fill the column text so it wraps across lines nicely.
+Filler line 57 with \ix{term1} and more words to fill the column text so it wraps across lines nicely.
+Filler line 58 with \ix{term2} and more words to fill the column text so it wraps across lines nicely.
+Filler line 59 with \ix{term3} and more words to fill the column text so it wraps across lines nicely.
+Filler line 60 with \ix{term4} and more words to fill the column text so it wraps across lines nicely.

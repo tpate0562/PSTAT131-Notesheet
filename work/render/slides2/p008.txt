@@ -1,0 +1,10 @@
+Visualize your data
+• Variance within variables
+• Variance between variables
+• Don’t need to look at everything
+• Ask yourself questions, then 
+answer them
+• Present the 3-5 most interesting 
+results
+• More is fine, but not required
+https://www.allisonhorst.com/

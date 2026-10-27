@@ -1,0 +1,6 @@
+10
+
+Scatterplot of y vs x
+
+14
+

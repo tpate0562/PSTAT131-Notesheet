@@ -1,0 +1,4 @@
+Bias-variance tradeoff
+• The “best” we can do:
+• but this is unknown in practice!
+• Because the actual population joint distribution of X and Y is unknown

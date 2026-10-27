@@ -1,0 +1,14 @@
+Machine Learning vs _ Statistical Machine Learning
+
+i,
+
+Supervised Learning vs Unsupervised Learning
+
+[~~
+
+Regression vs
+
+Another linear method in classification:
+Linear Discriminant Analysis (LDA)
+
+related methods, and their comparison

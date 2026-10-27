@@ -1,0 +1,688 @@
+%% raw_exams.tex -- Practice exam (Fall 2026) + official solutions, and Sai's graded midterm
+%% (Gradescope export, Summer 2026). Raw transcription: every question verbatim.
+\section{Practice exam (Fall 2026) and Sai's graded midterm (last quarter)}
+\ixh{model evaluation}\ixh{model comparison}
+
+\subsection{Practice exam with official solutions}
+\ixh{overfitting}\ixh{KNN}
+{\color{figgray}\itshape [note: the official key prints the correct choice(s) of every multiple-choice question and all
+solution text in red bold; here the correct choices are in {\color{keyc}\bfseries green bold} and the solution text follows
+``Official solution''. The question prompts are identical in the exam and in the key.]}
+
+%% ------------------------------------------------------------------ Q1
+\begin{qbox}{PE Q1}
+\ixh{KNN}\ixh{overfitting}\ixh{tuning parameter}
+1.~A \ix{KNN} classifier has excellent performance on the \ix{training data} but noticeably worse performance on new data.
+Which change would be most likely to help?
+\begin{enumerate}[label=\alph*.]
+\item Decrease $k$
+\item {\color{keyc}\bfseries Increase $k$}
+\item Give variables with larger variances more weight
+\item Include an interaction term
+\end{enumerate}
+\sol A KNN model that is \ix{overfitting} is likely because the value of $k$ is small. Increasing $k$ will likely improve
+performance. Decreasing $k$ will only make the problem worse. Weighting variables with larger variances more heavily
+will worsen performance\ixh{standardization}. Including an \ix{interaction term} is not necessary (KNN is
+nonparametric\ixh{non-parametric model}).
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q2
+\begin{qbox}{PE Q2}
+\ixh{flexibility}
+2.~A student says, ``The most flexible model is always preferable because it can represent more complicated
+relationships.'' Explain what is wrong with this reasoning.
+\sol This is not true. There are many cases where the most flexible model\ixh{flexibility} is not preferable, either
+because the more flexible model is less interpretable\ixh{interpretability} and the goal is interpretation\ixh{inference},
+or because the more flexible model can fit too closely to patterns in the training data that do not exist in the
+population, leading to \ix{overfitting} (low \ix{training error} and high \ix{testing error}).
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q3
+\begin{qbox}{PE Q3}
+\ixh{accuracy}\ixh{overfitting}
+3.~You fit Models A, B, and C:\par
+\begin{tabular}{@{}lll@{}}\toprule
+\textbf{Model} & \textbf{Training accuracy} & \textbf{Testing accuracy}\\\midrule
+\textbf{A} & 71\% & 70\%\\
+\textbf{B} & 86\% & 82\%\\
+\textbf{C} & 100\% & 68\%\\\bottomrule
+\end{tabular}\par
+Which model would you prefer based only on this information? What appears to be happening with Model C?
+\sol You should prefer Model B; it produces the highest testing \ix{accuracy}\ixh{testing data}\ixh{model comparison}.
+Model C appears to be \ix{overfitting}. (Model B shows some overfitting also, but less so than Model C.)
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q4
+\begin{qbox}{PE Q4}
+\ixh{Pearson correlation}\ixh{interaction term}\ixh{training error}
+4.~A student makes these three claims:
+\begin{enumerate}[label=\alph*.]
+\item A predictor with zero \ix{Pearson correlation} with the outcome cannot improve prediction.
+\item Two highly correlated predictors necessarily interact.
+\item A model with lower training error is always preferable.
+\end{enumerate}
+For each claim, state whether it is true or false and explain.
+\sol For (a), this is false. Predictors with zero Pearson correlation with the outcome do not have a linear
+\ix{correlation} with the outcome but may very well be able to improve predictions in nonlinear\ixh{nonlinear relationship}
+and/or empirically driven models. For (b), this is also false. Interactions\ixh{interaction term} have nothing to do with
+whether predictors are correlated\ixh{collinearity}. An interaction means the relationship between X1 and Y differs
+depending on the value of X2. For (c), this is also false. Training error\ixh{training error} is not a good estimator of
+\ix{testing error}. As training error goes to zero, testing error almost always increases.\ixh{overfitting}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q5
+\begin{qbox}{PE Q5}
+\ixh{KNN}\ixh{classification}
+5.~A new observation has the following seven nearest neighbors, already ordered from closest to farthest:\par
+\begin{tabular}{@{}|l|c|c|c|c|c|c|c|@{}}\hline
+Neighbor & 1 & 2 & 3 & 4 & 5 & 6 & 7\\\hline
+Class & A & B & B & A & A & B & B\\\hline
+\end{tabular}\par
+Predict the new observation's class using $k = 1$, 3, 5, and 7.
+\sol Using $k = 1$, we predict A; using $k = 3$, we predict B; using $k = 5$, we predict A; using $k = 7$,
+we predict B.\ixh{k-nearest neighbors}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q6
+\begin{qbox}{PE Q6}
+\ixh{standardization}\ixh{KNN}
+6.~A student standardizes\ixh{standardization} age but forgets to standardize annual income before fitting KNN. Explain why
+this is a problem even though both variables are numeric.
+\sol This is a problem because \ix{KNN} is a distance-based algorithm\ixh{distance metric}\ixh{Euclidean distance}.
+Income most likely has a \underline{much} larger variance than age, and therefore will have a much larger impact on
+distance calculations if it is not also standardized\ixh{scaling}.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q7
+\begin{qbox}{PE Q7}
+\ixh{KNN}\ixh{target leakage}\ixh{identifier variable}\ixh{recipes}
+7.~A researcher wants to use KNN to predict whether or not a bank customer will default on a loan. They write the
+following code:
+\begin{rcode}
+loan_recipe <-
+  recipe(defaulted ~ ., data = loans) |>                    (*@\ixch{recipe()}\ixch{|>}@*)
+  step_dummy(all_nominal_predictors(), one_hot = TRUE)      (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}\ixch{one\_hot}@*)
+
+loan_model <-
+  nearest_neighbor(neighbors = 5) |>                        (*@\ixch{nearest\_neighbor()}\ixch{neighbors}@*)
+  set_engine("kknn") |>                                     (*@\ixch{set\_engine()}\ixch{kknn}@*)
+  set_mode("classification")                                (*@\ixch{set\_mode()}@*)
+
+loan_fit <-
+  loan_model |>
+  fit(defaulted ~ ., data = loans)                          (*@\ixch{fit()}@*)
+\end{rcode}
+Their data contain the following variables:\\
+\texttt{application\_id}\\ \texttt{age}\\ \texttt{income}\\ \texttt{employment\_type}\\ \texttt{credit\_score}\\
+\texttt{default\_date}\\ \texttt{defaulted}
+
+Identify at least four problems with this analysis. For each problem, explain why it matters and how you would
+correct it.
+\sol Here are all problems with this analysis, along with why they matter and how to correct:
+\begin{itemize}[label=-]
+\item ``.'' syntax will include all variables, including \texttt{application\_id}, which is an identifier\ixh{identifier variable},
+  not an actual predictor, and \texttt{default\_date}, which would be explicit \ix{target leakage}. Remove those predictors.
+\item There is no \ixc{step\_normalize()}, which is important for KNN because it is distance-based\ixh{normalization}.
+  Add that to the recipe.
+\item The recipe is not actually being used; \texttt{loan\_recipe} is defined, but the model is fit directly to the raw
+  data.\ixh{workflow()}\ixh{add\_recipe()}
+\item Employment\_type therefore hasn't actually been dummy encoded\ixh{dummy variable} for the fitted model.
+\end{itemize}
+Note that one hot encoding\ixh{one-hot encoding} is not a problem for KNN; KNN has no regression \ix{intercept} creating
+the linear dependency problem.\ixh{rank deficiency}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q8
+\begin{qbox}{PE Q8}
+\ixh{scatterplot}\ixh{Pearson correlation}\ixh{nonlinear relationship}
+8.~A \ix{scatterplot} of X and Y shows a very strong U-shaped relationship. Their Pearson correlation is 0.03. Which
+statement is best?
+\begin{enumerate}[label=\alph*.]
+\item X and Y are essentially unrelated
+\item The scatterplot is likely wrong
+\item {\color{keyc}\bfseries There is little linear correlation, despite a strong nonlinear relationship}
+\item X will not be a useful variable for predicting Y
+\item Both C and D
+\end{enumerate}
+\sol The predictors have a strong U-shaped (nonlinear) relationship\ixh{nonlinear relationship}, but little linear
+\ix{correlation}. This does not mean X will not be useful for predicting Y; nor does it mean they are unrelated. It also
+does not mean the scatterplot is wrong.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q9
+\begin{qbox}{PE Q9}
+\ixh{interaction term}\ixh{exploratory data analysis (EDA)}
+9.~Which \ix{EDA} finding is evidence of an \textbf{interaction}\ixh{interaction term}?
+\begin{enumerate}[label=\alph*.]
+\item X1 and X2 have a Pearson correlation of 0.91
+\item {\color{keyc}\bfseries The relationship between X1 and Y is positive for one level of X2 and negative for the other}
+\item X1 is strongly right-skewed and X2 is strongly left-skewed
+\item X1 and Y have a Pearson correlation of 0.80
+\item The relationship between X1 and Y is the same across both levels of X2
+\end{enumerate}
+\sol B is the definition of an interaction\ixh{interaction term}. \ix{Pearson correlation} does not imply the existence of
+an interaction. Neither does skew\ixh{skewness}.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q10-12 stem
+For Questions 10--12, suppose a university wants to predict whether a student will graduate within four years, using
+information available \textbf{at the end of the student's first year}.\ixh{feature engineering}\ixh{predictor}\par
+\begin{tabular}{@{}ll@{}}\toprule
+Variable & Description\\\midrule
+StudentID & Unique identifier\\
+HS\_GPA & High school GPA\\
+FirstYearGPA & GPA at end of first year\\
+Major & Major at end of first year\\
+CreditsAttempted & First-year credits attempted\\
+CreditsCompleted & First-year credits completed\\
+Dorm & First-year residence hall name\\
+GraduationDate & Date of graduation, if graduated\\
+FinalGPA & GPA upon leaving the university\\
+Graduated4Years & Outcome\\\bottomrule
+\end{tabular}
+
+%% ------------------------------------------------------------------ Q10
+\begin{qbox}{PE Q10}
+\ixh{target leakage}\ixh{identifier variable}\ixh{outcome}
+10.~Which variables clearly should \textbf{not} be included as predictors in the model? Select all that apply.
+\begin{enumerate}[label=\alph*.]
+\item {\color{keyc}\bfseries StudentID}
+\item HS\_GPA
+\item FirstYearGPA
+\item {\color{keyc}\bfseries GraduationDate}
+\item {\color{keyc}\bfseries FinalGPA}
+\item Major
+\item {\color{keyc}\bfseries Graduated4Years}
+\item CreditsAttempted
+\item CreditsCompleted
+\end{enumerate}
+\sol A is an ID variable\ixh{identifier variable}. D and E are both variables that would not be known at the end of the
+first year\ixh{target leakage}. G is the \ix{outcome}.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q11
+\begin{qbox}{PE Q11}
+\ixh{dummy variable}\ixh{categorical predictor}\ixh{logistic regression}
+11.~Which predictors would require dummy encoding before fitting a \ix{logistic regression}? Select all that apply.
+\begin{enumerate}[label=\alph*.]
+\item HS\_GPA
+\item FirstYearGPA
+\item {\color{keyc}\bfseries Major}
+\item CreditsCompleted
+\item {\color{keyc}\bfseries Dorm}
+\end{enumerate}
+\sol These are categorical variables\ixh{categorical predictor}, which would require dummy encoding\ixh{dummy variable}.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q12
+\begin{qbox}{PE Q12}
+\ixh{target leakage}\ixh{feature engineering}
+12.~A student creates a new variable, CompletionRate. CompletionRate is calculated as the ratio of CreditsCompleted to
+CreditsAttempted. Would including CompletionRate as a predictor constitute \ix{target leakage}? Explain.
+\sol No. CompletionRate is just the proportion of credits that a student attempted in their first year that they were
+actually able to complete, and it is not leakage (since the outcome is graduation at the end of \underline{four} years).
+One could argue, however, that CompletionRate, CreditsCompleted, and CreditsAttempted should not all be included as
+predictors simultaneously\ixh{collinearity} (though that is not the question being asked).
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q13
+\begin{qbox}{PE Q13}
+\ixh{one-hot encoding}\ixh{dummy variable}\ixh{rank deficiency}\ixh{linear regression}
+13.~A student wants to predict ``salary'' using ``experience'' and ``department.'' They fit the following model:
+\begin{rcode}
+salary_recipe <- recipe(salary ~ experience + department,
+                        data = employees) %>%           (*@\ixch{recipe()}\ixch{\%>\%}@*)
+  step_dummy(department, one_hot = TRUE)                (*@\ixch{step\_dummy()}\ixch{one\_hot}@*)
+
+salary_model <- linear_reg() %>%                        (*@\ixch{linear\_reg()}@*)
+  set_engine("lm")                                      (*@\ixch{set\_engine()}\ixch{lm}@*)
+
+salary_workflow <- workflow() %>%                       (*@\ixch{workflow()}@*)
+  add_recipe(salary_recipe) %>%                         (*@\ixch{add\_recipe()}@*)
+  add_model(salary_model)                               (*@\ixch{add\_model()}@*)
+
+salary_fit <- fit(salary_workflow, data = employees)    (*@\ixch{fit()}@*)
+\end{rcode}
+Suppose ``department'' has three levels, ``Sales,'' ``IT,'' and ``HR.''
+
+After fitting the model, R reports that the model matrix is rank-deficient\ixh{rank deficiency} and that one or more
+coefficients cannot be uniquely identified.\ixh{coefficient}
+\begin{enumerate}[label=\alph*.]
+\item What caused the problem?\\
+  \textbf{\color{keyc}Official solution.}~One-hot encoding\ixh{one-hot encoding}; this creates three indicator variables,
+  one per level of ``department,'' which results in a linear dependency that OLS regression\ixh{least squares} cannot
+  handle.
+\item Why does ``one\_hot = TRUE'' create this problem for an ordinary linear regression model with an intercept?\\
+  \textbf{\color{keyc}Official solution.}~Because the model contains an \ix{intercept}, which is itself a column of ones.
+  Therefore, the design matrix\ixh{design matrix} is not full rank.
+\item How should the code be changed?\\
+  \textbf{\color{keyc}Official solution.}~Set ``\ixc{one\_hot} = FALSE.''
+\item After making this change, how many indicator variables will be created for ``department''?\\
+  \textbf{\color{keyc}Official solution.}~Two.\ixh{dummy variable}\ixh{reference level}
+\end{enumerate}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q14
+\begin{qbox}{PE Q14}
+\ixh{logistic regression}\ixh{posterior probability}
+14.~A \ix{logistic regression} model predicts whether a patient has pneumonia based on symptoms and clinical
+measurements. For one patient, the model produces a predicted probability of 0.78. Which interpretation is correct?
+\begin{enumerate}[label=\alph*.]
+\item The model is 78\% accurate for this patient.
+\item The patient definitely has pneumonia.
+\item {\color{keyc}\bfseries The fitted model assigns this patient a probability of 0.78 of belonging to the pneumonia class.}
+\item 78\% of the patient's symptoms indicate pneumonia.
+\end{enumerate}
+\sol The model cannot be ``78\% accurate'' for an individual patient\ixh{accuracy}. Nor does this predicted probability
+tell us anything about the patient's symptoms. We cannot be absolutely certain the patient either does or doesn't have
+pneumonia. C is the correct definition.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q15
+\begin{qbox}{PE Q15}
+\ixh{threshold}\ixh{classification}
+15.~A model predicts whether borrowers will default on a loan. Four borrowers receive the following predicted
+probabilities:\par
+\begin{tabular}{@{}ll@{}}\toprule
+\textbf{Borrower} & \textbf{Predicted Probability}\\\midrule
+A & .31\\ B & .48\\ C & .63\\ D & .81\\\bottomrule
+\end{tabular}
+\begin{enumerate}[label=\alph*.]
+\item Using a \ix{threshold} of 0.50, which borrowers would be classified as likely to default?\\
+  \textbf{\color{keyc}Official solution.}~Borrowers C and D.
+\item Using a threshold of 0.70, which borrowers would be classified as likely to default?\\
+  \textbf{\color{keyc}Official solution.}~Only Borrower D.
+\item Explain what happens to the number of positive classifications when the threshold is increased.\\
+  \textbf{\color{keyc}Official solution.}~When the threshold is increased, the number of positive classifications will
+  tend to decrease.\ixh{true positive}\ixh{false positive}
+\end{enumerate}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q16
+\begin{qbox}{PE Q16}
+\ixh{logistic regression}\ixh{coefficient}\ixh{log odds}
+16.~A logistic regression predicts whether a customer will cancel a subscription. The \ix{coefficient} for the predictor
+MonthlyFee is 0.04.
+
+A student writes: ``A \$1 increase in the monthly fee causes a customer's probability of canceling to increase by 4\%.''
+
+Identify \textbf{one problem} with this interpretation and provide a better interpretation.
+\sol This statement implies that there is a linear relationship between monthly fee and probability of cancellation.
+There is not. There is a linear relationship between monthly fee and \underline{log odds of cancellation}\ixh{log odds}, or
+\ix{logit}. Also, we cannot assume that we can draw causal conclusions\ixh{association vs. causation}\ixh{confounding}. A
+better interpretation would be either ``A \$1 increase in the monthly fee is \underline{associated} with a 0.04 increase in
+\underline{log odds},'' or ``An increase in the monthly fee is associated with an increased probability of cancellation''
+(this is known because the sign of the coefficient is positive).
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q17
+\begin{qbox}{PE Q17}
+\ixh{confusion matrix}\ixh{accuracy}\ixh{TPR}\ixh{FPR}
+17.~A model produces the following \ix{confusion matrix}:\par
+\begin{tabular}{@{}lll@{}}\toprule
+ & \textbf{Actually Positive} & \textbf{Actually Negative}\\\midrule
+\textbf{Predicted Positive} & 72 & 18\\
+\textbf{Predicted Negative} & 28 & 182\\\bottomrule
+\end{tabular}\par
+Calculate accuracy, true positive rate, and false positive rate.
+\sol Accuracy\ixh{accuracy} is $(72 + 182)/(72 + 182 + 18 + 28) = 254/300 = 84.67\%$ (or 0.8467). The true positive
+rate\ixh{TPR} is $72/(72 + 28) = 72/100 = 72\%$ (or 0.72). The false positive rate\ixh{FPR} is $18/(18+182) = 9\%$ (or
+0.09).\ixh{true positive}\ixh{false positive}\ixh{false negative}\ixh{true negative}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q18
+\begin{qbox}{PE Q18}
+\ixh{AUC}\ixh{threshold}\ixh{ROC curve}
+18.~A student says: ``I changed my classification threshold from 0.50 to 0.30, so the ROC AUC\ixh{ROC AUC} of my fitted
+model will change.'' Is this correct? Explain.
+\sol This is not correct. The ROC AUC measures the area under the \ix{ROC curve}, which is a curve that plots true positive
+rates and false positive rates \underline{across thresholds}\ixh{threshold}. Therefore, using a different threshold value to
+classify observations will have no impact whatsoever on the area under the ROC curve\ixh{AUC}.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q19
+\begin{qbox}{PE Q19}
+\ixh{ROC curve}\ixh{false negative}\ixh{TPR}\ixh{threshold}
+19.~Suppose the \ix{ROC curve} below represents a model used to screen patients for a very dangerous disease. A
+\ix{false negative} is considered substantially worse than a \ix{false positive}. Of points A, B, and C, which threshold
+would you be most inclined to choose?\par
+\fig{ggplot-style plot titled ``ROC Curve''; x-axis ``False Positive Rate'' 0.0--1.0 (ticks every 0.2), y-axis ``True
+Positive Rate'' 0.0--1.0; light grey grid. A solid black stepped curve rises steeply from (0,0) (TPR $\approx$0.2 already at
+FPR $\approx$0.01), bends near (0.15, 0.69), and flattens to (1,1); a dashed diagonal $y=x$ is the no-skill line. Three
+black dots with red labels lie on the curve: \textbf{A} $\approx$ (FPR 0.05, TPR 0.45), \textbf{B} $\approx$ (0.22, 0.74),
+\textbf{C} $\approx$ (0.47, 0.92). Moving A$\to$B$\to$C = lower threshold, higher TPR and higher FPR.}
+\begin{enumerate}[label=\alph*.]
+\item Point A
+\item Point B
+\item {\color{keyc}\bfseries Point C}
+\item All points are equally good
+\item Not enough information to decide
+\end{enumerate}
+\sol The problem implies that we are only interested in maximizing our true positive rate\ixh{TPR} (and therefore,
+minimizing our false negative rate), regardless of our false positive rate\ixh{FPR}. Therefore, we would prefer the
+\ix{threshold} corresponding to Point C (despite a false positive rate of almost 50\%).
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q20
+\begin{qbox}{PE Q20}
+\ixh{LDA}\ixh{QDA}\ixh{covariance matrix}\ixh{decision boundary}
+20.~You have 50,000 observations, two predictors, and clear evidence that the covariance structures\ixh{covariance matrix}
+differ substantially across levels of your outcome variable. Which would you expect to have the greater potential to
+capture the true \ix{decision boundary}?
+\begin{enumerate}[label=\alph*.]
+\item LDA
+\item {\color{keyc}\bfseries QDA}
+\item Both would do equally well
+\item Neither would do well because they are both parametric models
+\end{enumerate}
+\sol \ix{LDA} assumes that the covariance structure does not differ and therefore would not do well. \ix{QDA} would
+likely excel despite estimating more predictors\ixh{variance}; $p$ is not large, and there are a huge number of
+observations (so parametric models\ixh{parametric model} are fine).
+\end{qbox}
+
+%% ==================================================================== SAI
+\subsection{Sai's midterm (graded, 20/26)}
+\ixh{model evaluation}
+{\color{figgray}\itshape [note: source = Gradescope export \texttt{submission\_422008762.pdf}. PDF pp.~1--3 = Gradescope
+rubric summary; pp.~4--8 = the scanned exam booklet (printed questions + Sai's pencil answers); pp.~9--10 = blank
+scratch pages. Gradescope numbers the graded items ``Question 1''--``Question 12'', the booklet numbers them 1--9 (Q8 has
+parts a--d), so both are given (``Gradescope Q12 / Q9''). In each rubric list, $\checkmark$ marks the rubric item the grader
+applied; {\color{keyc}green} = $-0$ pts, {\color{warnc}red} = deductions, as on Gradescope.]}
+
+\textbf{Gradescope header (PDF p.~1).} Midterm Exam --- Graded. Student: Sai Kadiyala. Total Points: \textbf{20 / 26 pts}.
+
+\begin{rawsrc}{Booklet cover sheet (PDF p.~4)}
+\textbf{PSTAT 131 Midterm Exam} --- Summer 2026.\quad NAME: \textit{Sai Kadiyala} [handwritten] (\textit{First and Last;
+Please Print Clearly!})\quad NetID: [handwritten; omitted here] (\textit{This is what comes before the @ucsb.edu in your
+UCSB Email Address})\quad Your TA (circle one): \textbf{Chunyin} [circled] \quad \textbf{Mallory}
+
+\textbf{Instructions}
+\begin{enumerate}
+\item \textbf{Do not open this exam until you are told. Do not remove this cover sheet.}
+\item \textbf{Identification:} Fill in your full name and UCSB NetID in the spaces above.
+\item \textbf{Marking Answers:} You must indicate your answers to \textbf{all questions} (multiple choice and free response)
+  on this exam booklet.
+\item \textbf{Personal Aids:} This is an open-book and open-note exam. Any and all \textbf{physical materials} may be used
+  during this exam. \textbf{Absolutely no} electronic or digital tools may be used.
+\item \textbf{Prohibited Aids:} Use of generative AI tools (e.g., ChatGPT, Gemini), online resources, or communication with
+  other students is strictly prohibited.
+\item \textbf{Electronic Devices:} Cell phones, smart glasses, earbuds, and other unauthorized electronics must be turned
+  off, put away, and kept out of sight for the duration of the exam.
+\item \textbf{Timekeeping:} If a smart watch is used for timekeeping, it must be in airplane mode with all wireless
+  communication (Wi-Fi/Bluetooth) disabled.
+\item \textbf{Final Answers:} Round answers to 3--4 decimal places when appropriate. Answers must be legible; if multiple
+  answers are given, the first will be graded, except for multiple choice questions; unless otherwise specified, multiple
+  answers marked for Multiple Choice questions will receive a score of zero.
+\item \textbf{Restroom Breaks:} If you must leave the room, give your exam paper and phone to the proctor to hold onto while
+  you are out.
+\item \textbf{Time Limit:} Exam ends at 4:35pm sharp; all work must stop immediately when called.
+\item \textbf{Submission:} Turn in your exam to a proctor upon completion or when time is called. Show photo ID.
+\end{enumerate}
+\textbf{Academic Integrity Pledge.} \textit{In signing my name below, I certify that all work on this exam is my own. I
+affirm that I have not used any unauthorized aids, technology (including generative AI tools), or electronic devices, nor
+have I done anything to create an unfair advantage for myself or any other course member. I have not shared and will not
+share information with any other student(s).} \quad Student Signature: [signed]
+\end{rawsrc}
+
+\textbf{Multiple Choice Questions} (booklet pp.~2--3 = PDF pp.~5--6)
+
+%% ------------------------------------------------------------------ Sai Q1
+\begin{qbox}{Sai Q1 = Gradescope Question 1 --- 2 / 2 pts}
+\ixh{flexibility}\ixh{polynomial regression}\ixh{interaction term}
+1.~(2 points) Which change generally makes a statistical learning method \textbf{more flexible}\ixh{flexibility}?
+\begin{enumerate}[label=(\Alph*)]
+\item Increasing $k$ in \ix{KNN}
+\item Removing predictors from a linear model
+\item Adding polynomial or interaction terms to a regression model\ixh{polynomial regression}\ixh{interaction term}
+\item Using LDA\ixh{LDA} instead of QDA\ixh{QDA}
+\item All of the above
+\end{enumerate}
+\par\textbf{\color{dblue}Sai's answer.}~(C) [bubble filled].
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[$\checkmark$] {\color{keyc}\bfseries $-$0 pts} Correct answer is C. All other answers would all result in a \textbf{less}
+  flexible model.
+\item[] {\color{warnc}\bfseries $-$2 pts} A, B, D, or E
+\end{itemize}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Sai Q2
+\begin{qbox}{Sai Q2 = Gradescope Question 2 --- 2 / 2 pts}
+\ixh{KNN}\ixh{decision boundary}\ixh{non-parametric model}
+2.~(2 points) Why can \ix{KNN} represent nonlinear decision boundaries\ixh{decision boundary}\ixh{nonlinear relationship}
+even without explicitly including polynomial or interaction terms?
+\begin{enumerate}[label=(\Alph*)]
+\item It assumes predictors are normally distributed
+\item It does not assume equal variances across levels of the outcome
+\item Classification is determined locally by neighboring observations
+\item It estimates a different regression coefficient for every observation
+\item It automatically creates squared terms
+\item Both A and B
+\end{enumerate}
+\par\textbf{\color{dblue}Sai's answer.}~(C) [bubble filled].
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[$\checkmark$] {\color{keyc}\bfseries $-$0 pts} Correct answer is C. KNN does not make any assumptions about normality or
+  equality of variances, it also doesn't create squared terms.
+\item[] {\color{warnc}\bfseries $-$1 pt} Partial credit for an answer of B; students could be remembering that this assumption
+  allows QDA\ixh{QDA} to represent nonlinear decision boundaries
+\item[] {\color{warnc}\bfseries $-$2 pts} A, D, E, or F
+\end{itemize}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Sai Q3
+\begin{qbox}{Sai Q3 = Gradescope Question 3 --- 2 / 2 pts}
+\ixh{ROC curve}\ixh{threshold}\ixh{AUC}
+\fig{the same ROC curve as practice-exam Q19, printed in black and white without grid lines: title ``ROC Curve'',
+x-axis ``False Positive Rate'' 0.0--1.0, y-axis ``True Positive Rate'' 0.0--1.0, dashed diagonal reference line, solid
+curve with three labelled dots: \textbf{A} $\approx$ (FPR 0.05, TPR 0.45), \textbf{B} $\approx$ (0.22, 0.74),
+\textbf{C} $\approx$ (0.47, 0.92).}\par
+3.~(2 points) Moving along the \ix{ROC curve} from Point A toward Point C corresponds generally to:
+\begin{enumerate}[label=(\Alph*)]
+\item Increasing the classification threshold
+\item Decreasing the classification \ix{threshold}
+\item Increasing the AUC
+\item Decreasing the \ix{AUC}
+\end{enumerate}
+\par\textbf{\color{dblue}Sai's answer.}~(B) [bubble filled]. {\color{figgray}\itshape [note: a thin horizontal line runs
+through option (C) across the whole page --- a scanner artifact, not a mark.]}
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[$\checkmark$] {\color{keyc}\bfseries $-$0 pts} Correct answer is B. Moving from Point A to Point C represents an increase
+  in both true positive rate\ixh{TPR} and false positive rate\ixh{FPR}; this corresponds to decreasing the threshold,
+  resulting in more predicted positives overall.
+\item[] {\color{warnc}\bfseries $-$1 pt} Partial credit for an answer of A (wrong direction, but still recognizing that the
+  threshold would be changing).
+\item[] {\color{warnc}\bfseries $-$2 pts} C or D.
+\end{itemize}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Sai Q4
+\begin{qbox}{Sai Q4 = Gradescope Question 4 --- 1 / 2 pts}
+\ixh{identifier variable}\ixh{predictor}\ixh{categorical predictor}
+4.~(2 points) A hospital is developing a model to predict whether a patient will be readmitted within 30 days after
+discharge. Which of the following variables would be most reasonable to include as a \ix{predictor}?
+\begin{enumerate}[label=(\Alph*)]
+\item \texttt{PatientID}, a randomly assigned unique identifier for each patient.\ixh{identifier variable}
+\item \texttt{HospitalID}, which identifies which of 15 hospitals treated the patient. Hospitals differ in their patient
+  populations.\ixh{categorical predictor}
+\item \texttt{AdmissionID}, a unique identifier assigned to each hospital admission.
+\item \texttt{RecordID}, a sequential identifier (1, 2, 3, \dots) assigned to each row of the dataset.
+\item None of the above.
+\end{enumerate}
+\par\textbf{\color{dblue}Sai's answer.}~(E) [bubble filled]. {\color{figgray}\itshape [note: the short slanted pencil
+strokes through several words on this page are stray marks, not answers.]}
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[] {\color{keyc}\bfseries $-$0 pts} Correct answer is Hospital ID. The other variables are specifically defined as unique
+  identifiers\ixh{identifier variable}, which should not be included as predictors, while patient populations differ across
+  hospital.
+\item[$\checkmark$] {\color{warnc}\bfseries $-$1 pt} Partial credit for answering all variables.
+\item[] {\color{warnc}\bfseries $-$2 pts} A, C, or D
+\end{itemize}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Sai Q5
+\begin{qbox}{Sai Q5 = Gradescope Question 5 --- 2 / 2 pts}
+\ixh{QDA}\ixh{LDA}\ixh{covariance matrix}\ixh{variance}
+5.~(2 points) Suppose the population covariance matrices\ixh{covariance matrix} really are identical across all classes.
+What advantage does \ix{QDA} gain from estimating a separate covariance matrix for every class?
+\begin{enumerate}[label=(\Alph*)]
+\item A closer fit to the population decision boundary
+\item No inherent advantage from the extra covariance flexibility; it may simply increase estimation variance\ixh{variance}
+\item Perfect classification
+\item QDA, unlike LDA, is nonparametric\ixh{non-parametric model}
+\end{enumerate}
+\par\textbf{\color{dblue}Sai's answer.}~(B) [bubble filled].
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[$\checkmark$] {\color{keyc}\bfseries $-$0 pts} Correct answer is B; if the primary assumption of \ix{LDA} is being met,
+  fitting QDA will not provide any advantage, and will only increase \ix{variance}.
+\item[] {\color{warnc}\bfseries $-$2 pts} A, C, or D
+\end{itemize}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Sai Q6
+\begin{qbox}{Sai Q6 = Gradescope Question 6 --- 0 / 2 pts}
+\ixh{interaction term}\ixh{main effect}
+6.~(2 points) Consider the following fitted values:\par
+\begin{tabular}{@{}lcc@{}}\toprule
+ & \textbf{Treatment A} & \textbf{Treatment B}\\\midrule
+\textbf{Low dosage} & 20 & 25\\
+\textbf{High dosage} & 30 & 50\\\bottomrule
+\end{tabular}\par
+Which feature of these results most strongly suggests an interaction\ixh{interaction term}?
+\begin{enumerate}[label=(\Alph*)]
+\item Treatment B always has the larger fitted value
+\item Increasing dosage changes the fitted value by 10 under Treatment A but by 25 under Treatment B
+\item All four fitted values are different
+\item Increasing dosage increases the fitted value across both treatments
+\item Dosage has two levels
+\item Both B and D
+\end{enumerate}
+\par\textbf{\color{dblue}Sai's answer.}~(F) [bubble filled].
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[] {\color{keyc}\bfseries $-$0 pts} Correct answer is B. The definition of an interaction is that the relationship between
+  one variable and the outcome \textbf{differs} across levels of the other variable. A change in dosage has more of an
+  effect on Treatment B than it does on Treatment A; this is what suggests an interaction.
+\item[$\checkmark$] {\color{warnc}\bfseries $-$2 pts} A, C, D, E, or F
+\end{itemize}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Sai Q7
+\begin{qbox}{Sai Q7 = Gradescope Question 7 --- 0 / 2 pts}
+\ixh{logistic regression}\ixh{coefficient}\ixh{threshold}\ixh{log odds}
+7.~(2 points) In a \ix{logistic regression} model, the coefficient for \texttt{age} is positive. Increasing one customer's
+age from 40 to 41 does not change that customer's predicted class. Why is this possible?
+\begin{enumerate}[label=(\Alph*)]
+\item A positive coefficient does not affect predicted probabilities
+\item The predicted probability can increase without crossing the classification threshold
+\item Logistic regression coefficients affect only training observations
+\item Age must interact with another predictor before it can affect classification
+\end{enumerate}
+\par\textbf{\color{dblue}Sai's answer.}~(A) [bubble filled].
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[] {\color{keyc}\bfseries $-$0 pts} Correct answer is B. An increase in age of 1 unit will have a positive effect on the
+  \ix{log odds} (and therefore on the predicted probability), but that will only result in a changing classification if it
+  results in crossing the \ix{threshold}.
+\item[$\checkmark$] {\color{warnc}\bfseries $-$2 pts} A, C, or D
+\end{itemize}
+\end{qbox}
+
+\textbf{Free Response Questions} (booklet pp.~4--5 = PDF pp.~7--8)
+
+%% ------------------------------------------------------------------ Sai Q8
+\begin{qbox}{Sai Q8a--d = Gradescope Questions 8--11 --- 8 / 8 pts}
+\ixh{threshold}\ixh{sensitivity}\ixh{specificity}\ixh{ROC curve}
+8.~A bank uses a model to flag credit-card transactions as potentially fraudulent. The classification \ix{threshold}
+previously used was 0.40; the bank's lead data scientist decides to increase the threshold to 0.70.
+
+Explain the effect, if any, that this change would generally have on each of the following:
+
+\textbf{(a) (2 points) Sensitivity}\ixh{sensitivity} \hfill [Gradescope Question 8 / Q8a --- \textbf{2 / 2 pts}]
+\par\textbf{\color{dblue}Sai's answer.}~``Sensitivity would be lowered'' \quad[margin note, to the right:] ``as [?] high
+sensitivity $\to$ choose a point with high TPR\ixh{TPR}, even if FPR is higher $\to$ this means lower threshold'' [curved
+arrow back to] ``so we are doing the opposite here''
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[$\checkmark$] {\color{keyc}\bfseries $-$0 pts} Sensitivity is the true positive rate (TPR). Increasing the threshold makes it
+  harder to classify observations as positive. This will result in a lower sensitivity.
+\item[] {\color{warnc}\bfseries $-$2 pts} Incorrectly saying that sensitivity would increase or stay the same.
+\item[] {\color{warnc}\bfseries $-$1 pt} Partial credit
+\end{itemize}
+
+\textbf{(b) (2 points) Specificity}\ixh{specificity} \hfill [Gradescope Question 9 / Q8b --- \textbf{2 / 2 pts}]
+\par\textbf{\color{dblue}Sai's answer.}~``Being stricter would decrease FPR\ixh{FPR} and the formula for specificity is
+$1-\mathrm{FPR}$ so if FPR gets smaller specificity would go up.''
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[$\checkmark$] {\color{keyc}\bfseries $-$0 pts} Specificity\ixh{specificity} is the true negative rate\ixh{true negative} (or 1 minus the
+  false positive rate). Increasing the threshold will result in a higher specificity.
+\item[] {\color{warnc}\bfseries $-$2 pts} Incorrectly saying that specificity would decrease or stay the same.
+\item[] {\color{warnc}\bfseries $-$1 pt} Partial credit
+\end{itemize}
+
+\textbf{(c) (2 points) The model's ROC curve}\ixh{ROC curve} \hfill [Gradescope Question 10 / Q8c --- \textbf{2 / 2 pts}]
+\par\textbf{\color{dblue}Sai's answer.}~``The model's curve wouldn't necessarily change, only the dot of the threshold
+would. Only determines which point on the ROC curve you opeate [sic] at.''
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[$\checkmark$] {\color{keyc}\bfseries $-$0 pts} A change in threshold will have no effect on the \ix{ROC curve} at all. The
+  ROC curve exists at the model level and is made up of many different thresholds' combinations of true and false positive
+  rates.
+\item[] {\color{warnc}\bfseries $-$2 pts} Any other answer.
+\item[] {\color{warnc}\bfseries $-$1 pt} Partial credit
+\end{itemize}
+
+\textbf{(d) (2 points) The overall number of transactions flagged for investigation} \hfill [Gradescope Question 11 / Q8d
+--- \textbf{2 / 2 pts}]
+\par\textbf{\color{dblue}Sai's answer.}~``when the threshold is increased, it means we require more ``certainty'' (higher
+predicted probability)-so fewer observations exceed the high bar, so we get fewer positive predictions, more negative
+predictions.''\ixh{false positive}
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[$\checkmark$] {\color{keyc}\bfseries $-$0 pts} The number of transactions flagged for investigation will generally
+  decrease as the threshold is raised.
+\item[] {\color{warnc}\bfseries $-$2 pts} Any other answer.
+\end{itemize}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Sai Q9
+\begin{qbox}{Sai Q9 = Gradescope Question 12 --- 3 / 4 pts}
+\ixh{collinearity}\ixh{normalization}\ixh{linear regression}\ixh{feature engineering}
+9.~(4 points) Consider the following recipe. The model's goal is to predict the sale price of a home.
+\texttt{square\_feet} represents the house size measured in feet; \texttt{square\_meters} represents the house size measured
+in meters:
+\begin{rcode}
+house_recipe <-
+  recipe(sale_price ~ ., data = houses) %>%           (*@\ixch{recipe()}\ixch{\%>\%}@*)
+  step_mutate(                                        (*@\ixch{step\_mutate()}@*)
+    square_meters = square_feet * 0.092903
+  ) %>%
+  step_normalize(all_numeric_predictors())            (*@\ixch{step\_normalize()}\ixch{all\_numeric\_predictors()}@*)
+\end{rcode}
+A student argues that because both \texttt{square\_feet} and \texttt{square\_meters} are normalized\ixh{normalization}, it is
+appropriate to keep both in an ordinary \ix{linear regression}. Is this reasoning correct or incorrect? Explain.
+{\color{figgray}\itshape [note: on the scan a thin horizontal scanner line runs through ``measured in meters''.]}
+
+\par\textbf{\color{dblue}Sai's answer.}~``In simple linear regression\ixh{simple linear regression} we have this formula:
+$Y=\beta_0+\beta_1X+\epsilon$ $\leftarrow$ error/noise'' [arrows from the formula: $Y\to$ ``response variable'',
+$\beta_0\to$ ``intercept''\ixh{intercept}, $\beta_1\to$ ``slope''\ixh{slope}; a faint erased word under ``simple''
+is [illegible]].\\
+``The point I'm getting to is that, I personally believe it is not appropriate because the resulting value would be the
+same (if only one of the two is used). If you normalize both in terms of price your result would be same as
+standardizing/normalizing\ixh{standardization} means $\mu=0$ $\sigma=1$ in a [small sketch of a bell curve] normaly [sic]
+distributed curve. So I believe it isn't.''
+\grader
+\begin{itemize}[leftmargin=1.2em]
+\item[] {\color{keyc}\bfseries $-$0 pts} Students should recognize that this results in \ix{collinearity}, regardless of
+  normalization. One predictor will still be a direct function of the other predictor.
+\item[] {\color{warnc}\bfseries $-$2 pts} Logic is partially correct.
+\item[] {\color{warnc}\bfseries $-$4 pts} Logic is completely incorrect.
+\item[$\checkmark$] {\color{warnc}\bfseries $-$1 pt} Correct answer (that the reasoning is wrong) but doesn't specifically
+  mention collinearity
+\end{itemize}
+\end{qbox}
+{\color{figgray}\itshape [PDF pp.~9--10: blank pages (no writing).]}

@@ -1,0 +1,57 @@
+Question 6
+Q6 0/2pts
+
+- 0 pts Correct answer is B. The definition of an interaction is that the relationship between one variable and the
+outcome differs across levels of the other variable. A change in dosage has more of an effect on Treatment B
+than it does on Treatment A; this is what suggests an interaction.
+
+v -2ptsA,C,D,E,orF
+
+Question 7
+Q7 0/2pts
+
+- 0 pts Correct answer is B. An increase in age of 1 unit will have a positive effect on the log odds (and therefore on
+
+the predicted probability), but that will only result in a changing classification if it results in crossing the
+threshold.
+
+v -2ptsA,C,orD
+
+Question 8
+
+Q8a 2/2 pts
+
+y -0pts Sensitivity is the true positive rate (TPR). Increasing the threshold makes it harder to classify observations as
+positive. This will result in a lower sensitivity.
+
+- 2 pts Incorrectly saying that sensitivity would increase or stay the same.
+
+- 1 pt Partial credit
+
+Question 9
+Q8b 2/2 pts
+
+¥ -0pts Specificity is the true negative rate (or 1 minus the false positive rate). Increasing the threshold will result in a
+higher specificity.
+
+- 2 pts Incorrectly saying that specificity would decrease or stay the same.
+
+- 1 pt Partial credit
+
+Question 10
+
+Q8c 2/2 pts
+
+y - Opts Achange in threshold will have no effect on the ROC curve at all. The ROC curve exists at the model level and
+is made up of many different thresholds' combinations of true and false positive rates.
+
+- 2 pts Any other answer.
+
+- 1 pt Partial credit
+
+Question 11
+Q8d 2/2 pts
+
+y -0pts The number of transactions flagged for investigation will generally decrease as the threshold is raised.
+
+- 2 pts Any other answer.

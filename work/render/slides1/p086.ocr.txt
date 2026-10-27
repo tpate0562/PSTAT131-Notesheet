@@ -1,0 +1,12 @@
+Bias-variance tradeoff
+
+E (v0 - fxo)) | = Var (F(x0)) + (Bias(f(xo)) + Var(é)
+
+Expected test MSE = _ Variance + Bias + Irreducible error
+Aa A 2 A 2
+=E (fas - Ef(x,)) | [ \/(x)| = fo%)| Vane)
+
+minimized!
+= Var(é)
+
+Irreducible error

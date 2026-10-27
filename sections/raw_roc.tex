@@ -1,0 +1,357 @@
+%% raw_roc.tex -- raw transcription of the reading "ROC Curves Deep Dive"
+%% (source/reading/roc_tutorial.html, page title "ROC Curves: An Overview").
+\section{Reading --- ROC Curves Deep Dive}
+\ixh{ROC curve}\ixh{AUC}\ixh{titanic}%
+{\bfseries ROC Curves: An Overview} \quad PSTAT 131/231
+{\color{figgray}\itshape [note: HTML page title; the Canvas name of this reading is ``ROC Curves Deep Dive''.]}
+
+\subsection{Data}
+For this, we'll use part of a Kaggle data set that was the subject of a \ix{machine learning} competition and is often used for practicing ML models. The goal is \ix{classification}; specifically, to predict which passengers would survive the Titanic\ixh{titanic}{} shipwreck.
+
+We load in the data below and perform any necessary steps -- converting variables to factors as needed, loading the appropriate packages, etc.:
+\begin{rcode}
+library(tidyverse)        (*@\ixch{library()}\ixch{tidyverse}@*)
+library(tidymodels)       (*@\ixch{tidymodels}@*)
+library(discrim)          (*@\ixch{discrim}@*)
+library(poissonreg)       (*@\ixch{poissonreg}@*)
+library(corrr)            (*@\ixch{corrr}@*)
+library(ggthemes)         (*@\ixch{ggthemes}@*)
+tidymodels_prefer()       (*@\ixch{tidymodels\_prefer()}@*)
+
+set.seed(3000) # can be any number (*@\ixh{random seed}\ixch{set.seed()}@*)
+
+titanic <- read_csv(file = "homework-3/data/titanic.csv") %>% (*@\ixh{titanic}\ixch{read\_csv()}\ixch{\%>\%}@*)
+  mutate(survived = factor(survived,          (*@\ixch{mutate()}\ixch{factor()}@*)
+                           levels = c("Yes", "No")),   (*@\ixch{levels}@*)
+         pclass = factor(pclass),
+         coin_flip = c(rep(0, 445), rep(1, 446)))
+
+titanic_split <- titanic %>%
+  initial_split(strata = survived, prop = 0.7)  (*@\ixch{initial\_split()}\ixch{strata}\ixch{prop}@*)
+titanic_train <- training(titanic_split)  (*@\ixch{training()}@*)
+titanic_test <- testing(titanic_split)    (*@\ixch{testing()}@*)
+\end{rcode}
+We split the data into \ix{training data}\ixh{training/testing split}{} and testing sets\ixh{testing data}, and choose to include $70\%$ of the data in training and $30\%$ in testing. \ixh{stratified sampling}Stratified sampling is important here because the outcome is imbalanced\ixh{class imbalance}; there is a larger number of passengers that didn't survive than passengers that did.
+
+Now we'll create recipes\ixh{recipe()}, and here we are going to specify two recipes -- one that will do pretty well predicting the outcome, and one that won't.
+
+The recipe we'll fit in Homework 3 will do a fairly good job, so we'll use that for what we'll call Recipe A:
+
+\underline{Recipe A:}
+\begin{rcode}
+titanic_recipe_a <- recipe(survived ~ pclass + sex + age +   (*@\ixch{recipe()}@*)
+                           sib_sp + parch + fare, titanic_train) %>%
+  step_impute_linear(age, impute_with = imp_vars(sib_sp)) %>%  (*@\ixch{step\_impute\_linear()}\ixch{imp\_vars()}\ixch{impute\_with}\ixh{linear imputation}@*)
+  # choice of predictors to impute with is up to you
+  step_dummy(all_nominal_predictors()) %>%    (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}\ixh{dummy variable}@*)
+  step_interact(~ starts_with("sex"):age + age:fare)  (*@\ixch{step\_interact()}\ixch{starts\_with()}\ixh{interaction term}@*)
+\end{rcode}
+For Recipe B, we will attempt to predict passenger survival with only \rc{sib\_sp}, the number of siblings or spouses on board. The goal of this demonstration is to compare an intentionally bad model (Recipe B) to one that is relatively good (Recipe A).
+
+\underline{Recipe B:}
+\begin{rcode}
+titanic_recipe_b <- recipe(survived ~ sib_sp, titanic_train)  (*@\ixch{recipe()}@*)
+\end{rcode}
+Note that this recipe is much shorter; there's no age to impute\ixh{imputation}, no categorical predictors\ixh{categorical predictor}, and no interactions\ixh{interaction term}{} (because there's only one \ix{predictor} variable included).
+
+We'll fit two \ix{logistic regression}s, using each of these recipes, and call them Model A and Model B, respectively.
+
+\underline{Model A:}
+\begin{rcode}
+log_reg <- logistic_reg() %>%    (*@\ixch{logistic\_reg()}@*)
+  set_engine("glm") %>%          (*@\ixch{set\_engine()}\ixch{glm}@*)
+  set_mode("classification")     (*@\ixch{set\_mode()}@*)
+
+log_wkflow_a <- workflow() %>%   (*@\ixch{workflow()}@*)
+  add_model(log_reg) %>%         (*@\ixch{add\_model()}@*)
+  add_recipe(titanic_recipe_a)   (*@\ixch{add\_recipe()}@*)
+
+log_fit_a <- fit(log_wkflow_a, titanic_train)  (*@\ixch{fit()}@*)
+\end{rcode}
+\underline{Model B:}
+\begin{rcode}
+log_wkflow_b <- workflow() %>%   (*@\ixch{workflow()}@*)
+  add_model(log_reg) %>%
+  add_recipe(titanic_recipe_b)
+
+log_fit_b <- fit(log_wkflow_b, titanic_train)  (*@\ixch{fit()}@*)
+\end{rcode}
+We can obtain the \ix{accuracy} for each model:
+\begin{rcode}
+log_acc_a <- predict(log_fit_a, new_data = titanic_train, type = "class") %>%  (*@\ixch{predict()}\ixch{new\_data}\ixch{type = "class"}@*)
+  bind_cols(titanic_train %>% select(survived)) %>%  (*@\ixch{bind\_cols()}\ixch{select()}@*)
+  accuracy(truth = survived, estimate = .pred_class)  (*@\ixch{accuracy()}\ixch{truth}\ixch{estimate}\ixch{.pred\_class}@*)
+log_acc_b <- predict(log_fit_b, new_data = titanic_train, type = "class") %>%
+  bind_cols(titanic_train %>% select(survived)) %>%
+  accuracy(truth = survived, estimate = .pred_class)
+
+results <- bind_rows(log_acc_a, log_acc_b) %>%   (*@\ixch{bind\_rows()}@*)
+  tibble() %>% mutate(model = c("Model A", "Model B")) %>%  (*@\ixch{tibble()}\ixch{mutate()}@*)
+  select(model, .estimate)      (*@\ixch{.estimate}@*)
+results
+\end{rcode}
+\begin{routput}
+# A tibble: 2 x 2
+  model   .estimate
+  <chr>       <dbl>
+1 Model A     0.807
+2 Model B     0.616
+\end{routput}
+As expected, Model A has higher accuracy\ixh{accuracy}{} than Model B, and has performed better on the training data\ixh{training error}.
+
+We'll fit both of these to the testing data\ixh{testing data}, and then we'll explore their \ix{ROC curve}s.
+\begin{rcode}
+log_test_a <- fit(log_wkflow_a, titanic_test)       (*@\ixch{fit()}@*)
+log_a_results <- augment(log_test_a, new_data = titanic_test)  (*@\ixch{augment()}@*)
+
+log_test_b <- fit(log_wkflow_b, titanic_test)
+log_b_results <- augment(log_test_b, new_data = titanic_test)
+\end{rcode}
+
+\subsection{Model A: ROC Curve}
+\ixh{ROC curve}%
+First, let's view a \ix{confusion matrix}:
+\begin{rcode}
+log_a_results %>%
+  conf_mat(truth = survived, estimate = .pred_class) %>%  (*@\ixch{conf\_mat()}\ixch{truth}\ixch{.pred\_class}@*)
+  autoplot(type = "heatmap")   (*@\ixch{autoplot()}\ixch{type = "heatmap"}@*)
+\end{rcode}
+\fig{Model A confusion matrix on \rc{titanic\_test} (default 0.5 \ixh{threshold}threshold), drawn by \rc{autoplot(type = "heatmap")}: rows = Prediction (Yes top, No bottom), columns = Truth (Yes left, No right); darker grey = larger count.
+Pred Yes row: 80 (Truth Yes), 20 (Truth No); Pred No row: 23 (Truth Yes), 145 (Truth No), i.e.\ 80 \ixh{true positive}TP, 20 FP\ixh{false positive}, 23 FN\ixh{false negative}, 145 TN\ixh{true negative}; 103 truly Yes and 165 truly No (268 test passengers).}
+\begin{rcode}
+log_a_results %>%
+  roc_curve(survived, .pred_Yes) %>%   (*@\ixch{roc\_curve()}\ixch{.pred\_Yes}@*)
+  autoplot()                           (*@\ixch{autoplot()}@*)
+\end{rcode}
+\fig{Model A \ix{ROC curve} (\rc{autoplot()} of \rc{roc\_curve()}): square panel, x-axis ``1 - specificity'' 0.00--1.00, y-axis ``sensitivity'' 0.00--1.00, dotted 45$^\circ$ diagonal reference line from (0,0) to (1,1). The black step curve starts at (0,0), shoots straight up to sensitivity $\approx$0.47 at FPR 0, then $\approx$0.58 by FPR $\approx$0.04, $\approx$0.73 by FPR $\approx$0.07, $\approx$0.80 by FPR $\approx$0.14, $\approx$0.85 by FPR $\approx$0.26, then flattens: $\approx$0.875 around FPR 0.43--0.49, $\approx$0.93 at 0.55, $\approx$0.95 at 0.59--0.74, $\approx$0.97 at 0.79, reaching 1.00 at FPR $\approx$0.85 and running flat to (1,1). The curve bows far toward the top-left corner, well above the diagonal (good discrimination; Model A's AUC is not printed in the reading).}
+
+We can look at the plot, and we can also ask R for the table of \ix{threshold} values and their corresponding true positive and false positive rates. As a reminder, ``\ix{sensitivity}'' is another term for \textbf{true positive} rate\ixh{TPR}\ixh{true positive}, and true positive rate is defined as $\frac{TP}{TP+FN}$, or the number of true positives divided by the total number of true positives and false negatives\ixh{false negative}. The \emph{x}-axis, 1 - specificity\ixh{specificity}, is another name for the \textbf{false positive} rate\ixh{FPR}\ixh{false positive}, which is defined as $\frac{FP}{FP+TN}$. Here is a table of the threshold values, sensitivity, and specificity:
+\begin{rcode}
+log_a_results %>%
+  roc_curve(survived, .pred_Yes)   (*@\ixch{roc\_curve()}\ixch{.threshold}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 254 x 3
+   .threshold specificity sensitivity
+        <dbl>       <dbl>       <dbl>
+ 1 -Inf            0                1
+ 2    0.00131      0                1
+ 3    0.00474      0.0121           1
+ 4    0.00563      0.0182           1
+ 5    0.00635      0.0242           1
+ 6    0.0116       0.0303           1
+ 7    0.0117       0.0364           1
+ 8    0.0122       0.0424           1
+ 9    0.0147       0.0485           1
+10    0.0186       0.0545           1
+# ... with 244 more rows
+\end{routput}
+Notice that, by default, the \ixc{roc\_curve()} function tries values for \rc{threshold}\ixh{threshold}{} in a grid from \rc{-Inf}, or basically 0, to \rc{Inf}, or basically 1. There are 254 rows, which means it has tried 254 possible values for the threshold. Let's look at the first few predicted class probabilities\ixh{posterior probability}{} Model A has generated:
+\begin{rcode}
+log_a_results %>%
+  select(.pred_Yes, survived) %>%   (*@\ixch{select()}\ixch{.pred\_Yes}@*)
+  head()                            (*@\ixch{head()}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 6 x 2
+  .pred_Yes survived
+      <dbl> <fct>
+1   0.0672  No
+2   0.268   No
+3   0.792   Yes
+4   0.00474 No
+5   0.247   Yes
+6   0.693   Yes
+\end{routput}
+If we try a \ix{threshold} of $0.001310378$, the first value in the previous table, we would be predicting \rc{Yes} for any observations with $p \geq 0.001310378$. A confusion matrix\ixh{confusion matrix}{} of the \textbf{predicted class values} based on this threshold looks like:
+\begin{rcode}
+augment(log_test_a, new_data = titanic_test) %>%   (*@\ixch{augment()}@*)
+  mutate(.pred_class = factor(if_else(.pred_Yes < 0.001310378, "No", "Yes"), levels = c("Yes", "No"))) %>%  (*@\ixch{mutate()}\ixch{if\_else()}\ixch{factor()}\ixch{.pred\_class}@*)
+  conf_mat(truth = survived, estimate = .pred_class) %>%  (*@\ixch{conf\_mat()}@*)
+  autoplot(type = "heatmap")
+\end{rcode}
+\fig{Model A confusion-matrix heatmap at threshold 0.001310378 (almost everyone predicted Yes): Pred Yes / Truth Yes = 103, Pred Yes / Truth No = 163, Pred No / Truth Yes = 0, Pred No / Truth No = 2 (rows Prediction Yes/No, columns Truth Yes/No).}
+
+So the true positive rate\ixh{TPR}{} corresponding to this threshold value is $\frac{103}{103}$, or $1$, and the false positive rate\ixh{FPR}, which is defined as 1 - specificity, is $\frac{163}{165} = 0.9878788$, which is basically 1. In other words, the \ix{sensitivity} is 1 and the specificity is very close to 1, which matches what we see from the ROC table of threshold values:
+{\color{figgray}\itshape [note: as in the original; it is 1 $-$ specificity (the FPR) that is close to 1 --- specificity itself is $2/165 \approx 0.012$.]}
+\begin{rcode}
+log_a_results %>%
+  roc_curve(survived, .pred_Yes) %>%   (*@\ixch{roc\_curve()}@*)
+  head()                               (*@\ixch{head()}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 6 x 3
+  .threshold specificity sensitivity
+       <dbl>       <dbl>       <dbl>
+1 -Inf            0                1
+2    0.00131      0                1
+3    0.00474      0.0121           1
+4    0.00563      0.0182           1
+5    0.00635      0.0242           1
+6    0.0116       0.0303           1
+\end{routput}
+On the \ix{ROC curve} plot, that is the following point:
+\begin{rcode}
+log_a_results %>%
+  roc_curve(survived, .pred_Yes) %>%
+  autoplot() +                            (*@\ixch{autoplot()}@*)
+  geom_point(aes(x = 1, y = 1), colour = spec_colors[1], size = 2.5)  (*@\ixch{geom\_point()}\ixch{aes()}@*)
+\end{rcode}
+\fig{Same Model A ROC curve as above (x ``1 - specificity'', y ``sensitivity'', dotted diagonal) with a large black dot at the top-right corner (1, 1): the threshold 0.00131 point, where sensitivity = 1 and FPR $\approx$ 1.}
+
+Let's look at the default \ix{threshold} value for a binary classification\ixh{classification}{} problem, and see where that falls on the curve. Generally, the default threshold value is at $0.50$. We'll specifically classify the predictions as No if $p < .50$ and \rc{Yes} otherwise:
+\begin{rcode}
+augment(log_test_a, new_data = titanic_test) %>%
+  mutate(.pred_class = factor(if_else(.pred_Yes < 0.5, "No", "Yes"), levels = c("Yes", "No"))) %>%  (*@\ixch{if\_else()}\ixch{.pred\_Yes}@*)
+  conf_mat(truth = survived, estimate = .pred_class) %>%  (*@\ixch{conf\_mat()}@*)
+  autoplot(type = "heatmap")
+\end{rcode}
+\fig{Model A confusion-matrix heatmap at threshold 0.5 (identical to the first one): Pred Yes / Truth Yes = 80, Pred Yes / Truth No = 20, Pred No / Truth Yes = 23, Pred No / Truth No = 145.}
+
+The true positive rate\ixh{TPR}{} for a threshold of 0.50 is then $\frac{80}{103} = 0.7767$, and the false positive rate\ixh{FPR}{} is $\frac{20}{165} = 0.1212121$. On the ROC curve, that is this point:
+\begin{rcode}
+log_a_results %>%
+  roc_curve(survived, .pred_Yes) %>%
+  autoplot() +
+  geom_point(aes(x = 0.1212121, y = 0.776699), colour = spec_colors[3], size = 2.5)  (*@\ixch{geom\_point()}@*)
+\end{rcode}
+\fig{Same Model A ROC curve with a dark navy dot at (0.121, 0.777) --- the default-0.5-threshold point, sitting on the steep ``shoulder'' of the curve near the top-left corner.}
+
+And we could do the same exact thing for threshold values of 0.25, 0.75, etc.\ -- for basically any value between 0 and 1. Our goal is to develop a model that is able to maximize \ix{sensitivity} while minimizing 1 - specificity\ixh{specificity}, or that can maximize the true positive rate\ixh{TPR}{} while minimizing the false positive rate\ixh{FPR}.
+
+Here is a distribution of the predicted probabilities:
+\begin{rcode}
+log_a_results %>%
+  ggplot(aes(x = .pred_Yes, fill = survived)) +   (*@\ixch{ggplot()}\ixch{aes()}@*)
+  geom_histogram(position = "dodge") +           (*@\ixch{geom\_histogram()}@*)
+ theme_bw() +                                    (*@\ixch{theme\_bw()}@*)
+  xlab("Probability of Yes") +                    (*@\ixch{xlab()}@*)
+  scale_fill_manual(values = c("blue", "orange")) (*@\ixch{scale\_fill\_manual()}@*)
+\end{rcode}
+\fig{Model A \ix{histogram} of \rc{.pred\_Yes} on the test set, bars dodged side by side; x ``Probability of Yes'' 0.00--1.00, y ``count'' 0--35; fill legend ``survived'': Yes = blue, No = orange. Orange (truly No) bars pile up at low probabilities (tallest $\approx$35 near 0.08; others 9, 18, 19, 13, 15, 13, 7 between 0 and 0.3) and are small ($\le$4) above 0.5; blue (truly Yes) bars are mostly at high probabilities (11 near 0.68; 9--11 each at 0.88--0.98), with only a few low ones (max 7 near 0.1). Clear separation with some overlap in the middle.}
+\begin{rcode}
+log_a_results %>%
+  ggplot(aes(x = .pred_Yes, fill = survived)) +
+  geom_boxplot() +                    (*@\ixch{geom\_boxplot()}@*)
+theme_bw() +
+  xlab("Probability of Yes") +
+  scale_fill_manual(values = c("blue", "orange"))
+\end{rcode}
+\fig{Model A horizontal \ix{boxplot}s of \rc{.pred\_Yes} by \rc{survived} (x ``Probability of Yes'' 0--1; the y-axis, $-0.2$ to 0.2, is meaningless because no y aesthetic was given). No (orange, upper box): box $\approx$0.08--0.25, median $\approx$0.12, whiskers $\approx$0 to $\approx$0.49, outlier dots $\approx$0.51--0.81. Yes (blue, lower box): box $\approx$0.54--0.93, median $\approx$0.79, whiskers from $\approx$0.04 to $\approx$1.0. The two boxes do not overlap.}
+
+\subsection{Model B: ROC Curve:}
+\ixh{ROC curve}%
+For models that do not predict the outcome as well, it basically doesn't matter where you set the threshold\ixh{threshold}{} value -- that model will NEVER achieve a true positive rate\ixh{TPR}{} of 1 and a false positive rate\ixh{FPR}{} of 0 (which a ``perfect'' classifier can do). Let's take a look at the \ix{ROC curve} of our intentionally bad model:
+\begin{rcode}
+log_b_results %>%
+  roc_curve(survived, .pred_Yes) %>%   (*@\ixch{roc\_curve()}@*)
+  autoplot()                           (*@\ixch{autoplot()}@*)
+\end{rcode}
+\fig{Model B ROC curve (axes as before: x ``1 - specificity'', y ``sensitivity'', dotted diagonal). Only a few corner points, so it is piecewise-linear: a straight segment from (0,0) to $\approx$(0.715, 0.689) lying just \emph{below} the diagonal, then up to $\approx$(0.909, 0.951) crossing slightly above it, a short jump to $\approx$(0.921, 1.00), then flat to (1,1). Essentially the diagonal = no better than random guessing (AUC 0.496).}
+
+It's hard to get much worse than that! Predicting survival solely on the basis of number of siblings or spouses on board is just about as bad as predicting survival based on the result of a coin flip. Let's look at the \ix{confusion matrix}.
+\begin{rcode}
+log_b_results %>%
+  conf_mat(truth = survived, estimate = .pred_class) %>%  (*@\ixch{conf\_mat()}\ixch{.pred\_class}@*)
+  autoplot(type = "heatmap")
+\end{rcode}
+\fig{Model B confusion-matrix heatmap (default threshold 0.5): Pred Yes row = 0 (Truth Yes) and 0 (Truth No); Pred No row = 103 (Truth Yes) and 165 (Truth No). Every passenger is predicted No.}
+
+As we may have suspected -- this model is simply never predicting \rc{Yes}.
+
+It's doing this because there are more \rc{No} values in the data set\ixh{class imbalance}, and therefore predicting No for every observation actually results in what appears to be a relatively high \ix{accuracy} value; the accuracy of this model was about 0.61. But as you'll see, the area under its ROC curve\ixh{AUC}{} is considerably lower. Area under the ROC curve is a metric for how well the model can successfully discriminate between classes, and this model is doing a pretty terrible job of that. In fact, the area under the ROC curve\ixh{AUC}{} for this model is only about 0.50 -- a coin flip:
+\begin{rcode}
+log_b_results %>%
+  roc_auc(survived, .pred_Yes)    (*@\ixch{roc\_auc()}\ixch{.pred\_Yes}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 1 x 3
+  .metric .estimator .estimate      (*@\ixch{.metric}\ixch{.estimator}\ixch{.estimate}@*)
+  <chr>   <chr>          <dbl>
+1 roc_auc binary         0.496
+\end{routput}
+For the default threshold\ixh{threshold}{} value of $0.50$, we can get the true positive and false positive rates from the confusion matrix above; the true positive rate\ixh{TPR}{} is $\frac{0}{103}$ and the false positive rate\ixh{FPR}{} is $\frac{0}{165}$, so \ix{sensitivity} is $0$ and 1 - specificity\ixh{specificity}{} is $0$. The default threshold value of $0.50$ is this point on the ROC curve:
+\begin{rcode}
+log_b_results %>%
+  roc_curve(survived, .pred_Yes) %>%
+  autoplot() +
+  geom_point(aes(x = 0, y = 0), colour = spec_colors[2], size = 2.5)  (*@\ixch{geom\_point()}@*)
+\end{rcode}
+\fig{Same Model B ROC curve with a dark navy dot at the bottom-left corner (0, 0): threshold 0.5, sensitivity 0, FPR 0.}
+
+Let's look at the ROC table of \ix{threshold} values:
+\begin{rcode}
+log_b_results %>%
+  roc_curve(survived, .pred_Yes)   (*@\ixch{roc\_curve()}\ixch{.threshold}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 9 x 3
+  .threshold specificity sensitivity
+       <dbl>       <dbl>       <dbl>
+1   -Inf          0            1
+2      0.113      0            1
+3      0.193      0.0182       1
+4      0.228      0.0364       1
+5      0.267      0.0545       1
+6      0.311      0.0788       1
+7      0.358      0.0909       0.951
+8      0.408      0.285        0.689
+9    Inf          1            0
+\end{routput}
+Here, the model has only tried nine potential thresholds. Why is that?
+\begin{rcode}
+log_b_results %>%
+  ggplot(aes(x = .pred_Yes, fill = survived)) +   (*@\ixch{ggplot()}@*)
+  geom_histogram(position = "dodge")  + theme_bw() +  (*@\ixch{geom\_histogram()}\ixch{theme\_bw()}@*)
+  xlab("Probability of Yes") +
+  scale_fill_manual(values = c("blue", "orange"))  (*@\ixch{scale\_fill\_manual()}@*)
+\end{rcode}
+\fig{Model B \ix{histogram} of \rc{.pred\_Yes} (dodged; x ``Probability of Yes'' 0.1--0.42, y ``count'' 0--120; Yes = blue, No = orange). Only a handful of distinct predicted values (one per value of \rc{sib\_sp}), approx.\ counts: $\approx$0.113: No 3; $\approx$0.193: No 3; $\approx$0.228: No 3; $\approx$0.267: No 4; $\approx$0.311: Yes 5, No 2; $\approx$0.358: Yes 27, No 32; $\approx$0.408: Yes 71, No 118 (consistent with the ROC table). Both classes sit at the same few values --- no separation; nothing above $\approx$0.41.}
+
+The threshold values are selected as a grid over the range of observed predicted probabilities. This model has not predicted any observation's probability of Yes as greater than $0.4076525$ \dots\ which, coincidentally, is the largest \ix{threshold} value considered in its ROC curve\ixh{ROC curve}. That's because considering any larger values for the threshold would give the same results as \rc{Inf}. We can also view this information as a \ix{boxplot}, which really serves to illustrate the overlap:
+\begin{rcode}
+log_b_results %>%
+  ggplot(aes(x = .pred_Yes, fill = survived)) +
+  geom_boxplot()  + theme_bw() +     (*@\ixch{geom\_boxplot()}@*)
+  xlab("Probability of Yes") +        (*@\ixch{xlab()}@*)
+  scale_fill_manual(values = c("blue", "orange"))
+\end{rcode}
+\fig{Model B horizontal boxplots of \rc{.pred\_Yes} (x ``Probability of Yes'' 0.1--0.4; meaningless y-axis $-0.2$ to 0.2). No (orange, top) and Yes (blue, bottom) boxes are essentially identical: box $\approx$0.358--0.408 with the median at the upper edge ($\approx$0.408), left whisker to $\approx$0.31; the No group also has outlier dots at $\approx$0.113, 0.193, 0.228, 0.267. Complete overlap of the two classes.}
+
+With that in mind, let's focus on a \ix{threshold} value of, say, $0.4076525$. Remember that we want to maximize \ix{sensitivity} and minimize the false positive rate\ixh{FPR}, or minimize 1 - specificity\ixh{specificity}. At a threshold of $0.4076525$, the confusion matrix\ixh{confusion matrix}{} looks like:
+\begin{rcode}
+log_b_results %>%
+  mutate(.pred_class = factor(if_else(.pred_Yes <= 0.4076524, "No", "Yes"), levels = c("Yes", "No"))) %>%  (*@\ixch{if\_else()}\ixch{.pred\_class}@*)
+  conf_mat(truth = survived, estimate = .pred_class) %>%  (*@\ixch{conf\_mat()}@*)
+  autoplot(type = "heatmap")
+\end{rcode}
+\fig{Model B confusion-matrix heatmap at threshold 0.4076525: Pred Yes / Truth Yes = 71, Pred Yes / Truth No = 118, Pred No / Truth Yes = 32, Pred No / Truth No = 47.}
+
+Now we're seeing some \rc{Yes} predictions, because we adjusted our threshold for predicting \rc{Yes} downward. The true positive rate\ixh{TPR}{} is $\frac{71}{103}=0.6893204$, same as we saw in the output earlier for this threshold, and the false positive rate\ixh{FPR}, or 1 - specificity, is $\frac{118}{165} = 0.7151515$.
+
+So a threshold value of $0.4076525$ represents this point on the curve:
+\begin{rcode}
+log_b_results %>%
+  roc_curve(survived, .pred_Yes) %>%
+  autoplot() +
+  geom_point(aes(x = 0.7151515, y = 0.6893204), colour = spec_colors[5], size = 2.5)  (*@\ixch{geom\_point()}@*)
+\end{rcode}
+\fig{Same Model B ROC curve with a grey dot at (0.715, 0.689), the kink of the curve just below the dotted diagonal --- threshold 0.4076525.}
+
+\subsection{Conclusions}
+\ixh{ROC curve}\ixh{model evaluation}%
+So what do you take away from here? First, each of these curves is unique to the model's predicted probabilities. That's why the function \ixc{roc\_curve()} will throw an error if you try to give it predicted class values rather than probabilities; it needs the actual probability values in order to calculate \ix{sensitivity} and \ix{specificity} based on a range of thresholds\ixh{threshold}.
+
+The area under an ROC curve\ixh{AUC}{} is, fundamentally, a measure of a model's ability to \textbf{discriminate between classes}. Model A can discriminate between 0 and 1 fairly well; higher p-values, or basically p-values above 0.50, generally correspond to observations that are positive, and lower p-values generally correspond to negative observations, with a few exceptions. Model B \textbf{cannot} discriminate between 0 and 1. The distribution of p-values is about the same for both 0s and 1s; the predicted p-value actually doesn't provide much information about whether an observation is 0 or 1, because the model doesn't know.
+{\color{figgray}\itshape [note: ``p-values'' here means the predicted probabilities $p$ = \rc{.pred\_Yes}, not hypothesis-test p-values.]}
+
+ROC curves\ixh{ROC curve}{} have two primary uses in \ix{machine learning}:
+\begin{enumerate}
+\item Evaluating and comparing model performance\ixh{model comparison}\ixh{model evaluation};
+\item Selecting the optimal \ix{threshold} value for a specific model.
+\end{enumerate}
+To compare model performance\ixh{model comparison}, one usually compares the area under the curve for competing models, preferring the model with an \ix{AUC} value closer to 1. It's also often useful to plot competing ROC curves (you can even do this on the same graph) to get a visual idea of their discriminative abilities. Remember, though, if you have a model whose AUC is \textbf{equal} to 1, that's usually a sign that you've included the outcome, or some linear combination of the outcome, as a predictor\ixh{target leakage}.
+
+Once you've settled on a model, you can also use the \ix{ROC curve} to determine the optimal threshold(s)\ixh{threshold}. This is arguably a less common use, though, because the default threshold(s) typically works well and provides a good balance between \ix{sensitivity} and \ix{specificity}. But if you are working on a project where you want to be extra careful to accurately predict \textbf{every} 0 or, vice versa, every 1, it can be advisable to adjust the threshold in the desired direction.
+
+If you are working with a multiclass outcome\ixh{multiclass classification}, where there are more than two possible values, the ROC curve idea is easily extended! You can generate a curve to represent how well the model distinguishes between \textbf{each} class (we'll see examples of this in the homework and labs).

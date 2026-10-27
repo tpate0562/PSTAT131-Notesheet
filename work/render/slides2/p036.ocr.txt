@@ -1,0 +1,16 @@
+Q2: Deciding on important variables
+
+Best subset selection: compute least squares fit for all possible subsets of
+predictors, and then choose the “best”
+
+“best” in terms of some criteria (Mallow’s GC, AIC, BIC, adjusted R?, etc.)
+
+impossible for large p: 2? models in total (~ one billion model when p = 40)
+
+Forward selection: start with no variables in the model,
+add variables one-by-one. Greedy approach.
+
+Backward selection: start with a full model, remove variables
+one-by-one. Does not work when p > n
+
+Mixed selection: combination of forward and backward selection

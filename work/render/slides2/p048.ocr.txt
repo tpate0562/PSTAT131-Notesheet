@@ -1,0 +1,10 @@
+Extensions of the linear model
+Y=fyo+X,P;, + ee + Xf, + €
+
+Relationship between Y and X), ..., X, is additive and linear
+
+Additive: the effect of changes in a predictor X; on Y is
+independent of the values of all other predictors
+
+Linear: the change in the response Y due to one unit change
+of a predictor xX; is constant, regardless of the value of X;

@@ -1,0 +1,538 @@
+%% raw_s2.tex -- raw transcription of Slide Set 2 (Linear models; feature engineering; EDA), PDF pages 1-78
+\section{Slide Set 2 --- Linear models, feature engineering, EDA}
+\ixh{linear model}\ixh{linear regression}\ixh{feature engineering}\ixh{exploratory data analysis (EDA)}
+
+\slide{2}{1}{Linear models}
+\ixh{linear model}Title slide: \textbf{Linear models} --- PSTAT 131/231.
+
+\slide{2}{2}{Required reading:}
+\begin{itemize}
+\item For \textbf{undergraduates}, ch.\ 2 of \ix{ISLR}
+\item For \textbf{graduate students}, ch.\ 2 of \ix{ESL}
+\end{itemize}
+
+\subsection{Exploratory data analysis (EDA)}
+\ixh{exploratory data analysis (EDA)}
+
+\slide{2}{3}{Exploratory data analysis (EDA)}
+Section title slide: \ix{exploratory data analysis (EDA)}.
+
+\slide{2}{4}{Some goals of EDA}
+\ixh{EDA}
+\begin{itemize}
+\item \ix{data cleaning} and quality check
+\item \ix{descriptive statistics}
+\item \ix{data visualization}
+\item \ix{feature engineering}?
+\item Discovering relationships among variables
+\end{itemize}
+\begin{enumerate}
+\item Generate \texttt{questions} about your data.
+\item Search for \texttt{answers} by visualizing, transforming, and modeling your data.
+\item Use what you learn to refine your \texttt{questions} and/or generate new \texttt{questions.}
+\end{enumerate}
+\fig{photo on the right of a narrow dirt footpath winding through green grass between trees (a metaphor for exploring). The numbered list at the bottom is a screenshot from \emph{R for Data Science} with the words ``questions''/``answers'' in red code font.}
+
+\slide{2}{5}{Assess your data}
+\begin{itemize}
+\item How many rows, columns
+\item Missingness\ixh{missing data}\ixh{missingness}
+  \begin{itemize}
+  \item Percentage by variable?
+  \item Reason for missingness?
+  \item \ix{imputation}?
+  \end{itemize}
+\end{itemize}
+Plot caption (top): ``\ixc{naniar} package; \ixc{vis\_miss()}''. Link: \url{https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html}
+\fig{\texttt{vis\_miss()} heat-map of missing values. x-axis (top, rotated labels): the six columns with their percentage missing --- Ozone (24.18\%), Solar.R (4.58\%), Wind (0\%), Temp (0\%), Month (0\%), Day (0\%) (the columns of R's built-in \texttt{airquality}\ixch{airquality} data). y-axis: ``Observations'' 0 to $\approx$153 (ticks 0, 50, 100, 150), row 1 at the top. Each cell is light grey if present, black if missing. The Ozone column has many black horizontal stripes scattered throughout (a thick block around rows 50--60, others near rows 5, 25, 35, 40--45, 75, 85, 100--105, 115--120, 150); Solar.R has only a few thin black lines (near rows 5, 10, 27, 97); the other four columns are entirely grey. Legend: black = Missing (4.8\%), grey = Present (95.2\%) of all cells.}
+
+\slide{2}{6}{[Missing-data patterns and missingness mechanisms]}
+Link (top): \url{https://twitter.com/rlmcelreath/status/1101435108995805185}
+\begin{itemize}
+\item[] H: Homework
+\item[] H*: Homework with missing values
+\item[] A: Attribute of student
+\item[] D: Dog (missingness mechanism)
+\end{itemize}
+\fig{left: four schematic data matrices of variables $Y_1,Y_2,Y_3,Y_4$ drawn as tall bars, grey shading = missing values. (a) \emph{Univariate Pattern}\ixh{missingness pattern}: $Y_1$--$Y_3$ complete, only $Y_4$ has a missing block at the bottom. (b) \emph{Monotone Pattern}: $Y_1,Y_2$ complete, $Y_3$ missing at the bottom third, $Y_4$ missing at the bottom half (each later variable missing for a superset of the rows). (c) \emph{General Pattern}: small missing bands scattered at different rows in every variable. (d) \emph{Planned Missingness}: $Y_1$ complete, $Y_2$ missing at the top, $Y_3$ in the middle, $Y_4$ at the bottom (missing blocks staggered by design).}
+\fig{right: three hand-drawn causal diagrams (R.\ McElreath), each a square with A (top-left) $\to$ H (top-right), H $\to$ H* (down the right side), D (bottom-left) $\to$ H* (bottom). (1) ``DOG EATS ANY HOMEWORK'' --- no arrow into D: \textbf{MISSING COMPLETELY AT RANDOM}\ixh{missing completely at random (MCAR)}. (2) ``DOG EATS STUDENTS' HOMEWORK'' --- extra arrow A $\to$ D (the student's attribute drives which homework the dog eats): \textbf{MISSING AT RANDOM}\ixh{missing at random (MAR)}. (3) ``DOG EATS BAD HOMEWORK'' --- extra diagonal arrow H $\to$ D (the value of the homework itself drives missingness): \textbf{MISSING NOT AT RANDOM}\ixh{missing not at random (MNAR)}.}
+
+\slide{2}{7}{Imputation methods}
+\ixh{imputation}
+\begin{itemize}
+\item Continuous variables
+  \begin{itemize}
+  \item \ixc{step\_impute\_bag()}
+  \item \ixc{step\_impute\_knn()}
+  \item \ixc{step\_impute\_linear()}\ixh{linear imputation}
+  \end{itemize}
+\item Discrete variables
+  \begin{itemize}
+  \item \ixc{step\_impute\_bag()}
+  \item \ixc{step\_impute\_knn()}
+  \item \ixc{step\_impute\_mode()}\ixh{mode imputation}
+  \end{itemize}
+\end{itemize}
+Link: \url{https://recipes.tidymodels.org/reference/index.html}\ixch{recipes}
+\fig{diagram: ``Original Dataset'' $3\times4$ table with columns A B C D and rows (1, blank, 3, 4), (5, 6, blank, 8), (9, 10, 11, blank) --- one missing cell per row (white). A curved arrow passes through a teal box ``Applying Data imputation'' to ``Imputed Dataset'' with the blanks filled: (1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12).}
+
+\slide{2}{8}{Visualize your data}
+\ixh{data visualization}
+\begin{itemize}
+\item \ix{variance} within variables
+\item Variance between variables
+\item Don't need to look at \textbf{everything}
+\item Ask yourself questions, then answer them
+\item Present the 3-5 most interesting results
+  \begin{itemize}
+  \item More is fine, but not required
+  \end{itemize}
+\end{itemize}
+\begin{enumerate}
+\item What type of \ix{variation} occurs within my variables?
+\item What type of \ix{covariation} occurs between my variables?
+\end{enumerate}
+Link: \url{https://www.allisonhorst.com/}
+\fig{Allison Horst cartoon titled ``\ixc{ggplot2}: VISUAL DATA EXPLORATION'' (green brush-stroke banner): plot panels (scatterplot\ixh{scatterplot}, faceted line plots, bar charts, area chart) flying away on wings, with an R cap, binoculars, camera, map and a pink fuzzy monster in the grass below.}
+
+\slide{2}{9}{Get to know your data!}
+\begin{itemize}
+\item Real data is messy
+\item Any unusual values?\ixh{outlier}
+  \begin{itemize}
+  \item Extremely large/small
+  \item Impossible
+  \item Unusual within context
+  \end{itemize}
+\item What types of variables are there?
+\end{itemize}
+Link: \url{https://www.allisonhorst.com/}
+\fig{Allison Horst cartoon: a crowd of smiling, waving spreadsheet/table characters in many colours together with a green fuzzy monster --- data sets drawn as friendly characters to get to know.}
+
+\subsection{Linear regression}
+\ixh{linear regression}
+
+\slide{2}{10}{Linear regression}
+Section title slide: \ix{linear regression}.
+
+\slide{2}{11}{Linear regression}
+\textbf{PSTAT 126}\par
+\textbf{Carl Friedrich Gauss in 1795}\ixh{Gauss, Carl Friedrich}\par
+\textbf{Simple, interpretable, and often very useful}\ixh{interpretability}\par
+\textbf{Many nonlinear methods are direct generalization of \ix{linear regression}}\par
+\textbf{(1809): {\color{warnc}Method of \ix{least squares}}, MLE\ixh{maximum likelihood}, Gaussian distribution\dots}
+\fig{left: title page of Gauss's 1809 book ``THEORIA MOTVS CORPORVM COELESTIVM in sectionibus conicis solem ambientium, auctore Carolo Friderico Gauss'' (Hamburg, 1809); right: oil portrait of an elderly Gauss in a dark cap and white cravat.}
+
+\slide{2}{12}{Recap: Bias-variance decomposition}
+\ixh{bias-variance decomposition}\ixh{bias-variance tradeoff}
+Green box: $Y = f(X) + \varepsilon$, with $f(X)$ labelled ``non-random'' and $\varepsilon$ labelled ``zero-mean noise''.\par
+\textbf{If we take}
+\[ \hat f(\mathbf{x}_0) = \mathrm{E}\left[Y \mid X = \mathbf{x}_0\right] \]
+\[ \mathrm{E}\left[\left(y_0-\hat f(\mathbf{x}_0)\right)^2\right] = \mathrm{Var}(\hat f(\mathbf{x}_0)) + \left[\mathrm{Bias}(\hat f(\mathbf{x}_0))\right]^2 + \mathrm{Var}(\varepsilon), \]
+{\color{warnc}\textbf{Expected test MSE $=$ Variance $+$ Bias$^2$ $+$ Irreducible error}}\ixh{mean squared error (MSE)}\ixh{variance}\ixh{bias}\ixh{irreducible error}\ixh{expected test MSE}
+\[ = \underbrace{\mathrm{E}\left[\left(\hat f(\mathbf{x}_0)-\mathrm{E}\hat f(\mathbf{x}_0)\right)^2\right] + \left[\mathrm{E}\left[\hat f(\mathbf{x}_0)\right]-f(\mathbf{x}_0)\right]^2}_{\textbf{minimized!}} + \mathrm{Var}(\varepsilon) \]
+\[ = 0 + 0 + \mathrm{Var}(\varepsilon) \]
+{\color{figgray}\itshape [note: on the slide the two blue terms (variance and squared bias) are underlined together and labelled ``minimized!''.]}
+
+\slide{2}{13}{Recap: Bias-variance decomposition}
+Green box: $Y = f(X) + \varepsilon$ (``non-random'', ``zero-mean noise'').\par
+\textbf{The ``best'' we can do}
+\[ \hat f(\mathbf{x}_0) = \mathrm{E}\left[Y \mid X = \mathbf{x}_0\right] \]
+{\color{warnc}\textbf{Unknown in practice!!}}\par
+{\color{warnc}\textbf{Because the joint distribution of $(X,Y)$ is unknown in practice}}\par
+\textbf{What should we do?} \quad {\color{dblue}\textbf{Make assumptions:}}
+\[ Y = \beta_0 + X_1\beta_1 + \cdots + X_p\beta_p + \varepsilon, \]
+\[ \mathrm{E}[\varepsilon]=0,\quad \varepsilon \textbf{ independent of } (X_1,\dots,X_p) \]
+\textbf{Then}
+\[ \mathrm{E}[Y\mid X = x_0] = \beta_0 + x_{0_1}\beta_1 + \cdots + x_{0_p}\beta_p \]
+\textbf{The \ix{conditional expectation} of $Y$ is {\color{dblue}linear}}
+
+\slide{2}{14}{Linear regression}
+\[ Y = \beta_0 + X_1\beta_1 + \cdots + X_p\beta_p + \varepsilon \]
+\textbf{The conditional expectation of $Y$ is {\color{dblue}linear} in the parameters}\ixh{linear in the parameters}\par
+\begin{itemize}
+\item {\color{dblue}\textbf{Simple Linear Regression}}\ixh{simple linear regression}: \quad $p = 1$, \quad data $\{(x_1,y_1),(x_2,y_2),\dots,(x_n,y_n)\}$
+\item {\color{dblue}\textbf{Multiple Regression}}\ixh{multiple linear regression}: \quad $p > 1$, \quad data $\{(\mathbf{x}_1,y_1),(\mathbf{x}_2,y_2),\dots,(\mathbf{x}_n,y_n)\}$ \textbf{where} $\mathbf{x}_i = (x_{i1},x_{i2},\dots,x_{ip})$
+\end{itemize}
+
+\slide{2}{15}{Simple linear regression}
+\ixh{simple linear regression}
+\textbf{$y = $ confirmed cases \quad $x = $ population}
+\fig{base-R scatterplot of 9 counties (open circles): x-axis ``population'' (ticks 1000000--3000000), y-axis ``confirmed'' (ticks 50000--200000). Points approx.\ (0.89M, 73k), (0.98M, 70k), (1.52M, 70k), (1.66M, 56k), (1.93M, 75k), (2.15M, 212k), (2.41M, 200k), (3.17M, 182k), (3.31M, 171k). A blue increasing line $y = \beta_0 + \beta_1 x$ runs from about 71k at the left edge to about 210k at the right edge. Annotations: a red brace at the left edge between the bottom of the axis and the line labelled $\beta_0$; an orange slope triangle on the line with horizontal leg ``10000'' and vertical red leg ``$10000\beta_1$''; in the equation $y=\beta_0+\beta_1x$ the $\beta_0$ is boxed in orange with an arrow labelled ``\ix{intercept}'' and $\beta_1$ boxed with an arrow labelled ``\ix{slope}''.}
+
+\slide{2}{16}{Estimating parameters}
+\textbf{Different values of $\beta_0$ and $\beta_1$ give us different lines}\ixh{coefficient}
+\fig{same scatterplot (confirmed vs.\ population, 9 points) with a blue line labelled $y = 8000 + 0.057x$, rising from $\approx$72k at population 0.8M to $\approx$210k at 3.4M; it passes above the five low points on the left and below the two high points near 2.2--2.4M.}
+
+\slide{2}{17}{Estimating parameters}
+\textbf{Different values of $\beta_0$ and $\beta_1$ give us different lines}
+\fig{same scatterplot with a steeper teal line labelled $y = 5000 + 0.061x$, starting at $\approx$52k at population 1.15M and reaching $\approx$217k at 2.9M; it misses the two leftmost points and the two rightmost points badly.}
+
+\slide{2}{18}{Estimating parameters}
+\textbf{Which line should we choose?}
+\fig{same scatterplot with the blue line $y = \beta_0 + \beta_1 x$. One point, Riverside County (population $\approx$2.41M, confirmed $\approx$200k), is highlighted: a teal dot labelled ``the actual observed response $y_{\mathrm{RS}}$ --- \#confirmed cases in the Riverside County''; directly below it on the line a red dot labelled ``predicted response $\beta_0 + \beta_1 x_{\mathrm{RS}}$'' ($\approx$157k); a dotted vertical segment and orange brace between them labelled ``\ix{residual} $= y_{\mathrm{RS}} - \beta_0 - \beta_1 x_{\mathrm{RS}}$''.}
+
+\slide{2}{19}{Simple linear regression}
+\fig{flow diagram of three light-blue boxes joined by arrows: \textbf{Data} $\to$ \textbf{Learn} $\to$ \textbf{Evaluate}. Under Data: ``Training set $\{(x_1,y_1),(x_2,y_2),\dots,(x_n,y_n)\}$''\ixh{training data}. Under Learn: $\hat\beta_0,\hat\beta_1$\ixh[beta hat]{$\hat\beta$}. Under Evaluate: ``1.\ Accuracy of the coefficient estimates $\hat\beta_0,\hat\beta_1$'' and ``2.\ Accuracy of the linear model''.}
+
+\slide{2}{20}{[Least squares: minimize the SSR]}
+\textbf{We find the line that best fits the data, by minimizing the {\color{dblue}sum of squared residuals}}\ixh{residual sum of squares (RSS)}\ixh{sum of squared residuals (SSR)}\ixh{least squares}
+\[ \mathrm{SSR} = \sum_i (y_i - \beta_0 - \beta_1 x_i)^2 \]
+\fig{the 9-point confirmed-vs-population scatterplot with the blue line $y=\beta_0+\beta_1x$; every point is joined to the line by a vertical dotted segment (its residual). Points far below the line (around 1.5--1.9M) and the two high points at 2.15M and 2.41M have the longest segments.}
+
+\slide{2}{21}{[Least squares: residual of the $i$-th point]}
+\textbf{We find the line that best fit the data, by minimizing the {\color{dblue}sum of squared residuals}}
+\[ \mathrm{SSR} = \sum_i (\underbrace{y_i - \beta_0 - \beta_1 x_i}_{\text{residual of the $i$-th data point}})^2 \]
+\fig{same scatterplot with dotted residual segments; in the formula the term $y_i-\beta_0-\beta_1x_i$ is boxed in orange and labelled ``\ix{residual} of the $i$-th data point''.}
+
+\slide{2}{22}{[Least squares: sum over all observations]}
+\textbf{We find the line that best fit the data, by minimizing the {\color{dblue}sum of squared residuals}}
+\[ \mathrm{SSR} = \underbrace{\sum_i}_{\text{summation over all observations in the dataset}} (y_i - \beta_0 - \beta_1 x_i)^2 \]
+\fig{same scatterplot with dotted residual segments; the $\sum_i$ is boxed in orange and labelled ``summation over all observations in the dataset''.}
+
+\slide{2}{23}{Coefficient estimates}
+\textbf{Least-squares coefficient estimates}\ixh{least squares}\ixh{coefficient}\ixh{least-squares coefficient estimates}
+\[ \hat\beta_1 = \frac{\sum_{i=1}^n (x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^n (x_i-\bar x)^2} \qquad \hat\beta_0 = \bar y - \hat\beta_1\bar x \]
+\textbf{optimal} in the sense that they \textbf{minimize} the {\color{dblue}\textbf{sum of squared residuals (SSR)}}\ixh{sum of squared residuals (SSR)}\ixh{residual sum of squares (RSS)}
+
+\slide{2}{24}{Coefficient estimates}
+\textbf{Least-squares coefficient estimates}
+\[ \hat\beta_1 = \frac{\sum_{i=1}^n (x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^n (x_i-\bar x)^2} \qquad \hat\beta_0 = \bar y - \hat\beta_1\bar x \]
+\textbf{optimal} in the sense that they \textbf{minimize} the {\color{dblue}\textbf{sum of squared residuals (SSR)}}\par
+\textbf{Model:} \quad $Y = \beta_0 + X_1\beta_1 + \varepsilon$ \quad --- $\varepsilon$\ixh[epsilon]{$\varepsilon$ (error term)}: \textbf{catch-all for what we miss with this simple model. Assumed to have mean zero and independent of everything else}\ixh{error term}\par
+We want: $\hat\beta_0 = \beta_0$ and $\hat\beta_1 = \beta_1$\par
+But this is {\color{warnc}\textbf{impossible}}, since the data are {\color{dblue}random}
+{\color{figgray}\itshape [note: a curved double arrow on the slide links $\varepsilon$ in the model to the word ``random''.]}
+
+\slide{2}{25}{Accuracy of the coefficient estimates}
+\fig{two panels (ISLR Fig.\ 3.3 style), both with x-axis X ($-2$ to 2) and y-axis Y ($-10$ to 10). Left: about 100 simulated points (open circles) with a positive trend and large scatter; a \textbf{red} line $Y = \beta_0 + \beta_1 X$ (the true population line, $\approx$ from $-4.2$ at $X=-2.1$ to 8.8 at $X=2.25$, i.e.\ $\approx 2+3X$) and a \textbf{dark blue} line $Y = \hat\beta_0 + \hat\beta_1 X$ (the least-squares fit to these data, slightly steeper: $\approx -5.9$ to 9.6). Right: the same red and dark-blue lines plus about ten \textbf{light-blue} lines $Y = \hat\beta_0+\hat\beta_1X$, ``each computed on the basis of a separate random set of observations''; the light-blue lines scatter around the red line, crossing near $X\approx 0.5$--1, with slopes varying (ending between $\approx$6 and 10 at $X=2.25$).}
+Legend text: {\color{warnc}$Y = \beta_0 + \beta_1 X$} \quad {\color{dblue}$Y = \hat\beta_0 + \hat\beta_1 X$} \quad {\color{dblue!50}$Y = \hat\beta_0 + \hat\beta_1 X$} --- \textbf{each computed on the basis of a separate random set of observations}\ixh{sampling variability}
+
+\slide{2}{26}{Accuracy of the coefficient estimates}
+\textbf{Least-squares coefficient estimates}
+\[ \hat\beta_1 = \frac{\sum_{i=1}^n (x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^n (x_i-\bar x)^2} \qquad \hat\beta_0 = \bar y - \hat\beta_1\bar x \]
+$\hat\beta_0$ and $\hat\beta_1$ are random variables themselves\ixh[beta hat]{$\hat\beta$}\par
+need to assess how ``close'' $\hat\beta_0$ and $\hat\beta_1$ are to $\beta_0$ and $\beta_1$, respectively\par
+In terms of {\color{dblue}\textbf{\ix{bias}}} and {\color{dblue}\textbf{\ix{variance}}}
+
+\slide{2}{27}{Bias of the coefficient estimates}
+\ixh{bias}\textbf{Least-squares coefficient estimates}
+\[ \hat\beta_1 = \frac{\sum_{i=1}^n (x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^n (x_i-\bar x)^2} \qquad \hat\beta_0 = \bar y - \hat\beta_1\bar x \]
+It can be shown that
+\[ \mathrm{E}(\hat\beta_1) = \beta_1 \qquad \mathrm{E}(\hat\beta_0) = \beta_0 \]
+Recall from the bias definition
+\[ \mathrm{Bias}(\hat\beta_1) = \mathrm{E}(\hat\beta_1) - \beta_1 = 0 \qquad \mathrm{Bias}(\hat\beta_0) = \mathrm{E}(\hat\beta_0) - \beta_0 = 0 \]
+$\hat\beta_1$ and $\hat\beta_0$ are {\color{warnc}\textbf{\ix{unbiased estimator}}} of $\beta_1$ and $\beta_0$, respectively
+
+\slide{2}{28}{Variance of the coefficient estimates}
+\ixh{variance}\textbf{Least-squares coefficient estimates}
+\[ \hat\beta_1 = \frac{\sum_{i=1}^n (x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^n (x_i-\bar x)^2} \qquad \hat\beta_0 = \bar y - \hat\beta_1\bar x \]
+It can be shown that\ixh{standard error}
+\begin{align*}
+\mathrm{Var}(\hat\beta_1) &= \mathrm{SE}(\hat\beta_1)^2 = \frac{\sigma^2}{\sum_{i=1}^n (x_i-\bar x)^2}\\
+\mathrm{Var}(\hat\beta_0) &= \mathrm{SE}(\hat\beta_0)^2 = \sigma^2\left[\frac1n + \frac{\bar x^2}{\sum_{i=1}^n (x_i-\bar x)^2}\right]
+\end{align*}
+where $\sigma^2 = \mathrm{Var}(\varepsilon)$
+
+\slide{2}{29}{Variance of the coefficient estimates}
+\textbf{Least-squares coefficient estimates}
+\[ \hat\beta_1 = \frac{\sum_{i=1}^n (x_i-\bar x)(y_i-\bar y)}{\sum_{i=1}^n (x_i-\bar x)^2} \qquad \hat\beta_0 = \bar y - \hat\beta_1\bar x \]
+In practice, $\sigma^2$ is usually unknown \qquad \textbf{estimate:} $\displaystyle \hat\sigma^2 = \frac{\mathrm{SSR}}{n-2}$\ixh{residual variance estimate}
+\begin{align*}
+\widehat{\mathrm{SE}}(\hat\beta_1)^2 &= \frac{\hat\sigma^2}{\sum_{i=1}^n (x_i-\bar x)^2}\\
+\widehat{\mathrm{SE}}(\hat\beta_0)^2 &= \hat\sigma^2\left[\frac1n + \frac{\bar x^2}{\sum_{i=1}^n (x_i-\bar x)^2}\right]
+\end{align*}
+\ixh{standard error}
+
+\slide{2}{30}{Accuracy of the model}
+\textbf{\ix{residual standard error (RSE)}}
+\[ \mathrm{RSE} = \sqrt{\frac{1}{n-2}\mathrm{SSR}} = \sqrt{\frac{1}{n-2}\sum_{i=1}^n (y_i-\hat y_i)^2} \]
+\textbf{an absolute measure of lack of fit}\par
+\textbf{R squared ($R^2$)}\ixh{R-squared}
+\[ \mathrm{R}^2 = 1 - \frac{\mathrm{SSR}}{\mathrm{SST}} = 1 - \frac{\sum_{i=1}^n (y_i-\hat y_i)^2}{\sum_{i=1}^n (y_i-\bar y)^2} \in [0,1] \]
+\ixh{total sum of squares (SST)}\textbf{proportion of the variability in $Y$ that can be explained using $X$}\par
+Both \textbf{RSE} and $R^2$ favor \textbf{flexible}\ixh{flexibility} methods, which may {\color{warnc}overfit}\ixh{overfitting} the data!!
+
+\subsection{Multiple linear regression}
+\ixh{multiple linear regression}
+
+\slide{2}{31}{Multiple linear regression}
+\ixh{multiple linear regression}
+\[ Y = \beta_0 + X_1\beta_1 + \cdots + X_p\beta_p + \varepsilon \]
+\fig{flow diagram of three light-blue boxes: \textbf{Data} $\to$ \textbf{Learn} $\to$ \textbf{Evaluate}. Under Data: ``Training set $\{(\mathbf{x}_1,y_1),(\mathbf{x}_2,y_2),\dots,(\mathbf{x}_n,y_n)\}$''; under Learn: $\hat\beta_0,\hat\beta_1,\dots,\hat\beta_p$; under Evaluate: ``Many questions to ask!''}
+$\mathbf{x}_i = (x_{i1},x_{i2},\dots,x_{ip})$
+
+\slide{2}{32}{Coefficient estimates}
+\textbf{Least-squares coefficient estimates $\hat\beta_0,\hat\beta_1,\dots,\hat\beta_p$}\ixh{least squares}\par
+\textbf{optimal} in the sense that they \textbf{minimize} the {\color{dblue}\textbf{sum of squared residuals (SSR)}}\ixh{sum of squared residuals (SSR)}
+\[ \mathrm{RSS} = \sum_{i=1}^n \bigl(y_i - \hat\beta_0 - \hat\beta_1x_{i1} - \hat\beta_2x_{i2} - \dots - \hat\beta_px_{ip}\bigr)^2 \]
+\ixh{residual sum of squares (RSS)}$i$th \ix{residual}: $\displaystyle y_i - \hat y_i = y_i - \hat\beta_0 - \sum_{j=1}^p \hat\beta_j x_{ij}$ \ (arrow from the summand)
+\fig{3-D plot (ISLR Fig.\ 3.4) with axes $X_1$, $X_2$ (floor) and $Y$ (vertical): a tilted blue-to-green least-squares regression \emph{plane}\ixh{regression plane} fitted to about 30 red points; each red point is joined to the plane by a vertical black segment (its residual), some points above and some below the plane.}
+
+\slide{2}{33}{Accuracy of the coefficient estimates}
+\textbf{Least-squares coefficient estimates $\hat\beta_0,\hat\beta_1,\dots,\hat\beta_p$}\par
+random variables themselves\par
+need to assess how ``close'' $\hat\beta_0,\hat\beta_1,\dots,\hat\beta_p$ are to $\beta_0,\beta_1,\dots,\beta_p$, respectively\par
+In terms of {\color{dblue}\textbf{bias}}\ixh{bias} and {\color{dblue}\textbf{variance}}\ixh{variance}
+
+\slide{2}{34}{A few important questions}
+Q1: Is at least one of the predictors $X_1,\dots,X_p$ useful in predicting $Y$?\ixh{predictor}\par
+Q2: Do all the predictors help to explain $Y$, or is only a subset of the predictors useful?\ixh{variable selection}\par
+Q3: How well does the model fit the data?\ixh{model fit}
+
+\slide{2}{35}{Q1: Relationship between response \& predictors}
+\ixh{hypothesis test}
+\[ H_0: \beta_1 = \beta_2 = \dots = \beta_p = 0 \]
+\[ H_a: \textbf{at least one } \beta_j \textbf{ is non-zero} \]
+We use the {\color{warnc}\textbf{F-statistics}}\ixh{F-statistic}
+\[ F = \frac{(\mathrm{SST}-\mathrm{SSR})/p}{\mathrm{SSR}/(n-p-1)} \qquad \begin{array}{l}\mathrm{SST} = \sum_{i=1}^n (y_i-\bar y)^2\\[2pt] \mathrm{SSR} = \sum_{i=1}^n (y_i-\hat y_i)^2\end{array} \]
+\ixh{total sum of squares (SST)}\textbf{When $H_0$ holds,}
+\[ \left.\begin{array}{l}(\mathrm{SST}-\mathrm{SSR})/p \approx \sigma^2\\ \mathrm{SSR}/(n-p-1)\approx\sigma^2\end{array}\right\} \longrightarrow\ F \approx 1 \]
+A large value of $F$ favors $H_a$
+
+\slide{2}{36}{Q2: Deciding on important variables}
+\ixh{variable selection}\ixh{subset selection}
+\textbf{\ix{best subset selection}}: compute least squares fit for all possible subsets of predictors, and then choose the ``best''
+\begin{itemize}
+\item[] ``best'' in terms of some criteria (Mallow's $C_p$\ixh[Cp]{Mallow's $C_p$}, \ix{AIC}, \ix{BIC}, adjusted $R^2$\ixh{adjusted R-squared}, etc.)
+\item[] impossible for large $p$: $2^p$ models in total ($\sim$ one billion model when $p=40$)
+\end{itemize}
+\textbf{\ix{forward selection}}: start with no variables in the model, add variables one-by-one. {\color{dblue}Greedy}\ixh{greedy algorithm} approach.\par
+\textbf{\ix{backward selection}}: start with a full model, remove variables one-by-one. Does not work when $p > n$\par
+\textbf{\ix{mixed selection}}: combination of forward and backward selection
+
+\slide{2}{37}{[Forward / backward stepwise selection example]}
+\ixh{stepwise selection}\ixh{forward selection}\ixh{backward selection}
+\textbf{Forward stepwise selection example with 5 variables:} \quad \textbf{Backward stepwise selection example with 5 variables:}\par
+Link: \url{https://quantifyinghealth.com/stepwise-selection/}
+\fig{left column (forward): ``Start with a model with no variables'' --- \textbf{Null Model} = a row of 5 empty slots next to a bowl holding coloured balls $X_1$ (orange), $X_2$ (blue), $X_3$ (green), $X_4$ (yellow), $X_5$ (grey). ``Add the most significant variable'' --- arrow moves $X_2$ from the bowl into slot 1: \textbf{Model with 1 variable}. ``Keep adding the most significant variable until reaching the stopping rule or running out of variables'' --- $X_5$ is moved next: \textbf{Model with 2 variables} = $\{X_2, X_5\}$, with $X_1,X_3,X_4$ left in the bowl.
+Right column (backward): ``Start with a model that contains all the variables'' --- \textbf{Full Model} with all five $X_1,\dots,X_5$ in the slots and an empty bowl. ``Remove the least significant variable'' --- $X_4$ is moved to the bowl: \textbf{Model with 4 variables} $\{X_1,X_2,X_3,X_5\}$. ``Keep removing the least significant variable until reaching the stopping rule or running out of variables'' --- $X_1$ is removed next: \textbf{Model with 3 variables} $\{X_2,X_3,X_5\}$, bowl holds $X_1,X_4$.}
+
+\slide{2}{38}{Q3: Accuracy of the model}
+\textbf{Residual standard error (RSE)}\ixh{residual standard error (RSE)}
+\[ \mathrm{RSE} = \sqrt{\frac{1}{n-p-1}\mathrm{SSR}} = \sqrt{\frac{1}{n-p-1}\sum_{i=1}^n (y_i-\hat y_i)^2} \]
+\textbf{an absolute measure of lack of fit}\par
+\textbf{R squared ($R^2$)}\ixh{R-squared}
+\[ \mathrm{R}^2 = 1 - \frac{\mathrm{SSR}}{\mathrm{SST}} = 1 - \frac{\sum_{i=1}^n (y_i-\hat y_i)^2}{\sum_{i=1}^n (y_i-\bar y)^2} \in [0,1] \]
+\textbf{proportion of the variability in $Y$ that can be explained using $X$}\par
+$R^2$ will {\color{warnc}\textbf{always increase}} as more predictors are added to the model!\par
+Both \textbf{RSE} and \textbf{R squared} favor \textbf{flexible}\ixh{flexibility} methods, which may {\color{warnc}\textbf{overfit}}\ixh{overfitting} the data!!
+
+\slide{2}{39}{Adjusted R-squared}
+\ixh{adjusted R-squared}
+\[ \textit{Adjusted } R^2 = 1 - \frac{(1-R^2)(n-1)}{n-p-1} \]
+
+\subsection{Practical considerations: qualitative predictors}
+\ixh{categorical predictor}
+
+\slide{2}{40}{Practical considerations in regression}
+\[ Y = \beta_0 + X_1\beta_1 + \cdots + X_p\beta_p + \varepsilon \]
+{\color{dblue}\textbf{Qualitative predictors}}\ixh{qualitative predictor}\ixh{categorical predictor}\par
+\textbf{Extensions of the linear structures in $(X_1,\dots,X_p)$}\par
+\textbf{Linear regression diagnostics}\ixh{regression diagnostics}
+
+\slide{2}{41}{Qualitative predictors}
+\textbf{In regression setting, $Y$ is {\color{warnc}quantitative}}\ixh{regression}\par
+\textbf{But some of the predictors $X_1,\dots,X_p$ can be {\color{warnc}qualitative}}\par
+\textbf{{\color{warnc}Qualitative} predictors: categorical predictors or factor variables}\ixh{qualitative predictor}\ixh{categorical predictor}\ixh{factor variable}\par
+\textbf{Example: investigate the relationship between credit card balance and the gender of the card holder}\ixh{Credit (dataset)}\par
+\textbf{Predictor gender takes 2 {\color{dblue}levels}: female or male}\ixh{factor level}
+
+\slide{2}{42}{Qualitative predictors w/ only 2 levels}
+\textbf{{\color{dblue}Indicator} (or {\color{dblue}dummy}) variable that takes on two numeric values}\ixh{dummy variable}\ixh{indicator variable}
+\[ x_i = \begin{cases} 1 & \textbf{if $i$th person is female}\\ 0 & \textbf{if $i$th person is male}\end{cases} \]
+\textbf{This newly constructed variable $x_i$ can be used as a predictor}
+\begin{align*}
+y_i &= \beta_0 + \beta_1x_i + \varepsilon\\
+ &= \begin{cases} \beta_0 + \beta_1 + \varepsilon_i & \textbf{if $i$th person is female}\\ \beta_0 + \varepsilon_i & \textbf{if $i$th person is male}\end{cases}
+\end{align*}
+{\color{warnc}\textbf{$\beta_1$: average difference in credit card balance between female and males}}\ixh{coefficient interpretation}
+
+\slide{2}{43}{Qualitative predictors w/ only 2 levels}
+\textbf{The coding of the {\color{dblue}indicator} (or {\color{dblue}dummy}) variable is not unique}\ixh{dummy variable}\ixh{indicator variable}
+\[ x_i = \begin{cases} 1 & \textbf{if $i$th person is female}\\ 0 & \textbf{if $i$th person is male}\end{cases} \]
+or
+\[ x_i = \begin{cases} 1 & \textbf{if $i$th person is male}\\ 0 & \textbf{if $i$th person is female}\end{cases} \]
+or
+\[ x_i = \begin{cases} 1 & \textbf{if $i$th person is male}\\ -1 & \textbf{if $i$th person is female}\end{cases} \]
+\textbf{The model can still be written as $y_i = \beta_0 + \beta_1x_i + \varepsilon_i$}\par
+\textbf{But the {\color{warnc}interpretation} of $\beta_0$ and $\beta_1$ {\color{warnc}depend on the coding} of $x_i$}\ixh{coefficient interpretation}
+
+\slide{2}{44}{Qualitative predictors w/ more than 2 levels}
+\textbf{A qualitative predictor with {\color{dblue}$m$} levels need {\color{dblue}$m-1$} dummy variables}\ixh{dummy variable}\ixh{categorical predictor}\par
+\textbf{e.g., ethnicity variable has three levels: African American, Asian, Caucasian}
+\[ x_{i1} = \begin{cases} 1 & \textbf{if $i$th person is Asian}\\ 0 & \textbf{if $i$th person is not Asian}\end{cases} \]
+\[ x_{i2} = \begin{cases} 1 & \textbf{if $i$th person is Caucasian}\\ 0 & \textbf{if $i$th person is not Caucasian}\end{cases} \]
+\textbf{The level of African American is the {\color{dblue}baseline level}, i.e., no dummy variable needed}\ixh{baseline level}\ixh{reference level}\par
+\textbf{Constructed variable $x_{i1}, x_{i2}$ can be used as predictors}
+\begin{align*}
+y_i &= \beta_0 + \beta_1x_{i1} + \beta_2x_{i2} + \varepsilon\\
+ &= \begin{cases} \beta_0 + \beta_1 + \varepsilon_i & \textbf{if $i$th person is Asian}\\ \beta_0 + \beta_2 + \varepsilon_i & \textbf{if $i$th person is Caucasian}\\ \beta_0 + \varepsilon_i & \textbf{if $i$th person is African American}\end{cases}
+\end{align*}
+\textbf{Both the {\color{warnc}dummy coding} and the {\color{warnc}choice of baseline level} are {\color{warnc}arbitrary}}\par
+\textbf{But they change the {\color{warnc}interpretation} of coefficients $\beta_0,\beta_1,\beta_2\dots$}\ixh{coefficient interpretation}
+
+\slide{2}{45}{tidymodels: Create traditional dummy variables}
+\ixh{tidymodels}\ixh{dummy variable}
+\textit{\ixc{tidymodels}} --- screenshot of the \ixc{recipes} reference page \textbf{``Create traditional dummy variables''} (Source: \texttt{R/dummy.R}):\par
+``\ixc{step\_dummy()} creates a \emph{specification} of a recipe step that will convert nominal data (e.g.\ character or factors) into one or more numeric binary model terms for the levels of the original data.''
+\fig{recipes hex logo (a cupcake with a cherry, labelled ``recipes'').}
+\begin{rcode}
+abalone_recipe <- recipe(age ~ type, data = abalone_train) %>%  (*@\ixch{recipe()}\ixch{abalone}\ixch{\%>\%}@*)
+  step_dummy(type)  (*@\ixch{step\_dummy()}@*)
+
+abalone_recipe %>%
+  prep() %>%  (*@\ixch{prep()}@*)
+  bake(new_data = abalone_train)  (*@\ixch{bake()}\ixch{new\_data}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 3,131 x 3
+     age type_I type_M
+   <dbl>  <dbl>  <dbl>
+ 1   8.5      1      0
+ 2   8.5      1      0
+ 3   8.5      0      1
+ 4   9.5      0      1
+ 5   9.5      0      0
+ 6   6.5      1      0
+ 7   6.5      1      0
+ 8   5.5      1      0
+ 9   8.5      1      0
+10   8.5      0      0
+# ... with 3,121 more rows
+\end{routput}
+
+\slide{2}{46}{One-hot encoding}
+\ixh{one-hot encoding}
+\begin{rcode}
+abalone_recipe <- recipe(age ~ type, data = abalone_train) %>%
+  step_dummy(type, one_hot = TRUE)  (*@\ixch{step\_dummy()}\ixch{one\_hot}@*)
+
+abalone_recipe %>%
+  prep() %>%
+  bake(new_data = abalone_train)  (*@\ixch{prep()}\ixch{bake()}@*)
+\end{rcode}
+\begin{routput}
+# A tibble: 3,131 x 4
+     age type_F type_I type_M
+   <dbl>  <dbl>  <dbl>  <dbl>
+ 1   8.5      0      1      0
+ 2   8.5      0      1      0
+ 3   8.5      0      0      1
+ 4   9.5      0      0      1
+ 5   9.5      1      0      0
+ 6   6.5      0      1      0
+ 7   6.5      0      1      0
+ 8   5.5      0      1      0
+ 9   8.5      0      1      0
+10   8.5      1      0      0
+# ... with 3,121 more rows
+\end{routput}
+\fig{photo of an abalone shell, its iridescent blue-green mother-of-pearl interior facing up (the \texttt{abalone}\ixch{abalone} data set: predict \texttt{age} from \texttt{type}).}
+
+\subsection{Extensions of the linear model: interactions, polynomial regression}
+\ixh{interaction term}\ixh{polynomial regression}
+
+\slide{2}{47}{Multiple regression}
+\[ Y = \beta_0 + X_1\beta_1 + \cdots + X_p\beta_p + \varepsilon \]
+\textbf{Qualitative predictors}\par
+{\color{dblue}\textbf{Extensions of the linear structures in $(X_1,\dots,X_p)$}}\ixh{extensions of the linear model}\par
+\textbf{Linear regression diagnostics}
+
+\slide{2}{48}{Extensions of the linear model}
+\[ Y = \beta_0 + X_1\beta_1 + \cdots + X_p\beta_p + \varepsilon \]
+\textbf{Relationship between $Y$ and $X_1,\dots,X_p$ is {\color{dblue}additive} and {\color{dblue}linear}}\ixh{additive assumption}\ixh{linearity assumption}\par
+\textbf{{\color{dblue}Additive}: the effect of changes in a predictor $X_j$ on $Y$ is independent of the values of all other predictors}\par
+\textbf{{\color{dblue}Linear}: the change in the response $Y$ due to one unit change of a predictor $X_j$ is constant, regardless of the value of $X_j$}
+
+\slide{2}{49}{Removing the additive assumption}
+\ixh{additive assumption}
+\textbf{One way of removing the additive assumption is to include {\color{warnc}interaction} term}\ixh{interaction term}\par
+\textbf{from} \quad $Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \varepsilon$\par
+\quad One-unit increase in $X_1$ results in $\beta_1$-unit increase in $Y$ (holding $X_2$ fixed)\par
+\textbf{to}
+\begin{align*}
+Y &= \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_3\,\boxed{X_1X_2} + \varepsilon\\
+ &= \beta_0 + \boxed{(\beta_1 + \beta_3X_2)}\,X_1 + X_2\beta_2 + \varepsilon
+\end{align*}
+(the blue box $X_1X_2$ is labelled ``{\color{dblue}interaction} between $X_1$ and $X_2$''; the red box marks the slope of $X_1$)\par
+One-unit increase in $X_1$ results in $\beta_1 + \beta_3X_2$-unit increase in $Y$\par
+the effect of $X_1$ on $Y$ is {\color{warnc}no longer constant}: adjusting $X_2$ will change the impact of $X_1$ on $Y$
+
+\slide{2}{50}{Interactions vs.\ main effects}
+\ixh{main effect}\ixh{interaction term}
+\fig{three schematic interaction plots, each with y-axis ``Cleanliness'' ($y$) and x-axis ``B: Water Temperature'' with levels Cold, Warm, Hot; open circles = ``A: Detergent \#1'', filled circles = ``A: Detergent \#2'', points joined by dashed lines. (1) \textbf{A Significant, B Not}: two horizontal flat lines, Detergent \#1 clearly above Detergent \#2 (temperature has no effect, detergent does). (2) \textbf{A and B Significant}: two parallel rising lines, Detergent \#1 above \#2 by a constant gap (both main effects, no interaction). (3) \textbf{B Significant, A Not}: two almost coincident rising lines, \#1 just above \#2 (temperature matters, detergent does not).}
+
+\slide{2}{51}{Interactions vs.\ main effects}
+\fig{two more interaction plots, same axes (``Cleanliness'' $y$ vs.\ ``B: Water Temperature'' Cold/Warm/Hot; open circles = A: Detergent \#1, filled = A: Detergent \#2). (1) \textbf{Interaction Significant}: the lines cross in an X --- Detergent \#1 rises from low at Cold to high at Hot, Detergent \#2 falls from high at Cold to low at Hot (crossing between Cold and Warm); the effect of detergent reverses with temperature. (2) \textbf{Interaction}: both lines rise but with different slopes --- Detergent \#2 starts higher at Cold and rises slowly, Detergent \#1 starts lower and rises steeply, crossing near Warm so \#1 is higher at Hot (non-parallel lines = interaction).}\ixh{interaction term}\ixh{main effect}
+
+\slide{2}{52}{Interaction: A data example}
+\ixh{interaction term}\ixh{Advertising (dataset)}
+\begin{align*}
+\textbf{sales} &= \beta_0 + \beta_1\times\textbf{TV} + \beta_2\times\textbf{radio}\\
+ &\qquad + \beta_3\times\textbf{TV}\times\textbf{radio} + \varepsilon\\
+ &= \beta_0 + (\beta_1 + \beta_3\times\textbf{radio})\times\textbf{TV} + \beta_2\times\textbf{radio} + \varepsilon
+\end{align*}
+{\footnotesize
+\begin{tabular}{@{}ll rrrr@{}}
+\toprule
+ & & Coefficient & Std.\ error & t-statistic & p-value\\
+\midrule
+$\hat\beta_0$ & \texttt{Intercept} & 6.7502 & 0.248 & 27.23 & $<0.0001$\\
+$\hat\beta_1$ & \texttt{TV} & 0.0191 & 0.002 & 12.70 & $<0.0001$\\
+$\hat\beta_2$ & \texttt{radio} & 0.0289 & 0.009 & 3.24 & 0.0014\\
+$\hat\beta_3$ & \texttt{TV$\times$radio} & 0.0011 & 0.000 & 20.73 & $<0.0001$\\
+\bottomrule
+\end{tabular}}\ixh{coefficient}\ixh{standard error}\ixh{t-statistic}\ixh{p-value}\par
+{\color{warnc}\textbf{Interpretation}}: an \textbf{increase} in \textbf{TV advertising} of \textbf{\$1,000} is associated with $(\hat\beta_1 + \hat\beta_3\times\textbf{radio})\times 1000 = 19.1 + 1.1\times\textbf{radio}$ dollars \textbf{increase} in sales\ixh{coefficient interpretation}\par
+\textbf{Practice:} what is the effect of an increase in radio advertising of \$1,000 on sales?
+
+\slide{2}{53}{Interaction: Credit example}
+\ixh{Credit (dataset)}\ixh{interaction term}
+\fig{two panels (ISLR Fig.\ 3.7), x-axis Income (0--150), y-axis Balance (200--1400); red line = student, black line = non-student. Left (no interaction): two \emph{parallel} lines --- student from $\approx$600 at income 0 to $\approx$1490 at 150; non-student from $\approx$215 to $\approx$1105 (same slope, different intercepts). Right (with interaction): student line from $\approx$680 to $\approx$1310 (flatter), non-student from $\approx$205 to $\approx$1130 (steeper) --- different intercepts \emph{and} slopes; legend ``student'' (red), ``non-student'' (black).}
+Caption: \textbf{FIGURE 3.7.} \emph{For the \texttt{Credit} data, the least squares lines are shown for prediction of \texttt{balance} from \texttt{income} for students and non-students. Left: The model (3.34) was fit. There is no interaction between \texttt{income} and \texttt{student}. Right: The model (3.35) was fit. There is an interaction term between \texttt{income} and \texttt{student}.}
+
+\slide{2}{54}{Extensions of the linear model}
+\[ Y = \beta_0 + X_1\beta_1 + \cdots + X_p\beta_p + \varepsilon \]
+\textbf{Relationship between $Y$ and $X_1,\dots,X_p$ is {\color{dblue}additive} and {\color{dblue}linear}}\ixh{additive assumption}\ixh{linearity assumption}\par
+\textbf{{\color{dblue}Additive}: the effect of changes in a predictor $X_j$ on $Y$ is independent of the values of all other predictors}\par
+\hfill{\color{warnc}\textbf{Interaction terms!}}\ixh{interaction term}\par
+\textbf{{\color{dblue}Linear}: the change in the response $Y$ due to one unit change of a predictor $X_j$ is constant, regardless of the value of $X_j$}\par
+\hfill{\color{warnc}\textbf{polynomial regression}}\ixh{polynomial regression}
+
+\slide{2}{55}{Non-linear relationships}
+\ixh{nonlinear relationship}
+\textbf{\ix{polynomial regression} of $Y$ on $X$}
+\[ Y = \beta_0 + \beta_1X + \beta_2X^2 + \ldots + \beta_dX^{\boxed{d}} + \varepsilon \]
+(the exponent $d$ is boxed in red and labelled ``{\color{warnc}degree}'')\ixh{polynomial degree}
+\fig{scatterplot of $Y$ (10--50) vs.\ $X$ (50--230) with $\approx$400 grey open circles showing a curved, decreasing, convex trend (ISLR Fig.\ 3.8, Auto data: mpg vs.\ horsepower). Three fitted curves: \textbf{orange} = Linear (straight line from $\approx$34 at $X=40$ down to $\approx$6 at $X=215$ --- misses the curvature, too high in the middle, too low at the right); \textbf{light blue} = Degree 2 (convex parabola from $\approx$41 at $X=40$ down to a minimum $\approx$13 near $X=190$, slightly rising to $\approx$15.5 at 240 --- follows the data well); \textbf{green} = Degree 5 (wiggly: rises to a bump $\approx$35 near $X=50$, follows the data in the middle, dips to $\approx$11.5 near $X=205$ then shoots up to $\approx$22 at the right edge --- overly flexible at the boundary). Legend top right: Linear, Degree 2, Degree 5.}\ixh{overfitting}
+
+\slide{2}{56}{Non-linear relationships}
+\textbf{Polynomial regression of $Y$ on $X$}\ixh{polynomial regression}
+\[ Y = \beta_0 + \beta_1X + \beta_2X^2 + \ldots + \beta_dX^d + \varepsilon \]
+\textbf{$Y$ is no longer linear in $X$}\par
+\textbf{But this is still a linear model!!!}\ixh{linear model}\ixh{linear in the parameters}\par
+\textbf{Simply let $Z_k = X^k$\dots}
+\[ Y = \beta_0 + \beta_1X + \beta_2Z_2 + \ldots + \beta_dZ_d + \varepsilon \]
+\textbf{$Y$ is still linear in $X, Z_2,\dots,Z_d$}
+
+\subsection{Linear regression diagnostics}
+\ixh{regression diagnostics}
+
+\slide{2}{57}{Practical considerations in regression}
+\[ Y = \beta_0 + X_1\beta_1 + \cdots + X_p\beta_p + \varepsilon \]
+\textbf{Qualitative predictors}\par
+\textbf{Extensions of the linear structures in $(X_1,\dots,X_p)$}\par
+{\color{dblue}\textbf{Linear regression diagnostics}}\ixh{regression diagnostics}
+
+\slide{2}{58}{Linear regression diagnostics}
+\ixh{regression diagnostics}
+\[ Y = \beta_0 + X_1\beta_1 + \cdots + X_p\beta_p + \varepsilon \]
+\begin{enumerate}
+\item \textbf{Non-linear relationship between response and predictors}\ixh{nonlinear relationship}
+\item \textbf{Correlation of error terms}\ixh{correlated errors}
+\item \textbf{Non-constant variance of error terms}\ixh{heteroscedasticity}
+\item \textbf{Outliers}\ixh{outlier}
+\item \textbf{High-leverage points}\ixh{high leverage point}
+\item \textbf{Collinearity}\ixh{collinearity}
+\end{enumerate}

@@ -1,0 +1,14 @@
+Q1: Relationship between response & predictors
+H, : at least one /; is non-zero
+
+We use the F-statistics
+
+p= SST = SSR)/p sst= )6,-3F
+~ SSR/(n—p-—1) ssr= 501-5
+
+When H) holds,
+
+(SST — SSR)/p & o?
+
+SSR/( eo — Fri A large value of F favors H,
+n-p-l)xo

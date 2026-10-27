@@ -1,0 +1,32 @@
+ROC Curve
+
+ROC
+
+24
+A popular graphic for displaying the
+2 types of error, for al! threshold values 25
+2
+©
+Useful in comparing different classifiers, g 37
+e.g., logistic regression v.s. K-NN 3
+Ee
+Methods perform differently in different a |
+parts of the curve (i.e., different thresholds) °
+2
+o
+
+T T T T
+0.0 0.2 0.4 0.6
+
+False positive rate
+
+Area under curve (AUC) measures the overall performance of a classifier
+Area under curve (AUC) summarized over all possible thresholds
+
+Higher AUC, the better
+
+T
+0.8
+
+1.0
+

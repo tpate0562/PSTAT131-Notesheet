@@ -1,0 +1,12 @@
+Coefficient estimates
+
+Least-squares coefficient estimates Bo Bp seeg B,
+
+optimal in the sense that they minimize the sum of squared residuals (SSR)
+
+RSS = » 6; Bo Bix: Box wee By Xin)”
+i=l x
+
+ith residual: y; — }; = y; — By — Vax;
+j=l
+

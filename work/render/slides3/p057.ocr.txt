@@ -1,0 +1,13 @@
+LDA: A motivating example
+
+In summary, Gene X does an OK job at telling us who should
+take the drug (and who shouldn't).
+
+Can we do better? What if we used more than one gene?
+
++9990; 0 @eo@ ee,
+
+Fewer Transcripts ————————— > More transcripts
+
+wo = The drug works!
+ow = The drug does not work :(

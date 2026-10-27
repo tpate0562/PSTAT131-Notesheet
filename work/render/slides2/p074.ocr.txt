@@ -1,0 +1,17 @@
+price 1
+
+carat 092 1 Correlation Matrix
+
+clarity
+
+-10
+
+-08
+
++ 0.6
+
+04
+
+02
+
++ 0.0

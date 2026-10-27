@@ -1,0 +1,1 @@
+Accuracy of the coefficient estimates

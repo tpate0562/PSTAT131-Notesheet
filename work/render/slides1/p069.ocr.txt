@@ -1,0 +1,26 @@
+Bias-variance decomposition
+
+wo
+N
+ec
+N
+g 5
+5
+5 8
+2 ~~ Test MSE
+oO
+a
+ion
+i car
+c -
+Gs 7.
+®
+=
+© | Training MSE
+° =
+e 4
+Oo
+T T T T
+2 5 10 20
+
+Flexibility

@@ -1,0 +1,18 @@
+Collinearity
+
+Collinearity: two or more predictors are closely related to one another
+
+collinear
+
+If two predictors tend to increase or decrease together, it can be difficult to
+determine how each one is associated with the response
+
+The variance of the estimates increase
+
+How to detect collinearity?
+
+Approach 1: look at correlation matrix of X,, 5X,
+
+Approach 2: compute the variance inflation factor
+
+Structural collinearity Data-based collinearity

@@ -1,0 +1,7 @@
+Accuracy of the coefficient estimates
+
+Least-squares coefficient estimates fo, /,, ..., 8,
+random variables themselves
+need to assess how “close” fy, /),...,8, areto fp, fh, ...,f,, respectively
+
+In terms of bias and variance

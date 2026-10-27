@@ -1,0 +1,11 @@
+A
+
+Training set how well does f learn?
+{(X1, 1), (Xp, Yo), sey (X,Y) } f :
+
+1< a 2
+Training MSE = — » (>; —f (x))
+” i=l \
+
+prediction that f gives
+Training Mean Squared Error for the ith training observation

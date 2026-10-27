@@ -1,0 +1,48 @@
+Many definitions and synonyms
+
+True condition
+Total population Condition positive Condition negative
+Predic iti Fal: iti
+fea celearal ion True positive prone ive
+Predicted positive (Type | error)
+condition
+Predicted condition False negative
+True negative
+negative (Type II error)
+| True positive rate (TPR), | False positive rate (FPR),
+Recall, Sensitivity, Fall-out, probability of false
+probability of detection alarm
+_ _ = True positive _ _ = False positive
+~ Condition positive  ~ ¥ Condition negative
+PEVIEDA) False nega
+‘alse negative rate (FNR), | True negative rate (TNR),
+PORN Miss rate Specificity (SPC)
+= _» False negative = — = True negative
+= Condition positive _ — = Condition negative
+
+Negative likelihood ratio (LR-)
+= ENR
+
+TNR
+
+Accuracy (ACC) =
+Prevalence & True positive + © True negative
+— = Condition positive = Total population
+Total population
+RES eee aoe (iD False discovery rate (FDR) =
+Higa = False positive
+_% Predicted condition positive _ CHEESES
+| False omission rate (FOR) = Negative predictive value (NPV) =
+= False negative = True negative
+_ = Predicted condition negative _ Predicted condition negative
+Positive likelihood ratio (LR+)
+TPR Diagnostic
+= ope F. =
+FPR odds ratio ‘ a
+(Cli) i as a
+— LR+ aR
+
+Sire recall precision
+
+https://en.wikipedia.org/wiki/Receiver operating characteristic
+

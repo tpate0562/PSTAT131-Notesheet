@@ -1,0 +1,7 @@
+Balance
+1
+0
+Probability of Defaulting
+log(odds of default) = 𝑙𝑜𝑔
+𝑝
+1 −𝑝

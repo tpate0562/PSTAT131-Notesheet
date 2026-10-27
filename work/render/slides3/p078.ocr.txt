@@ -1,0 +1,17 @@
+LDA: p > 1 case
+
+We have multiple predictors X;, ..., Xs which we assume
+
+different mean, same covariance
+
+_ 1 1 -1
+ffx) = mp2] E)2 exp (-30 - > (x — Hw)
+
+with a lot of algebra...
+
+The Bayes classifier assigns the observation x to class for which
+
+1
+5X) = XTEN My — SHE My + log my
+
+is largest

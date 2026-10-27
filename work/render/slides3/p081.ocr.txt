@@ -1,0 +1,19 @@
+Decision boundary: p > | case
+
+Bayesian decision boundary =
+
+set of x such that 6,(x) = 5,(x) fork #j
+
+N
+
+Nn
+
+LDA decision boundary 2
+
+set of x such that 5,(x) = 5(x) fork #j
+
+nN
+i
+
+linear boundary, i.e., hyperplane
+

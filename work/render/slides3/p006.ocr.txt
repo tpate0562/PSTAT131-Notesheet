@@ -1,0 +1,22 @@
+Why not Linear Regression?
+
+We know how to code qualitative predictors, why can’t we
+code the dummy response similarly?
+
+For example, suppose Y € {stroke, drug overdose, seizure}, then
+
+1 if stroke
+Y= 42 if drug overdose
+3
+
+if seizure
+
+This implicitly implies an ordering on the response classes
+
+difference between stroke and drug overdoes = between drug overdose and seizure
+
+1 if stroke
+What about Y= 42 if seizure
+3 if drug overdose
+
+What about Y € {dog, cat, fish}

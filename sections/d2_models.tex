@@ -1,0 +1,353 @@
+%% d2_models.tex -- PART I (distilled): Slide Set 2 = linear models, feature engineering, EDA.
+%% Folds in Lab 1 (dplyr/EDA/diamonds/splitting), Lab 2 (recipes, lm, KNN, missing data),
+%% HW1 EDA, HW2 (abalone LR + KNN), practice exam Q4, Q8--Q13.
+\section{Linear models, feature engineering, EDA}
+\ixh{linear regression}\ixh{feature engineering}\ixh{exploratory data analysis (EDA)}
+{\footnotesize Slide map: S2.3--9 EDA \textbullet\ S2.10--39 linear regression \textbullet\ S2.40--46 categorical predictors \textbullet\ S2.47--56 interactions \& polynomials \textbullet\ S2.57--75 diagnostics \textbullet\ S2.76--78 LR vs KNN, bias--variance.}
+
+% =====================================================================
+\subsection{Exploratory data analysis (EDA)}
+\ixh{exploratory data analysis (EDA)}
+\begin{topic}{What EDA is for}
+\textbf{Goals} \src{S2.4}: data cleaning \& quality check; descriptive statistics; data visualization; ideas for \ix{feature engineering}; discovering relationships among variables.
+\textbf{Iterative loop}: (1) generate questions about your data; (2) search for answers by visualizing, transforming and modeling; (3) use what you learn to refine questions / generate new ones. Not a fixed set of rules --- ``a state of curiosity about data'' \src{HW1}.
+\begin{itemize}
+\item Two questions that are always useful \src{S2.8}: what \textbf{variation} occurs \emph{within} my variables? what \textbf{covariation} occurs \emph{between} my variables? You do not need to look at everything; ask questions, answer them, present the 3--5 most interesting results.
+\item Assess the data \src{S2.5, S2.9}: \# rows/columns; variable types (numeric, categorical, ordered); \ix{missing data} (\% by variable, why, impute?); unusual values --- extremely large/small, impossible, unusual within context. Real data is messy.
+\end{itemize}
+\end{topic}
+
+\begin{topic}{Which plot for which question}
+{\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.27\linewidth} >{\raggedright\arraybackslash}p{0.33\linewidth}@{}}
+\toprule
+Question & Plot & \texttt{ggplot2} layer\\\midrule
+Shape of one numeric var (skew, modes, outliers) & \ix{histogram}, \ix{density plot} & \ixc{geom\_histogram()} (\texttt{bins=60}), \texttt{geom\_density()}\\
+Counts of one categorical var; \ix{class imbalance} & \ix{bar plot} & \ixc{geom\_bar()}, \ixc{count()}\\
+Numeric vs.\ categorical & \ix{boxplot} (+ jitter) & \ixc{geom\_boxplot()}, \texttt{geom\_jitter(alpha=.3)}\\
+Two numeric vars & \ix{scatterplot} & \ixc{geom\_point()}, \ixc{geom\_smooth()}\\
+All numeric pairs & \ix{correlation matrix} & \ixc{cor()} + \ixc{corrplot()}\\\bottomrule
+\end{tabularx}}
+\textbf{Boxplot}: box = Q1--Q3 (IQR), line = median, whiskers to the most extreme points within $1.5\,$IQR, dots beyond = potential \ix{outlier}s.
+\textbf{\ix{skewness}}: \emph{right (positive) skew} = mass at low values, long right tail, mean $>$ median: \ixc{diamonds} \texttt{price} (most $<\$10{,}000$) \src{Lab 1}; \ixc{abalone} age (mean 11.4 $>$ median 10.5, max 30.5) \src{HW2 Q1}. Left skew = mirror image. Bimodal: \ixc{mpg} \texttt{hwy} (peaks $\approx$17 and $\approx$26 mpg: trucks/SUVs vs.\ small cars) \src{HW1 Ex1}. Skewed outcome $\to$ stratify the split, consider a \ix{log transformation}.
+\end{topic}
+
+\begin{rcode}
+diamonds %>% select(where(is.numeric)) %>% cor() %>%   (*@\ixch{select()}\ixch{cor()}@*)
+  corrplot(type = "lower", diag = FALSE, method = "color")  (*@\ixch{corrplot()}@*)
+ggplot(diamonds, aes(x = price)) + geom_histogram(bins = 60)  (*@\ixch{ggplot()}\ixch{aes()}@*)
+ggplot(diamonds, aes(x = price, y = reorder(cut, price),
+                     fill = color)) + geom_boxplot()
+ggplot(mpg, aes(x = factor(cyl), y = hwy)) +
+  geom_boxplot() + geom_jitter(alpha = 0.3)   # HW1 Ex4
+ggplot(mpg, aes(y = fct_rev(fct_infreq(manufacturer)))) +
+  geom_bar()        # HW1 Ex3: flipped bar plot, ordered by height
+\end{rcode}
+\textbf{EDA findings to remember.} \ixc{mpg} \src{HW1}: \texttt{hwy} vs \texttt{cty} strong positive linear; median \texttt{hwy} falls with \texttt{cyl} (29/24/17 mpg for 4/6/8 cyl); \texttt{cty}--\texttt{hwy} and \texttt{displ}--\texttt{cyl} strongly $+$, each pair negatively correlated with the other. \ixc{diamonds} \src{Lab 1, S2.74}: $r(\text{price},\text{carat})=0.92$; $x,y,z$ correlate 0.86--0.88 with price and 0.95--0.98 with carat (\ix{collinearity}). Worst colour J costs \emph{more} because J diamonds tend to be larger (carat) --- a third variable drives both: \ix{confounding}.
+
+\begin{keybox}[Pearson correlation]
+\[ r_{xy}=\frac{\sum_i (x_i-\bar x)(y_i-\bar y)}{\sqrt{\sum_i (x_i-\bar x)^2\,\sum_i (y_i-\bar y)^2}}\in[-1,1] \]
+\ixh{Pearson correlation}\ixh{correlation}Measures the strength and direction of \textbf{linear} association \emph{only}. $|r|=1$ iff points lie exactly on a line; $r$ is unitless, symmetric, unchanged by centering/scaling. In simple linear regression $R^2=r^2$ (ISLR). \ixc{cor()} returns \texttt{NA} if any \texttt{NA} is present.
+\end{keybox}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[name=u,width=0.5\linewidth,height=2.8cm,xtick=\empty,ytick=\empty,
+  title={U-shape: $r\approx 0$, strong relation},title style={font=\tiny,yshift=-5pt},
+  xlabel={$X$},ylabel={$Y$},xlabel style={yshift=7pt},ylabel style={yshift=-8pt}]
+\addplot[only marks,mark=*,mark size=0.8pt,samples=21,domain=-2:2,color=dblue]{x^2};
+\end{axis}
+\begin{axis}[at={(u.east)},anchor=west,xshift=4pt,width=0.5\linewidth,height=2.8cm,
+  xtick={0,1,2},xticklabels={cold,warm,hot},ytick=\empty,ymin=0.5,ymax=3.5,
+  title={interaction: non-parallel lines},title style={font=\tiny,yshift=-5pt},
+  ylabel={clean},ylabel style={yshift=-8pt}]
+\addplot[mark=o,thick,color=dblue] coordinates {(0,1.2) (1,2) (2,3)};
+\addplot[mark=*,thick,color=warnc] coordinates {(0,3) (1,2) (2,1.2)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+{\footnotesize Left \src{PE Q8}: $Y=X^2$, Pearson $r\approx0$. Right \src{S2.50--51}: cleanliness vs.\ water temperature, one line per detergent; the best detergent depends on temperature = interaction. Parallel lines = main effects only, no interaction.}
+
+\begin{trap}[Correlation myths (PE Q4, Q8, Q9)]
+\begin{itemize}
+\item \textbf{Zero correlation $\ne$ useless predictor.} U-shaped scatterplot with $r=0.03$ \src{PE Q8}: correct answer = ``little \emph{linear} correlation despite a strong \ix{nonlinear relationship}''. NOT ``unrelated'', NOT ``plot is wrong'', NOT ``$X$ won't be useful'' --- $X$ helps via an $X^2$ term, KNN or other flexible models \src{PE Q4a}.
+\item \textbf{Correlated predictors $\ne$ interaction.} $r(X_1,X_2)=0.91$ is evidence of \ix{collinearity}, not of an \ix{interaction term}. Interaction = the relationship between $X_1$ and $Y$ \emph{depends on the value of} $X_2$, e.g.\ positive for one level of $X_2$, negative for the other \src{PE Q4b, Q9}. Skewness also says nothing about interaction.
+\item Correlation $\ne$ causation (\ix{confounding}, e.g.\ colour J vs.\ carat). Lower training error is not always better \src{PE Q4c}.
+\end{itemize}
+\end{trap}
+
+% ---------------------------------------------------------------------
+\subsection{Missing data \& imputation}
+\ixh{missing data}\ixh{imputation}
+\begin{topic}{Handling missing values}
+\textbf{Look first} \src{S2.5, Lab 2}: \ixc{vis\_miss()} (\ixc{naniar}) on \ixc{airquality}: 4.8\% of all cells missing; \texttt{Ozone} 24.18\%, \texttt{Solar.R} 4.58\%, others 0\%. Fine to inspect missingness before splitting.
+\textbf{Why missing?} \src{S2.6} (dog eats homework $H$; $H^*$ = observed homework; $A$ = student attribute):
+\textbf{MCAR}\ixh{missing completely at random (MCAR)} (missing completely at random) --- dog eats \emph{any} homework, missingness unrelated to anything;
+\textbf{MAR}\ixh{missing at random (MAR)} (missing at random) --- dog eats \emph{some students'} homework, missingness depends on an observed attribute $A$;
+\textbf{MNAR}\ixh{missing not at random (MNAR)} (missing not at random) --- dog eats \emph{bad} homework, missingness depends on the missing value itself.
+Patterns: univariate, monotone, general, planned.
+\textbf{Options} \src{Lab 2}: (1) drop the variable (not if it is the \ix{outcome}); (2) drop rows, \ixc{drop\_na()}: \texttt{airquality} 153 $\to$ 111 rows (large loss); (3) \ix{imputation} = predict the missing values.
+\textbf{Imputation steps} \src{S2.7}: numeric: \ixc{step\_impute\_bag()}, \ixc{step\_impute\_knn()}, \ixc{step\_impute\_linear()}; categorical: bag, knn, \ixc{step\_impute\_mode()}; also \ixc{step\_impute\_mean()}/\texttt{median}. \ix{mean imputation} (and median/mode) \textbf{reduces variance} (all imputed values identical); KNN, bagging or \ix{linear imputation} tend to perform better.
+\textbf{Rules}: (a) handle \emph{all} missingness somehow (different methods per variable is fine), (b) consider \emph{why} it is missing, (c) \emph{report} what you did.
+\textbf{Gotchas}: \texttt{mean(x)} is \texttt{NA} if any \texttt{NA} (use \texttt{na.rm = TRUE}); \texttt{geom\_histogram()} silently drops \texttt{NA} rows (``Removed 37 rows containing non-finite values'').
+\end{topic}
+\begin{rcode}
+air_recipe <- recipe(Ozone ~ ., data = airquality_train) %>%
+  step_impute_linear(Ozone,                       (*@\ixch{step\_impute\_linear()}@*)
+       impute_with = imp_vars(Wind, Temp, Month, Day)) %>%  (*@\ixch{imp\_vars()}@*)
+  step_impute_linear(Solar.R,
+       impute_with = imp_vars(Wind, Temp, Month, Day))
+prep(air_recipe) %>% bake(new_data = airquality_train) %>%
+  vis_miss()                     # now 0% missing  (*@\ixch{vis\_miss()}@*)
+\end{rcode}
+
+% ---------------------------------------------------------------------
+\subsection{Data splitting}
+\ixh{data splitting}\ixh{training/testing split}
+\begin{topic}{Train/test split with rsample}
+\begin{rcode}
+set.seed(3435)                # same random split every run  (*@\ixch{set.seed()}@*)
+diamonds_split <- initial_split(diamonds, prop = 0.80,  (*@\ixch{initial\_split()}\ixch{prop}@*)
+                                strata = price)  (*@\ixch{strata}@*)
+diamonds_train <- training(diamonds_split)  (*@\ixch{training()}@*)
+diamonds_test  <- testing(diamonds_split)   (*@\ixch{testing()}@*)
+dim(diamonds_train); dim(diamonds_test)     # verify sizes
+\end{rcode}
+\begin{itemize}
+\item \ixc{prop} = fraction that goes to the \textbf{training} set (default $3/4$). \src{HW2 Q2}: \texttt{prop = 0.85, strata = age} on 4177 abalone $\to$ 3548 train / 629 test.
+\item \ixc{set.seed()}: splitting is random; without a \ix{random seed} every rerun gives a different split and different results (\ix{reproducibility}). Any number --- just remember it.
+\item \ixc{strata} = \textbf{\ix{stratified sampling}}: sample \emph{within} strata of the outcome so train and test have approximately the same outcome distribution (same class proportions; a numeric outcome is binned into quartiles, \texttt{breaks = 4}). \textbf{Why}: with a skewed outcome or \ix{class imbalance} (e.g.\ \texttt{titanic}: most passengers did not survive) a plain random split can leave too few rare cases / extreme values in one set $\to$ unrepresentative fit or test estimate \src{Lab 3, HW3, ROC reading}.
+\item \textbf{Never touch the test set} until the very end: EDA-driven choices, recipe estimation (\ixc{prep()}: means, SDs, imputation models), fitting and tuning all use \texttt{training} only; the test set is used once to estimate test error. Splitting \emph{before} EDA is ``arguably better practice'' \src{Lab 1}.
+\end{itemize}
+\end{topic}
+
+% =====================================================================
+\subsection{Linear regression: model and least squares}
+\ixh{linear regression}
+\begin{topic}{The model and its assumptions}
+\src{S2.12--14} The best possible prediction under squared error is $\hat f(\mathbf x_0)=E[Y\mid X=\mathbf x_0]$ --- unknown because the joint distribution of $(X,Y)$ is unknown. So \textbf{make an assumption}:
+\[ Y=\beta_0+X_1\beta_1+\dots+X_p\beta_p+\varepsilon,\quad E[\varepsilon]=0,\ \varepsilon \perp (X_1,\dots,X_p) \]
+$\Rightarrow E[Y\mid X=\mathbf x_0]=\beta_0+x_{01}\beta_1+\dots+x_{0p}\beta_p$: the conditional expectation is \textbf{linear in the parameters}. \ix{simple linear regression}: $p=1$, data $\{(x_1,y_1),\dots,(x_n,y_n)\}$; \ix{multiple linear regression}: $p>1$, $\mathbf x_i=(x_{i1},\dots,x_{ip})$. $\varepsilon$ = catch-all for what the simple model misses, mean zero, independent of everything else \src{S2.24}. A \ix{parametric model}: estimate $p+1$ numbers instead of a whole function.
+\textbf{Assumptions} \src{S2.48, S2.58--61}: (1) \textbf{linear} and \textbf{additive} in the predictors; (2) errors $\varepsilon_1,\dots,\varepsilon_n$ \textbf{uncorrelated}; (3) \textbf{constant variance} $\mathrm{Var}(\varepsilon_i)=\sigma^2$; plus no influential outliers / severe collinearity (diagnostics below).
+\textbf{Picture} \src{S2.15--18}: $y$ = confirmed COVID cases, $x$ = county population. \ix{intercept} $\beta_0$ = mean $y$ when $x=0$; \ix{slope} $\beta_1$ = change in mean $y$ per one-unit increase in $x$ (+10{,}000 people $\Rightarrow +10000\beta_1$ cases). Different $(\beta_0,\beta_1)$ give different lines ($y=8000+0.057x$ vs.\ $5000+0.061x$); \ix{residual} for Riverside $=y_{RS}-\beta_0-\beta_1x_{RS}$ = observed $-$ predicted.
+\end{topic}
+
+\begin{keybox}[Least squares estimates (S2.20--29)]
+Choose $\hat\beta$'s to minimize the sum of squared residuals\ixh{residual sum of squares (RSS)}\ixh{least squares}
+\[ \mathrm{SSR}=\sum_{i=1}^n\big(y_i-\hat\beta_0-\hat\beta_1x_{i1}-\dots-\hat\beta_px_{ip}\big)^2\quad(\text{ISLR: RSS}) \]
+\[ \hat\beta_1=\frac{\sum_i(x_i-\bar x)(y_i-\bar y)}{\sum_i(x_i-\bar x)^2},\qquad \hat\beta_0=\bar y-\hat\beta_1\bar x \]
+(the line passes through $(\bar x,\bar y)$). We cannot get $\hat\beta=\beta$ exactly: the data are random, so $\hat\beta_0,\hat\beta_1$ are random variables (new sample $\to$ new line, S2.25).
+\textbf{Unbiased}: $E(\hat\beta_1)=\beta_1$, $E(\hat\beta_0)=\beta_0$, i.e.\ $\mathrm{Bias}=0$ \src{S2.27}.\ixh{bias}
+\textbf{Variance} ($\sigma^2=\mathrm{Var}(\varepsilon)$)\ixh{standard error}:
+\[ \mathrm{SE}(\hat\beta_1)^2=\frac{\sigma^2}{\sum_i(x_i-\bar x)^2},\quad \mathrm{SE}(\hat\beta_0)^2=\sigma^2\Big[\frac1n+\frac{\bar x^2}{\sum_i(x_i-\bar x)^2}\Big] \]
+$\sigma^2$ unknown $\to$ $\hat\sigma^2=\mathrm{SSR}/(n-2)$ and plug in ($\widehat{\mathrm{SE}}$). More spread in $x$ and larger $n$ $\Rightarrow$ smaller SE. Approx.\ 95\% \ix{confidence interval}: $\hat\beta_j\pm2\,\mathrm{SE}(\hat\beta_j)$ (ISLR).
+\end{keybox}
+
+\begin{keybox}[Model accuracy and tests (S2.30, S2.34--39)]
+$\mathrm{SST}=\sum_i(y_i-\bar y)^2$,\quad $\mathrm{SSR}=\sum_i(y_i-\hat y_i)^2$.
+\textbf{RSE}\ixh{residual standard error (RSE)} (residual standard error) $=\sqrt{\mathrm{SSR}/(n-p-1)}$ ($n-2$ in SLR): absolute lack of fit, in units of $Y$.
+\textbf{$R^2$}\ixh{R-squared} $=1-\mathrm{SSR}/\mathrm{SST}\in[0,1]$ = proportion of the variability in $Y$ explained by $X$. $R^2$ \textbf{always increases} as predictors are added; RSE and $R^2$ favor flexible models, which may overfit\ixh{overfitting}.
+\textbf{\ix{adjusted R-squared}} $=1-\dfrac{(1-R^2)(n-1)}{n-p-1}$ (penalizes extra predictors).
+\textbf{\ix{F-statistic}} for $H_0:\beta_1=\dots=\beta_p=0$ vs.\ $H_a$: at least one $\beta_j\ne0$:
+\[ F=\frac{(\mathrm{SST}-\mathrm{SSR})/p}{\mathrm{SSR}/(n-p-1)} \]
+Under $H_0$ both numerator and denominator $\approx\sigma^2\Rightarrow F\approx1$; \textbf{large $F$ favors $H_a$}.
+\textbf{\ix{t-statistic}} $t=\hat\beta_j/\mathrm{SE}(\hat\beta_j)$ tests $H_0:\beta_j=0$ \emph{given the other predictors}; small \ix{p-value} ($<0.05$) $\Rightarrow$ reject.
+\end{keybox}
+\textbf{Three questions} \src{S2.34}: Q1 is at least one predictor useful? ($F$-test). Q2 which subset matters? (selection). Q3 how well does the model fit? (RSE, $R^2$).
+\textbf{Variable selection} \src{S2.36--37}: \ix{best subset selection} fits all $2^p$ subsets (\,$\approx$1 billion for $p=40$) and picks the ``best'' by Mallow's $C_p$, AIC, BIC or adjusted $R^2$; \ix{forward selection} starts from the null model and adds the most significant variable one at a time (greedy) until a stopping rule; \ix{backward selection} starts from the full model and removes the least significant one at a time (impossible when $p>n$); \ix{mixed selection} combines both.
+
+\begin{topic}{Reading lm / tidy() output}
+\src{Lab 2}: \ixc{diamonds}, \texttt{price \textasciitilde{} .}, \ixc{step\_dummy()} on all nominal predictors, \ixc{linear\_reg()} + \ixc{set\_engine()}\texttt{("lm")}.
+\begin{routput}
+lm_fit %>% extract_fit_parsnip() %>% tidy()  (*@\ixch{extract\_fit\_parsnip()}\ixch{tidy()}@*)
+  term        estimate std.error statistic   p.value
+1 (Intercept)  5317.      496.      10.7   8.54e- 27
+2 carat       11282.       54.3    208.    0
+3 depth         -58.4       6.25    -9.33  1.07e- 20
+5 x            -970.       49.0    -19.8   5.16e- 87
+6 y               9.08     19.9      0.456 6.49e-  1
+8 cut_1         596.       25.0     23.8   1.22e-124
+# ... (18 more rows)
+\end{routput}
+\begin{itemize}
+\item \texttt{estimate} $=\hat\beta_j$ (\ix{coefficient}); \texttt{std.error} $=\mathrm{SE}(\hat\beta_j)$; \texttt{statistic} $=t=$ estimate/std.error ($11282/54.3\approx208$); \texttt{p.value} for $H_0:\beta_j=0$.
+\item \textbf{carat}: holding all other predictors fixed, $+1$ carat is \emph{associated} with $+\$11{,}282$ in mean price; $p\approx0$ $\Rightarrow$ significant. (Association, not causation.)
+\item \textbf{y}: $p=0.649$ $\Rightarrow$ no evidence that $y$ adds information \emph{once carat, $x$, $z$ are in the model} --- not ``$y$ is unrelated to price'' ($r=0.87$). \textbf{x} is \emph{negative} although $r(x,\text{price})=+0.88$: coefficients are partial effects and collinearity can flip signs.
+\item \textbf{Intercept} = predicted price when every numeric predictor (and contrast) is 0 --- an extrapolation (carat $=0$), not meaningful here.
+\item \texttt{cut\_1}\ldots\ are \textbf{not} 0/1 dummies: \texttt{cut}, \texttt{color}, \texttt{clarity} are \emph{ordered} factors (\texttt{<ord>}), so \ixc{step\_dummy()} makes \ix{polynomial contrasts} (\texttt{cut\_1} linear, \texttt{cut\_2} quadratic, \ldots; values like 0.632, $-0.267$).
+\item Fit: train \ix{RMSE} 1126 / $R^2$\ixh{R-squared} 0.920, test RMSE 1146 / $R^2$ 0.918 (no overfitting), but the predicted-vs-actual plot is curved and some predicted prices are negative $\Rightarrow$ a linear $f$ is a poor approximation here.
+\end{itemize}
+\end{topic}
+
+% =====================================================================
+\subsection{Categorical predictors: dummy variables}
+\ixh{categorical predictor}\ixh{dummy variable}
+\begin{topic}{Dummy (indicator) coding}
+\src{S2.41--44} \ix{categorical predictor}s (qualitative / factor variables) can enter a regression whose $Y$ is quantitative via \ix{dummy variable}s.
+\textbf{2 levels} (Credit: balance vs.\ gender): $x_i=1$ if female, $0$ if male $\Rightarrow$
+$y_i=\beta_0+\beta_1+\varepsilon_i$ (female), $\beta_0+\varepsilon_i$ (male). $\beta_0$ = mean balance of males (baseline); $\beta_1$ = average difference female $-$ male.
+\textbf{Coding is not unique}: $1$=male/$0$=female flips the sign of $\beta_1$ and $\beta_0$ becomes the female mean; $\pm1$ coding ($1$ male, $-1$ female) gives $\beta_0$ = average of the two group means, $\beta_1$ = half the male$-$female difference. Same fitted values, different interpretation.
+\textbf{$m$ levels $\Rightarrow m-1$ dummies.} Ethnicity \{African American, Asian, Caucasian\}: $x_{i1}=1$ if Asian, $x_{i2}=1$ if Caucasian; African American = \textbf{baseline}\ixh{reference level} (no dummy).
+\[ y_i=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+\varepsilon_i=\begin{cases}\beta_0+\beta_1+\varepsilon_i&\text{Asian}\\ \beta_0+\beta_2+\varepsilon_i&\text{Caucasian}\\ \beta_0+\varepsilon_i&\text{Afr.\ American}\end{cases} \]
+$\beta_0$ = mean of the baseline; $\beta_j$ = difference between level $j$ and the baseline. Coding and choice of baseline are arbitrary but change the interpretation of $\beta_0,\beta_1,\beta_2$.
+\src{PE Q11}: only categorical variables (\texttt{Major}, \texttt{Dorm}) need dummy encoding; numeric ones (\texttt{HS\_GPA}, \texttt{CreditsCompleted}) do not.
+\end{topic}
+
+\begin{keybox}[step\_dummy() vs one-hot (S2.45--46)]
+\begin{rcode}
+recipe(age ~ type, data = abalone_train) %>%   # type: F, I, M  (*@\ixch{recipe()}\ixch{abalone}@*)
+  step_dummy(type)            # -> type_I, type_M  (F = reference)  (*@\ixch{step\_dummy()}@*)
+recipe(age ~ type, data = abalone_train) %>%
+  step_dummy(type, one_hot = TRUE)  # -> type_F, type_I, type_M  (*@\ixch{one\_hot}@*)
+\end{rcode}
+New columns are named \texttt{var\_level}. Default = $m-1$ \textbf{dummy coding}; the \ix{reference level} is the \emph{first factor level} (alphabetical for characters): a row with \texttt{type\_I = 0, type\_M = 0} is F. Change it with \texttt{step\_relevel(type, ref\_level = "M")} or \texttt{fct\_relevel()}. \ixc{one\_hot}\texttt{ = TRUE} = \ix{one-hot encoding}: one 0/1 column per level. Usually \ixc{step\_dummy()}\texttt{(}\ixc{all\_nominal\_predictors()}\texttt{)} \src{Lab 2}.
+\end{keybox}
+
+\begin{trap}[one\_hot = TRUE + intercept = rank deficient (PE Q13)]
+\texttt{salary \textasciitilde{} experience + department} (Sales, IT, HR) with \texttt{step\_dummy(department, one\_hot = TRUE)} and \ixc{linear\_reg()}: R reports the model matrix is \textbf{rank-deficient}\ixh{rank deficiency}, a coefficient cannot be identified (\texttt{NA}, ``prediction from a rank-deficient fit may be misleading'').
+(a) Cause: one-hot makes 3 indicators, one per level. (b) For every row they sum to 1 = the \ix{intercept} column (a column of ones) $\Rightarrow$ perfect linear dependency, design matrix not full rank (``dummy-variable trap''). (c) Fix: \texttt{one\_hot = FALSE} (the default). (d) Then \textbf{2} indicators are created ($m-1$).
+One-hot is \textbf{fine for KNN} (no intercept, no linear dependency problem) \src{PE Q7}.
+\end{trap}
+
+% =====================================================================
+\subsection{Interactions and nonlinear terms}
+\ixh{interaction term}\ixh{nonlinear relationship}
+\begin{topic}{Relaxing additivity and linearity}
+\src{S2.48, S2.54} The plain model is \textbf{additive} --- the effect of changing $X_j$ on $Y$ does not depend on the other predictors (relax with \textbf{interaction terms}) --- and \textbf{linear} --- a one-unit change in $X_j$ changes $Y$ by the same amount whatever the value of $X_j$ (relax with \textbf{polynomial regression} / transformations).
+\end{topic}
+
+\begin{keybox}[Interaction (S2.49)]
+\[ Y=\beta_0+\beta_1X_1+\beta_2X_2+\beta_3X_1X_2+\varepsilon=\beta_0+(\beta_1+\beta_3X_2)X_1+\beta_2X_2+\varepsilon \]
+Without $X_1X_2$: $+1$ in $X_1$ $\Rightarrow$ $+\beta_1$ in $Y$ (holding $X_2$ fixed). With it: $+1$ in $X_1$ $\Rightarrow$ $+(\beta_1+\beta_3X_2)$ --- the effect of $X_1$ is no longer constant; changing $X_2$ changes the impact of $X_1$ (and symmetrically the effect of $X_2$ is $\beta_2+\beta_3X_1$).
+\textbf{Definition}: an \ix{interaction term} is needed when the relationship between $X_1$ and $Y$ differs depending on the value of $X_2$. It says nothing about whether $X_1$ and $X_2$ are correlated \src{PE Q4b, Q9}.
+\end{keybox}
+
+\begin{topic}{Worked examples}
+\textbf{Advertising} \src{S2.52}: $\text{sales}=\beta_0+\beta_1\text{TV}+\beta_2\text{radio}+\beta_3\text{TV}\times\text{radio}+\varepsilon$.
+\begin{center}{\small\begin{tabular}{@{}l r r r r@{}}\toprule
+& Coef. & SE & $t$ & $p$\\\midrule
+Intercept & 6.7502 & 0.248 & 27.23 & $<$0.0001\\
+TV & 0.0191 & 0.002 & 12.70 & $<$0.0001\\
+radio & 0.0289 & 0.009 & 3.24 & 0.0014\\
+TV$\times$radio & 0.0011 & 0.000 & 20.73 & $<$0.0001\\\bottomrule
+\end{tabular}}\end{center}
+$+\$1{,}000$ TV $\Rightarrow (\hat\beta_1+\hat\beta_3\,\text{radio})\times1000=19.1+1.1\times\text{radio}$ increase in sales. \textbf{Practice answer}: $+\$1{,}000$ radio $\Rightarrow(\hat\beta_2+\hat\beta_3\,\text{TV})\times1000=28.9+1.1\times\text{TV}$.
+\textbf{Dummy $\times$ numeric} (Credit, S2.53): $\text{balance}=\beta_0+\beta_1\text{income}+\beta_2\text{student}+\beta_3\,\text{income}\times\text{student}$ $\Rightarrow$ students: $(\beta_0+\beta_2)+(\beta_1+\beta_3)\,$income; non-students: $\beta_0+\beta_1\,$income. Without the interaction the two lines are \textbf{parallel} (same slope, different intercepts); with it the slopes differ.
+\textbf{Interaction plots} \src{S2.50--51}: one line per level of A over levels of B. Parallel lines = no interaction (vertical gap = A main effect, common slope = B main effect); non-parallel or crossing lines = interaction.
+\textbf{\ix{hierarchical principle}} (ISLR): if $X_1X_2$ is in the model, keep $X_1$ and $X_2$ too, even if their $p$-values are large.
+\end{topic}
+
+\begin{rcode}
+step_dummy(all_nominal_predictors()) %>%     # FIRST make dummies
+step_interact(terms = ~ starts_with("type_"):shucked_weight +  (*@\ixch{step\_interact()}\ixch{starts\_with()}@*)
+                longest_shell:diameter + shucked_weight:shell_weight)
+# -> type_I_x_shucked_weight, type_M_x_shucked_weight, ...   (HW2 Q3)
+\end{rcode}
+\ixc{step\_interact()} needs numeric columns: after \ixc{step\_dummy()} the factor \texttt{type} no longer exists, so refer to its dummies with \ixc{starts\_with()}\texttt{("type\_")}. Slope of \texttt{shucked\_weight} for infants $=\hat\beta_{\text{shucked}}+\hat\beta_{\text{type\_I\_x\_shucked}}$; for females (reference) $=\hat\beta_{\text{shucked}}$.
+
+\begin{keybox}[Polynomials and transformations (S2.55--56)]
+\ix{polynomial regression} of degree $d$: $Y=\beta_0+\beta_1X+\beta_2X^2+\dots+\beta_dX^d+\varepsilon$. $Y$ is no longer linear in $X$, \textbf{but it is still a linear model}: let $Z_k=X^k$, then $Y=\beta_0+\beta_1X+\beta_2Z_2+\dots+\beta_dZ_d+\varepsilon$ is linear in $X,Z_2,\dots,Z_d$ (linear in the parameters). Figure: linear vs.\ degree 2 vs.\ degree 5 fits to a curved cloud --- degree 2 follows the curve, degree 5 wiggles at the edges (more flexible $\to$ overfitting risk).
+\ix{transformation}s: \ixc{step\_poly()}\texttt{(x, degree = 2)}, \ixc{step\_log()}; a \ix{log transformation} tames right skew and funnel-shaped residuals. Transform the \emph{outcome} with \ixc{mutate()} (e.g.\ \texttt{log(price)}) before splitting rather than in the recipe.
+\end{keybox}
+
+% =====================================================================
+\subsection{Regression diagnostics}
+\ixh{residual plot}
+\begin{topic}{Six potential problems (S2.58--65)}
+{\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.25\linewidth} >{\raggedright\arraybackslash}X@{}}
+\toprule Problem & Detect $\to$ consequence / fix\\\midrule
+1.\ Non-linearity & \textbf{\ix{residual plot}}: $e_i=y_i-\hat y_i$ vs.\ fitted $\hat y_i$. Correct model $\Rightarrow$ \emph{no discernible pattern}; a U-shape means missed curvature $\to$ add $X^2$, $\log X$, $\sqrt X$.\\
+2.\ Correlated errors & e.g.\ time series; estimated SEs inaccurate $\to$ wrong CIs and tests.\\
+3.\ Non-constant variance & \ix{heteroscedasticity}: funnel shape in the residual plot $\to$ inaccurate CIs and tests; fix by transforming $Y$ ($\log Y$, $\sqrt Y$): S2.61 funnel vanishes for $\log(Y)$.\\
+4.\ \ix{outlier}s & $y_i$ far from $\hat y_i$ (e.g.\ recording error). Use \ix{studentized residual}s (residual / its SE; $|{\cdot}|>3$ suspicious, ISLR).\\
+5.\ \ix{high leverage point}s & unusual $x_i$ values. Leverage (SLR) $h_i=\frac1n+\frac{(x_i-\bar x)^2}{\sum_k(x_k-\bar x)^2}$; $h_i\in[1/n,1]$, average $(p+1)/n$.\\
+6.\ \ix{collinearity} & correlation matrix, VIF (below).\\\bottomrule
+\end{tabularx}}
+\textbf{\ix{influential observation}}: removing it changes the fit a lot. It may or may not be an outlier or have high leverage, but tends to have at least one of the two. \textbf{Example} \src{S2.66--72} (fit without the red point: $y=1.73+5.12x$):
+outlier only $(4,40)$: $y=2.96+5.04x$ --- barely changes, \textbf{not} influential;
+high leverage on the trend $(14,68)$: $y=2.47+4.93x$ --- \textbf{not} influential;
+outlier \emph{and} high leverage $(13,15)$: $y=8.51+3.32x$ --- \textbf{influential}.
+Status is model-specific \src{S2.65}. What to do: 1.\ check for a data-entry error; 2.\ exclude the points; 3.\ try re-including them if the model changes.
+\end{topic}
+
+\begin{topic}{Collinearity (S2.73--75)}
+\ix{collinearity}: two or more predictors closely related. If they rise and fall together it is hard to separate how each is associated with $Y$ $\Rightarrow$ \textbf{variances (SEs) of the estimates increase} $\to$ large $p$-values and unstable or flipped signs (diamonds $x$: $-970$).
+\textbf{Detect}: (1) \ix{correlation matrix} of $X_1,\dots,X_p$ (diamonds: carat--$x$ 0.98, carat--$y,z$ 0.95, $x$--$y$ 0.97); (2) \ix{variance inflation factor (VIF)} $\mathrm{VIF}_j=1/(1-R^2_{X_j\mid X_{-j}})$, where $R^2$ comes from regressing $X_j$ on the other predictors (ISLR: $>5$--10 is a problem; also catches \ix{multicollinearity} among 3+ variables that pairwise correlations miss).
+\textbf{\ix{structural collinearity}} = created by us from other predictors ($X$ and $X^2$, interaction terms, a ratio plus its components); \textbf{data-based} = present in the observed data (carat vs.\ $x,y,z$).
+\textbf{Handle} (``it depends''): 1.\ drop variables; 2.\ combine variables; 3.\ feature extraction (PCA); 4.\ regularization (ridge, lasso). Collinearity mainly hurts interpretation and inference; predictions can still be fine.
+\end{topic}
+
+% =====================================================================
+\subsection{Feature engineering with recipes}
+\ixh{feature engineering}\ixh{recipes}
+\begin{topic}{What may go in the model}
+\ix{feature engineering} = creating or reformatting predictors (\ix{feature}s) so the model can use them: dummy coding, interactions, polynomial/log transformations, normalization, imputation, new combined variables (ratios).
+\begin{itemize}
+\item \textbf{\ix{target leakage}}: a predictor that carries information about the outcome that would \emph{not be available at prediction time}, or is derived from the outcome $\Rightarrow$ unrealistically good performance that collapses in practice. \texttt{default\_date} when predicting \texttt{defaulted} \src{PE Q7}; \texttt{GraduationDate}, \texttt{FinalGPA} when predicting \texttt{Graduated4Years} from end-of-first-year data \src{PE Q10}; \texttt{rings} for \texttt{age = rings + 1.5} (age is a deterministic function of rings, so the model just learns the formula and the other predictors become useless) \src{HW2 Q3}.
+\item \textbf{Rule}: use only information you would have at the moment the prediction is made.
+\item \textbf{Not leakage} \src{PE Q12}: \texttt{CompletionRate} = CreditsCompleted/CreditsAttempted (first-year information, known at prediction time); including it together with both components is redundant (structural collinearity).
+\item \textbf{\ix{identifier variable}s} (\texttt{StudentID}, \texttt{application\_id}): arbitrary labels with no meaning $\Rightarrow$ exclude (spurious patterns; they distort KNN distances). The outcome itself is obviously excluded.
+\item \texttt{recipe(y \textasciitilde{} ., data)}: ``\texttt{.}'' = \emph{every} other column, including IDs and leaky variables $\to$ drop them first (\texttt{select(-id)}, \texttt{step\_rm()}) or list the predictors explicitly.
+\end{itemize}
+\end{topic}
+
+\begin{topic}{Centering, scaling, normalization}
+\ix{centering} $x-\bar x$ (\ixc{step\_center()}); \ix{scaling} $x/s$ (\ixc{step\_scale()}); both = \ix{normalization} / \ix{standardization} $z=(x-\bar x_{\text{train}})/s_{\text{train}}$ (\ixc{step\_normalize()}): mean 0, SD 1.
+\begin{itemize}
+\item \textbf{Required for KNN} (distance-based): an unscaled large-variance variable (income) dominates the distance \src{PE Q6, Q7}.
+\item \textbf{Linear regression}: fitted values, $R^2$, RMSE unchanged; coefficients become ``per 1 SD''. With all predictors centered the \textbf{intercept $=\bar y_{\text{train}}$} (HW2: \texttt{(Intercept)} 11.5 $\approx$ mean age).
+\item \ixc{prep()} estimates means/SDs (and imputation models, factor levels) from the \textbf{training} data; \ixc{bake()} / \ixc{predict()} apply those same training values to new data. \texttt{bake(new\_data = NULL)} returns the processed training set.
+\item \textbf{Step order} (recipes docs): impute $\to$ transform (log, poly) $\to$ \texttt{step\_dummy} $\to$ \texttt{step\_interact} $\to$ normalize.
+\end{itemize}
+\end{topic}
+
+\begin{keybox}[HW2 pipeline: abalone age, LR + KNN]
+\begin{rcode}
+abalone <- read_csv("data/abalone.csv") %>%       (*@\ixch{read\_csv()}\ixch{abalone}@*)
+  mutate(age = rings + 1.5, type = factor(type))  (*@\ixch{mutate()}@*)
+abalone_recipe <- recipe(age ~ type + longest_shell + diameter +
+    height + whole_weight + shucked_weight + viscera_weight +
+    shell_weight, data = abalone_train) %>%        # NO rings
+  step_dummy(all_nominal_predictors()) %>%  (*@\ixch{all\_nominal\_predictors()}@*)
+  step_interact(terms = ~ starts_with("type_"):shucked_weight +
+     longest_shell:diameter + shucked_weight:shell_weight) %>%
+  step_center(all_predictors()) %>%  (*@\ixch{step\_center()}\ixch{all\_predictors()}@*)
+  step_scale(all_predictors())   # = step_normalize(all_predictors())  (*@\ixch{step\_scale()}\ixch{step\_normalize()}@*)
+lm_model  <- linear_reg() %>% set_engine("lm")  (*@\ixch{linear\_reg()}\ixch{set\_engine()}\ixch{lm}@*)
+knn_model <- nearest_neighbor(neighbors = 7) %>%  (*@\ixch{nearest\_neighbor()}\ixch{neighbors}@*)
+  set_engine("kknn") %>% set_mode("regression")  (*@\ixch{set\_mode()}\ixch{kknn}@*)
+lm_wflow <- workflow() %>% add_model(lm_model) %>%  (*@\ixch{workflow()}\ixch{add\_model()}@*)
+  add_recipe(abalone_recipe)                        (*@\ixch{add\_recipe()}@*)
+lm_fit <- fit(lm_wflow, data = abalone_train)  # preps recipe  (*@\ixch{fit()}@*)
+predict(lm_fit, new_data = new_abalone)     # one row -> .pred  (*@\ixch{predict()}@*)
+abalone_metrics <- metric_set(rsq, rmse, mae)  (*@\ixch{metric\_set()}\ixch{rsq()}\ixch{rmse()}\ixch{mae()}@*)
+augment(lm_fit, new_data = abalone_test) %>%   # adds .pred  (*@\ixch{augment()}@*)
+  abalone_metrics(truth = age, estimate = .pred)  (*@\ixch{truth}\ixch{estimate}@*)
+\end{rcode}
+\textbf{Q7}: the new observation must be a tibble with \emph{every} predictor the recipe uses and the same types (\texttt{type = factor("F", levels = levels(abalone\$type))}); the workflow applies the recipe automatically $\to$ \texttt{.pred} = 21.8.
+\textbf{Q8 results (test)}: LR $R^2$ 0.585, RMSE 1.95, \ix{MAE} 1.44; KNN ($k=7$) $R^2$ 0.483, RMSE 2.21, MAE 1.62. Training: KNN $R^2$ 0.811 vs.\ LR 0.552 $\Rightarrow$ KNN overfits (each training point is its own nearest neighbour); LR generalizes better.
+Interpretation: $R^2=0.585$ $\Rightarrow$ 58.5\% of the variability in test-set age is explained by the model. (\texttt{yardstick} \ixc{rsq()} = squared correlation of truth and \texttt{.pred}; \texttt{rsq\_trad()} $=1-\mathrm{SSR}/\mathrm{SST}$.)
+\end{keybox}
+
+% =====================================================================
+\subsection{Linear regression vs.\ KNN regression}
+\ixh{k-nearest neighbors (KNN)}
+\begin{topic}{Parametric vs non-parametric (S2.76)}
+{\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule \textbf{Linear regression} (\ix{parametric model}) & \textbf{KNN regression} (\ix{non-parametric model})\\\midrule
+assume $f(X)=\beta_0+\beta_1X_1+\dots+\beta_pX_p$ & $f(X)$ can have any functional form\\
+no need to tune & \ix{tuning parameter} $K$ (\ixc{neighbors})\\
+performs well when the true $f$ is close to linear & much more general-purpose\\
+interpretable; statistical inference (SE, $p$-values) & not very interpretable\\
+extends to very large $p$ (ridge, lasso) & \ix{curse of dimensionality}\\\bottomrule
+\end{tabularx}}
+KNN regression predicts $\hat f(x_0)$ = average of the $y_i$ of the $K$ training points closest to $x_0$ (ISLR); it needs normalized predictors and no interaction terms (non-parametric) \src{PE Q1}.
+\textbf{Lab 2 (diamonds), RMSE train / test}: LR 1126 / 1146; KNN $k=5$: 386 / 711; KNN $k=2$: 152 / 851. KNN wins on test because the true $f$ is nonlinear; $k=2$ has the biggest train--test gap (most flexible $\to$ overfits more).
+\end{topic}
+
+\begin{keybox}[Bias--variance of least squares (S2.77)]
+$E\big[(y_0-\hat f(\mathbf x_0))^2\big]=\mathrm{Var}(\hat f(\mathbf x_0))+[\mathrm{Bias}(\hat f(\mathbf x_0))]^2+\mathrm{Var}(\varepsilon)$.\ixh{bias-variance tradeoff}
+If the true $f$ is linear and $\hat f=\hat\beta_0+\hat\beta_1x_{01}+\dots+\hat\beta_px_{0p}$ (least squares):
+\textbf{Property 1}: unbiased, $\mathrm{Bias}(\hat f(\mathbf x_0))=E[\hat f(\mathbf x_0)]-f(\mathbf x_0)=0$.
+\textbf{Property 2} (\ix{Gauss-Markov theorem}): least squares has the \textbf{smallest} expected test error among all \textbf{unbiased linear} estimators.
+Modern methods (ridge, lasso) can beat least squares in expected test MSE by accepting a \emph{small bias} for a \emph{much smaller variance}.
+\end{keybox}

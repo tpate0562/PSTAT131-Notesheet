@@ -1,0 +1,23 @@
+Estimating parameters
+
+Different values of /, and 7, give us different lines
+
+200000
+|
+
+150000
+1
+
+confirmed
+
+y = 5000 + 0.061x
+
+100000
+|
+
+T T
+1000000 1500000 2000000 2500000 3000000
+
+50000
+
+population

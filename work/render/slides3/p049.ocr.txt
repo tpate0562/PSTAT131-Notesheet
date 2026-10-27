@@ -1,0 +1,18 @@
+Bayes theorem
+Prior probability 7, = Pr (Y = k)
+
+Density function of (X;,...,X,)|Y=k
+SOs +++5%p) = Pr (x, =X,...X%, =x, |Y= k)
+
+Bayes theorem:
+
+Pr (y= k,X, =X, 5X, = x,)
+
+Pr (¥= KIX, =%,-.4X,=4)) =
+Pr (x, =X, weep Xy = %,)
+
+Pr (Y= 4X, =4,....X,=4%) Myf > +++5%y)
+
+OK K
+Lint Pr (v¥=i.% =X, ...,X,= %) Li-1 Ty F{(X1s «++» Xp)
+

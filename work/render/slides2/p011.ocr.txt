@@ -1,0 +1,14 @@
+Linear regression
+PSTAT 126
+Carl Friedrich Gauss in 1795
+
+Simple, interpretable, and often very useful
+
+Many nonlinear methods are direct generalization of linear regression
+
+THEORIA
+
+MOTVS CORPORVM
+COELESTIVM
+
+(1809): Method of least squares, MLE, Gaussian distribution...

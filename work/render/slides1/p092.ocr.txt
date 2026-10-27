@@ -1,0 +1,12 @@
+Training set Test set
+
+Training error rate Test error rate
+
+ly . lo/. os
+
+predicted class label that f gives predicted class label that f gives
+for the ith training observation for the ith test observation
+
+A
+
+J is obtained on the training set!

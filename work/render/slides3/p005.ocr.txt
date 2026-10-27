@@ -1,0 +1,25 @@
+Why not Linear Regression?
+
+You said we can predict class probability, then why not just...
+Suppose Y € {0,1}, we model
+
+Pr(Y = 1|X) = fo t+ BX, +... + 6X,
+Pr(Y = 0|X) = 1 -— Pr(Y = 1|X)
+
+nnn ee ee i. re +4 FH LRN b=
+| |
+& 2 Bo]
+o ° o °
+i) oO a oO
+oe Linear Regression oe Logistic Regression
+2 2.
+= = 4
+g° g*
+Qa 2a
+S . a 3
+negative probability!
+“ 9 PI ty! “
+T T T T T T T T T T T T
+0 500 1000 1500 2000 2500 0 500 1000 1500 2000 2500
+
+Balance Balance

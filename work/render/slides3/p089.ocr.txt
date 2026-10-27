@@ -1,0 +1,14 @@
+Comparisons
+
+Non-parametric Parametric
+
+k-NN classifier Logistic regression LDA QDA
+
+nonlinear linear quadratic
+
+decision boundary
+
+model flexibility:
+k-NN classifier > QDA > Logistic regression / LDA
+
+via Bias-Variance tradeoff via interpretability

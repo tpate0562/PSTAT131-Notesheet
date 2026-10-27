@@ -1,0 +1,20 @@
+Artificial Intelligence
+
+Rules ——>| Classical
+
+i [> Answers
+Data ——»| programming
+
+Rule-based
+techniques, expert
+systems ...
+
+Machine
+
+Learning Deep
+Learning Data P -
+CART, SVM ... Machine Rules
+Neural Answers ——» learning
+
+networks ...
+

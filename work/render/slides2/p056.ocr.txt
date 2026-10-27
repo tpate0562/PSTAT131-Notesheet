@@ -1,0 +1,15 @@
+Non-linear relationships
+
+Polynomial regression of Y on X
+
+Y= Ppyt+BX+ PX? +...+f Xi +e
+
+Y is no longer linear in X
+
+But this is still a linear model!!!
+
+Simply let Z, = X*.
+
+Y=Pyt+hX+fhZ,4+...+ BZ +e
+
+Yis still linear in X, Z,, ...,Z,

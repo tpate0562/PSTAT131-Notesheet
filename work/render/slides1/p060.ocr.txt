@@ -1,0 +1,7 @@
+Can we just select f that minimizes Training MSE
+2. ° n
+
+NO!
+
+A method that has lowest training MSE does not necessarily imply that
+it also has the lowest test MSE

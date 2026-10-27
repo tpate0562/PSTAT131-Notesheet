@@ -1,0 +1,10 @@
+K-nearest neighbors
+Jo = argmax, { Prob (Y=j|X= xy) }
+
+Estimation idea: look at the K-nearest neighbors of Xp
+
+WN = {i: x, is among the K nearest neighbors of x}
+
+p | .
+YR = argmax; = » Ky; =)
+iEV
