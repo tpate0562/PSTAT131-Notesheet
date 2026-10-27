@@ -116,11 +116,9 @@ cancelling'' (equivalently, odds $\times e^{0.04}\approx1.041$, about $+4.1\%$ i
 \end{trap}
 
 \begin{keybox}[HW3 Q11--Q12 (231): logit is the inverse of the logistic]
-$p=\frac{e^z}{1+e^z}\Rightarrow p+pe^z=e^z\Rightarrow p=e^z(1-p)\Rightarrow e^z=\frac{p}{1-p}
-\Rightarrow z=\ln\frac{p}{1-p}$ \src{HW3 Q11}.\quad
-$z=\beta_0+\beta_1x_1$: odds at $x_1{+}2$ $=e^{\beta_0+\beta_1(x_1+2)}=e^{\beta_0+\beta_1x_1}\cdot e^{2\beta_1}$, so the odds are
-multiplied by $e^{2\beta_1}$. If $\beta_1<0$: $x_1\to\infty\Rightarrow z\to-\infty\Rightarrow p\to0$;\;
-$x_1\to-\infty\Rightarrow z\to+\infty\Rightarrow p=\frac{1}{1+e^{-z}}\to1$ \src{HW3 Q12}.
+$p=\frac{e^z}{1+e^z}\iff z=\ln\frac{p}{1-p}$ (logit and logistic are inverses) \src{HW3 Q11}.\quad
+$z=\beta_0+\beta_1x_1$: increasing $x_1$ by 2 multiplies the odds by $e^{2\beta_1}$.
+If $\beta_1<0$: $x_1\to\infty\Rightarrow p\to0$;\; $x_1\to-\infty\Rightarrow p\to1$ \src{HW3 Q12}.
 \end{keybox}
 
 %% ==================================================================
@@ -300,7 +298,6 @@ and makes assumptions on $X_1,\dots,X_p\mid Y$ \src{S3.48--49}:
 \end{itemize}
 \[
 \underbrace{\Pr(Y=k\mid X=x)}_{\text{\ix{posterior probability}}}
-=\frac{\Pr(Y=k,\,X=x)}{\Pr(X=x)}
 =\frac{\pi_k\,f_k(x)}{\sum_{j=1}^{K}\pi_j\,f_j(x)}
 \]
 The denominator is the same for every $k$ $\Rightarrow$ classify to the $k$ with the largest $\pi_kf_k(x)$.\\
@@ -316,14 +313,12 @@ $\Pr(Y=1\mid x_0)=\frac{0.12}{0.12+0.07}=0.63$ $\Rightarrow$ class 1, despite th
 
 \begin{keybox}[LDA, p = 1: model, discriminant function, estimates]
 \textbf{Assume} $X\mid Y=k\sim N(\mu_k,\sigma^2)$ --- \textbf{different mean, same variance} \src{S3.69}:
-\[ f_k(x)=\frac{1}{\sqrt{2\pi}\,\sigma}\exp\Bigl(-\frac{1}{2\sigma^2}(x-\mu_k)^2\Bigr), \]
-\[ \Pr(Y=k\mid X=x)\propto\pi_k\exp\Bigl(-\frac{1}{2\sigma^2}(x-\mu_k)^2\Bigr) \]
-($\tfrac{1}{\sqrt{2\pi}\sigma}$ and the denominator are the same for all $k$ and cancel.) Taking logs and dropping
-terms that do not depend on $k$, assign $x$ to the class whose \ix{discriminant function}
+\[ f_k(x)=\frac{1}{\sqrt{2\pi}\,\sigma}\exp\Bigl(-\frac{1}{2\sigma^2}(x-\mu_k)^2\Bigr). \]
+Assign $x$ to the class whose \ix{discriminant function}
 \[ \delta_k(x)=x\cdot\frac{\mu_k}{\sigma^2}-\frac{\mu_k^2}{2\sigma^2}+\log(\pi_k)\quad\text{is largest} \]
-{\footnotesize (S3.70--76 print the middle term as $\mu_k^2/\sigma^2$; the algebra gives $2\sigma^2$, as in ISLR.)}\\
+{\footnotesize (S3.70--76 print the middle term as $\mu_k^2/\sigma^2$; the correct form, as in ISLR, has $2\sigma^2$.)}\\
 $\mu_1,\dots,\mu_K,\pi_1,\dots,\pi_K,\sigma^2$ are unknown $\Rightarrow$ \textbf{estimate them} \src{S3.71, S3.76}:
-\[ \hat\pi_k=\frac{n_k}{n},\qquad \hat\mu_k=\frac{1}{n_k}\sum_{i:y_i=k}x_i,\qquad
+\[ \hat\pi_k=\frac{n_k}{n},\quad \hat\mu_k=\frac{1}{n_k}\sum_{i:y_i=k}x_i,\quad
 \hat\sigma^2=\frac{1}{n-K}\sum_{k=1}^{K}\sum_{i:y_i=k}(x_i-\hat\mu_k)^2 \]
 ($n_k=$ \# training obs.\ in class $k$; $\hat\sigma^2$ is the \ix{pooled variance}.) The LDA classifier plugs these into
 $\hat\delta_k(x)=x\,\hat\mu_k/\hat\sigma^2-\hat\mu_k^2/(2\hat\sigma^2)+\log\hat\pi_k$, which is
@@ -358,7 +353,7 @@ $\hat\delta_k(x)=x\,\hat\mu_k/\hat\sigma^2-\hat\mu_k^2/(2\hat\sigma^2)+\log\hat\
 (\ix{multivariate normal distribution}):
 \[ f_k(\mathbf x)=\frac{1}{(2\pi)^{p/2}|\Sigma|^{1/2}}
 \exp\Bigl(-\tfrac12(\mathbf x-\mu_k)^T\Sigma^{-1}(\mathbf x-\mu_k)\Bigr) \]
-``With a lot of algebra'', the Bayes classifier assigns $\mathbf x$ to the class with the largest
+The Bayes classifier assigns $\mathbf x$ to the class with the largest
 \[ \delta_k(\mathbf x)=\mathbf x^T\Sigma^{-1}\mu_k-\tfrac12\mu_k^T\Sigma^{-1}\mu_k+\log\pi_k . \]
 LDA plugs in $\hat\mu_k$, $\hat\Sigma$ (pooled), $\hat\pi_k$: $\hat\delta_k(\mathbf x)$ is \textbf{linear in $\mathbf x$}
 (only the term $\mathbf x^T\hat\Sigma^{-1}\hat\mu_k$ involves $\mathbf x$) \src{S3.79}.
@@ -382,8 +377,7 @@ Assign $\mathbf x$ to the class with the largest \src{S3.87}
 \delta_k(\mathbf x)=&-\tfrac12\mathbf x^T\Sigma_k^{-1}\mathbf x+\mathbf x^T\Sigma_k^{-1}\mu_k\\
 &-\tfrac12\mu_k^T\Sigma_k^{-1}\mu_k-\tfrac12\log|\Sigma_k|+\log\pi_k
 \end{align*}
-(QDA: hats on $\mu_k,\Sigma_k,\pi_k$.) The term $-\tfrac12\mathbf x^T\hat\Sigma_k^{-1}\mathbf x$ no longer cancels
-across classes $\Rightarrow$ \textbf{quadratic in $\mathbf x$} $\Rightarrow$ curved (quadratic)
+(QDA: hats on $\mu_k,\Sigma_k,\pi_k$.) The class-specific term $-\tfrac12\mathbf x^T\hat\Sigma_k^{-1}\mathbf x$ makes it \textbf{quadratic in $\mathbf x$} $\Rightarrow$ curved (quadratic)
 \ix{decision boundary}.\\
 \textbf{Parameter count} (covariances): LDA one $\Sigma$: $p(p+1)/2$; QDA: $K\cdot p(p+1)/2$
 (e.g.\ $p=50$: 1275 vs.\ $1275K$) \src{S3.91}.
