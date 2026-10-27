@@ -1,34 +1,23 @@
 %% raw_lab2.tex -- raw transcription of Lab 2 (PSTAT 131/231), source: source/labs/lab2/lab-2.Rmd
 %% knitted output: work/text/lab2_html.txt, plots: work/html_imgs/lab2/img01-05.png
 \section{Lab 2 --- Model fitting with tidymodels: linear regression, KNN, missing data}
-{\color{figgray}\itshape [Parts already covered in Part I are omitted: package loading and the train/test split chunk; recipe/\texttt{step\_dummy()} code and \texttt{prep()}/\texttt{bake()} explanation; \texttt{lm} spec/workflow/fit code; \texttt{bind\_cols()} and predicted-vs-actual code; RMSE outputs and the test metric set (1146, 0.918, 751); KNN engine/\texttt{set\_mode()} explanation and spec code; \texttt{extract\_fit\_parsnip()} output (Best k: 5); \texttt{vis\_miss()} percentages, \texttt{mean()}/\texttt{NA} and \texttt{drop\_na()} (153 $\to$ 111) discussion, imputation choices, linear-imputation recipe, final \texttt{vis\_miss()}, missing-data rules.]}
+{\color{figgray}\itshape [Omitted (in Part I): packages, split; recipe/\texttt{step\_dummy()}, \texttt{prep()}/\texttt{bake()}; \texttt{lm} spec/workflow/fit; \texttt{bind\_cols()}, pred-vs-actual code; RMSE values, test metrics (1146, 0.918, 751); KNN engine/mode + spec; \texttt{extract\_fit\_parsnip()} (best k 5); \texttt{vis\_miss()} \%s, \texttt{NA}/\texttt{drop\_na()} (153 $\to$ 111), imputation choices, linear-imputation recipe, missing-data rules.]}
 \ixh{linear regression}\ixh{KNN}\ixh{missing data}\ixch{tidymodels}\ixch{diamonds}%
-\textbf{Lab 2} \quad PSTAT 131/231. \quad {\color{figgray}\itshape [Rmd header: \texttt{html\_document} with \texttt{toc: true}, \texttt{toc\_float: true}, \texttt{code\_folding: show}. Setup chunk (not shown in output): \texttt{knitr::opts\_chunk\$set(echo = TRUE, message = FALSE, warning = FALSE)}.]}
 
-\subsection{Introduction: Model Fitting}
-\subsubsection{Creating a Recipe}
+\subsection{Recipe}
 \ixch{recipe()}%
-To fit any model with \rc{tidymodels}, the first step is to create a recipe\ixch{recipe()}. The structure of this recipe is similar to that of \rc{lm()}; the \ix{outcome} is listed first, then the features\ixh{feature}{} are added:
+First step of any \rc{tidymodels} fit: a recipe\ixch{recipe()}; \rc{lm()}-like formula, \ix{outcome} first, then features\ixh{feature}{} (\rc{.} = all other variables):
 \begin{rcode}
 simple_diamonds_recipe <-
   recipe(price ~ ., data = diamonds_train)   (*@\ixch{recipe()}\ixh{formula (R)}@*)
-\end{rcode}
-Note that \rc{.} is a placeholder for ``all other variables.'' If we call the recipe object now, we can see some information:
-\begin{rcode}
 simple_diamonds_recipe
 \end{rcode}
 \begin{routput}
-## Recipe
-##
-## Inputs:
-##
 ##       role #variables
 ##    outcome          1
 ##  predictor          9
 \end{routput}
-More specifically, we see that there are 9 predictors\ixh{predictor}.
-
-We'll also use \ixc{kbl()} and \ixc{kable\_styling()} from the \ixc{kableExtra} package (\url{https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html}), which we installed above. It's not necessary to use these functions, but doing so allows the table of data to display more neatly, so that all the columns and rows are actually legible. We also use \ixc{head()} to select only the first few rows; otherwise the entire data frame would print, which would be time-consuming. Also note the use of \ixc{scroll\_box()}, allowing us to scroll through the entire data set.
+(9 predictors\ixh{predictor}.) Display baked data neatly with \ixc{kbl()}/\ixc{kable\_styling()} (\ixc{kableExtra}, optional), \ixc{head()} for first rows, \ixc{scroll\_box()} to scroll:
 \begin{rcode}
 prep(diamonds_recipe) %>%                 (*@\ixch{prep()}@*)
   bake(new_data = diamonds_train) %>%     (*@\ixch{bake()}\ixch{new\_data}@*)
@@ -37,7 +26,7 @@ prep(diamonds_recipe) %>%                 (*@\ixch{prep()}@*)
   kable_styling(full_width = F) %>%       (*@\ixch{kable\_styling()}@*)
   scroll_box(width = "100%", height = "200px")  (*@\ixch{scroll\_box()}@*)
 \end{rcode}
-{\color{figgray}\itshape [note: the HTML table has 24 columns; shown here split into three blocks of the same 6 rows. \rc{cut}, \rc{color}, \rc{clarity} are \emph{ordered} factors, so \rc{step\_dummy()} produced orthogonal-polynomial contrast columns (\rc{cut\_1}..\rc{cut\_4}, \rc{color\_1}..\rc{color\_6}, \rc{clarity\_1}..\rc{clarity\_7}), not 0/1 columns.]}\ixh{dummy variable}\ixh{orthogonal polynomial contrast}
+{\color{figgray}\itshape [24 columns, split in 3 blocks of the same 6 rows; rounded to 4 places; \rc{clar\_k} = \rc{clarity\_k}. \rc{cut}, \rc{color}, \rc{clarity} are \emph{ordered} factors $\Rightarrow$ \rc{step\_dummy()} gives orthogonal-polynomial contrasts (\rc{cut\_1}..\rc{\_4}, \rc{color\_1}..\rc{\_6}, \rc{clarity\_1}..\rc{\_7}), not 0/1.]}\ixh{dummy variable}\ixh{orthogonal polynomial contrast}
 \begin{routput}
 carat depth table    x    y    z price   cut_1   cut_2
  0.23  61.5    55 3.95 3.98 2.43   326  0.6325  0.5345
@@ -61,52 +50,35 @@ color_6 clar_1 clar_2 clar_3 clar_4 clar_5 clar_6 clar_7
  0.0329 -.3858  .0772  .3077 -.5238  .4922 -.3077  .1195
  0.0329  .2315 -.2315 -.4308 -.1209  .3638  .5539  .3585
 \end{routput}
-{\color{figgray}\itshape [note: values rounded to 4 places (output has 7); \rc{clar\_k} = \rc{clarity\_k}.]}
-
-\par\textbf{Activities:}
-\begin{itemize}
-\item Use the Internet to find documentation about the possible \rc{step} functions. Name three \rc{step} functions that weren't used here and describe what they do.
-\end{itemize}
+\textbf{Activity:} name and describe three \rc{step} functions not used here.
 
 \subsection{Linear Regression}
 \ixh{linear regression}\ixch{linear\_reg()}%
-We can view the model results:
 \begin{rcode}
 lm_fit %>%
-  # This returns the parsnip object:
-  extract_fit_parsnip() %>%      (*@\ixch{extract\_fit\_parsnip()}\ixch{parsnip}@*)
-  # Now tidy the linear model object:
-  tidy()                         (*@\ixch{tidy()}@*)
+  extract_fit_parsnip() %>%  # parsnip object (*@\ixch{extract\_fit\_parsnip()}\ixch{parsnip}@*)
+  tidy()                     # tidy lm object (*@\ixch{tidy()}@*)
 \end{rcode}
 \begin{routput}
 ## # A tibble: 24 x 5
 ##    term        estimate std.error statistic   p.value
-##    <chr>          <dbl>     <dbl>     <dbl>     <dbl>
 ##  3 depth         -58.4       6.25    -9.33  1.07e- 20
 ##  4 table         -24.1       3.23    -7.45  9.40e- 14
 ##  7 z            -127.       73.2     -1.74  8.23e-  2
 ##  9 cut_2        -300.       19.9    -15.0   4.77e- 51
 ## 10 cut_3         153.       17.2      8.90  5.99e- 19
-## # ... with 14 more rows
+## # ... with 14 more rows (rows 1-2, 5-6, 8 in Part I)
 \end{routput}
-{\color{figgray}\itshape [note: rows 1--2, 5--6 and 8 (\texttt{(Intercept)}, \texttt{carat}, \texttt{x}, \texttt{y}, \texttt{cut\_1}) are in Part I and omitted here.]}
 \ixh{coefficient}\ixh{intercept}\ixh{standard error}\ixh{t-statistic}\ixh{p-value}%
+\textbf{Activities:} what does the \ix{intercept} represent? Effect of \rc{carat}: significant? Effect on \rc{price} of +1 \rc{carat}, all else fixed?\ixh{coefficient}\ixh{p-value}
 
-\par\textbf{Activities:}
-\begin{itemize}
-\item Explain what the \ix{intercept} represents.
-\item Describe the effect of \rc{carat}. Is it a significant predictor of \rc{price}? Holding everything else constant, what is the effect on \rc{price} of a one-unit increase in \rc{carat}?\ixh{coefficient}\ixh{p-value}
-\end{itemize}
-The following code generates predicted values for \rc{price} for each observation in the training set:\ixh{prediction}
+Training-set predictions:\ixh{prediction}
 \begin{rcode}
 diamond_train_res <- predict(lm_fit, new_data = diamonds_train %>% select(-price))  (*@\ixch{predict()}\ixch{select()}@*)
-diamond_train_res %>%
-  head()
+diamond_train_res %>% head()
 \end{rcode}
 \begin{routput}
-## # A tibble: 6 x 1        (*@\ixch{.pred}@*)
-##    .pred
-##    <dbl>
+##    .pred                (*@\ixch{.pred}@*)
 ## 1 -1363.
 ## 2  -667.
 ## 3   199.
@@ -114,137 +86,58 @@ diamond_train_res %>%
 ## 5 -3472.
 ## 6 -1373.
 \end{routput}
-We might be interested in a plot of predicted values vs.\ actual values\ixh{predicted vs.\ actual plot}, here for the training data:
-\fig{Square \ix{scatterplot} (\rc{theme\_bw}, \rc{coord\_obs\_pred} so both axes share the range $\approx-5000$ to $40000$): x = \rc{.pred} (linear-model prediction), y = \rc{price}; semi-transparent black points; dashed 45$^\circ$ line $y=x$. Points form a curved (convex) band, not a line: for actual prices below $\approx\$2000$ many predictions are negative (down to $\approx-4000$); between $\approx$\$5000 and \$10000 actual, predictions are too low; the band then flattens at the price ceiling $\approx\$18{,}800$, with predictions spreading from $\approx$7000 to $\approx$40000 (scattered points at .pred 25000--40000 with price 12000--18500). Shows a \ix{nonlinear relationship} the linear model misses.}
+Predicted vs.\ actual\ixh{predicted vs.\ actual plot} (training):
+\fig{\ix{scatterplot}, \rc{coord\_obs\_pred} (both axes $\approx-5000$ to $40000$), x = \rc{.pred}, y = \rc{price}, dashed $y=x$. Curved (convex) band, not a line: actual $<\$2000$ often predicted negative (to $\approx-4000$); actual \$5000--\$10000 under-predicted; band flattens at price ceiling $\approx\$18{,}800$ with preds $\approx$7000--40000. A \ix{nonlinear relationship} the linear model misses.}
+Poor fit: perfect predictions would lie on the line; negative price predictions; poor once actual price $>\approx\$5{,}000$.
 
-It's fairly clear that the model didn't do very well. If it predicted every observation accurately, the dots would form a straight line. We also have predicted some negative values for price, and once the actual price is approximately over \$5,000, the model does a pretty poor job.
-
-We can create and view a ``metric set'' of RMSE, MSE, and $R^2$\ixh{R-squared}\ixh{MAE}{} as shown:
+Metric set (RMSE, $R^2$, MAE)\ixh{R-squared}\ixh{MAE}; same call for each model, train and test:
 \begin{rcode}
 diamond_metrics <- metric_set(rmse, rsq, mae)    (*@\ixch{metric\_set()}\ixch{rsq()}\ixch{mae()}@*)
-diamond_metrics(diamond_train_res, truth = price,
+diamond_metrics(diamond_train_res, truth = price,  (*@\ixch{truth}@*)
                 estimate = .pred)
 \end{rcode}
 \begin{routput}
-## # A tibble: 3 x 3
-##   .metric .estimator .estimate
-##   <chr>   <chr>          <dbl>
-## 1 rmse    standard    1126.
-## 2 rsq     standard       0.920
-## 3 mae     standard     736.
+## model       rmse   rsq    mae
+## LR train   1126.  0.920  736.
+## LR test    1146.  0.918  751.  (Part I)
+## KNN5 train  386.  0.991  201.
+## KNN5 test   711.  0.968  373.
+## KNN2 train  152.  0.999   74.6
+## KNN2 test   851.  0.955  421.
 \end{routput}
-
-\par\textbf{Activities:}
-\begin{itemize}
-\item Is there a difference between the three metrics for the training data and the testing data?\ixh{training error}\ixh{testing error}
-\item Do your best to explain why this difference does (or does not) exist.
-\end{itemize}
+{\color{figgray}\itshape [one 3-row tibble (\texttt{.metric .estimator=standard .estimate}) per row, combined here; data: \texttt{diamond\_train\_res}, \texttt{diamond\_\{train,test\}\_knn}, \texttt{\_knn2}.]}\ixh{RMSE}
+\textbf{Activities:} do train and test metrics differ? Explain why (or why not).\ixh{training error}\ixh{testing error}
 
 \subsection{\emph{k}-Nearest Neighbors}
 \ixh{KNN}\ixch{nearest\_neighbor()}%
-Now we'll take the recipe we've already created and try fitting a \ix{KNN} (\emph{k}-nearest neighbors) model with it (\url{https://parsnip.tidymodels.org/reference/nearest_neighbor.html})! To do this, we'll use the \ixc{nearest\_neighbor()} function, rather than the \ixc{linear\_reg()} function, but we'll still need to select an engine\ixch{engine}. There is only one \emph{R} package, or engine, that works with \rc{nearest\_neighbor()}, and that is the \ixc{kknn} package.
-
-\fig{Cartoon by Allison Horst (\rc{images/parsnip.png}): title ``parsnip::set\_\textsuperscript{your}engine()!''. Four race cars on a track at a checkered start line, labelled \rc{STAN} (purple), \rc{keras} (red, flag), \rc{GLMNET} (blue) and \rc{lm} (yellow); a purple fuzzy creature in sunglasses holds a ``parsnip'' hex flag; text ``3\dots2\dots1\dots Run model!''. Caption: ``a standardized interface for fitting models and making predictions.''}\ixch{parsnip}\ixch{set\_engine()}
-
-Unlike a linear regression, however, there is a parameter -- more specifically, a \emph{hyperparameter}\ixh{hyperparameter}\ixh{tuning parameter}{} -- that we have to set to fit a \emph{k}-nearest neighbors model. That hyperparameter is \rc{k} -- the number of neighbors for the model to consider.
-
-How do we know the ``right'' or the optimal value of \rc{k} to use? Well, we don't! Eventually we'll discuss the concepts of resampling\ixh{resampling}, \ix{cross-validation}, and tuning\ixh{tuning parameter}, which will allow us to determine the optimal value of a hyperparameter with relative ease. For now, we'll go with the default value of \rc{k}.
-
-\par\textbf{Activities:}
-\begin{itemize}
-\item What IS the default value of \rc{k} here, if we do not specify a value? How did you find out?
-\end{itemize}
-Now we add the model and recipe to the workflow and fit the model to the training data set:
+Same recipe, \ix{KNN} model: \ixc{nearest\_neighbor()} instead of \ixc{linear\_reg()} (\url{https://parsnip.tidymodels.org/reference/nearest_neighbor.html}); only engine\ixch{engine}: \ixc{kknn}.
+\fig{Allison Horst cartoon ``parsnip::set\_engine()!'': race cars STAN, keras, GLMNET, lm --- parsnip = ``a standardized interface for fitting models and making predictions.''}\ixch{parsnip}\ixch{set\_engine()}
+Unlike LR, needs a \emph{hyperparameter}\ixh{hyperparameter}\ixh{tuning parameter}{} \rc{k} (number of neighbors). Optimal \rc{k} unknown; later resampling\ixh{resampling}, \ix{cross-validation}, tuning\ixh{tuning parameter}; for now default \rc{k}. \textbf{Activity:} what is the default \rc{k}, and how did you find out?
 \begin{rcode}
 knn_wflow <- workflow() %>%          (*@\ixch{workflow()}@*)
   add_model(knn_model) %>%           (*@\ixch{add\_model()}@*)
   add_recipe(simple_diamonds_recipe) (*@\ixch{add\_recipe()}@*)
-
 knn_fit <- fit(knn_wflow, diamonds_train)  (*@\ixch{fit()}@*)
 \end{rcode}
-We'll generate the predictions from this model for the training set and testing set, and then compare the metrics for each, as before:
-\begin{rcode}
-diamond_metrics(diamond_train_knn, truth = price,   (*@\ixch{metric\_set()}\ixch{truth}@*)
-                estimate = .pred)
-\end{rcode}
-\begin{routput}
-## # A tibble: 3 x 3
-##   .metric .estimator .estimate
-##   <chr>   <chr>          <dbl>
-## 1 rmse    standard     386.
-## 2 rsq     standard       0.991
-## 3 mae     standard     201.
-\end{routput}
-\begin{rcode}
-diamond_metrics(diamond_test_knn, truth = price,
-                estimate = .pred)
-\end{rcode}
-\begin{routput}
-## # A tibble: 3 x 3
-##   .metric .estimator .estimate
-##   <chr>   <chr>          <dbl>
-## 1 rmse    standard     711.
-## 2 rsq     standard       0.968
-## 3 mae     standard     373.
-\end{routput}
-\ixh{RMSE}\ixh{R-squared}\ixh{MAE}%
-Let's try a different value for \emph{k}. We can manually specify a value by adding it inside the \ixc{nearest\_neighbor()} function. Later, when we introduce cross-validation\ixh{cross-validation}, that's also where we'll specify the parameter to be tuned. The value we try is arbitrary; we can try basically any value of \emph{k} from 1 to \emph{n}. Then we have to fit the new model, etc.:
+Train/test metrics: KNN5 columns above. Different \emph{k}: set it in \ixc{nearest\_neighbor()} (later the tuned parameter goes here too\ixh{cross-validation}); any \emph{k} from 1 to \emph{n}:
 \begin{rcode}
 knn_model2 <- nearest_neighbor(neighbors = 2) %>%  (*@\ixch{nearest\_neighbor()}\ixch{neighbors}@*)
   set_engine("kknn") %>%
   set_mode("regression")
-
 knn_wflow2 <- workflow() %>%
   add_model(knn_model2) %>%
   add_recipe(diamonds_recipe)
-
 knn_fit2 <- fit(knn_wflow2, diamonds_train)
-
+# predict()/bind_cols() as in Part I; metrics: KNN2 columns above
 \end{rcode}
-{\color{figgray}\itshape [predict()/bind\_cols() lines for train and test omitted (as in Part I).]}
-\begin{rcode}
-diamond_metrics(diamond_train_knn2, truth = price,
-                estimate = .pred)
-\end{rcode}
-\begin{routput}
-## # A tibble: 3 x 3
-##   .metric .estimator .estimate
-##   <chr>   <chr>          <dbl>
-## 1 rmse    standard     152.
-## 2 rsq     standard       0.999
-## 3 mae     standard      74.6
-\end{routput}
-\begin{rcode}
-diamond_metrics(diamond_test_knn2, truth = price,
-                estimate = .pred)
-\end{rcode}
-\begin{routput}
-## # A tibble: 3 x 3
-##   .metric .estimator .estimate
-##   <chr>   <chr>          <dbl>
-## 1 rmse    standard     851.
-## 2 rsq     standard       0.955
-## 3 mae     standard     421.
-\end{routput}
-\ixh{overfitting}\ixh{training error}\ixh{testing error}%
-
-\par\textbf{Activities:}
-\begin{itemize}
-\item Which of the three models -- linear regression, \emph{k}-nearest neighbors with $k = 5$, or \emph{k}-nearest neighbors with $k = 2$ -- performed better on the testing data? Why do you think this is so?\ixh{model comparison}
-\item What do you think explains the difference between the training and testing metrics for the KNN models?\ixh{overfitting}\ixh{bias-variance tradeoff}
-\item How many predictors are included in our KNN model(s)?\ixh{predictor}
-\item Do you think changing the number of predictors might improve the performance of the KNN model(s)?\ixh{curse of dimensionality}
-\end{itemize}
+\ixh{overfitting}%
+\textbf{Activities:} which model (LR, KNN $k=5$, KNN $k=2$) is best on test data, and why?\ixh{model comparison} What explains the KNN train--test gap?\ixh{overfitting}\ixh{bias-variance tradeoff} How many predictors\ixh{predictor} are in the KNN model(s)? Would changing that number help?\ixh{curse of dimensionality}
 
 \subsection{Missing Data}
 \ixh{missing data}\ixch{airquality}%
-We'll use the \ixc{airquality} data set, which comes installed with base R, to illustrate some ways of handling \ix{missing data}. Let's start by loading the \ixc{naniar} package (\url{https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html}). Usually it's considered good practice to load all packages in the same place -- at the beginning of the Markdown file -- but we'll make an exception. If this is your first time using the package, you'll need to uncomment and run the \ixc{install.packages()} line.
-
-Try running \rc{?airquality} to learn about the variables in the data set. There are 153 observations on six variables.
-
-\fig{\rc{vis\_miss(airquality)} heat map (grey = present, black = missing; rows 1--153). Ozone has many black stripes (rows $\approx$5, 10, 25--27, big blocks $\approx$32--37 and $\approx$52--61, plus $\approx$65, 72, 75, 84, 102--103, 107, 115, 119, 150); Solar.R has a few (rows $\approx$5--6, 11, 27, 96--98); Wind, Temp, Month, Day are fully grey.}\ixch{vis\_miss()}
-
-We can see that these observations are missing also by directly looking at the data:
+\ix{missing data} with \ixc{airquality} (base R; 153 obs, 6 variables; \rc{?airquality}) and \ixc{naniar} (\url{https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html}; loaded here as an exception to load-all-at-top; uncomment \ixc{install.packages()} if needed).
+\fig{\rc{vis\_miss(airquality)} (black = missing, rows 1--153): Ozone many gaps (rows $\approx$5, 10, 25--27, blocks $\approx$32--37 and $\approx$52--61, $\approx$65, 72, 75, 84, 102--103, 107, 115, 119, 150); Solar.R a few ($\approx$5--6, 11, 27, 96--98); Wind, Temp, Month, Day complete.}\ixch{vis\_miss()}
+Also visible in the data:
 \begin{rcode}
 airquality %>%                                (*@\ixch{airquality}@*)
   kable() %>%                                 (*@\ixch{kable()}@*)
@@ -265,42 +158,36 @@ Ozone Solar.R Wind Temp Month Day
    NA     194  8.6   69     5  10
     7      NA  6.9   74     5  11
    16     256  9.7   69     5  12
-# ... (141 more rows; e.g. rows 25-27 and 32-37 have Ozone NA)
+# ... (141 more rows; e.g. rows 25-27, 32-37 Ozone NA)
 \end{routput}
-Since the data set is meant to measure air quality, it makes sense that we might want to predict the ozone levels. We can look at a \ix{histogram} of the variable:
+Predict ozone (air quality); \ix{histogram}:
 \begin{rcode}
 ggplot(aes(x = Ozone), data = airquality) +   (*@\ixch{ggplot()}@*)
   geom_histogram()                            (*@\ixch{geom\_histogram()}@*)
 \end{rcode}
-\fig{Histogram (default 30 bins, grey ggplot theme) of \rc{Ozone}: x 0--170, y count 0--17. Strongly right-skewed\ixh{skewness}: tallest bar $\approx$17 at Ozone $\approx$10--15, bars of 13 at $\approx$15--25, 10 at $\approx$35, 8 at $\approx$30 and $\approx$45, then mostly 1--6 per bin from 50 to 125, isolated bars at $\approx$130--135 and $\approx$165--170 (count 1).}
-
-If there is even one \rc{NA} value, for instance, \ixc{mean()} will report \rc{NA}. We can tell it to drop any rows with \rc{NA} and get a value instead:
+\fig{30 bins, x 0--170, count 0--17. Strongly right-skewed\ixh{skewness}: peak $\approx$17 at Ozone $\approx$10--15, 13 at $\approx$15--25, 10 at $\approx$35, 8 at $\approx$30 and $\approx$45, then 1--6 per bin from 50--125, isolated bars (1) at $\approx$130--135 and $\approx$165--170.}
+One \rc{NA} $\Rightarrow$ \ixc{mean()} returns \rc{NA}; drop them:
 \begin{rcode}
 airquality %>%
   summarise(mean(Ozone, na.rm = T))   (*@\ixch{na.rm}@*)
 \end{rcode}
 \begin{routput}
-##   mean(Ozone, na.rm = T)
 ## 1               42.12931
 \end{routput}
-
-Since only two variables have missingness, we'll take a relatively easy route and use \ix{linear imputation} to handle them. This can be incorporated in the recipe like so:
+Only two variables missing $\Rightarrow$ \ix{linear imputation} in the recipe:
 \begin{rcode}
 airquality_split <- initial_split(airquality, prop = 0.80,  (*@\ixch{initial\_split()}\ixch{prop}@*)
                                 strata = Ozone)             (*@\ixch{strata}@*)
 airquality_train <- training(airquality_split)              (*@\ixch{training()}@*)
 airquality_test <- testing(airquality_split)                (*@\ixch{testing()}@*)
-
-\end{rcode}
-{\color{figgray}\itshape [\texttt{air\_recipe} with two \texttt{step\_impute\_linear()} steps omitted (in Part I).]}
-And we can \ixc{prep()} and \ixc{bake()} the recipe to verify that it worked -- these missing values were imputed, or predicted, using the complete variables!
-\begin{rcode}
+# air_recipe (2 x step_impute_linear()) in Part I
 prep(air_recipe) %>%                     (*@\ixch{prep()}@*)
   bake(new_data = airquality_train) %>%  (*@\ixch{bake()}@*)
   kable() %>%
   kable_styling(full_width = F) %>%
   scroll_box(width = "100%", height = "200px")
 \end{rcode}
+\ixc{prep()}/\ixc{bake()} verify: missing values imputed (predicted) from the complete variables.
 \begin{routput}
 Solar.R Wind Temp Month Day Ozone
     149 12.6   74     5   3    12
@@ -309,7 +196,7 @@ Solar.R Wind Temp Month Day Ozone
     206  6.9   74     5  11     7   # Solar.R imputed
     256  9.7   69     5  12    16
     290  9.2   66     5  13    11
-# ... (121 rows in all; Ozone is now the last column) ...
+# ... (121 rows; Ozone now last column) ...
     162 14.3   56     5   5   -11   # both imputed
     194  8.6   69     5  10    37   # Ozone imputed
      66 16.6   57     5  25   -12   # Ozone imputed
@@ -318,15 +205,7 @@ Solar.R Wind Temp Month Day Ozone
     128  8.0   57     5  27    22   # both imputed
     269  4.1   84     7   1   135
 \end{routput}
-{\color{figgray}\itshape [note: the ``imputed'' comments are added here by comparing with the raw data; the knitted table has no comments. Linear imputation produced some impossible negative Ozone values ($-11$, $-12$, $-3$).]}\ixh{linear imputation}
+{\color{figgray}\itshape [``imputed'' comments added by comparison with raw data. Linear imputation gave impossible negative Ozone ($-11$, $-12$, $-3$).]}\ixh{linear imputation}
+\textbf{Activities:} fit a linear regression\ixh{linear regression}{} on the imputed data; compare with one using mean imputation\ixh{mean imputation}\ixch{step\_impute\_mean()}{} for both variables.
 
-\par\textbf{Activities}
-\begin{itemize}
-\item Fit a linear regression\ixh{linear regression}{} model using the imputed data.
-\item Compare the results of that model to a linear regression fit using mean imputation\ixh{mean imputation}\ixch{step\_impute\_mean()}{} for both variables. Discuss the similarities and differences.
-\end{itemize}
-
-\subsection{Resources}
-The free book \emph{Tidy Modeling with R} (\url{https://www.tmwr.org/}) is strongly recommended.
-
-You can view all the ISLR textbook code written with \rc{tidymodels} here (\url{https://emilhvitfeldt.github.io/ISLR-tidymodels-labs/index.html}).
+\textbf{Resources:} \emph{Tidy Modeling with R} (\url{https://www.tmwr.org/}); ISLR labs in \rc{tidymodels} (\url{https://emilhvitfeldt.github.io/ISLR-tidymodels-labs/index.html}).

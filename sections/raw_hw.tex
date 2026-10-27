@@ -1,64 +1,43 @@
 %% raw_hw.tex -- Homework 1-3: prompts (verbatim), my graded submissions (HW1, HW2), my own solutions (HW3)
-%% Deduped against Part I (d1, d2, d2b, d4, d5 "HW answers at a glance"); proofs removed.
+%% Deduped against Part I (d1, d2, d2b, d4, d5 "HW answers at a glance"); proofs removed. Compressed (c5).
 \section{Homework 1--3: prompts, my submissions, solutions}
 \ixh{homework}%
-{\color{figgray}\itshape [Parts already covered in Part I are omitted: HW1 instructions + setup chunks, Q1--Q6 (all), EDA intro, most plotting code; HW2 Abalone photo, setup chunk, Q5, Q7, Q10--Q12 (231; Q12 proof removed), most recipe/workflow/metric code and metric tables; HW3 photo, setup chunk, Q7, Q11--Q12 (231; proofs removed), model-spec/workflow code, AUC tables, confusion matrix + metrics. See d5 ``HW answers at a glance'', d2 HW2 pipeline, d2b HW3 pipeline, d4 templates.]}
+{\color{figgray}\itshape [Omitted (in Part I: d5 ``HW answers at a glance'', d2/d2b pipelines, d4 templates): HW1 setup, Q1--Q6, most plot code; HW2 setup, Q5, Q7, Q10--Q12, most recipe/workflow/metric code + tables; HW3 setup, Q7, Q11--Q12, model specs/workflows, AUC tables, confusion matrix + metrics.]}
 
-{\color{figgray}\itshape How to read: each box = one question. \textbf{Prompt.} = assignment text (verbatim);
-\textbf{\color{dblue}My answer.} = my graded submission, verbatim (HW1, HW2);
-\textbf{\color{keyc}Answer.} = correction/note (HW1, HW2) or my own worked solution, run in R 4.5.3 (HW3, not yet submitted).}
+{\color{figgray}\itshape Key: \textbf{Prompt.} = assignment (condensed); \textbf{\color{dblue}My answer.} = my graded submission (HW1, HW2); \textbf{\color{keyc}Answer.} = correction/note (HW1, HW2) or my own solution, run in R 4.5.3 (HW3, unsubmitted).}
 
 %% =====================================================================
 \subsection{Homework 1 -- ML main ideas; EDA on mpg}
 \ixch{mpg}\ixh{exploratory data analysis (EDA)}%
 \begin{qbox}{HW1 Ex1}
-\textbf{Prompt.} We are interested in highway miles per gallon, or the \ixc{hwy} variable. Create a \ix{histogram} of this variable. Describe what you see/learn.
+\textbf{Prompt.} \ix{histogram} of \ixc{hwy} (highway mpg); describe.
 \mine
-\fig{grey histogram, white bar outlines, bin width 2. x = ``Highway MPG'' (ticks 10--40), y = ``Count'' (0--40+). Bin counts (centres 12, 14, \dots, 44): 5, 12, 38, 23, 13, 14, 28, 46, 29, 11, 6, 3, 3, 0, 1, 0, 2. Two peaks: 38 cars at 15--17 mpg and the tallest bar, 46 cars, at 25--27 mpg; a few cars above 40.}
-
-The two peaks are around 16-18mpg and 24-28mpg, with a median of 24 and a mean of about 23.4. Most cars fall between 15 and 30mpg. There are a few outliers\ixh{outlier} above 40mpg.
+\fig{binwidth 2, x = Highway MPG, y = Count. Counts (centres 12, 14, \dots, 44): 5, 12, 38, 23, 13, 14, 28, 46, 29, 11, 6, 3, 3, 0, 1, 0, 2.}
+Two peaks, $\approx$16--18 and 24--28 mpg; median 24, mean $\approx$23.4. Most cars 15--30 mpg; a few outliers\ixh{outlier} $>40$.
 \end{qbox}
 
 \begin{qbox}{HW1 Ex2}
-\textbf{Prompt.} Create a \ix{scatterplot}. Put \ixc{hwy} on the x-axis and \ixc{cty} on the y-axis. Describe what you notice. Is there a relationship between \texttt{hwy} and \texttt{cty}? What does this mean?
+\textbf{Prompt.} \ix{scatterplot}, \ixc{hwy} on x, \ixc{cty} on y. Relationship? Meaning?
 \mine
-\fig{black-dot scatterplot, x = ``Highway MPG'' (12--44), y = ``City MPG'' (9--35). Points lie in a tight, straight, upward band from (12, 9) to (44, 35); they sit on a grid of whole numbers, so many cars overlap (only 78 distinct points for 234 cars).}
-
-City MPG is consistently lower than highway MPG; the fitted line has a slope of about 0.7, so each extra highway MPG goes with about 0.7 extra city MPG. Even though there are 234 cars in the data there aren't 234 dots on the chart due to rounding to the nearest whole number and multiple cars overlapping\ixh{correlation}
+\fig{tight straight upward band from (12, 9) to (44, 35); integer grid, so only 78 distinct points for 234 cars.}
+City MPG consistently $<$ highway; fitted slope $\approx$0.7 (+1 hwy mpg $\to$ +0.7 cty mpg). Fewer than 234 dots: rounding to whole numbers $\to$ overlap.\ixh{correlation}
 \end{qbox}
 
 \begin{qbox}{HW1 Ex3}
-\textbf{Prompt.} Make a \ix{bar plot} of \ixc{manufacturer}. Flip it so that the manufacturers are on the y-axis. Order the bars by height. Which manufacturer produced the most cars? Which produced the least?
+\textbf{Prompt.} Horizontal \ix{bar plot} of \ixc{manufacturer}, ordered by height. Most / fewest cars?
 \mine
 \begin{rcode}
 mpg %>% count(manufacturer, sort = TRUE)  (*@\ixch{\%>\%}\ixch{count()}@*)
 \end{rcode}
 \begin{routput}
-# A tibble: 15 x 2
-   manufacturer     n
-   <chr>        <int>
- 1 dodge           37
- 2 toyota          34
- 3 volkswagen      27
- 4 ford            25
- 5 chevrolet       19
- 6 audi            18
- 7 hyundai         14
- 8 subaru          14
- 9 nissan          13
-10 honda            9
-11 jeep             8
-12 pontiac          5
-13 land rover       4
-14 mercury          4
-15 lincoln          3
+dodge 37, toyota 34, volkswagen 27, ford 25, chevrolet 19,
+audi 18, hyundai 14, subaru 14, nissan 13, honda 9, jeep 8,
+pontiac 5, land rover 4, mercury 4, lincoln 3   # 15 rows
 \end{routput}
 \end{qbox}
 
 \begin{qbox}{HW1 Ex4}
-\textbf{Prompt.} Make a \ix{boxplot} of \ixc{hwy}, grouped by \ixc{cyl}. Use \ixc{geom\_jitter()} and the \ixc{alpha} argument to add points to the plot.
-
-Describe what you see. Is there a relationship between \texttt{hwy} and \texttt{cyl}? What do you notice?
+\textbf{Prompt.} \ix{boxplot} of \ixc{hwy} by \ixc{cyl}, add points with \ixc{geom\_jitter()} + \ixc{alpha}. Relationship?
 \mine
 \begin{rcode}
 ggplot(mpg, aes(x = factor(cyl), y = hwy)) +  (*@\ixch{factor()}@*)
@@ -66,54 +45,45 @@ ggplot(mpg, aes(x = factor(cyl), y = hwy)) +  (*@\ixch{factor()}@*)
   geom_jitter(alpha = 0.3, width = 0.2) +  (*@\ixch{geom\_jitter()}\ixch{alpha}@*)
   labs(x = "Number of Cylinders", y = "Highway MPG")
 \end{rcode}
-\fig{white boxplots of ``Highway MPG'' for x = ``Number of Cylinders'' 4, 5, 6, 8, with semi-transparent grey jittered points. 4 cyl: box 26--31, points 20--44 (three above 40); 5 cyl: only 4 cars, flat box at 28.75--29; 6 cyl: box 19--26, points 17--29; 8 cyl: box 16--19, points 12--26.}
-
-This makes sense since if cylinders are not fully utilized their efficiency goes down, and with more cylinders the chance of full utilization drops. The 4cyl group has the widest spread and includes the high-mileage outliers above 40 mpg. There aren't many cars with 5cyl so its not a reliable box. There is also some overlap between groups they're not all disjoint, like some 4cyl get worse mileage than some 8cyls, though on average cylinders are negatively correlated to mpg
-\ans (note) 4-cyl has the widest \emph{range} (20--44), but the widest \emph{box} (IQR) is 6-cyl (19--26, IQR 7 vs.\ 5 for 4-cyl). \texttt{outlier.shape = NA} hides the boxplot's own outlier dots so they are not drawn twice on top of the jittered points.
+\fig{4 cyl: box 26--31, points 20--44 (three $>40$); 5 cyl: 4 cars, box 28.75--29; 6 cyl: box 19--26, points 17--29; 8 cyl: box 16--19, points 12--26.}
+More cylinders $\to$ less chance of full utilization $\to$ lower efficiency. 4cyl widest spread, has the $>40$ outliers. 5cyl too few cars for a reliable box. Groups overlap (some 4cyl worse than some 8cyl), but on average cyl negatively correlated with mpg.
+\ans (note) 4-cyl widest \emph{range} (20--44), but widest \emph{box} (IQR) is 6-cyl (7 vs.\ 5). \texttt{outlier.shape = NA} stops outliers being drawn twice (box + jitter).
 \end{qbox}
 
 \begin{qbox}{HW1 Ex5}
-\textbf{Prompt.} Use the \ixc{corrplot} package to make a lower triangle \ix{correlation matrix} of the \texttt{mpg} dataset. (Hint: You can find information on the package here [link: \nolinkurl{cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html}].)
-
-Which variables are positively or negatively correlated with which others? Do these relationships make sense to you? Are there any that surprise you?
+\textbf{Prompt.} Lower-triangle \ix{correlation matrix} of \texttt{mpg} with \ixc{corrplot}. Which pairs $\pm$ correlated? Sensible / surprising?
 \mine
-\fig{lower-triangle corrplot of the 5 numeric variables (displ, year, cyl, cty, hwy), coefficients printed as coloured numbers (dark blue = $+1$, white = 0, dark red = $-1$; colour bar $-1$ to 1 underneath; labels in red). Values: year--displ 0.15; cyl--displ 0.93, cyl--year 0.12; cty--displ $-0.80$, cty--year $-0.04$, cty--cyl $-0.81$; hwy--displ $-0.77$, hwy--year 0.00, hwy--cyl $-0.76$, hwy--cty 0.96; diagonal 1.00.}
-
-\texttt{displ} and \texttt{cyl} are strongly positively correlated with each other, since the more cylinders you add the more volume the engine displaces on each cycle. Both mileage variables are strongly negatively correlated with both engine size variables, since more displacement means more volume (and in turn mass) that needs to be heated, increasing the fuel burn rate. The only metric that isn't correlated with mpg is the year. That one surprised me, since I expected newer cars to be more fuel efficient, the EPA had been gradually increasing efficiency requirements, but the data only covers 1999 and 2008 so there isn't much of a trend even after 9 years.\ixh{Pearson correlation}
+\fig{numeric vars, blue = $+$, red = $-$. year--displ 0.15; cyl--displ 0.93, cyl--year 0.12; cty--displ $-0.80$, cty--year $-0.04$, cty--cyl $-0.81$; hwy--displ $-0.77$, hwy--year 0.00, hwy--cyl $-0.76$, hwy--cty 0.96.}
+\texttt{displ}--\texttt{cyl} strongly $+$ (more cylinders = more volume displaced per cycle). Both mpg vars strongly $-$ with both engine-size vars (more volume/mass to heat $\to$ higher fuel burn). Year uncorrelated with mpg --- surprising (EPA tightening), but data only 1999 and 2008.\ixh{Pearson correlation}
 \end{qbox}
 
-\textbf{Prompt (231 Students Only)} --- from the 131/231 version \texttt{homework-1-1.html}; \emph{231 only, not required for 131, not in my submission}.
+{\color{figgray}\itshape [Ex6--8: 231 only, from \texttt{homework-1-1.html}; not in my submission. Answers = my recreations, checked in R.]}
 
 \begin{qbox}{HW1 Ex6 (231 only)}
-\textbf{Prompt.} USing \ixc{ggplot()}, recreate the following graphic as closely as you can. \emph{Hint: Use the \ixc{ggthemes} package.}
-
-\fig{target graphic: horizontal boxplots of x = ``Highway MPG'' (ticks 20, 30, 40) for y = ``Vehicle Class'' (bottom to top: 2seater, compact, midsize, minivan, pickup, subcompact, suv). Unfilled black boxes, outliers as solid black dots, plus grey semi-transparent jittered points. White background, light-grey horizontal and vertical grid lines, a black x-axis line along the bottom, grey sans-serif labels (a Google-Docs-like ggthemes theme). Pickup and suv lowest ($\approx$17), compact/midsize/subcompact highest ($\approx$26--27 medians), subcompact widest.}
-\ans (my recreation, checked in R)
+\textbf{Prompt.} Recreate with \ixc{ggplot()} (hint: \ixc{ggthemes}):
+\fig{horizontal boxplots, x = Highway MPG, y = Vehicle Class (2seater \dots\ suv), unfilled boxes, black outlier dots, grey jittered points, Google-Docs-style theme. Pickup, suv lowest ($\approx$17); compact/midsize/subcompact highest (medians $\approx$26--27); subcompact widest.}
+\ans
 \begin{rcode}
 ggplot(mpg, aes(x = hwy, y = class)) +
-  geom_boxplot() +
-  geom_jitter(alpha = 0.3) +
+  geom_boxplot() + geom_jitter(alpha = 0.3) +
   theme_gdocs() +  (*@\ixch{theme\_gdocs()}@*)
   labs(x = "Highway MPG", y = "Vehicle Class")
 \end{rcode}
 \end{qbox}
 
 \begin{qbox}{HW1 Ex7 (231 only)}
-\textbf{Prompt.} Recreate the following graphic.
-
-\fig{target graphic: default grey ggplot theme; side-by-side boxplots of y = \texttt{hwy} (ticks 20, 30, 40) for x = \texttt{class} (2seater, compact, midsize, minivan, pickup, subcompact, suv), boxes filled by legend ``drv'' (4 = red, f = green, r = blue). 2seater: r only ($\approx$25); compact: 4 ($\approx$25) and f ($\approx$29, outliers 37, 44); midsize: 4 ($\approx$24), f ($\approx$27); minivan: f ($\approx$23); pickup: 4 ($\approx$17); subcompact: 4 (flat at 26), f ($\approx$29, up to 44), r ($\approx$23); suv: 4 ($\approx$18, many outliers) and r ($\approx$17).}
-\ans (my recreation, checked in R)
+\textbf{Prompt.} Recreate:
+\fig{default theme; boxplots of \texttt{hwy} by \texttt{class}, fill = \texttt{drv} (4 red, f green, r blue); medians: 2seater r $\approx$25; compact 4 $\approx$25, f $\approx$29 (outliers 37, 44); midsize 4 $\approx$24, f $\approx$27; minivan f $\approx$23; pickup 4 $\approx$17; subcompact 4 26 (flat), f $\approx$29 (to 44), r $\approx$23; suv 4 $\approx$18 (many outliers), r $\approx$17.}
+\ans
 \begin{rcode}
-ggplot(mpg, aes(x = class, y = hwy, fill = drv)) +  (*@\ixch{fill}@*)
-  geom_boxplot()
+ggplot(mpg, aes(x = class, y = hwy, fill = drv)) + geom_boxplot()  (*@\ixch{fill}@*)
 \end{rcode}
 \end{qbox}
 
 \begin{qbox}{HW1 Ex8 (231 only)}
-\textbf{Prompt.} Recreate the following graphic.
-
-\fig{target graphic: default grey theme; scatterplot y = \texttt{hwy} vs.\ x = \texttt{displ} (1.6--7), points coloured by ``drv'' (4 = red, f = green, r = blue) and three blue loess curves without ribbons, one per drv, distinguished by linetype (4 = solid, decreasing from $\approx$27 to $\approx$16 then flat; f = short dashes, from $\approx$33 down to $\approx$25 then flat; r = long dashes, $\approx$25 dipping to $\approx$18 at displ 5.3 then rising to $\approx$25). One merged legend ``drv'' shows coloured point + line type.}
-\ans (my recreation, checked in R)
+\textbf{Prompt.} Recreate:
+\fig{\texttt{hwy} vs.\ \texttt{displ}, points coloured by drv; one blue loess curve per drv, no ribbon, linetype by drv, one merged legend: 4 solid, $\approx$27$\to$16 then flat; f short dash, $\approx$33$\to$25 then flat; r long dash, $\approx$25, dip to $\approx$18 at displ 5.3, back to $\approx$25.}
+\ans
 \begin{rcode}
 ggplot(mpg, aes(x = displ, y = hwy)) +
   geom_point(aes(color = drv)) +  (*@\ixch{color}@*)
@@ -124,40 +94,31 @@ ggplot(mpg, aes(x = displ, y = hwy)) +
 %% =====================================================================
 \subsection{Homework 2 -- linear regression and KNN (abalone)}
 \ixch{abalone}\ixh{linear regression}\ixh{k-nearest neighbors (KNN)}%
-\textbf{Prompt (Linear Regression and KNN).} For this assignment, we will be working with a data set from the UCI (University of California, Irvine) Machine Learning repository (see website here [link: \texttt{archive.ics.uci.edu/ml/datasets/Abalone}]). The full data set consists of $4{,}177$ observations of abalone in Tasmania. (Fun fact: Tasmania supplies about $25\%$ of the yearly world abalone harvest.)
-
-The age of an abalone is typically determined by cutting the shell open and counting the number of rings with a microscope. The purpose of this data set is to determine whether abalone age (\textbf{number of rings + 1.5}) can be accurately predicted using other, easier-to-obtain information about the abalone.
-
-Codebook (\texttt{abalone\_codebook.txt}; Name / Data Type / Measurement Unit / Description):
+\textbf{Prompt.} UCI abalone data: 4{,}177 abalone (Tasmania). Age (= \textbf{rings + 1.5}) normally needs cutting the shell and counting rings under a microscope; goal: predict age from easier measurements. Codebook:
 {\footnotesize
 \begin{tabular}{@{}l l l l@{}}
 \toprule
-Sex & nominal & -- & M, F, and I (infant)\\
-Length & continuous & mm & Longest shell measurement\\
-Diameter & continuous & mm & perpendicular to length\\
-Height & continuous & mm & with meat in shell\\
-Whole weight & continuous & grams & whole abalone\\
-Shucked weight & continuous & grams & weight of meat\\
-Viscera weight & continuous & grams & gut weight (after bleeding)\\
-Shell weight & continuous & grams & after being dried\\
-Rings & integer & -- & +1.5 gives the age in years\\
+Sex & nominal & -- & M, F, I (infant)\\
+Length & cont. & mm & longest shell measurement\\
+Diameter & cont. & mm & perpendicular to length\\
+Height & cont. & mm & with meat in shell\\
+Whole weight & cont. & g & whole abalone\\
+Shucked weight & cont. & g & weight of meat\\
+Viscera weight & cont. & g & gut weight (after bleeding)\\
+Shell weight & cont. & g & after being dried\\
+Rings & integer & -- & +1.5 = age in years\\
 \bottomrule
 \end{tabular}}
-
-{\color{figgray}\itshape [note: in \texttt{abalone.csv} the columns are named \ixc{type}, \ixc{longest\_shell}, \ixc{diameter}, \ixc{height}, \ixc{whole\_weight}, \ixc{shucked\_weight}, \ixc{viscera\_weight}, \ixc{shell\_weight}, \ixc{rings}.]}
+{\color{figgray}\itshape [CSV names: \ixc{type}, \ixc{longest\_shell}, \ixc{diameter}, \ixc{height}, \ixc{whole\_weight}, \ixc{shucked\_weight}, \ixc{viscera\_weight}, \ixc{shell\_weight}, \ixc{rings}.]}
 
 \begin{qbox}{HW2 Q1}
-\textbf{Prompt.} Your goal is to predict abalone age, which is calculated as the number of rings plus 1.5. Notice there currently is no \ixc{age} variable in the data set. Add \texttt{age} to the data set.
-
-Assess and describe the distribution of \texttt{age}.
+\textbf{Prompt.} Add \ixc{age} (= rings + 1.5); describe its distribution.
 \mine
 \begin{rcode}
 head(abalone)  (*@\ixch{head()}@*)
 \end{rcode}
 \begin{lstlisting}[style=cs/rout,basicstyle=\ttfamily\scriptsize]
-# A tibble: 6 x 10
   type  longest_shell diameter height whole_weight shucked_weight viscera_weight
-  <fct>         <dbl>    <dbl>  <dbl>        <dbl>          <dbl>          <dbl>
 1 M             0.455    0.365  0.095        0.514         0.224          0.101
 2 M             0.35     0.265  0.09         0.226         0.0995         0.0485
 3 F             0.53     0.42   0.135        0.677         0.256          0.142
@@ -167,47 +128,32 @@ head(abalone)  (*@\ixch{head()}@*)
 # i 3 more variables: shell_weight <dbl>, rings <dbl>, age <dbl>
 \end{lstlisting}
 \begin{rcode}
-abalone %>%
-  summarise(n = n(),  (*@\ixch{summarise()}\ixch{n()}@*)
-            mean = mean(age),
-            median = median(age),
-            sd = sd(age),
-            min = min(age),
-            q1 = quantile(age, 0.25),  (*@\ixch{quantile()}@*)
-            q3 = quantile(age, 0.75),
-            max = max(age))
+abalone %>% summarise(n = n(), mean = mean(age), median = median(age),  (*@\ixch{summarise()}\ixch{n()}@*)
+  sd = sd(age), min = min(age), q1 = quantile(age, 0.25),  (*@\ixch{quantile()}@*)
+  q3 = quantile(age, 0.75), max = max(age))
 \end{rcode}
 \begin{routput}
-# A tibble: 1 x 8
       n  mean median    sd   min    q1    q3   max
-  <int> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 1  4177  11.4   10.5  3.22   2.5   9.5  12.5  30.5
 \end{routput}
-\fig{``Distribution of Abalone Age'': steel-blue histogram, bin width 1, x = ``Age (years)'' (2.5--30.5), y = ``Count'' (0--$\approx$690). Unimodal, peak $\approx$690 at age 10.5 (next 11.5 $\approx$630, 9.5 $\approx$570, 12.5 $\approx$490), long thin right tail; bars barely visible beyond 24.}
-\fig{``Boxplot of Abalone Age'': one horizontal steel-blue box, x = ``Age (years)''; box 9.5--12.5, median 10.5, whiskers 5.5--16.5; outlier dots at 2.5--4.5 on the left and many from 17.5 to 30.5 on the right (meaningless y-axis $-0.4$ to 0.4).}
-
-The max is almost 3 times the median, but the 25th and 75th percentiles are only 3 years apart meaning the data is tightly bound around the median.
-\ans (check) Correct: \texttt{boxplot.stats()} flags 278 of 4177 = 6.66\% of ages as outliers (outside 9.5 $-$ 1.5$\cdot$3 = 5 and 12.5 + 1.5$\cdot$3 = 17).
+\fig{histogram (binwidth 1): unimodal, peak $\approx$690 at 10.5 (11.5 $\approx$630, 9.5 $\approx$570, 12.5 $\approx$490), long thin right tail to 30.5 (bars barely visible $>24$). Boxplot: box 9.5--12.5, median 10.5, whiskers 5.5--16.5, outliers 2.5--4.5 and 17.5--30.5.}
+Max $\approx3\times$ median, but IQR only 3 years $\to$ tightly bound around median.
+\ans (check) Correct: \texttt{boxplot.stats()} flags 278/4177 = 6.66\% as outliers (outside $9.5-1.5\cdot3=5$, $12.5+1.5\cdot3=17$).
 \end{qbox}
 
 \begin{qbox}{HW2 Q2}
-\textbf{Prompt.} Split the abalone data into a training set and a testing set. Use \ix{stratified sampling}. You should decide on appropriate percentages for splitting the data.
-\mine I chose an 85/15 split since when I took a course on machine learning from Andrew Ng, \emph{I think} he said 85/15 was the split he uses. 629 test rows is perfectly acceptable and the model should train well on 3548 rows.\ixh{training/testing split}\ixh{data splitting}
+\textbf{Prompt.} Train/test split with \ix{stratified sampling}; choose proportions.
+\mine 85/15 (Andrew Ng's split, I think): 3548 train rows, 629 test rows --- both adequate.\ixh{training/testing split}\ixh{data splitting}
 \end{qbox}
 
 \begin{qbox}{HW2 Q3}
-\textbf{Prompt.} Using the \textbf{training} data, create a recipe predicting the outcome variable, \texttt{age}, with all other predictor variables. Note that you \textbf{should not} include \ixc{rings} to predict \texttt{age}. \emph{Explain why you shouldn't use \texttt{rings} to predict \texttt{age}.}
+\textbf{Prompt.} Recipe on \textbf{training} data: \texttt{age} \textasciitilde{} all predictors \textbf{except} \ixc{rings}. \emph{Why not use \texttt{rings}?}
 \mine
 \begin{rcode}
-abalone_recipe %>%
-  prep() %>%  (*@\ixch{prep()}@*)
-  bake(new_data = NULL) %>%  (*@\ixch{bake()}\ixch{new\_data}@*)
-  head()
+abalone_recipe %>% prep() %>% bake(new_data = NULL) %>% head()  (*@\ixch{prep()}\ixch{bake()}\ixch{new\_data}@*)
 \end{rcode}
 \begin{lstlisting}[style=cs/rout,basicstyle=\ttfamily\scriptsize]
-# A tibble: 6 x 14
   longest_shell diameter height whole_weight shucked_weight viscera_weight
-          <dbl>    <dbl>  <dbl>        <dbl>          <dbl>          <dbl>
 1        -1.62    -1.54  -1.41        -1.27          -1.22          -1.29
 2        -0.828   -1.09  -1.05        -0.975         -0.985         -0.943
 3        -1.41    -1.29  -1.29        -1.10          -1.19          -1.29
@@ -218,34 +164,19 @@ abalone_recipe %>%
 #   type_M <dbl>, type_I_x_shucked_weight <dbl>, type_M_x_shucked_weight <dbl>,
 #   longest_shell_x_diameter <dbl>, shucked_weight_x_shell_weight <dbl>
 \end{lstlisting}
-\ans (note) The key term is \ix{target leakage}: \texttt{age} $=$ \texttt{rings} $+ 1.5$ exactly, so a model with \texttt{rings} fits perfectly ($R^2=1$) and tells us nothing; and \texttt{rings} is exactly the hard-to-obtain measurement we want to avoid.
+\ans (note) \ix{target leakage}: \texttt{age} $=$ \texttt{rings} $+1.5$ exactly $\to$ perfect fit ($R^2=1$), uninformative; and \texttt{rings} is the hard-to-obtain measurement we want to avoid.
 \end{qbox}
 
 \begin{qbox}{HW2 Q4}
-\textbf{Prompt.} Create and store a linear regression object using the \texttt{"lm"} engine.
-\mine
-\begin{routput}
-Linear Regression Model Specification (regression)
-
-Computational engine: lm
-\end{routput}
+\textbf{Prompt.} Linear regression object, \texttt{"lm"} engine.
+\mine \texttt{Linear Regression Model Specification (regression) / Computational engine: lm}
 \end{qbox}
 
 \begin{qbox}{HW2 Q6}
-\textbf{Prompt.} Now, for each of these models (linear regression and \ix{KNN}):
-\begin{enumerate}
-\item set up an empty workflow,
-\item add the model, and
-\item add the recipe that you created in Question 3.
-\end{enumerate}
-Note that you should be setting up two separate workflows.
-
-Fit both models to the training set.
+\textbf{Prompt.} For LM and \ix{KNN}: two separate workflows (empty workflow $\to$ add model $\to$ add Q3 recipe); fit both to training.
 \mine (\texttt{lm\_fit \%>\% extract\_fit\_parsnip() \%>\% tidy()}, then \texttt{knn\_fit}):
 \begin{routput}
-# A tibble: 14 x 5
    term                       estimate std.error statistic  p.value
-   <chr>                         <dbl>     <dbl>     <dbl>    <dbl>
  1 (Intercept)                  11.5      0.0367   312.    0
  2 longest_shell                 0.466    0.281      1.66  9.67e- 2
  3 diameter                      2.20     0.308      7.16  1.00e-12
@@ -261,14 +192,10 @@ Fit both models to the training set.
 13 longest_shell_x_diameter     -2.79     0.394     -7.06  1.94e-12
 14 shucked_weight_x_shell_weight -0.149   0.201     -0.742 4.58e- 1
 \end{routput}
-{\color{figgray}\itshape [note: term column shortened by 3 spaces to fit; values unchanged.]}\ixh{coefficient}\ixh{p-value}\ixh{standard error}\ixh{t-statistic}
+\ixh{coefficient}\ixh{p-value}\ixh{standard error}\ixh{t-statistic}%
 \begin{routput}
--- Model -----------------------------------------------
-
-Call:
 kknn::train.kknn(formula = ..y ~ ., data = data,
   ks = min_rows(7, data, 5))
-
 Type of response variable: continuous
 minimal mean absolute error: 1.654218
 Minimal mean squared error: 5.598762
@@ -278,14 +205,8 @@ Best k: 7
 \end{qbox}
 
 \begin{qbox}{HW2 Q8}
-\textbf{Prompt.} Now you want to assess your models' performance. To do this, use the \ixc{yardstick} package:
-\begin{enumerate}
-\item Create a metric set that includes \emph{R\textsuperscript{2}}, RMSE (root mean squared error), and MAE (mean absolute error).\ixh{R-squared}\ixh{RMSE}\ixh{MAE}
-\item Use \ixc{augment()} to create a tibble of your model's predicted values from the \textbf{testing data} along with the actual observed ages (these are needed to assess your model's performance).
-\item Finally, apply your metric set to the tibble, report the results, and interpret the \emph{R\textbackslash\textasciicircum{}2} value.
-\end{enumerate}
-Repeat these steps once for the linear regression model and for the KNN model.
-\mine (\texttt{head()} of \texttt{augment(...) \%>\% select(age, .pred)}, LM then KNN):
+\textbf{Prompt.} With \ixc{yardstick}, for LM and KNN: metric set of $R^2$, RMSE, MAE;\ixh{R-squared}\ixh{RMSE}\ixh{MAE} \ixc{augment()} on \textbf{testing} data (predictions + observed age); apply metrics, report, interpret $R^2$.
+\mine (\texttt{head()} of \texttt{augment(...) \%>\% select(age, .pred)}, LM and KNN side by side):
 \begin{routput}
     age .pred(LM) .pred(KNN)
 1   8.5  9.51      9.31
@@ -295,12 +216,11 @@ Repeat these steps once for the linear regression model and for the KNN model.
 5  12.5  9.91      8.68
 6  13.5 12.0      11.7
 \end{routput}
-{\color{figgray}\itshape [note: the two 6-row tibbles printed side by side to save space.]}
-\fig{``Predicted vs.\ Observed Age (Testing Data)'': two square facets, ``KNN (k = 7)'' (left) and ``Linear Regression'' (right); x = ``Observed Age'', y = ``Predicted Age'' (both $\approx$4--23), semi-transparent black points in vertical stripes (ages are whole numbers + 0.5), red dashed 45$^\circ$ line $y=x$. Both clouds follow the line for young abalone but fall below it for old ones (predictions too low above age $\approx$15); the KNN cloud is more spread out.}
+\fig{Predicted vs.\ observed test age (4--23), facets KNN (k = 7) and LM, red dashed $y=x$: both follow the line for young abalone, fall below it (under-predict) above age $\approx$15; KNN more spread.}
 \end{qbox}
 
 \begin{qbox}{HW2 Q9}
-\textbf{Prompt.} Which model performed better on the testing data? Explain why you think this might be. Are you surprised by any of your results? Why or why not?\ixh{model comparison}
+\textbf{Prompt.} Which model did better on testing? Why? Surprised?\ixh{model comparison}
 \mine
 \begin{rcode}
 bind_rows(
@@ -311,18 +231,14 @@ bind_rows(
   augment(lm_fit, new_data = abalone_train) %>%
     abalone_metrics(truth = age, estimate = .pred) %>%
     mutate(model = "Linear Regression", data = "Training"),
-  augment(knn_fit, new_data = abalone_train) %>%
-    abalone_metrics(truth = age, estimate = .pred) %>%
-    mutate(model = "KNN (k = 7)", data = "Training")
+  augment(knn_fit, new_data = abalone_train) %>% ...  # same, "KNN (k = 7)"
 ) %>%
   select(model, data, .metric, .estimate) %>%  (*@\ixch{.estimate}@*)
   pivot_wider(names_from = .metric, values_from = .estimate) %>%  (*@\ixch{pivot\_wider()}@*)
   arrange(data, model)  (*@\ixch{arrange()}@*)
 \end{rcode}
 \begin{routput}
-# A tibble: 4 x 5
   model             data       rsq  rmse   mae
-  <chr>             <chr>    <dbl> <dbl> <dbl>
 1 KNN (k = 7)       Testing  0.483  2.21  1.62
 2 Linear Regression Testing  0.585  1.95  1.44
 3 KNN (k = 7)       Training 0.811  1.46  1.02
@@ -333,61 +249,37 @@ bind_rows(
 %% =====================================================================
 \subsection{Homework 3 -- binary classification (Titanic)}
 \ixch{titanic}\ixh{classification}\ixh{logistic regression}\ixh{linear discriminant analysis (LDA)}\ixh{quadratic discriminant analysis (QDA)}%
-\textbf{Prompt (Binary Classification).} For this assignment, we will be working with part of a Kaggle data set [link: \texttt{kaggle.com/c/titanic/overview}] that was the subject of a machine learning competition and is often used for practicing ML models. The goal is classification; specifically, to predict which passengers would survive the Titanic shipwreck.
-
-Codebook (\texttt{titanic\_codebook.txt}):\par\noindent
+\textbf{Prompt.} Part of the Kaggle Titanic data; predict which passengers survived. Codebook:\par\noindent
 {\footnotesize
 \begin{tabular}{@{}l p{0.78\linewidth}@{}}
-survival: & Survival\\
-pclass: & Ticket class \quad 1 = 1st, 2 = 2nd, 3 = 3rd\\
-sex: & Sex\\
-Age: & Age in years\\
-sibsp: & \# of siblings / spouses aboard the Titanic\\
-parch: & \# of parents / children aboard the Titanic\\
-ticket: & Ticket number\\
-fare: & Passenger fare\\
-cabin: & Cabin number\\
-embarked: & Port of Embarkation \quad C = Cherbourg, Q = Queenstown,\\
- & S = Southampton\\
+survival / sex / Age: & Survival / Sex / Age in years\\
+pclass: & Ticket class: 1 = 1st, 2 = 2nd, 3 = 3rd\\
+sibsp / parch: & \# siblings+spouses / parents+children aboard\\
+ticket / fare / cabin: & Ticket number / Passenger fare / Cabin number\\
+embarked: & Port: C = Cherbourg, Q = Queenstown, S = Southampton\\
 \end{tabular}}
-
-{\color{figgray}\itshape [note: CSV columns: \ixc{passenger\_id}, \texttt{survived} (Yes/No), \texttt{pclass}, \texttt{name}, \ixc{sex}, \ixc{age}, \ixc{sib\_sp}, \ixc{parch}, \texttt{ticket}, \ixc{fare}, \ixc{cabin}, \ixc{embarked}; 891 rows. My solutions use \texttt{set.seed(3435)}.]}
+{\color{figgray}\itshape [CSV: \ixc{passenger\_id}, \texttt{survived} (Yes/No), \texttt{pclass}, \texttt{name}, \ixc{sex}, \ixc{age}, \ixc{sib\_sp}, \ixc{parch}, \texttt{ticket}, \ixc{fare}, \ixc{cabin}, \ixc{embarked}; 891 rows. \texttt{set.seed(3435)}.]}
 
 \begin{qbox}{HW3 Q1}
-\textbf{Prompt.} Split the data, stratifying on the outcome variable, \texttt{survived.} You should choose the proportions to split the data into. Verify that the training and testing data sets have the appropriate number of observations. Take a look at the training data and note any potential issues, such as missing data.
-
-Why is it a good idea to use stratified sampling for this data?\ixh{stratified sampling}\ixh{training/testing split}
+\textbf{Prompt.} Split, stratified on \texttt{survived}; verify row counts; note issues (e.g.\ missing data) in training. Why stratify here?\ixh{stratified sampling}\ixh{training/testing split}
 \begin{rcode}
 colSums(is.na(titanic_train))  (*@\ixch{is.na()}\ixch{colSums()}@*)
 \end{rcode}
-\ans Issues in the training data: \ix{missing data} --- \texttt{age} is missing for 128 of 623 (20.5\%; handled by \ixc{step\_impute\_linear()} in Q4), \texttt{cabin} for 481 (77\%, too sparse to use), \texttt{embarked} for 2. \texttt{fare} is right-skewed (max 512).
+\ans \ix{missing data}: \texttt{age} 128/623 (20.5\%; \ixc{step\_impute\_linear()} in Q4), \texttt{cabin} 481 (77\%, too sparse), \texttt{embarked} 2. \texttt{fare} right-skewed (max 512).
 \end{qbox}
 
 \begin{qbox}{HW3 Q2}
-\textbf{Prompt.} Using the \textbf{training} data set, explore/describe the distribution of the outcome variable \texttt{survived}.
-
-Create a percent stacked bar chart [link: \nolinkurl{r-graph-gallery.com/48-grouped-barplot-with-ggplot2}] (recommend using \texttt{ggplot}) with \texttt{survived} on the \emph{x}-axis and \texttt{fill = sex}. Do you think \texttt{sex} will be a good predictor of the outcome?
-
-Create one more percent stacked bar chart of \texttt{survived}, this time with \texttt{fill = pclass}. Do you think passenger class will be a good predictor of the outcome?
-
-Why do you think it might be more useful to use a percent stacked bar chart as opposed to a traditional stacked bar chart?\ixh{percent stacked bar chart}\ixh{bar plot}
+\textbf{Prompt.} Describe distribution of \texttt{survived} (training). Percent stacked bar charts of \texttt{survived} (x) with \texttt{fill = sex}, then \texttt{fill = pclass}: good predictors? Why percent stacked vs.\ traditional stacked?\ixh{percent stacked bar chart}\ixh{bar plot}
 \begin{rcode}
 titanic_train %>% count(survived) %>% mutate(prop = n / sum(n))  (*@\ixch{count()}\ixch{mutate()}@*)
 titanic_test %>% count(survived) %>% mutate(prop = n / sum(n))
 \end{rcode}
 \begin{routput}
-# A tibble: 2 x 3
-  survived     n  prop
-  <fct>    <int> <dbl>
-1 Yes        239 0.384
-2 No         384 0.616
-# A tibble: 2 x 3
-  survived     n  prop
-  <fct>    <int> <dbl>
-1 Yes        103 0.384
-2 No         165 0.616
+  survived  n  prop       survived  n  prop   # train | test
+1 Yes     239 0.384     1 Yes     103 0.384
+2 No      384 0.616     2 No      165 0.616
 \end{routput}
-Numbers behind the charts (row \% within each bar), plus survival rate per group:
+Chart numbers (\% within each bar) + survival rate per group (same code with \texttt{pclass}):
 \begin{rcode}
 titanic_train %>% count(survived, sex) %>%
   group_by(survived) %>% mutate(prop = n / sum(n))  (*@\ixch{group\_by()}@*)
@@ -408,11 +300,10 @@ titanic_train %>% group_by(sex) %>%
 5 No       2         67 0.174
 6 No       3        260 0.677
 \end{routput}
-{\color{figgray}\itshape [note: four tibbles printed side by side to save space; same code with \texttt{pclass} for the second pair. The two percent stacked bar charts show exactly these \texttt{prop} values.]}
 \end{qbox}
 
 \begin{qbox}{HW3 Q3}
-\textbf{Prompt.} Using the \textbf{training} data set, create a \ix{correlation matrix} of all continuous variables. Visualize the matrix and describe any patterns you see. Are any predictors correlated with each other? Which ones, and in which direction?
+\textbf{Prompt.} \ix{correlation matrix} of all continuous variables (training); visualize; which predictors correlated, which direction?
 \begin{rcode}
 cor_titanic <- titanic_train %>%
   select(age, sib_sp, parch, fare) %>%  (*@\ixch{select()}@*)
@@ -427,18 +318,11 @@ sib_sp -0.327  1.000  0.433 0.145
 parch  -0.173  0.433  1.000 0.254
 fare    0.113  0.145  0.254 1.000
 \end{routput}
-\ans Continuous variables: \texttt{age}, \texttt{sib\_sp}, \texttt{parch}, \texttt{fare} (\texttt{passenger\_id} is an ID; \texttt{pclass} is now a factor). Patterns (\ix{Pearson correlation}): \texttt{sib\_sp}--\texttt{parch} \textbf{positive} (0.43: families travel together); \texttt{age}--\texttt{sib\_sp} \textbf{negative} ($-0.33$: children travel with siblings), \texttt{age}--\texttt{parch} weakly negative ($-0.17$); \texttt{fare} weakly positive with \texttt{parch} (0.25) and \texttt{sib\_sp} (0.15) (fare is per ticket, families share a ticket) and with \texttt{age} (0.11).
+\ans (\texttt{passenger\_id} = ID, \texttt{pclass} = factor, so excluded.) \ix{Pearson correlation}: \texttt{sib\_sp}--\texttt{parch} $+$ (0.43, families travel together); \texttt{age}--\texttt{sib\_sp} $-$ ($-0.33$, children travel with siblings); \texttt{age}--\texttt{parch} weak $-$; \texttt{fare} weak $+$ with \texttt{parch}, \texttt{sib\_sp} (fare is per ticket, families share one) and \texttt{age}.
 \end{qbox}
 
 \begin{qbox}{HW3 Q4}
-\textbf{Prompt.} Using the \textbf{training} data, create a recipe predicting the outcome variable \texttt{survived}. Include the following predictors: ticket class, sex, age, number of siblings or spouses aboard, number of parents or children aboard, and passenger fare.
-
-Recall that there were missing values for \texttt{age}. To deal with this, add an imputation step using \ixc{step\_impute\_linear()}. Next, use \ixc{step\_dummy()} to \textbf{dummy} encode categorical predictors. Finally, include interactions between:\ixh{imputation}\ixh{linear imputation}\ixh{dummy variable}
-\begin{itemize}
-\item Sex and passenger fare, and
-\item Age and passenger fare.
-\end{itemize}
-You'll need to investigate the \texttt{tidymodels} documentation to find the appropriate step functions to use.\ixh{interaction term}
+\textbf{Prompt.} Recipe (training) for \texttt{survived} from pclass, sex, age, sib\_sp, parch, fare; impute \texttt{age} with \ixc{step\_impute\_linear()}; \textbf{dummy} encode categoricals with \ixc{step\_dummy()}; interactions sex:fare and age:fare (find the step in tidymodels docs).\ixh{imputation}\ixh{linear imputation}\ixh{dummy variable}\ixh{interaction term}
 \begin{rcode}
 titanic_recipe <- recipe(survived ~ pclass + sex + age + sib_sp +  (*@\ixch{recipe()}@*)
                            parch + fare, data = titanic_train) %>%
@@ -447,48 +331,30 @@ titanic_recipe <- recipe(survived ~ pclass + sex + age + sib_sp +  (*@\ixch{reci
                                             parch, fare)) %>%
   step_dummy(all_nominal_predictors()) %>%  (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}@*)
   step_interact(terms = ~ starts_with("sex"):fare + age:fare)  (*@\ixch{step\_interact()}\ixch{starts\_with()}@*)
-titanic_recipe
 baked <- titanic_recipe %>% prep() %>% bake(new_data = NULL)  (*@\ixch{prep()}\ixch{bake()}@*)
-baked
-sum(is.na(baked$age))
+baked; sum(is.na(baked$age))
 \end{rcode}
 \begin{routput}
--- Recipe ----------------------------------------------
--- Inputs
-Number of variables by role
-outcome:   1
-predictor: 6
--- Operations
-* Linear regression imputation for: age
-* Dummy variables from: all_nominal_predictors()
-* Interactions with: starts_with("sex"):fare + age:fare
 # A tibble: 623 x 10
      age sib_sp parch   fare survived pclass_X2 pclass_X3 sex_male
-   <dbl>  <dbl> <dbl>  <dbl> <fct>        <dbl>     <dbl>    <dbl>
  1    22      1     0   7.25 No               0         1        1
  2    35      0     0   8.05 No               0         1        1
  3    54      0     0  51.9  No               0         0        1
  4     2      3     1  21.1  No               0         1        1
  5    39      1     5  31.3  No               0         1        1
  6    14      0     0   7.85 No               0         1        0
- 7     2      4     1  29.1  No               0         1        1
- 8    31      1     0  18    No               0         1        0
- 9     8      3     1  21.1  No               0         1        0
-10    19      3     2 263    No               0         0        1
-# i 613 more rows
+# ... (4 more rows shown in R)
 # i 2 more variables: sex_male_x_fare <dbl>, fare_x_age <dbl>
 [1] 0
 \end{routput}
-\ans Imputation = a linear model of \texttt{age} on the other five predictors, fit on training rows with \texttt{age} observed. \ixc{step\_dummy()} renames \texttt{sex} $\to$ \ixc{sex\_male} (female = \ix{reference level}) and \texttt{pclass} $\to$ \ixc{pclass\_X2}, \ixc{pclass\_X3} (class 1 = reference). Result: 9 predictors, no missing \texttt{age}.
+\ans Imputation = linear model of \texttt{age} on the other 5 predictors (training rows with age observed). \ixc{step\_dummy()}: \texttt{sex} $\to$ \ixc{sex\_male} (female = \ix{reference level}); \texttt{pclass} $\to$ \ixc{pclass\_X2}, \ixc{pclass\_X3} (class 1 = reference). 1 outcome, 6 inputs $\to$ 9 predictors, no missing age.
 \end{qbox}
 
 \begin{qbox}{HW3 Q5}
-\textbf{Prompt.} Specify a \textbf{\ix{logistic regression}} model for classification using the \texttt{"glm"} engine. Then create a workflow. Add your model and the appropriate recipe. Finally, use \texttt{fit()} to apply your workflow to the \textbf{training} data.
+\textbf{Prompt.} \textbf{\ix{logistic regression}}, \texttt{"glm"} engine; workflow + recipe; \texttt{fit()} on training.
 \ans (\texttt{log\_fit \%>\% extract\_fit\_parsnip() \%>\% tidy()}):
 \begin{routput}
-# A tibble: 10 x 5
    term             estimate std.error statistic  p.value
-   <chr>               <dbl>     <dbl>     <dbl>    <dbl>
  1 (Intercept)     -4.40      0.683       -6.45  1.13e-10
  2 age              0.0629    0.0136       4.62  3.77e- 6
  3 sib_sp           0.437     0.132        3.30  9.52e- 4
@@ -500,20 +366,17 @@ predictor: 6
  9 sex_male_x_fare  0.0139    0.00836      1.66  9.65e- 2
 10 fare_x_age      -0.000360  0.000206    -1.75  8.03e- 2
 \end{routput}
-Because ``Yes'' is the first level, \texttt{glm} models $P(\texttt{survived} = \text{``No''})$, so these \ix{log odds} are of \emph{dying}: \texttt{sex\_male} $= +2.15$ means a male's odds of not surviving are $e^{2.15}\approx 8.6$ times a female's (at \texttt{fare} = 0, others fixed); \texttt{pclass\_X3} $= +2.44$: 3rd class $\approx e^{2.44}\approx 11.5\times$ the odds of dying vs.\ 1st class; \texttt{age} $+0.063$/year. Significant (\ix{p-value} $<0.05$): age, sib\_sp, pclass, sex; the two interactions are borderline ($p\approx0.08$--$0.10$).\ixh{coefficient}\ixh{odds ratio}
+``Yes'' is the first level $\to$ \texttt{glm} models $P(\text{``No''})$: \ix{log odds} of \emph{dying}. \texttt{sex\_male} $+2.15$: male odds of dying $e^{2.15}\approx8.6\times$ female's (at \texttt{fare} = 0, others fixed); \texttt{pclass\_X3} $+2.44$: $e^{2.44}\approx11.5\times$ vs.\ 1st class; \texttt{age} $+0.063$/yr. Significant (\ix{p-value} $<0.05$): age, sib\_sp, pclass, sex; interactions borderline ($p\approx0.08$--$0.10$).\ixh{coefficient}\ixh{odds ratio}
 \end{qbox}
 
 \begin{qbox}{HW3 Q6}
-\textbf{Prompt.} \textbf{Repeat Question 5}, but this time specify a \ix{linear discriminant analysis (LDA)} model for classification using the \texttt{"MASS"} engine.
-\ans (\texttt{lda\_fit}, model part):
+\textbf{Prompt.} Repeat Q5 with \ix{linear discriminant analysis (LDA)}, \texttt{"MASS"} engine.
+\ans (\texttt{lda\_fit}; group means re-wrapped):
 \begin{routput}
-Call:
 lda(..y ~ ., data = data)
-
 Prior probabilities of groups:
       Yes        No
 0.3836276 0.6163724
-
 Group means:
          age    sib_sp     parch     fare pclass_X2 pclass_X3
 Yes 28.74378 0.4393305 0.4267782 48.81424 0.2552301 0.3389121
@@ -521,25 +384,17 @@ No  29.64519 0.5807292 0.3463542 22.99299 0.1744792 0.6770833
      sex_male sex_male_x_fare fare_x_age
 Yes 0.3472803        12.91229   1568.232
 No  0.8489583        19.63018    703.509
-
-Coefficients of linear discriminants:
-                          LD1
-age              0.0358259965
-sib_sp           0.2231961671
-parch            0.0876726369
-fare             0.0032525962
-pclass_X2        0.8724616082
-pclass_X3        1.6983328837
-sex_male         1.9274805785
-sex_male_x_fare  0.0020072010
-fare_x_age      -0.0001487374
+Coefficients of linear discriminants (LD1):
+age 0.0358259965     sib_sp 0.2231961671   parch 0.0876726369
+fare 0.0032525962    pclass_X2 0.8724616082
+pclass_X3 1.6983328837   sex_male 1.9274805785
+sex_male_x_fare 0.0020072010   fare_x_age -0.0001487374
 \end{routput}
-{\color{figgray}\itshape [note: the group-means table was printed 9 columns wide in R; re-wrapped here into two blocks.]}
-Group means show survivors paid more (mean fare 48.8 vs.\ 23.0), were less often male (0.35 vs.\ 0.85) and less often 3rd class (0.34 vs.\ 0.68). \texttt{LD1}: positive weights on sex\_male, pclass\_X3 point toward ``No''.\ixh{discriminant function}\ixh{prior probability}
+Survivors paid more (48.8 vs.\ 23.0), less often male (0.35 vs.\ 0.85), less often 3rd class (0.34 vs.\ 0.68). LD1: positive weights on sex\_male, pclass\_X3 point toward ``No''.\ixh{discriminant function}\ixh{prior probability}
 \end{qbox}
 
 \begin{qbox}{HW3 Q8}
-\textbf{Prompt.} \textbf{Repeat Question 5}, but this time specify a \emph{k}-nearest neighbors\ixh{k-nearest neighbors (KNN)} model for classification using the \texttt{"kknn"} engine. Choose a value for \emph{k} to try.
+\textbf{Prompt.} Repeat Q5 with \emph{k}-nearest neighbors\ixh{k-nearest neighbors (KNN)}, \texttt{"kknn"} engine; choose \emph{k}.
 \ans $k = 10$; \texttt{knn\_fit \%>\% extract\_fit\_parsnip()}:
 \begin{routput}
 Type of response variable: nominal
@@ -547,18 +402,14 @@ Minimal misclassification: 0.1990369
 Best kernel: optimal
 Best k: 10
 \end{routput}
-($\approx$80\% leave-one-out accuracy on training.) Note: \ix{KNN} is distance-based, so predictors should be on comparable scales; the Q4 recipe has no \ixc{step\_normalize()}, but \texttt{kknn} standardizes predictors internally by default (\texttt{scale = TRUE}), so \texttt{fare} does not dominate the \ix{Euclidean distance}.\ixh{standardization}
+($\approx$80\% leave-one-out training accuracy.) \ix{KNN} is distance-based, needs comparable scales; recipe has no \ixc{step\_normalize()}, but \texttt{kknn} standardizes internally (\texttt{scale = TRUE} default), so \texttt{fare} does not dominate the \ix{Euclidean distance}.\ixh{standardization}
 \end{qbox}
 
 \begin{qbox}{HW3 Q9}
-\textbf{Prompt.} Now you've fit four different models to your training data.
-
-Use \ixc{predict()} and \ixc{bind\_cols()} to generate predictions using each of these 4 models and your \textbf{training} data. Then use the metric of \textbf{area under the ROC curve} to assess the performance of each of the four models.\ixh{AUC}\ixh{ROC curve}
+\textbf{Prompt.} With \ixc{predict()} + \ixc{bind\_cols()}, predict all 4 models on \textbf{training} data; assess by \textbf{area under the ROC curve}.\ixh{AUC}\ixh{ROC curve}
 \ans \texttt{head(log\_train)} (\texttt{predict(..., type = "prob")} + \texttt{bind\_cols(survived)}):
 \begin{routput}
-# A tibble: 6 x 3
   .pred_Yes .pred_No survived
-      <dbl>    <dbl> <fct>
 1    0.114     0.886 No
 2    0.0835    0.916 No
 3    0.310     0.690 No
@@ -566,22 +417,11 @@ Use \ixc{predict()} and \ixc{bind\_cols()} to generate predictions using each of
 5    0.0219    0.978 No
 6    0.755     0.245 No
 \end{routput}
-Extra (training accuracy, \texttt{predict()} default \texttt{type = "class"} $\to$ \ixc{.pred\_class}, then \ixc{accuracy()}):
-\begin{routput}
-  model    .metric  .estimator .estimate
-1 Logistic accuracy binary         0.814
-2 LDA      accuracy binary         0.793
-3 QDA      accuracy binary         0.778
-4 KNN      accuracy binary         0.891
-\end{routput}
+Extra: training accuracy (default \texttt{type = "class"} $\to$ \ixc{.pred\_class}, \ixc{accuracy()}): Logistic 0.814, LDA 0.793, QDA 0.778, KNN 0.891.
 \end{qbox}
 
 \begin{qbox}{HW3 Q10}
-\textbf{Prompt.} Fit all four models to your \textbf{testing} data and report the AUC of each model on the \textbf{testing} data. Which model achieved the highest AUC on the \textbf{testing} data?
-
-Using your top-performing model, create a \ix{confusion matrix} and visualize it. Create a plot of its ROC curve.
-
-How did your best model perform? Compare its \textbf{training} and \textbf{testing} AUC values. If the values differ, why do you think this is so?\ixh{model evaluation}\ixh{testing data}
+\textbf{Prompt.} Report each model's \textbf{testing} AUC; which is highest? For the best model: \ix{confusion matrix} (+ visualize) and ROC curve plot. Compare its training vs.\ testing AUC; why different?\ixh{model evaluation}\ixh{testing data}
 \begin{rcode}
 test_pred <- function(f) predict(f, titanic_test, type = "prob") %>%
   bind_cols(predict(f, titanic_test)) %>%
@@ -589,8 +429,8 @@ test_pred <- function(f) predict(f, titanic_test, type = "prob") %>%
 log_test <- test_pred(log_fit); lda_test <- test_pred(lda_fit)
 qda_test <- test_pred(qda_fit); knn_test <- test_pred(knn_fit)
 \end{rcode}
-Extra --- testing accuracy: Logistic 0.832, LDA 0.806, QDA 0.810, KNN 0.843.
-\fig{ROC curve of LDA on the testing set: x = ``1 - specificity'', y = ``sensitivity'', both 0--1, dotted diagonal = random guessing. The step curve rises steeply to sensitivity $\approx$0.70 at 1-spec $\approx$0.05 and $\approx$0.85 at 1-spec $\approx$0.18, then flattens ($\approx$0.90 from 0.25 to 0.6) and reaches (1, 1); far above the diagonal (AUC 0.881).}
+Extra: testing accuracy Logistic 0.832, LDA 0.806, QDA 0.810, KNN 0.843.
+\fig{LDA test ROC (x = 1 $-$ specificity, y = sensitivity): sens $\approx$0.70 at 0.05, $\approx$0.85 at 0.18, $\approx$0.90 from 0.25 to 0.6, then (1, 1); AUC 0.881.}
 \end{qbox}
 
-\textbf{Prompt (Required for 231 Students)} --- In a binary classification problem, let $p$ represent the probability of class label $1$, which implies that $1 - p$ represents the probability of class label $0$. The \emph{\ix{logistic function}} (also called the ``inverse logit'') is the cumulative distribution function of the logistic distribution, which maps a real number \emph{z} to the open interval $(0, 1)$. {\color{figgray}\itshape [Q11--Q12 and answers: see Part I.]}
+\textbf{Prompt (231 only).} Binary problem: $p$ = P(class 1), $1-p$ = P(class 0). The \emph{\ix{logistic function}} (``inverse logit'') is the CDF of the logistic distribution, mapping real \emph{z} to $(0, 1)$. {\color{figgray}\itshape [Q11--Q12 + answers: Part I.]}

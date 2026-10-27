@@ -42,7 +42,7 @@ ggplot(mpg, aes(x = factor(cyl), y = hwy)) +
 ggplot(mpg, aes(y = fct_rev(fct_infreq(manufacturer)))) +
   geom_bar()        # HW1 Ex3: flipped bar plot, ordered by height
 \end{rcode}
-\textbf{EDA findings to remember.} \ixc{mpg} \src{HW1}: \texttt{hwy} vs \texttt{cty} strong positive linear; median \texttt{hwy} falls with \texttt{cyl} (29/24/17 mpg for 4/6/8 cyl); \texttt{cty}--\texttt{hwy} and \texttt{displ}--\texttt{cyl} strongly $+$, each pair negatively correlated with the other. \ixc{diamonds} \src{Lab 1, S2.74}: $r(\text{price},\text{carat})=0.92$; $x,y,z$ correlate 0.86--0.88 with price and 0.95--0.98 with carat (\ix{collinearity}). Worst colour J costs \emph{more} because J diamonds tend to be larger (carat) --- a third variable drives both: \ix{confounding}.
+\textbf{EDA findings to remember.} \ixc{mpg} \src{HW1}: \texttt{hwy} vs \texttt{cty} strong positive linear; median \texttt{hwy} falls with \texttt{cyl} (29/24/17 mpg for 4/6/8 cyl); \texttt{cty}--\texttt{hwy} and \texttt{displ}--\texttt{cyl} strongly $+$, each pair negatively correlated with the other. \ixc{diamonds} \src{Lab 1, S2.74}: $r(\text{price},\text{carat})=0.92$; $x,y,z$ correlate 0.86--0.88 with price and 0.95--0.98 with carat (\ix{collinearity}). Worst color J costs \emph{more} because J diamonds tend to be larger (carat) --- a third variable drives both: \ix{confounding}.
 
 \begin{keybox}[Pearson correlation]
 \[ r_{xy}=\frac{\sum_i (x_i-\bar x)(y_i-\bar y)}{\sqrt{\sum_i (x_i-\bar x)^2\,\sum_i (y_i-\bar y)^2}}\in[-1,1] \]
@@ -71,7 +71,7 @@ ggplot(mpg, aes(y = fct_rev(fct_infreq(manufacturer)))) +
 \begin{itemize}
 \item \textbf{Zero correlation $\ne$ useless predictor.} U-shaped scatterplot with $r=0.03$ \src{PE Q8}: correct answer = ``little \emph{linear} correlation despite a strong \ix{nonlinear relationship}''. NOT ``unrelated'', NOT ``plot is wrong'', NOT ``$X$ won't be useful'' --- $X$ helps via an $X^2$ term, KNN or other flexible models \src{PE Q4a}.
 \item \textbf{Correlated predictors $\ne$ interaction.} $r(X_1,X_2)=0.91$ is evidence of \ix{collinearity}, not of an \ix{interaction term}. Interaction = the relationship between $X_1$ and $Y$ \emph{depends on the value of} $X_2$, e.g.\ positive for one level of $X_2$, negative for the other \src{PE Q4b, Q9}. Skewness also says nothing about interaction.
-\item Correlation $\ne$ causation (\ix{confounding}, e.g.\ colour J vs.\ carat). Lower training error is not always better \src{PE Q4c}.
+\item Correlation $\ne$ causation (\ix{confounding}, e.g.\ color J vs.\ carat). Lower training error is not always better \src{PE Q4c}.
 \end{itemize}
 \end{trap}
 
@@ -324,7 +324,7 @@ augment(lm_fit, new_data = abalone_test) %>%   # adds .pred  (*@\ixch{augment()}
   abalone_metrics(truth = age, estimate = .pred)  (*@\ixch{truth}\ixch{estimate}@*)
 \end{rcode}
 \textbf{Q7}: the new observation must be a tibble with \emph{every} predictor the recipe uses and the same types (\texttt{type = factor("F", levels = levels(abalone\$type))}); the workflow applies the recipe automatically $\to$ \texttt{.pred} = 21.8.
-\textbf{Q8 results (test)}: LR $R^2$ 0.585, RMSE 1.95, \ix{MAE} 1.44; KNN ($k=7$) $R^2$ 0.483, RMSE 2.21, MAE 1.62. Training: KNN $R^2$ 0.811 vs.\ LR 0.552 $\Rightarrow$ KNN overfits (each training point is its own nearest neighbour); LR generalizes better.
+\textbf{Q8 results (test)}: LR $R^2$ 0.585, RMSE 1.95, \ix{MAE} 1.44; KNN ($k=7$) $R^2$ 0.483, RMSE 2.21, MAE 1.62. Training: KNN $R^2$ 0.811 vs.\ LR 0.552 $\Rightarrow$ KNN overfits (each training point is its own nearest neighbor); LR generalizes better.
 Interpretation: $R^2=0.585$ $\Rightarrow$ 58.5\% of the variability in test-set age is explained by the model. (\texttt{yardstick} \ixc{rsq()} = squared correlation of truth and \texttt{.pred}; \texttt{rsq\_trad()} $=1-\mathrm{SSR}/\mathrm{SST}$.)
 \end{keybox}
 

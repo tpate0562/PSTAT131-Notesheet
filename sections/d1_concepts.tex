@@ -38,7 +38,7 @@ Learn $f$ to predict/explain $Y$ & Find structure/groups/patterns in $X$\\
 Linear \& \ix{logistic regression}, KNN, decision trees, random forests, SVM, neural nets & PCA, $k$-means clustering, hierarchical clustering, neural nets\\
 Evaluated against the true $Y$ & No direct ``right answer'' to score against\\\bottomrule
 \end{tabularx}
-\fig{S1.47: same 2-D scatter twice; supervised = points coloured by known class, unsupervised = all black (response not known).}
+\fig{S1.47: same 2-D scatter twice; supervised = points colored by known class, unsupervised = all black (response not known).}
 \end{topic}
 
 \begin{topic}{Regression vs.\ classification; metrics \src{S1.42--43; HW1 Q2--3}}
@@ -200,13 +200,13 @@ Smaller $k$ = more flexible $\Rightarrow$ lower training error but a bigger trai
 \end{itemize}
 \end{topic}
 
-\begin{topic}{Dartboards: bias = off-centre, variance = spread \src{S1.71--76, 80}}
+\begin{topic}{Dartboards: bias = off-center, variance = spread \src{S1.71--76, 80}}
 Bull's-eye $=\tilde y_0$; each dart $=\hat f(\tilde{\mathbf x}_0)$ from a different training set.
 \begin{tabular}{@{}lll@{}}
-1. tight on centre & low bias & low var.\\
-2. scattered around centre & low bias & \textbf{high var.}\\
-3. tight but off-centre & \textbf{high bias} & low var.\\
-4. scattered and off-centre & \textbf{high bias} & \textbf{high var.}
+1. tight on center & low bias & low var.\\
+2. scattered around center & low bias & \textbf{high var.}\\
+3. tight but off-center & \textbf{high bias} & low var.\\
+4. scattered and off-center & \textbf{high bias} & \textbf{high var.}
 \end{tabular}
 \end{topic}
 
@@ -279,7 +279,7 @@ We never know $E[Y\mid X]$ or $\operatorname{Prob}(Y=j\mid X)$ --- \textbf{estim
 \[ \mathcal N_0=\{i:\ \mathbf x_i \text{ is among the } K \text{ nearest neighbors of } \mathbf x_0\} \]
 \textbf{Regression} (average): \quad $\displaystyle \hat f_K(\mathbf x_0)=\frac1K\sum_{i\in\mathcal N_0}y_i$\\
 \textbf{Classification} (majority vote): \quad $\displaystyle \hat y_K=\operatorname{argmax}_j\Big\{\frac1K\sum_{i\in\mathcal N_0}I(y_i=j)\Big\}$\\
-(the class proportions among the neighbours estimate $\operatorname{Prob}(Y=j\mid X=\mathbf x_0)$).
+(the class proportions among the neighbors estimate $\operatorname{Prob}(Y=j\mid X=\mathbf x_0)$).
 Steps: (1) compute the distance from $\mathbf x_0$ to every training point; (2) keep the $K$ closest; (3) average their $y$ / take a vote.
 \end{keybox}
 
@@ -324,7 +324,7 @@ $k\uparrow$ & decrease & increase & beyond our control\\
 $k\downarrow$ & increase & decrease & beyond our control\\\bottomrule
 \end{tabular}
 \begin{itemize}
-\item \textbf{Small $k$ = flexible}: jagged, island-filled decision boundary; $k=1$ gives \textbf{training error 0} (each point is its own nearest neighbour) $\to$ low bias, high variance, overfits.
+\item \textbf{Small $k$ = flexible}: jagged, island-filled decision boundary; $k=1$ gives \textbf{training error 0} (each point is its own nearest neighbor) $\to$ low bias, high variance, overfits.
 \item \textbf{Large $k$ = smooth / rigid}: boundary nearly linear at $K=100$ $\to$ high bias, low variance, underfits. $k=n$: every prediction = overall mean / majority class.
 \item Flexibility grows with $1/K$ \src{S1.115}: training error falls steadily to 0 at $1/K=1$; test error is U-shaped (min near $K\approx10$), never below the dashed Bayes error rate ($\approx0.13$).
 \item $k$ is a \ix{hyperparameter} (\ix{tuning parameter}): not estimated by fitting; choose it by test/\ix{cross-validation} error, never by training error.
@@ -340,20 +340,20 @@ $k\downarrow$ & increase & decrease & beyond our control\\\bottomrule
 
 \begin{topic}{Ties \src{S1.111--112}}
 \ixh{tie-breaking}
-\emph{Distance ties}: several points equidistant at the $k$-th spot (which ones count?). The slide's table keeps all tied points: L $\to$ A\,B; M (3 equidistant) $\to$ A\,A\,B; N (1 obvious + 2 tied) $\to$ A\,A\,B\,B. \emph{Vote ties} (A\,B, A\,A\,B\,B): common fixes are an odd $k$, choosing at random, or going with the nearest neighbour's class / distance-weighted votes.
+\emph{Distance ties}: several points equidistant at the $k$-th spot (which ones count?). The slide's table keeps all tied points: L $\to$ A\,B; M (3 equidistant) $\to$ A\,A\,B; N (1 obvious + 2 tied) $\to$ A\,A\,B\,B. \emph{Vote ties} (A\,B, A\,A\,B\,B): common fixes are an odd $k$, choosing at random, or going with the nearest neighbor's class / distance-weighted votes.
 \end{topic}
 
 \begin{keybox}[Why standardize predictors \src{PE Q6}]
 \ixh{standardization}\ixh{normalization}
-KNN is \textbf{distance-based}: a predictor with a big spread dominates the distance. Ex.: age (years) vs.\ income (\$): A=(25, 50{,}000), B=(65, 51{,}000), C=(26, 58{,}000). Unscaled, $d(A,B)=\sqrt{40^2+1000^2}\approx1001$ but $d(A,C)=\sqrt{1^2+8000^2}\approx8000$, so B (40 years older!) is A's ``nearest'' neighbour --- age barely matters. Standardizing \emph{only} age does not fix it: income must be standardized too.
+KNN is \textbf{distance-based}: a predictor with a big spread dominates the distance. Ex.: age (years) vs.\ income (\$): A=(25, 50{,}000), B=(65, 51{,}000), C=(26, 58{,}000). Unscaled, $d(A,B)=\sqrt{40^2+1000^2}\approx1001$ but $d(A,C)=\sqrt{1^2+8000^2}\approx8000$, so B (40 years older!) is A's ``nearest'' neighbor --- age barely matters. Standardizing \emph{only} age does not fix it: income must be standardized too.
 Fix: \ixc{step\_normalize()} (center to mean 0, scale to SD 1) on \textbf{all} numeric predictors, so each contributes on the same scale.
 \end{keybox}
 
 \begin{topic}{Curse of dimensionality; KNN profile \src{S1.116}}
 \ixh{curse of dimensionality}
-KNN works well for \textbf{small $p$} (about $p\le4$) and \textbf{large $n$}. It \textbf{fails when $p$ is very large}: there are very few (almost no) training points ``near'' $\mathbf x_0$, so the ``nearest'' neighbours are actually far away $\Rightarrow$ \textbf{\ix{curse of dimensionality}}. (Classic illustration: to capture 10\% of uniform data in a $p$-dim cube, a neighbourhood needs side $0.1^{1/p}$: 0.10 for $p=1$, 0.32 for $p=2$, 0.79 for $p=10$.) More sophisticated \ix{non-parametric model}s exist (e.g.\ kernel estimators).
+KNN works well for \textbf{small $p$} (about $p\le4$) and \textbf{large $n$}. It \textbf{fails when $p$ is very large}: there are very few (almost no) training points ``near'' $\mathbf x_0$, so the ``nearest'' neighbors are actually far away $\Rightarrow$ \textbf{\ix{curse of dimensionality}}. (Classic illustration: to capture 10\% of uniform data in a $p$-dim cube, a neighborhood needs side $0.1^{1/p}$: 0.10 for $p=1$, 0.32 for $p=2$, 0.79 for $p=10$.) More sophisticated \ix{non-parametric model}s exist (e.g.\ kernel estimators).
 \begin{itemize}
-\item \textbf{Non-parametric}: no assumed form for $f$, no coefficients, no normality / equal-variance assumptions; can draw \textbf{nonlinear decision boundaries} because classification is decided \emph{locally} by neighbours \src{Sai Q2}.
+\item \textbf{Non-parametric}: no assumed form for $f$, no coefficients, no normality / equal-variance assumptions; can draw \textbf{nonlinear decision boundaries} because classification is decided \emph{locally} by neighbors \src{Sai Q2}.
 \item Costs: not interpretable (no coefficients to read); needs the training data at prediction time; sensitive to scale and to irrelevant/noisy predictors; categorical predictors must be dummy-coded (\ixc{step\_dummy()}) so distances can be computed.
 \end{itemize}
 \end{topic}
@@ -380,7 +380,7 @@ predict(knn_fit, new_data = test, type = "prob")  (*@\ixch{type = "prob"}@*)
 augment(knn_fit, new_data = test) |>        (*@\ixch{augment()}@*)
   accuracy(truth = y, estimate = .pred_class) (*@\ixch{accuracy()}\ixch{truth}\ixch{estimate}@*)
 \end{rcode}
-Regression version (Lab 2): \texttt{set\_mode("regression")}, then \ixc{predict()} + \ixc{bind\_cols()} with the true \texttt{price} and a \ixc{metric\_set()}\texttt{(rmse, rsq, mae)}. \ixc{extract\_fit\_parsnip()} on a KNN fit shows little (no coefficients). (Engine detail: \texttt{kknn} weights neighbours by distance by default, ``Best kernel: optimal''.)
+Regression version (Lab 2): \texttt{set\_mode("regression")}, then \ixc{predict()} + \ixc{bind\_cols()} with the true \texttt{price} and a \ixc{metric\_set()}\texttt{(rmse, rsq, mae)}. \ixc{extract\_fit\_parsnip()} on a KNN fit shows little (no coefficients). (Engine detail: \texttt{kknn} weights neighbors by distance by default, ``Best kernel: optimal''.)
 \end{topic}
 
 \begin{trap}[Spot-the-bug: KNN code \src{PE Q7}]
