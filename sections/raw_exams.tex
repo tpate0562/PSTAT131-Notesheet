@@ -3,55 +3,41 @@
 %% Trimmed: questions / solutions / rubric lines already in Part I (d5_exam, d3_evaluation) are omitted.
 \section{Practice exam (Fall 2026) and Sai's graded midterm (last quarter)}
 \ixh{model evaluation}\ixh{model comparison}
-{\color{figgray}\itshape [Parts already covered in Part I are omitted: PE Q1--Q6, Q10--Q12, Q15--Q19 entirely, and the
-official solutions of every kept PE question (Q7, Q8, Q9, Q13, Q14, Q20); Sai Q1, Q4, Q8a--d entirely; Sai's answers,
-the Q3 and Q6 figures/tables and the rubric lines restated in Part I; the Gradescope header, most of the cover sheet
-and the blank scratch pages.]}
-
+{\color{figgray}\itshape [In Part I: PE Q1--6, 10--12, 15--19 and all PE solution texts; Sai Q1, Q4, Q8a--d, Sai's answers, Q3/Q6 figures/tables, rubric lines restated there; cover sheet (mostly), scratch pages.]}
 
 \subsection{Practice exam with official solutions}
 \ixh{overfitting}\ixh{KNN}
-{\color{figgray}\itshape [note: the official key prints the correct choice(s) of every multiple-choice question and all
-solution text in red bold; here the correct choices are in {\color{keyc}\bfseries green bold}; the solution texts are
-condensed in Part I. The question prompts are identical in the exam and in the key.]}
+{\color{figgray}\itshape [Correct choices in {\color{keyc}\bfseries green bold} (red bold in the key); prompts identical in exam and key.]}
 
 %% ------------------------------------------------------------------ Q7
 \begin{qbox}{PE Q7}
 \ixh{KNN}\ixh{target leakage}\ixh{identifier variable}\ixch{recipes}
-7.~A researcher wants to use KNN to predict whether or not a bank customer will default on a loan. They write the
-following code:
+7.~Researcher uses KNN to predict whether a bank customer defaults on a loan:
 \begin{rcode}
 loan_recipe <-
   recipe(defaulted ~ ., data = loans) |>                    (*@\ixch{recipe()}\ixch{|>}@*)
   step_dummy(all_nominal_predictors(), one_hot = TRUE)      (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}\ixch{one\_hot}@*)
-
 loan_model <-
   nearest_neighbor(neighbors = 5) |>                        (*@\ixch{nearest\_neighbor()}\ixch{neighbors}@*)
   set_engine("kknn") |>                                     (*@\ixch{set\_engine()}\ixch{kknn}@*)
   set_mode("classification")                                (*@\ixch{set\_mode()}@*)
-
 loan_fit <-
   loan_model |>
   fit(defaulted ~ ., data = loans)                          (*@\ixch{fit()}@*)
 \end{rcode}
-Their data contain the following variables:\\
-\texttt{application\_id}\\ \texttt{age}\\ \texttt{income}\\ \texttt{employment\_type}\\ \texttt{credit\_score}\\
-\texttt{default\_date}\\ \texttt{defaulted}
-
-Identify at least four problems with this analysis. For each problem, explain why it matters and how you would
-correct it.
+Variables: \texttt{application\_id}, \texttt{age}, \texttt{income}, \texttt{employment\_type}, \texttt{credit\_score}, \texttt{default\_date}, \texttt{defaulted}.
+Identify at least four problems; for each, explain why it matters and how to correct it.
 \end{qbox}
 
 %% ------------------------------------------------------------------ Q8
 \begin{qbox}{PE Q8}
 \ixh{scatterplot}\ixh{Pearson correlation}\ixh{nonlinear relationship}
-8.~A \ix{scatterplot} of X and Y shows a very strong U-shaped relationship. Their Pearson correlation is 0.03. Which
-statement is best?
+8.~\ix{scatterplot} of X, Y: very strong U-shape; Pearson correlation 0.03. Best statement?
 \begin{enumerate}[label=\alph*.]
 \item X and Y are essentially unrelated
 \item The scatterplot is likely wrong
-\item {\color{keyc}\bfseries There is little linear correlation, despite a strong nonlinear relationship}
-\item X will not be a useful variable for predicting Y
+\item {\color{keyc}\bfseries Little linear correlation, despite a strong nonlinear relationship}
+\item X will not be useful for predicting Y
 \item Both C and D
 \end{enumerate}
 \end{qbox}
@@ -61,203 +47,112 @@ statement is best?
 \ixh{interaction term}\ixh{exploratory data analysis (EDA)}
 9.~Which \ix{EDA} finding is evidence of an \textbf{interaction}\ixh{interaction term}?
 \begin{enumerate}[label=\alph*.]
-\item X1 and X2 have a Pearson correlation of 0.91
-\item {\color{keyc}\bfseries The relationship between X1 and Y is positive for one level of X2 and negative for the other}
-\item X1 is strongly right-skewed and X2 is strongly left-skewed
-\item X1 and Y have a Pearson correlation of 0.80
-\item The relationship between X1 and Y is the same across both levels of X2
+\item X1, X2 Pearson correlation 0.91
+\item {\color{keyc}\bfseries X1--Y relationship positive for one level of X2, negative for the other}
+\item X1 strongly right-skewed, X2 strongly left-skewed
+\item X1, Y Pearson correlation 0.80
+\item X1--Y relationship the same across both levels of X2
 \end{enumerate}
 \end{qbox}
 
 %% ------------------------------------------------------------------ Q10-12 stem
-For Questions 10--12, suppose a university wants to predict whether a student will graduate within four years, using
-information available \textbf{at the end of the student's first year}.\ixh{feature engineering}\ixh{predictor}\par
-\begin{tabular}{@{}ll@{}}\toprule
-Variable & Description\\\midrule
-StudentID & Unique identifier\\
-HS\_GPA & High school GPA\\
-FirstYearGPA & GPA at end of first year\\
-Major & Major at end of first year\\
-CreditsAttempted & First-year credits attempted\\
-CreditsCompleted & First-year credits completed\\
-Dorm & First-year residence hall name\\
-GraduationDate & Date of graduation, if graduated\\
-FinalGPA & GPA upon leaving the university\\
-Graduated4Years & Outcome\\\bottomrule
-\end{tabular}
+Q10--12 stem: university predicts graduating within four years from information available \textbf{at the end of first year}.\ixh{feature engineering}\ixh{predictor}
+Variables: StudentID (unique ID), HS\_GPA, FirstYearGPA, Major (at end of 1st yr), CreditsAttempted, CreditsCompleted (1st yr), Dorm (1st-yr hall name), GraduationDate (if graduated), FinalGPA (on leaving), Graduated4Years (outcome).
 
 %% ------------------------------------------------------------------ Q13
 \begin{qbox}{PE Q13}
 \ixh{one-hot encoding}\ixh{dummy variable}\ixh{rank deficiency}\ixh{linear regression}
-13.~A student wants to predict ``salary'' using ``experience'' and ``department.'' They fit the following model:
+13.~Predict ``salary'' from ``experience'' and ``department'' (levels Sales, IT, HR):
 \begin{rcode}
 salary_recipe <- recipe(salary ~ experience + department,
                         data = employees) %>%           (*@\ixch{recipe()}\ixch{\%>\%}@*)
   step_dummy(department, one_hot = TRUE)                (*@\ixch{step\_dummy()}\ixch{one\_hot}@*)
-
 salary_model <- linear_reg() %>%                        (*@\ixch{linear\_reg()}@*)
   set_engine("lm")                                      (*@\ixch{set\_engine()}\ixch{lm}@*)
-
 salary_workflow <- workflow() %>%                       (*@\ixch{workflow()}@*)
   add_recipe(salary_recipe) %>%                         (*@\ixch{add\_recipe()}@*)
   add_model(salary_model)                               (*@\ixch{add\_model()}@*)
-
 salary_fit <- fit(salary_workflow, data = employees)    (*@\ixch{fit()}@*)
 \end{rcode}
-Suppose ``department'' has three levels, ``Sales,'' ``IT,'' and ``HR.''
-
-After fitting the model, R reports that the model matrix is rank-deficient\ixh{rank deficiency}{} and that one or more
-coefficients cannot be uniquely identified.\ixh{coefficient}{}
-\begin{enumerate}[label=\alph*.]
-\item What caused the problem?
-\item Why does ``one\_hot = TRUE'' create this problem for an ordinary linear regression model with an intercept?\ixh{intercept}
-\item How should the code be changed?
-\item After making this change, how many indicator variables will be created for ``department''?
-\end{enumerate}
+R reports the model matrix is rank-deficient\ixh{rank deficiency}; one or more coefficients\ixh{coefficient}{} cannot be uniquely identified.
+(a) What caused it? (b) Why does ``one\_hot = TRUE'' cause this for ordinary linear regression with an intercept\ixh{intercept}? (c) How to change the code? (d) Then how many indicator variables for ``department''?
 \end{qbox}
 
 %% ------------------------------------------------------------------ Q14
 \begin{qbox}{PE Q14}
 \ixh{logistic regression}\ixh{posterior probability}
-14.~A \ix{logistic regression} model predicts whether a patient has pneumonia based on symptoms and clinical
-measurements. For one patient, the model produces a predicted probability of 0.78. Which interpretation is correct?
+14.~\ix{logistic regression} predicts pneumonia from symptoms/clinical measurements; one patient's predicted probability = 0.78. Correct interpretation?
 \begin{enumerate}[label=\alph*.]
-\item The model is 78\% accurate for this patient.
-\item The patient definitely has pneumonia.
-\item {\color{keyc}\bfseries The fitted model assigns this patient a probability of 0.78 of belonging to the pneumonia class.}
-\item 78\% of the patient's symptoms indicate pneumonia.
+\item Model is 78\% accurate for this patient
+\item Patient definitely has pneumonia
+\item {\color{keyc}\bfseries Fitted model assigns this patient probability 0.78 of belonging to the pneumonia class}
+\item 78\% of the patient's symptoms indicate pneumonia
 \end{enumerate}
 \end{qbox}
 
 %% ------------------------------------------------------------------ Q20
 \begin{qbox}{PE Q20}
 \ixh{LDA}\ixh{QDA}\ixh{covariance matrix}\ixh{decision boundary}
-20.~You have 50,000 observations, two predictors, and clear evidence that the covariance structures\ixh{covariance matrix}{}
-differ substantially across levels of your outcome variable. Which would you expect to have the greater potential to
-capture the true \ix{decision boundary}?
-\begin{enumerate}[label=\alph*.]
-\item LDA
-\item {\color{keyc}\bfseries QDA}
-\item Both would do equally well
-\item Neither would do well because they are both parametric models
-\end{enumerate}
+20.~50,000 obs, two predictors, clear evidence covariance structures\ixh{covariance matrix}{} differ substantially across outcome levels. Which has greater potential to capture the true \ix{decision boundary}?
+(a) LDA \quad (b) {\color{keyc}\bfseries QDA} \quad (c) both equally \quad (d) neither, both are parametric
 \end{qbox}
 
 %% ==================================================================== SAI
 \subsection{Sai's midterm (graded, 20/26)}
 \ixh{model evaluation}
-{\color{figgray}\itshape [note: source = Gradescope export \texttt{submission\_422008762.pdf}. PDF pp.~1--3 = Gradescope
-rubric summary; pp.~4--8 = the scanned exam booklet (printed questions + Sai's pencil answers); pp.~9--10 = blank
-scratch pages. Gradescope numbers the graded items ``Question 1''--``Question 12'', the booklet numbers them 1--9 (Q8 has
-parts a--d), so both are given (``Gradescope Q12 / Q9''). In each rubric list, $\checkmark$ marks the rubric item the grader
-applied; {\color{keyc}green} = $-0$ pts, {\color{warnc}red} = deductions, as on Gradescope.]}
+{\color{figgray}\itshape [Gradescope export: PDF pp.~1--3 rubric summary, 4--8 scanned booklet, 9--10 blank. Labels ``Gradescope Q12 / booklet Q9'' (Gradescope 1--12, booklet 1--9 with Q8a--d). $\checkmark$ = rubric item applied; {\color{keyc}green} $-0$, {\color{warnc}red} = deduction.]}
 
-\begin{rawsrc}{Booklet cover sheet (PDF p.~4), excerpt}
-\textbf{PSTAT 131 Midterm Exam} --- Summer 2026.
-\begin{enumerate}
-\setcounter{enumi}{2}
-\item \textbf{Marking Answers:} You must indicate your answers to \textbf{all questions} (multiple choice and free response)
-  on this exam booklet.
-\item \textbf{Personal Aids:} This is an open-book and open-note exam. Any and all \textbf{physical materials} may be used
-  during this exam. \textbf{Absolutely no} electronic or digital tools may be used.
-\setcounter{enumi}{7}
-\item \textbf{Final Answers:} Round answers to 3--4 decimal places when appropriate. Answers must be legible; if multiple
-  answers are given, the first will be graded, except for multiple choice questions; unless otherwise specified, multiple
-  answers marked for Multiple Choice questions will receive a score of zero.
-\end{enumerate}
-\end{rawsrc}
+\textbf{Cover sheet excerpt} (Summer 2026): (3) Mark answers to \textbf{all questions} in the booklet. (4) Open book/notes: any \textbf{physical materials}; \textbf{absolutely no} electronic/digital tools. (8) Round to 3--4 decimals when appropriate; must be legible; if multiple answers, the first is graded, except multiple choice: multiple marked answers score zero unless otherwise specified.
 
-\textbf{Multiple Choice Questions} (booklet pp.~2--3 = PDF pp.~5--6)
+\textbf{Multiple choice} (PDF pp.~5--6)
 
 %% ------------------------------------------------------------------ Sai Q2
-\begin{qbox}{Sai Q2 = Gradescope Question 2 --- 2 / 2 pts}
+\begin{qbox}{Sai Q2 (GS Q2) --- 2 / 2 pts}
 \ixh{KNN}\ixh{decision boundary}\ixh{non-parametric model}
-2.~(2 points) Why can \ix{KNN} represent nonlinear decision boundaries\ixh{decision boundary}\ixh{nonlinear relationship}{}
-even without explicitly including polynomial or interaction terms?
-\begin{enumerate}[label=(\Alph*)]
-\item It assumes predictors are normally distributed
-\item It does not assume equal variances across levels of the outcome
-\item Classification is determined locally by neighboring observations
-\item It estimates a different regression coefficient for every observation
-\item It automatically creates squared terms
-\item Both A and B
-\end{enumerate}
+2.~Why can \ix{KNN} represent nonlinear decision boundaries\ixh{decision boundary}\ixh{nonlinear relationship}{} without explicit polynomial or interaction terms?
+(A) assumes predictors normal; (B) does not assume equal variances across outcome levels; (C) classification determined locally by neighboring observations; (D) estimates a different regression coefficient for every observation; (E) automatically creates squared terms; (F) both A and B.
 \grader
 \begin{itemize}[leftmargin=1.2em]
-\item[$\checkmark$] {\color{keyc}\bfseries $-$0 pts} Correct answer is C. KNN does not make any assumptions about normality or
-  equality of variances, it also doesn't create squared terms.
-\item[] {\color{warnc}\bfseries $-$1 pt} Partial credit for an answer of B; students could be remembering that this assumption
-  allows QDA\ixh{QDA}{} to represent nonlinear decision boundaries
-\item[] {\color{warnc}\bfseries $-$2 pts} A, D, E, or F
+\item[$\checkmark$] {\color{keyc}\bfseries $-$0} C. KNN makes no normality/equal-variance assumptions, creates no squared terms.
+\item[] {\color{warnc}\bfseries $-$1} B (partial): that assumption lets QDA\ixh{QDA}{} represent nonlinear boundaries.
+\item[] {\color{warnc}\bfseries $-$2} A, D, E, or F.
 \end{itemize}
 \end{qbox}
 
 %% ------------------------------------------------------------------ Sai Q3
-\begin{qbox}{Sai Q3 = Gradescope Question 3 --- 2 / 2 pts}
+\begin{qbox}{Sai Q3 (GS Q3) --- 2 / 2 pts}
 \ixh{ROC curve}\ixh{threshold}\ixh{AUC}
-3.~(2 points) Moving along the \ix{ROC curve} from Point A toward Point C corresponds generally to:
-\begin{enumerate}[label=(\Alph*)]
-\item Increasing the classification threshold
-\item Decreasing the classification \ix{threshold}
-\item Increasing the AUC
-\item Decreasing the \ix{AUC}
-\end{enumerate}
-\grader
-\begin{itemize}[leftmargin=1.2em]
-\item[] {\color{warnc}\bfseries $-$1 pt} Partial credit for an answer of A (wrong direction, but still recognizing that the
-  threshold would be changing).
-\item[] {\color{warnc}\bfseries $-$2 pts} C or D.
-\end{itemize}
+3.~Moving along the \ix{ROC curve} from Point A toward Point C generally corresponds to: (A) increasing the classification \ix{threshold}; (B) decreasing the threshold; (C) increasing the \ix{AUC}; (D) decreasing the AUC.
+\grader\ {\color{warnc}\bfseries $-$1} A (wrong direction, but recognizes threshold changes). {\color{warnc}\bfseries $-$2} C or D.
 \end{qbox}
 
 %% ------------------------------------------------------------------ Sai Q5
-\begin{qbox}{Sai Q5 = Gradescope Question 5 --- 2 / 2 pts}
+\begin{qbox}{Sai Q5 (GS Q5) --- 2 / 2 pts}
 \ixh{QDA}\ixh{LDA}\ixh{covariance matrix}\ixh{variance}
-5.~(2 points) Suppose the population covariance matrices\ixh{covariance matrix}{} really are identical across all classes.
-What advantage does \ix{QDA} gain from estimating a separate covariance matrix for every class?
-\begin{enumerate}[label=(\Alph*)]
-\item A closer fit to the population decision boundary
-\item No inherent advantage from the extra covariance flexibility; it may simply increase estimation variance\ixh{variance}{}
-\item Perfect classification
-\item QDA, unlike LDA, is nonparametric\ixh{non-parametric model}{}
-\end{enumerate}
+5.~If population covariance matrices\ixh{covariance matrix}{} really are identical across classes, what advantage does \ix{QDA} gain from a separate covariance matrix per class?
+(A) closer fit to the population decision boundary; (B) no inherent advantage; may simply increase estimation variance\ixh{variance}; (C) perfect classification; (D) QDA, unlike LDA, is nonparametric\ixh{non-parametric model}.
 \end{qbox}
 
 %% ------------------------------------------------------------------ Sai Q6
-\begin{qbox}{Sai Q6 = Gradescope Question 6 --- 0 / 2 pts}
+\begin{qbox}{Sai Q6 (GS Q6) --- 0 / 2 pts}
 \ixh{interaction term}\ixh{main effect}
-6.~(2 points) Which feature of these results most strongly suggests an interaction\ixh{interaction term}?
-\begin{enumerate}[label=(\Alph*)]
-\item Treatment B always has the larger fitted value
-\item Increasing dosage changes the fitted value by 10 under Treatment A but by 25 under Treatment B
-\item All four fitted values are different
-\item Increasing dosage increases the fitted value across both treatments
-\item Dosage has two levels
-\item Both B and D
-\end{enumerate}
+6.~Which feature of these results most strongly suggests an interaction\ixh{interaction term}?
+(A) Treatment B always has the larger fitted value; (B) increasing dosage changes the fitted value by 10 under Treatment A but by 25 under B; (C) all four fitted values differ; (D) increasing dosage increases the fitted value under both treatments; (E) dosage has two levels; (F) both B and D.
 \end{qbox}
 
 %% ------------------------------------------------------------------ Sai Q7
-\begin{qbox}{Sai Q7 = Gradescope Question 7 --- 0 / 2 pts}
+\begin{qbox}{Sai Q7 (GS Q7) --- 0 / 2 pts}
 \ixh{logistic regression}\ixh{coefficient}\ixh{threshold}\ixh{log odds}
-7.~(2 points) In a \ix{logistic regression} model, the coefficient for \texttt{age} is positive. Increasing one customer's
-age from 40 to 41 does not change that customer's predicted class. Why is this possible?
-\begin{enumerate}[label=(\Alph*)]
-\item A positive coefficient does not affect predicted probabilities
-\item The predicted probability can increase without crossing the classification threshold
-\item Logistic regression coefficients affect only training observations
-\item Age must interact with another predictor before it can affect classification
-\end{enumerate}
+7.~In \ix{logistic regression}, the \texttt{age} coefficient is positive. Raising one customer's age 40 $\to$ 41 does not change their predicted class. Why possible?
+(A) a positive coefficient does not affect predicted probabilities; (B) predicted probability can increase without crossing the classification threshold; (C) coefficients affect only training observations; (D) age must interact with another predictor to affect classification.
 \end{qbox}
 
-\textbf{Free Response Questions} (booklet pp.~4--5 = PDF pp.~7--8)
+\textbf{Free response} (PDF pp.~7--8)
 
 %% ------------------------------------------------------------------ Sai Q9
-\begin{qbox}{Sai Q9 = Gradescope Question 12 --- 3 / 4 pts}
+\begin{qbox}{Sai Q9 (GS Q12) --- 3 / 4 pts}
 \ixh{collinearity}\ixh{normalization}\ixh{linear regression}\ixh{feature engineering}
-9.~(4 points) Consider the following recipe. The model's goal is to predict the sale price of a home.
-\texttt{square\_feet} represents the house size measured in feet; \texttt{square\_meters} represents the house size measured
-in meters:
+9.~Predict home sale price; \texttt{square\_feet} = size in feet, \texttt{square\_meters} = size in meters:
 \begin{rcode}
 house_recipe <-
   recipe(sale_price ~ ., data = houses) %>%           (*@\ixch{recipe()}\ixch{\%>\%}@*)
@@ -266,15 +161,10 @@ house_recipe <-
   ) %>%
   step_normalize(all_numeric_predictors())            (*@\ixch{step\_normalize()}\ixch{all\_numeric\_predictors()}@*)
 \end{rcode}
-A student argues that because both \texttt{square\_feet} and \texttt{square\_meters} are normalized\ixh{normalization}, it is
-appropriate to keep both in an ordinary \ix{linear regression}. Is this reasoning correct or incorrect? Explain.
-{\color{figgray}\itshape [note: on the scan a thin horizontal scanner line runs through ``measured in meters''.]}
-
+A student argues that since both are normalized\ixh{normalization}, keeping both in ordinary \ix{linear regression} is appropriate. Correct or incorrect? Explain.
 \grader
 \begin{itemize}[leftmargin=1.2em]
-\item[] {\color{warnc}\bfseries $-$2 pts} Logic is partially correct.
-\item[] {\color{warnc}\bfseries $-$4 pts} Logic is completely incorrect.
-\item[$\checkmark$] {\color{warnc}\bfseries $-$1 pt} Correct answer (that the reasoning is wrong) but doesn't specifically
-  mention collinearity
+\item[] {\color{warnc}\bfseries $-$2} Logic partially correct. \quad {\color{warnc}\bfseries $-$4} Logic completely incorrect.
+\item[$\checkmark$] {\color{warnc}\bfseries $-$1} Correct (reasoning is wrong) but doesn't specifically mention collinearity.
 \end{itemize}
 \end{qbox}

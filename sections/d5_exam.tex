@@ -23,7 +23,7 @@ Sai's midterm (Summer 2026, 26 pts) = 7 MC $\times$ 2 pts + 2 free-response (8 +
 \item[\textbf{Q4}] All three claims \textbf{false}: (a) zero \ix{Pearson correlation} = no \emph{linear} relation, can
   still help nonlinear/empirical models; (b) correlated $\ne$ interacting (\ix{interaction term} = effect of $X_1$
   depends on $X_2$); (c) lower training error not better. \src{PE Q4}
-\item[\textbf{Q5}] Neighbours A B B A A B B: $k=1$ \textbf{A}, $k=3$ \textbf{B} (2B:1A), $k=5$ \textbf{A} (3A:2B),
+\item[\textbf{Q5}] Neighbors A B B A A B B: $k=1$ \textbf{A}, $k=3$ \textbf{B} (2B:1A), $k=5$ \textbf{A} (3A:2B),
   $k=7$ \textbf{B} (4B:3A). \src{PE Q5}
 \item[\textbf{Q6}] Age standardized, income not: KNN is distance-based\ixh{distance metric}; income's huge variance
   dominates the \ix{Euclidean distance}. Normalize \emph{all} numeric predictors. \src{PE Q6}
@@ -69,7 +69,7 @@ Sai's midterm (Summer 2026, 26 pts) = 7 MC $\times$ 2 pts + 2 free-response (8 +
 \toprule
 Q & Topic (correct answer, why) & Sai & Key & Pts\\ \midrule
 1 & More flexible? Add polynomial/\ix{interaction term}s. ($\uparrow k$, fewer predictors, LDA vs QDA = \emph{less} flexible) & C & C & 2/2\\
-2 & Why KNN makes nonlinear boundaries: classification decided \emph{locally} by neighbours & C & C & 2/2\\
+2 & Why KNN makes nonlinear boundaries: classification decided \emph{locally} by neighbors & C & C & 2/2\\
 3 & ROC point A$\to$C = \emph{decreasing} the threshold (TPR and FPR both rise) & B & B & 2/2\\
 4 & Readmission predictor: \texttt{HospitalID} (15 hospitals, populations differ = real group info); others are unique IDs & E & B & \textbf{1/2}\\
 5 & Covariances truly equal: QDA gains nothing, only adds estimation \ix{variance} & B & B & 2/2\\
@@ -155,7 +155,7 @@ discriminates better at almost every threshold.
 error U-shaped. \emph{More} flexible: smaller $k$, add predictors / polynomial / interaction terms, QDA instead of
 LDA, KNN instead of a linear model. Overfit symptom: train $\gg$ test $\Rightarrow$ make it \emph{less} flexible
 (increase $k$, drop terms).
-\par\textbf{Example.} $k=1$: each training point is its own neighbour, training error $=0$ (maximal variance).
+\par\textbf{Example.} $k=1$: each training point is its own neighbor, training error $=0$ (maximal variance).
 $k=n$: always predicts the overall majority class (maximal bias). With 400 training points, $k=1$
 train/test error 0.00/0.30 vs.\ $k=15$ 0.18/0.21 $\Rightarrow$ choose $k=15$.
 \end{topic}
@@ -283,7 +283,7 @@ class proportions ($\hat\pi_k$), \emph{Group means} = $\hat\mu_k$, \emph{LD1} = 
 \item \ix{supervised learning} has a $Y$; \ix{unsupervised learning} does not. \ix{regression} = numeric $Y$, \ix{classification} = categorical $Y$.
 \item Parametric (linear, logistic, LDA, QDA) = assume a form for $f$; \ix{non-parametric model} (KNN) = no form, needs more data.
 \item \ix{KNN}: small $k$ = flexible\ixh{flexibility}{} = low bias / high variance; $k=1$ training error 0. Always normalize\ixh{normalization}.
-\item \ix{curse of dimensionality}: with many predictors, the ``nearest'' neighbours are far away $\Rightarrow$ KNN degrades.
+\item \ix{curse of dimensionality}: with many predictors, the ``nearest'' neighbors are far away $\Rightarrow$ KNN degrades.
 \item Lower training error is never by itself a reason to prefer a model; compare on \ix{testing data}.
 \item \ix{Bayes classifier}: assign the class with the largest $\Pr(Y=k\mid X=x_0)$; its error = \ix{Bayes error rate} (lowest possible).
 \item $R^2$\ixh{R-squared}{} = fraction of variance in $Y$ explained; RMSE/MAE\ixh{RMSE}\ixh{MAE}{} in units of $Y$, lower is better.
@@ -312,7 +312,7 @@ class proportions ($\hat\pi_k$), \emph{Group means} = $\hat\mu_k$, \emph{LD1} = 
 \ixh{homework}
 \begin{topic}{HW1 --- ML ideas; EDA on \texttt{mpg} \src{HW1; submission}}
 \ixch{mpg}
-\textbf{Q1} supervised\ixh{supervised learning}{} = labelled $Y$ to learn $f$; unsupervised\ixh{unsupervised learning}{} = no $Y$, find structure (clusters).
+\textbf{Q1} supervised\ixh{supervised learning}{} = labeled $Y$ to learn $f$; unsupervised\ixh{unsupervised learning}{} = no $Y$, find structure (clusters).
 \textbf{Q2} \ix{regression}: quantitative $Y$; \ix{classification}: qualitative $Y$ (class or class probabilities).
 \textbf{Q3} regression: \ix{RMSE}, $R^2$\ixh{R-squared}{} (\ix{MAE}); classification: \ix{accuracy}, \ix{sensitivity}/\ix{recall} (AUC).
 \textbf{Q4} \ix{descriptive model}: visually emphasize a trend; \ix{inferential model}: which features are significant,
@@ -355,7 +355,7 @@ with the family counts; all $|r|<0.45$\ixh{Pearson correlation}, no \ix{collinea
 $\to$ \texttt{step\_interact(\textasciitilde{} starts\_with("sex"):fare + age:fare)}\ixch{step\_interact()}\ixch{starts\_with()}\ixh{interaction term}.
 \textbf{Q5--8} \ixc{logistic\_reg()} \texttt{"glm"}\ixch{glm}, \ixc{discrim\_linear()} / \ixc{discrim\_quad()} \texttt{"MASS"}\ixch{MASS}{}
 (\ixc{discrim}), \texttt{nearest\_neighbor(neighbors = 10)}\ixch{neighbors}{} \texttt{"kknn"}; same recipe, four workflows.
-\textbf{Q9} \ixc{predict()} \texttt{type = "prob"} + \ixc{bind\_cols()} $\to$ \ixc{roc\_auc()}; training \ix{AUC}: logistic 0.845, LDA 0.844, QDA 0.852, KNN 0.964 (inflated: own neighbour).
+\textbf{Q9} \ixc{predict()} \texttt{type = "prob"} + \ixc{bind\_cols()} $\to$ \ixc{roc\_auc()}; training \ix{AUC}: logistic 0.845, LDA 0.844, QDA 0.852, KNN 0.964 (inflated: own neighbor).
 \textbf{Q10} testing AUC\ixh{testing data}: logistic 0.880, \textbf{LDA 0.881}, QDA 0.859, KNN 0.879 $\Rightarrow$ LDA (near-tie).
 LDA test \ix{confusion matrix} (\ixc{conf\_mat()}) TP 73, FP 22, FN 30, TN 143: accuracy 0.806, \ix{sensitivity} 0.709, \ix{specificity} 0.867; \ixc{roc\_curve()} + \ixc{autoplot()} for the plot.
 Train 0.844 vs.\ test 0.881: rigid low-variance model, the difference is split-to-split sampling noise (small test

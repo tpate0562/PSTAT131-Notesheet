@@ -1,71 +1,54 @@
 %% raw_s3a.tex -- Slide Set 3 ("Logistic models", Week 3), PDF pages 1-42 (the tested part).
-%% Raw transcription, trimmed: only material not already in Part I is kept.
+%% Raw transcription, trimmed + compressed: only material not already in Part I is kept.
 \section{Slide Set 3 --- Logistic regression \& model evaluation (pp.~1--42, the tested part)}
 \ixh{logistic regression}\ixh{model evaluation}
-{\color{figgray}\itshape [Slides/parts already covered in Part I are omitted: S3.1--4, S3.6--7, S3.9--25, S3.28--29,
-S3.32--34, S3.37--38, S3.41--42; on the kept slides only the details missing from Part I remain.]}
+{\color{figgray}\itshape [Omitted (in Part I): S3.1--4, 6--7, 9--25, 28--29, 32--34, 37--38, 41--42.]}
 
-\subsection{Overview: classification}
+\subsection{Classification: why logistic; Default data}
 \ixh{classification}
 
 %% ---------------------------------------------------------------- S3.5
 \slide{3}{5}{Why not Linear Regression?}
 \ixh{linear regression}\ixh{linear probability model}
-\fig{\emph{Probability of Default} vs.\ \emph{Balance} (0--2500). \textbf{Left, ``Linear Regression''}:
-the fitted blue straight line starts below zero (about $-0.1$ at balance 0), crosses 0 near balance 500--600 and
-only reaches about 0.28 at balance 2700. \textbf{Right, ``Logistic Regression''}: the blue fitted
-curve is S-shaped (\ix{sigmoid}): essentially 0 up to balance $\approx1000$, rising steeply between $\approx1500$
-and $\approx2200$ (0.5 at about 1950--2000), and levelling off near 0.98 at 2650.}
+\fig{P(Default) vs.\ Balance (0--2500). \textbf{Left, linear regression}: straight line from $\approx-0.1$ at balance 0,
+crosses 0 near 500--600, only $\approx0.28$ at 2700. \textbf{Right, logistic regression}: S-shaped \ix{sigmoid}
+curve, $\approx0$ up to $\approx1000$, steep rise $\approx1500$--$2200$ (0.5 at $\approx1950$--$2000$), $\approx0.98$ at 2650.}
 
 %% ---------------------------------------------------------------- S3.8
 \slide{3}{8}{A data example}
 \ixh{Default data set}
-\fig{three panels (the ISLR \texttt{Default} data). \textbf{Left}: \ix{scatterplot} of \emph{Income} (y, 0 to
-$\approx70000$) vs.\ \emph{Balance} (x, 0 to $\approx2700$); the defaulters (orange ``+'') sit almost entirely at
-balance $\gtrsim1200$, most of them 1500--2500, at every income level. \textbf{Middle}: \ix{boxplot}s of
-\emph{Balance} by \emph{Default}: No has median $\approx800$, box $\approx470$--$1130$, whiskers 0 to $\approx2120$
-and high outliers up to $\approx2390$; Yes has median $\approx1790$, box $\approx1510$--$1990$, whiskers
-$\approx960$--$2650$ and low outliers at $\approx650$--$780$. \textbf{Right}: boxplots of \emph{Income} by
-\emph{Default}: No median $\approx34500$ (box $\approx21500$--$44000$, whiskers $\approx800$--$73500$), Yes median
-$\approx31500$ (box $\approx19000$--$43000$, whiskers $\approx10000$--$66500$).}
-
-\subsection{Estimating the coefficients}
-\ixh{maximum likelihood}
+\fig{ISLR \texttt{Default} data. \textbf{Left}: \ix{scatterplot} Income (0--70000) vs.\ Balance (0--2700);
+defaulters (orange +) almost all at balance $\gtrsim1200$ (mostly 1500--2500), at every income.
+\textbf{Middle}: \ix{boxplot}s of Balance by Default: No median $\approx800$, box 470--1130, whiskers 0--2120,
+outliers to 2390; Yes median $\approx1790$, box 1510--1990, whiskers 960--2650, low outliers 650--780.
+\textbf{Right}: Income by Default: No median $\approx34500$ (box 21500--44000, whiskers 800--73500);
+Yes median $\approx31500$ (box 19000--43000, whiskers 10000--66500) --- income barely differs.}
 
 %% ---------------------------------------------------------------- S3.26
-\slide{3}{26}{Estimating coefficients}
-\textbf{Maximum Likelihood Estimation (MLE)}\ixh{maximum likelihood}\ixh{MLE}
+\slide{3}{26}{Estimating coefficients (MLE)}
+\ixh{maximum likelihood}\ixh{MLE}
 \begin{routput}
-Call:
 glm(formula = default ~ student + balance + income,  (*@\ixch{glm()}\ixch{Default}@*)
     family = binomial, data = Default)  (*@\ixch{family = binomial}@*)
-
 Deviance Residuals:
     Min       1Q   Median       3Q      Max
 -2.4691  -0.1418  -0.0557  -0.0203   3.7383
-
-Coefficients:
-...
----
-Signif. codes:
-0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
+Coefficients: ...  (table, deviances, AIC: see Part I)
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 (Dispersion parameter for binomial family taken to be 1)
-...
 Number of Fisher Scoring iterations: 8
 \end{routput}
-{\color{figgray}\itshape [note: the elided rows (coefficient table, null/residual deviance, AIC) are in Part I.]}
 
 \subsection{Confounding}
 \ixh{confounding}
 
 %% ---------------------------------------------------------------- S3.27
 \slide{3}{27}{What is wrong?}
-A simple logistic regression of \textbf{default} on \textbf{student}\ixh{simple logistic regression}
+Simple logistic regression\ixh{simple logistic regression}, \textbf{default} $\sim$ \textbf{student}:
 
 \begin{tabular}{@{}l r r r r@{}}
 \toprule
- & Coefficient & Std.\ error & Z-statistic & P-value\\
+ & Coef. & Std.\ err. & Z-stat & P-value\\
 \midrule
 \texttt{\textcolor{rawc}{Intercept}} & $-3.5041$ & 0.0707 & $-49.55$ & $<0.0001$\\
 \texttt{\textcolor{rawc}{student[Yes]}} & \fbox{0.4049} & 0.1150 & 3.52 & 0.0004\\
@@ -73,11 +56,11 @@ A simple logistic regression of \textbf{default} on \textbf{student}\ixh{simple 
 \end{tabular}
 \ixh{coefficient}\ixh{standard error}\ixh{z-statistic}\ixh{p-value}
 
-A multiple logistic regression of \textbf{default} on \textbf{balance}, \textbf{income}, and \textbf{student}\ixh{multiple logistic regression}
+Multiple logistic regression\ixh{multiple logistic regression}, \textbf{default} $\sim$ \textbf{balance} + \textbf{income} + \textbf{student}:
 
 \begin{tabular}{@{}l r r r r@{}}
 \toprule
- & Coefficient & Std.\ error & Z-statistic & P-value\\
+ & Coef. & Std.\ err. & Z-stat & P-value\\
 \midrule
 \texttt{\textcolor{rawc}{Intercept}} & $-10.8690$ & 0.4923 & $-22.08$ & $<0.0001$\\
 \texttt{\textcolor{rawc}{balance}} & 0.0057 & 0.0002 & 24.74 & $<0.0001$\\
@@ -86,25 +69,16 @@ A multiple logistic regression of \textbf{default} on \textbf{balance}, \textbf{
 \bottomrule
 \end{tabular}
 
-%% ---------------------------------------------------------------- S3.30
-\slide{3}{30}{[Simpson's paradox example]}
-\ixh{Simpson's paradox}
-\fig{Blue group: points $(1,6),(2,7),(3,8),(4,9)$ with a solid blue line of slope $+1$ through them. Red group: points
-$(8,1),(9,2),(10,3),(11,4)$ with a solid red line of slope $+1$. A black dashed line fitted to all eight points
-together slopes \emph{downward}, from $y\approx9.2$ at the left edge ($x\approx-1.5$) to $y\approx0.8$ at the right
-edge ($x\approx13.5$), i.e.\ slope $\approx-0.56$.}
-
-%% ---------------------------------------------------------------- S3.31
-\slide{3}{31}{[Simpson's paradox: scatter with clusters]}
+%% ---------------------------------------------------------------- S3.30-31
+\slide{3}{30--31}{[Simpson's paradox]}
 \ixh{Simpson's paradox}\ixh{correlation}
-\textsf{Korrelation:}
-\fig{a ggplot-style \ix{scatterplot} (title ``Korrelation:'' with no value shown --- a frame of an
-animation) of about 500 black points, $Y$ (vertical, ticks 0, 5, 10, 15) vs.\ $X$ (horizontal, ticks 0, 5, 10).
-The points form about five overlapping clusters arranged along a diagonal from the upper left ($X\approx1$--$5$,
-$Y\approx7$--$13$) to the lower right ($X\approx9$--$13$, $Y\approx1$--$6$), so the overall correlation of $X$ and
-$Y$ is clearly negative, while inside each cluster the points tilt upward (positive within-cluster relationship).}
+\fig{S3.30: blue points $(1,6)$--$(4,9)$ and red points $(8,1)$--$(11,4)$, each group on its own line of slope $+1$;
+a dashed line fitted to all 8 points slopes \emph{down} (slope $\approx-0.56$, $y\approx9.2\to0.8$ over $x\approx-1.5\to13.5$).
+S3.31 (``Korrelation:'', animation frame): \ix{scatterplot} of $\sim$500 points, $Y$ 0--15 vs.\ $X$ 0--10, in
+$\sim$5 clusters along a diagonal from upper left ($X$ 1--5, $Y$ 7--13) to lower right ($X$ 9--13, $Y$ 1--6):
+overall correlation negative, within each cluster positive.}
 
-\subsection{Classification performance: confusion matrix}
+\subsection{Confusion matrix, ROC}
 \ixh{model evaluation}\ixh{confusion matrix}
 
 %% ---------------------------------------------------------------- S3.35
@@ -123,37 +97,18 @@ $Y$ is clearly negative, while inside each cluster the points tilt upward (posit
 %% ---------------------------------------------------------------- S3.36
 \slide{3}{36}{Many definitions and synonyms}
 \ixh{confusion matrix}
-A large table (Wikipedia ``Receiver operating characteristic''): \url{https://en.wikipedia.org/wiki/Receiver_operating_characteristic}
+(Wikipedia ``Receiver operating characteristic'' table.) Row ratios:
+\textbf{FDR}\ixh{false discovery rate (FDR)} $=\Sigma\text{FP}/\Sigma\text{Pred.\ pos.}$;
+\textbf{FOR}\ixh{false omission rate (FOR)} $=\Sigma\text{FN}/\Sigma\text{Pred.\ neg.}$
+Ratios of ratios: \textbf{LR+} $=\text{TPR}/\text{FPR}$, \textbf{LR$-$} $=\text{FNR}/\text{TNR}$\ixh{likelihood ratio};
+\textbf{DOR} $=\text{LR+}/\text{LR}-$\ixh{diagnostic odds ratio}.
 
-\textbf{Row ratios} (right of the block):
-\begin{itemize}
-\item \textbf{False discovery rate (FDR)} $=\dfrac{\Sigma\,\text{False positive}}{\Sigma\,\text{Predicted condition positive}}$\ixh{false discovery rate (FDR)}
-\item \textbf{False omission rate (FOR)} $=\dfrac{\Sigma\,\text{False negative}}{\Sigma\,\text{Predicted condition negative}}$\ixh{false omission rate (FOR)}
-\end{itemize}
-\textbf{Ratios of ratios} (bottom right):
-\begin{itemize}
-\item \textbf{Positive likelihood ratio (LR+)} $=\dfrac{\text{TPR}}{\text{FPR}}$; \quad
-\textbf{Negative likelihood ratio (LR$-$)} $=\dfrac{\text{FNR}}{\text{TNR}}$\ixh{likelihood ratio}
-\item \textbf{Diagnostic odds ratio (DOR)} $=\dfrac{\text{LR+}}{\text{LR}-}$\ixh{diagnostic odds ratio}
-\end{itemize}
-
-\subsection{ROC curve and AUC}
+%% ---------------------------------------------------------------- S3.39-40
+\slide{3}{39--40}{ROC [curve examples]}
 \ixh{ROC curve}\ixh{AUC}
-
-%% ---------------------------------------------------------------- S3.39
-\slide{3}{39}{ROC}
-\ixh{ROC curve}
-\fig{plot titled ``ROC Curve'': the blue step-like ROC curve rises almost vertically
-from $(0,0)$ to TPR $\approx0.5$ at FPR $\approx0.01$, reaches $\approx0.8$ at FPR $\approx0.07$, $\approx0.9$ at
-FPR $\approx0.15$, $\approx0.95$ at FPR $\approx0.25$, $\approx0.99$ by FPR $\approx0.4$ and 1.0 from FPR
-$\approx0.6$ on: a curve hugging the top-left corner (an excellent classifier, AUC close to 1).}
-
-%% ---------------------------------------------------------------- S3.40
-\slide{3}{40}{[ROC curve examples]}
-\ixh{ROC curve}\ixh{AUC}
-\fig{\textbf{Left} (hand-drawn ``xkcd'' style): three ROC curves --- green just above the diagonal (weak), orange in
-between, blue highest (jumps to TPR $\approx0.45$ almost immediately, $\approx0.7$ at FPR 0.2, $\approx0.85$ at FPR
-0.5). \textbf{Right}: A (purple, AUC 0.923) rises steeply to TPR $\approx0.85$ by FPR $\approx0.12$ then flattens
-towards 1; B (blue, AUC 0.794) starts with a jump to $\approx0.17$ at FPR 0 (so it is above A for FPR
-$\lesssim0.03$), then rises more gradually ($\approx0.6$ at FPR 0.2, $\approx0.8$ at 0.5); C (red, AUC 0.588) rises
-slowly and almost linearly ($\approx0.4$ at FPR 0.2, $\approx0.55$ at 0.4, $\approx0.87$ at 0.8).}
+\fig{S3.39 ``ROC Curve'': blue step curve hugging the top-left: TPR $\approx0.5$ at FPR 0.01, 0.8 at 0.07, 0.9 at
+0.15, 0.95 at 0.25, 0.99 at 0.4, 1.0 from 0.6 (AUC near 1).
+S3.40 left: three curves --- green just above diagonal (weak), orange between, blue highest
+($\approx0.45$ at FPR $\approx0$, 0.7 at 0.2, 0.85 at 0.5). Right: A (purple, AUC 0.923) to TPR 0.85 by FPR 0.12 then
+flat; B (blue, AUC 0.794) jumps to 0.17 at FPR 0 (above A for FPR $\lesssim0.03$), 0.6 at 0.2, 0.8 at 0.5;
+C (red, AUC 0.588) nearly linear: 0.4 at 0.2, 0.55 at 0.4, 0.87 at 0.8.}

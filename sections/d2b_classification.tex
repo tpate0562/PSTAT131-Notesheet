@@ -105,14 +105,14 @@ $p$ & odds & log odds\\ \midrule
 \end{topic}
 
 \begin{trap}[PE Q16: coefficient 0.04 is NOT ``+4\% probability'']
-\ixh{coefficient interpretation}Logistic regression for cancelling a subscription; coefficient of \texttt{MonthlyFee} $=0.04$.\\
-\textbf{Wrong:} ``A \$1 increase in the monthly fee \emph{causes} a customer's probability of cancelling to
+\ixh{coefficient interpretation}Logistic regression for canceling a subscription; coefficient of \texttt{MonthlyFee} $=0.04$.\\
+\textbf{Wrong:} ``A \$1 increase in the monthly fee \emph{causes} a customer's probability of canceling to
 increase by 4\%.'' Problems: (1) it treats the probability as linear in the fee --- the relationship is
 linear in the \ix{log odds}, and the change in $p$ depends on the current fee; (2) ``causes'' ---
 only \textbf{association} can be claimed.\\
 \textbf{Right:} ``A \$1 increase in the monthly fee is associated with a 0.04 increase in the log odds of
-cancelling'' (equivalently, odds $\times e^{0.04}\approx1.041$, about $+4.1\%$ in the \emph{odds}), or
-``a higher fee is associated with a higher probability of cancelling'' (sign is positive) \src{PE Q16}.
+canceling'' (equivalently, odds $\times e^{0.04}\approx1.041$, about $+4.1\%$ in the \emph{odds}), or
+``a higher fee is associated with a higher probability of canceling'' (sign is positive) \src{PE Q16}.
 \end{trap}
 
 \begin{keybox}[HW3 Q11--Q12 (231): logit is the inverse of the logistic]
@@ -128,7 +128,7 @@ If $\beta_1<0$: $x_1\to\infty\Rightarrow p\to0$;\; $x_1\to-\infty\Rightarrow p\t
 \begin{topic}{Fitting with glm()}
 \begin{itemize}
 \item Coefficients are estimated by \ix{maximum likelihood} (MLE), \emph{not} least squares \src{S3.26}:
-  choose $\hat\beta$'s so $\hat p(x_i)$ is near 1 when $y_i=1$ and near 0 when $y_i=0$, i.e.\ maximise
+  choose $\hat\beta$'s so $\hat p(x_i)$ is near 1 when $y_i=1$ and near 0 when $y_i=0$, i.e.\ maximize
   $\ell(\beta_0,\beta_1)=\prod_{i:y_i=1}p(x_i)\prod_{i':y_{i'}=0}\bigl(1-p(x_{i'})\bigr)$ (ISLR 4.3.2).
 \item Base R: \ixc{glm()} with \ixc{family = binomial} (``generalized linear model''):
 \end{itemize}
@@ -336,7 +336,7 @@ $\hat\delta_k(x)=x\,\hat\mu_k/\hat\sigma^2-\hat\mu_k^2/(2\hat\sigma^2)+\log\hat\
   \ix{Bayes decision boundary} (dashed); right, histograms of training samples with the \textbf{LDA decision
   boundary} (solid, slightly left of 0) --- LDA estimates the Bayes boundary from data.
 \item Intuition (S3.52--75, gene-transcription/drug example): LDA builds a \textbf{new axis} that
-  \textbf{maximises} $\dfrac{d^2}{s_1^2+s_2^2}$ --- squared distance between class means over the within-class
+  \textbf{maximizes} $\dfrac{d^2}{s_1^2+s_2^2}$ --- squared distance between class means over the within-class
   ``scatter'' --- rather than ignoring a predictor (projecting on Gene X alone loses separation). For 3 classes:
   $\frac{d_1^2+d_2^2+d_3^2}{s_1^2+s_2^2+s_3^2}$ with $d_k$ $=$ distance from class centroid to the overall centroid;
   data are projected onto LD1, LD2 (S3.82--85).
@@ -419,7 +419,7 @@ Naive Bayes & yes & quadratic, no cross terms & predictors independent within ea
   (logistic: \ix{maximum likelihood}; LDA: plug in estimated normal means/variance/priors).
 \item LDA assumes a \textbf{normal} distribution of the predictors given the response class.
 \item Logistic regression learns $\Pr(Y=k\mid X)$ \textbf{directly}: \ix{discriminative model} (discriminative learning).
-  LDA learns $\Pr(Y=k\mid X)$ by modelling $\Pr(Y=k,X)=\pi_kf_k(x)$: \ix{generative model} (generative learning).
+  LDA learns $\Pr(Y=k\mid X)$ by modeling $\Pr(Y=k,X)=\pi_kf_k(x)$: \ix{generative model} (generative learning).
 \item Rule of thumb: normality roughly holds / small $n$ / well-separated classes / $K>2$ $\Rightarrow$ LDA;
   normality doubtful $\Rightarrow$ logistic regression is more robust.
 \end{itemize}

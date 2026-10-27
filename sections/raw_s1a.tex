@@ -1,196 +1,83 @@
-%% raw_s1a.tex -- raw transcription of Slide Set 1, PDF pages 1--58
-%% (course intro, what is ML, supervised vs. unsupervised, regression vs. classification,
-%%  parametric vs. non-parametric, flexibility vs. interpretability, training vs. test MSE).
+%% raw_s1a.tex -- raw transcription of Slide Set 1, PDF pages 1--58 (compressed)
+%% (course intro, what is ML, supervised vs. unsupervised, flexibility, training vs. test MSE).
 \section{Slide Set 1 --- Intro to ML, bias--variance tradeoff, KNN (pp.~1--58)}
-{\color{figgray}\itshape [Slides/parts already covered in Part I are omitted: S1.1--5, S1.7, S1.10, S1.14, S1.25, S1.29, S1.33, S1.36--37, S1.39--44, S1.46--47, S1.49--50, S1.52--53, S1.55--58.]}
+{\color{figgray}\itshape [In Part I: S1.1--5, 7, 10, 14, 25, 29, 33, 36--37, 39--44, 46--47, 49--50, 52--53, 55--58.]}
 
 \subsection{Course overview and introduction}
 
-\slide{1}{6}{Required reading:}
-\begin{itemize}
-\item For \textbf{undergraduates}, ch.~1 of ISLR\ixch{ISLR}
-\item For \textbf{graduate students}, ch.~1 of ESL\ixh{ESL}
-\end{itemize}
+\slide{1}{6}{Required reading}
+Undergrads: ch.~1 of ISLR\ixch{ISLR}; grads: ch.~1 of ESL\ixh{ESL}.
 
 \slide{1}{8}{A silly introduction}
-How a cat decides whether to scratch on something:
-\fig{a hand-drawn \ixh{decision tree}decision tree (flowchart) next to a photo of a black-and-white cat scratching a sofa arm. Root node (blue box): ``Am I supposed to scratch on it?''. Branch \textbf{Yes} $\to$ red leaf ``Don't scratch on it.''. Branch \textbf{No} $\to$ blue node ``Will my owners be mad if I scratch on it?''; from there \textbf{Yes} $\to$ green leaf ``Definitely scratch on it!'' and \textbf{No} $\to$ red leaf ``Don't scratch on it.''. Blue = questions (splits), green/red = final decisions (classes).}
+\fig{\ixh{decision tree}decision tree for a cat: ``Am I supposed to scratch on it?'' Yes $\to$ don't scratch; No $\to$ ``Will my owners be mad?'' Yes $\to$ scratch!, No $\to$ don't. Internal nodes = questions (splits), leaves = decisions (classes).}
 
-\slide{1}{9}{[untitled: Speed vs.\ amount of yams consumed]}
-Link (top right): \underline{Jamaica's sprinting glory: Is it the yams or the genes?}
-\fig{a toy \ixh{scatterplot}scatterplot with x-axis ``\textbf{Amount of Yams Consumed}'' and y-axis ``\textbf{Speed}'' (three tick marks on each axis, no numbers). Five blue dots trend upward; a black dashed straight line (a fitted \ixh{regression line}regression line) runs through them from lower left to upper right. Annotations: ``This is me:'' points to the lowest-left dot (few yams, slow); ``These are some other people:'' points to three middle dots; ``This is Usain Bolt:'' points to the top-right dot (most yams, fastest). A red \textbf{X} on the x-axis marks a new yam amount; a green dashed arrow goes straight up from it to the dashed line and then a green dashed line goes left to a red \textbf{X} on the y-axis, i.e.\ reading off the \ixh{prediction}predicted speed for a new person from the line. Right side: a photo of Usain Bolt (Jamaica, ``BOLT'', London 2012) crossing the finish line and a photo of a baked yam/sweet potato with butter.}
+\slide{1}{9}{[Speed vs.\ yams consumed]}
+\fig{toy \ixh{scatterplot}scatterplot, Speed vs.\ Amount of Yams Consumed (me = low/slow, Usain Bolt = high/fast) with a fitted dashed \ixh{regression line}regression line; a new $x$ is read up to the line and across to give the \ixh{prediction}predicted speed. Link: ``Jamaica's sprinting glory: Is it the yams or the genes?''}
 
-\slide{1}{11}{[untitled: xkcd ``Machine Learning'' comic]}
-\fig{xkcd comic \#1838 (\url{https://xkcd.com/1838/}). One stick figure stands on a big pile (labelled with matrices, $\lambda$, $f$, numbers) holding a paddle; a funnel labelled ``DATA'' feeds into the pile and a box labelled ``ANSWERS'' comes out the other side. Paraphrased dialogue: the other figure asks whether this is your machine learning system; the answer is yes --- pour the data into this big pile of linear algebra and collect the answers on the other side; asked what happens if the answers are wrong, he says to just stir the pile until they start looking right. (Joke: ML as an opaque, trial-and-error ``black box''.)}
+\slide{1}{11--13}{[Comics]}
+\fig{xkcd 1838: ML = pour data into a pile of linear algebra, collect answers, ``stir the pile'' until they look right (opaque trial-and-error). xkcd 1425: checking if a photo is in a national park = easy GIS lookup; checking if it is a bird = research team + 5 years. Meme (S1.13): crack labeled ``statistics'' $\to$ framed as ``Machine Learning'' $\to$ ``Artificial intelligence'' (ML/AI = rebranded statistics).}\ixh{machine learning}\ixh{statistical learning}
 
-\slide{1}{12}{[untitled: xkcd ``Tasks'' comic]}
-\fig{xkcd comic \#1425 (\url{https://xkcd.com/1425/}). A manager asks a programmer at a desk for an app that, when a user takes a photo, checks whether they are in a national park (programmer: easy GIS lookup, a few hours) and also checks whether the photo is of a bird (programmer: that needs a research team and five years). Caption, paraphrased: in CS it can be hard to explain the difference between the easy and the virtually impossible. (Point: image recognition, a classic ML task, is much harder than rule-based lookups.)}
-
-\slide{1}{13}{Machine learning vs.\ statistical learning}
-\ixh{machine learning}\ixh{statistical learning}
-\fig{four-panel meme. Panel 1: a man looks at a crack in a wall labelled ``statistics''. Panel 2: he hangs a picture frame around the crack. Panel 3: the framed crack is now labelled ``Machine Learning'' and he stands proudly with arms crossed. Panel 4: the framed crack, now labelled ``Artificial intelligence'', is displayed to a large admiring audience. (Joke: ML/AI are statistics re-branded.)}
-
-\slide{1}{15}{[untitled: AI $\supset$ machine learning $\supset$ deep learning timeline]}
-\fig{Nvidia infographic (``Source: Nvidia''): a timeline from the 1950's to the 2010's with three nested green blocks. ARTIFICIAL INTELLIGENCE (from the 1950's; early AI stirs excitement; icon of a checkers board), MACHINE LEARNING (from the 1980's; ML begins to flourish; icon of e-mails going into a trash can = spam filtering), and DEEP LEARNING (from the 2010's; deep learning breakthroughs drive the AI boom; icon of a cat picture made of binary digits under a magnifying glass = image recognition). Caption, paraphrased: since the 1950s, successively smaller subsets of AI --- first machine learning, then deep learning (a subset of ML) --- have created ever larger disruptions.}
-\ixh{artificial intelligence (AI)}\ixh{deep learning}
-
-\slide{1}{16}{AI has a long history of being ``the next big thing''\ldots}
-\fig{line chart of AI ``Popularity'' (y-axis) against ``Time'' (x-axis, ticks 1950, 1956, 1974, 1980, 1987, 1993). The curve rises from 1950 (``Birth'' at 1956) to a local peak ``Inflated Hype'' (1974), dips to ``AI winter I'' (1980), rises sharply to a peak ``New Hopes'' (1987), dips to ``AI winter II'' (1993), then climbs steeply to ``Explosive Growth''.}
-\textbf{Timeline of AI Development}
+\slide{1}{15--17}{[AI $\supset$ ML $\supset$ deep learning]}
+\fig{Nvidia timeline: AI (1950s, checkers) $\supset$ ML (1980s, spam filtering) $\supset$ deep learning (2010s, image recognition). Venn: AI (rule-based, expert systems) $\supset$ ML (CART, SVM) $\supset$ DL (neural networks).}
+\fig{AI popularity vs.\ time: Birth 1956 $\to$ Inflated Hype 1974 $\to$ AI winter I 1980 $\to$ New Hopes 1987 $\to$ AI winter II 1993 $\to$ Explosive Growth.}
+\ixh{artificial intelligence (AI)}\ixh{deep learning}\ixh{classical programming}\ixh{CART}\ixh{SVM}\ixh{neural network}
 \begin{itemize}
-\item \textbf{1950s--1960s}: First AI boom --- the age of reasoning, prototype AI developed
-\item \textbf{1970s}: AI winter I
-\item \textbf{1980s--1990s}: Second AI boom: the age of Knowledge representation (appearance of expert systems capable of reproducing human decision-making)
-\item \textbf{1990s}: AI winter II
-\item \textbf{1997}: Deep Blue beats Gary Kasparov
-\item \textbf{2006}: University of Toronto develops Deep Learning\ixh{deep learning}
-\item \textbf{2011}: IBM's Watson won Jeopardy
-\item \textbf{2016}: Go software based on Deep Learning beats world's champions
+\item 1950s--60s: first AI boom (reasoning, prototype AI); 1970s: AI winter I
+\item 1980s--90s: second boom (knowledge representation, expert systems reproducing human decisions); 1990s: AI winter II
+\item 1997 Deep Blue beats Kasparov; 2006 U.~Toronto develops deep learning; 2011 IBM Watson wins Jeopardy; 2016 deep-learning Go software beats world champions
 \end{itemize}
 
-\slide{1}{17}{[untitled: AI vs.\ ML vs.\ deep learning]}
-\fig{(left) nested-ellipse Venn diagram: the outer ellipse \textbf{Artificial Intelligence} (``Rule-based techniques, expert systems \ldots'') contains \textbf{Machine Learning} (``CART, SVM \ldots''), which contains \textbf{Deep Learning} (``Neural networks \ldots'').}
-\ixh{artificial intelligence (AI)}\ixh{machine learning}\ixh{deep learning}\ixh{classical programming}\ixh{CART}\ixh{SVM}\ixh{neural network}
+\slide{1}{18}{[How a child vs.\ a program learns ``dog'' (New Yorker)]}
+Old program: thousands of if-then-else rules (ears, snout, hair, not a rat \ldots). Child: sees labeled dogs, errs (wolf = dog), is corrected. ML, like the child, uses a classified \ix{training set}\ixh{training data} (dog / not dog), extracts features\ixh{feature}, tests itself on thousands of labeled images, and builds its own recognizer.
 
-\slide{1}{18}{[untitled: New Yorker quote --- how a child vs.\ a program learns ``dog'']}
-{\color{figgray}\itshape [long magazine quotation, paraphrased here:]} An old-fashioned program to identify a dog would be written by a software engineer as thousands of if-then-else rules (\emph{if} it has ears, a snout, \emph{and} hair, and \emph{is not} a rat \ldots). A child instead learns by seeing dogs and being told they are dogs, makes mistakes (thinks a wolf is a dog), is corrected, and gradually shifts her understanding. The machine-learning algorithm, like the child, pulls information from a \ix{training set}\ixh{training data} that has been classified (``here's a dog, and here's not a dog''), extracts features\ixh{feature} from one set versus the other, and by testing itself against hundreds and thousands of classified images it creates its own way to recognize a dog. It just knows \emph{how} to do it.\\
-Link: \url{https://www.newyorker.com/magazine/2017/04/03/ai-versus-md}
-\fig{photo of a white wolf next to a dog with similar face markings (hard to tell apart), and a grid of brain MRI scans (the article is about AI in medical diagnosis).}
+\slide{1}{19--23}{[ML applications]}
+Generative AI\ixh{generative AI}: Lensa, DALL$\cdot$E, ChatGPT, Jukebox (music as raw audio). Lee Sedol vs.\ AlphaGo\ixh{AlphaGo} (2016). Google AI car first non-human to qualify as a driver\ixh{self-driving car}.
+\textbf{Netflix Challenge}\ixh{Netflix Challenge}: 100M+ ratings, 400k+ users, 17k+ movies; predict\ixh{prediction} user's star rating (1--5); prize \$1,000,000. Kaggle\ixh{Kaggle} competitions.
 
-\slide{1}{19}{[untitled: generative AI examples]}
-\fig{collage of generative-AI products: \textbf{LENSA} (AI-generated stylised portrait avatars); \textbf{DALL$\cdot$E} (OpenAI; an AI-generated photo of two teddy bears working on a computer underwater); an AI anime-filter app (a photo of a cat turned into an anime girl); the ChatGPT login screen (``Welcome to ChatGPT'', Log in / Sign up); and OpenAI's \textbf{Jukebox} page (April 30, 2020), a neural net that generates music, including rudimentary singing, as raw audio in a variety of genres and artist styles (Read paper / View code buttons).}
-\ixh{generative AI}
+\slide{1}{24}{ML in research}
+High-energy physics; gene-expression microarrays (20,000+ features\ixh{feature}); GWAS (millions of features). $\Rightarrow$ unprecedented data scale + highly complicated structure.\ixh{high-dimensional data}
 
-\slide{1}{20}{[untitled: Lee Sedol vs.\ AlphaGo]}
-\fig{photo of Go champion Lee Sedol, head in hand, studying a Go board during his 2016 match against AlphaGo.}
-Caption: Lee Sedol vs.\ AlphaGo in 2016, Source: The New Yorker.\\
-\texttt{https://www.wired.com/2016/03/\allowbreak two-moves-alphago-lee-\allowbreak sedol-redefined-future/}
-\ixh{AlphaGo}
-
-\slide{1}{21}{[untitled: Google self-driving car]}
-\fig{photo of Google's small white two-seat self-driving car (roof-mounted sensor dome) in a parking lot at sunset; ``Image courtesy of Google''.}
-Headline: \textbf{Google's artificial intelligence becomes first non-human to qualify as a driver}\ixh{artificial intelligence (AI)}\ixh{self-driving car}
-
-\slide{1}{22}{Machine learning competitions}
-\begin{itemize}
-\item Netflix Challenge\ixh{Netflix Challenge}
-\item 100,000,000+ ratings from 400,000+ users of 17,000+ movies
-\item Predict user rating for a film, winner got \$1,000,000!\ixh{prediction}
-\end{itemize}
-\fig{screenshot of the Netflix web interface: a row of movie posters (Due Date [highlighted with a red box], Kiss Kiss Bang Bang, Surfer, Dude, The Wedding Planner, Texas Chainsaw Massacre: Next Gen), each with an ``Add'' button, a 1--5 star rating (about 2--3.5 red stars) and a ``Not Interested'' button --- the star ratings are what the competition asked teams to predict.}
-
-\slide{1}{23}{[untitled: Kaggle competitions]}
-\fig{screenshot of the Kaggle ``Competitions'' web page (\url{https://www.kaggle.com/competitions}): left menu Create / Home / Competitions / Datasets / Code / Discussions / Courses / More; main text ``Grow your data science skills by competing in our exciting competitions. Find help in the documentation or learn about Community competitions.'', a ``Host a Competition'' button, a ``Search competitions'' box, filter chips All competitions / Entered / Hosted / Featured / Research, and a ``Get Started'' heading.}
-\ixh{Kaggle}
-
-\slide{1}{24}{Machine learning in research: Examples}
-\begin{itemize}
-\item High-energy physics experiments
-\item Microarrays for gene expression (20,000+ features\ixh{feature})
-\item Genome-wide association studies (millions of features)
-\end{itemize}
-\begin{center}
-\textbf{\color{cyan!80!blue}Unprecedented large scale of data}\\
-+\\
-\textbf{\color{cyan!80!blue}Highly complicated underlying structure}
-\end{center}
-\ixh{high-dimensional data}
-
-\slide{1}{26}{[untitled: data science workflow diagram]}
-\fig{the R for Data Science workflow diagram inside a box labelled ``Program'': Import $\to$ Tidy $\to$ [grey box ``Understand'': a cycle Transform $\to$ Visualise $\to$ Model $\to$ back to Transform] $\to$ Communicate.}
-\ixh{data science workflow}\ixh{tidy data}
-
-\slide{1}{27}{[untitled: tidymodels website]}
-\fig{screenshot of the tidymodels home page (\url{https://www.tidymodels.org/}) with package hexagon logos.}
-\textbf{TIDYMODELS}\par
-The \ixc{tidymodels} framework is a collection of packages for modeling and machine learning using \ixc{tidyverse} principles.\par
-Install tidymodels with:
+\slide{1}{26--28}{[Data science workflow; tidymodels]}
+\fig{R4DS: Import $\to$ Tidy $\to$ [Transform $\to$ Visualize $\to$ Model loop = Understand] $\to$ Communicate. Package view: tidyverse (Import, Tidy, Transform, Visualize) $\to$ tidymodels (Model, loops back to Transform) $\to$ rmarkdown/Shiny (Share).}\ixh{data science workflow}\ixh{tidy data}\ixch{rmarkdown}\ixch{Shiny}
+\ixc{tidymodels} = collection of packages for modeling/ML using \ixc{tidyverse} principles.
 \begin{rcode}
 install.packages("tidymodels")   (*@\ixch{install.packages()}\ixch{tidymodels}@*)
 \end{rcode}
 \ixch{rsample}\ixch{recipes}\ixch{parsnip}\ixch{yardstick}
 
-\slide{1}{28}{[untitled: tidyverse/tidymodels workflow]}
-\fig{workflow diagram with package hex logos: a top box with the \textbf{tidyverse} logo containing Import $\to$ Tidy $\to$ Transform $\to$ Visualize; an arrow from Visualize goes down to a yellow box with the \textbf{tidymodels} logo containing \textbf{Model}, which loops back up to Transform; an arrow from Model goes down to a bottom box with the \textbf{rmarkdown} and \textbf{Shiny} logos labelled \textbf{Share}.}
-Links: \texttt{https://hansjoerg.me/\allowbreak 2020/02/09/\allowbreak tidymodels-for-\allowbreak machine-learning/}\\
-\texttt{https://rviews.rstudio.com/\allowbreak 2019/06/19/\allowbreak a-gentle-intro-\allowbreak to-tidymodels/}
-\ixch{tidyverse}\ixch{tidymodels}\ixch{rmarkdown}\ixch{Shiny}
-
 \subsection{The learning set-up: response, predictors, $f$ and error}
 
-\slide{1}{30}{Example data:}
-\begin{itemize}
-\item At the observation level:\ixh{observation}
-\end{itemize}
+\slide{1}{30--32}{Example data (observation level)}\ixh{observation}
 \[
-\underset{\textbf{wage}}{\begin{pmatrix} y_1\\ y_2\\ y_3\\ \vdots\\ y_9\end{pmatrix}}
-\qquad
-\underset{\textbf{age, education, year}}{\begin{pmatrix} x_{11},x_{12},x_{13}\\ x_{21},x_{22},x_{23}\\ x_{31},x_{32},x_{33}\\ \vdots\ ,\ \vdots\ ,\ \vdots\\ x_{91},x_{92},x_{93}\end{pmatrix}}
+\underset{\textbf{wage}}{\begin{pmatrix} y_1\\ y_2\\ \colorbox{red!30}{$y_3$}\\ \vdots\\ y_9\end{pmatrix}}
+\quad
+\underset{\textbf{age, education, year}}{\begin{pmatrix} x_{11},\colorbox{cyan!35}{$x_{12}$},x_{13}\\ x_{21},\colorbox{cyan!35}{$x_{22}$},x_{23}\\ \colorbox{cyan!35}{$x_{31},x_{32},x_{33}$}\\ \vdots\\ x_{91},\colorbox{cyan!35}{$x_{92}$},x_{93}\end{pmatrix}}
 \]
-{\color{figgray}\itshape [note: on the slide ``wage'' is the label above the $y$ vector (orange) and ``age, education, year'' the label above the $x$ matrix (blue).]}
+Row 3 (``John'') = one observation (one employee's wage, age, education, year). Column 2 = one predictor\ixh{predictor} (all 9 employees' education). $x_{ij}$ = obs.\ $i$, predictor $j$.
 
-\slide{1}{31}{Example data: (one observation)}
-\begin{itemize}
-\item At the observation level:\ixh{observation}
-\end{itemize}
-\[
-\text{John}\ \ \underset{\textbf{wage}}{\begin{pmatrix} y_1\\ y_2\\ \colorbox{red!30}{$y_3$}\\ \vdots\\ y_9\end{pmatrix}}
-\qquad
-\underset{\textbf{age, education, year}}{\begin{pmatrix} x_{11},x_{12},x_{13}\\ x_{21},x_{22},x_{23}\\ \colorbox{cyan!35}{$x_{31},x_{32},x_{33}$}\\ \vdots\ ,\ \vdots\ ,\ \vdots\\ x_{91},x_{92},x_{93}\end{pmatrix}}
-\]
-\fig{same layout as S1.30, but the label ``John'' is placed next to row 3: $y_3$ is highlighted red and the whole row $x_{31},x_{32},x_{33}$ is highlighted blue --- one row = one observation (one employee's wage and his age, education, year).}
-
-\slide{1}{32}{Example data: (one predictor)}
-\begin{itemize}
-\item At the observation level:
-\end{itemize}
-\[
-\underset{\textbf{wage}}{\begin{pmatrix} y_1\\ y_2\\ y_3\\ \vdots\\ y_9\end{pmatrix}}
-\qquad
-\underset{\textbf{age, education, year}}{\begin{pmatrix} x_{11},\colorbox{cyan!35}{$x_{12}$},x_{13}\\ x_{21},\colorbox{cyan!35}{$x_{22}$},x_{23}\\ x_{31},\colorbox{cyan!35}{$x_{32}$},x_{33}\\ \vdots\ ,\ \vdots\ ,\ \vdots\\ x_{91},\colorbox{cyan!35}{$x_{92}$},x_{93}\end{pmatrix}}
-\]
-\fig{the whole 2nd column $x_{12},x_{22},\ldots,x_{92}$ is highlighted blue, with the caption below it ``\textbf{all 9 employees' education levels}'' --- one column = one predictor\ixh{predictor} measured on all observations; $x_{ij}$ = observation $i$, predictor $j$.}
-
-\slide{1}{34}{[untitled: Regression vs.\ Machine Learning cartoon]}
-\fig{cartoon (credit: Chelsea Parlett Pelleriti). Two identical walking scatterplots with a fitted upward line through the dots: the left one is labelled ``REGRESSION''; the right one wears a top hat, a monocle and carries a cane and is labelled ``MACHINE LEARNING''. Joke: ML is often just \ixh{regression}regression dressed up fancily.}
+\slide{1}{34}{[Regression vs.\ ML cartoon]}
+\fig{same scatterplot+line, one plain (``REGRESSION''), one in top hat and monocle (``MACHINE LEARNING''): ML is often \ixh{regression}regression dressed up.}
 
 \slide{1}{35}{Evaluate: How well did the machine learn?}
-\begin{itemize}
-\item Need to give the model observed output and input
-\end{itemize}
-\begin{center}
-\begin{tabular}{@{}|l|l|@{}}\hline
-\textbf{Learner} & \textbf{Supervisor}\\\hline
-College student & Answer key\\\hline
-Machine & Raw observed output\\\hline
-\end{tabular}
-\end{center}
+Need to give the model observed output and input. Learner/supervisor: college student/answer key; machine/raw observed output.
 
-\slide{1}{38}{[untitled: error of one test prediction]}
-\fig{yam/speed plot with only the black dashed line and the four red \textbf{Testing Data} points. For the left-most test point: a red X on the x-axis marks its yam amount; a dashed line goes up to the line and left (purple) to a red X on the y-axis = the \ixh{prediction}predicted speed $\hat f(\tilde x)$, while a green dashed line from the actual point goes left to a higher red X = the observed speed $\tilde y$. A black vertical bar (error bar) between the point and the line marks the prediction error $\tilde y-\hat f(\tilde x)$ (the \ixh{residual}residual for that test point).}
+\slide{1}{38}{[Error of one test prediction]}
+\fig{yam/speed line with 4 test points: for test $\tilde x$, \ixh{prediction}prediction $\hat f(\tilde x)$ on the line vs.\ observed $\tilde y$; vertical gap = error $\tilde y-\hat f(\tilde x)$ (test \ixh{residual}residual).}
 
-\slide{1}{45}{[untitled: map of supervised and unsupervised methods]}
-\fig{hand-lettered blob diagram (credit: Chelsea Parlett Pelleriti). A large peach region \textbf{SUPERVISED} contains: a purple blob ``CONTINUOUS OUTCOME'' with \textbf{Linear regression}; a pink blob ``CATEGORICAL* OUTCOME'' with \textbf{Logistic regression}, \textbf{Decision tree}, \textbf{Naive bayes}, \textbf{K nearest neighbors}; an orange blob ``REGULARIZATION'' with \textbf{Ridge} and \textbf{LASSO}. A large grey-blue region \textbf{UNSUPERVISED} contains a blue blob ``CLUSTERING'' with \textbf{DBSCAN}, \textbf{Hierarchical clustering}, \textbf{K-means}, \textbf{Gaussian Mixtures (EM)}. A grey ``DIMENSION REDUCTION'' blob straddles both regions, overlapping \textbf{LASSO} (supervised side) and containing \textbf{PCA} (unsupervised side).}
+\slide{1}{45}{[Map of methods]}
+\fig{SUPERVISED: continuous outcome (linear regression); categorical outcome (logistic regression, decision tree, naive Bayes, KNN); regularization (ridge, LASSO). UNSUPERVISED: clustering (DBSCAN, hierarchical, K-means, Gaussian mixtures/EM). Dimension reduction straddles both (LASSO; PCA).}
 \ixh{supervised learning}\ixh{unsupervised learning}\ixh{linear regression}\ixh{logistic regression}\ixh{decision tree}\ixh{naive Bayes}\ixh{KNN}\ixh{ridge regression}\ixh{lasso}\ixh{regularization}\ixh{clustering}\ixh{k-means clustering}\ixh{hierarchical clustering}\ixh{dimension reduction}\ixh{principal component analysis (PCA)}
 
-\slide{1}{48}{[untitled: Machine Learning mind map]}
-\fig{mind map with a central grey bubble \textbf{Machine Learning} and three branches. \textbf{Unsupervised Learning} (teal) $\to$ \emph{Dimensionality Reduction} (Meaningful Compression, Structure Discovery, Big data Visualisation, Feature Elicitation) and \emph{Clustering} (Recommender Systems, Targetted Marketing, Customer Segmentation). \textbf{Supervised Learning} (red) $\to$ \emph{Classification} (Image Classification, Customer Retention, Identity Fraud Detection, Diagnostics) and \emph{Regression} (Advertising Popularity Prediction, Weather Forecasting, Market Forecasting, Estimating life expectancy, Population Growth Prediction). \textbf{Reinforcement Learning} (orange) $\to$ Real-time decisions, Game AI, Robot Navigation, Skill Acquisition, Learning Tasks.}
+\slide{1}{48}{[ML mind map]}
+\fig{Unsupervised $\to$ dimensionality reduction (compression, structure discovery, big-data visualization, feature elicitation), clustering (recommenders, targeted marketing, customer segmentation). Supervised $\to$ classification (image classification, customer retention, identity fraud, diagnostics), regression (ad popularity, weather/market forecasting, life expectancy, population growth). Reinforcement $\to$ real-time decisions, game AI, robot navigation, skill acquisition, learning tasks.}
 \ixh{machine learning}\ixh{supervised learning}\ixh{unsupervised learning}\ixh{reinforcement learning}\ixh{classification}\ixh{regression}\ixh{clustering}\ixh{dimension reduction}
 
-\subsection{Parametric vs.\ non-parametric; uses of models}
-
 \slide{1}{51}{General comments}
-\begin{itemize}
-\item It's important to:
-\item understand the ideas behind these methods
-\item understand the simpler methods first
-\item accurately evaluate the performance of a method\ixh{model evaluation}
-\end{itemize}
+Important: understand ideas behind methods; learn simpler methods first; accurately evaluate performance\ixh{model evaluation}.
 
-\subsection{Bias--variance tradeoff: flexibility, training MSE and test MSE}
+\subsection{Bias--variance tradeoff: flexibility}
 \ixh{bias-variance tradeoff}
 
-\slide{1}{54}{[untitled: model flexibility/complexity]}
-\fig{four 3-D perspective plots (the ISLR ch.~2 \texttt{Income} example) with axes \textbf{Years of Education}, \textbf{Seniority} (horizontal) and \textbf{Income} (vertical); red dots are the observations, with short black vertical segments joining each dot to the surface (the errors). Top: the blue surface = the true $f$ (a smooth, gently wavy sheet rising with education and seniority). Bottom row, from left to right under a long arrow labelled ``\textbf{model flexibility/complexity}'': yellow fitted surfaces $\hat f$ --- (1) a flat plane (linear model; misses the curvature, many visible error segments); (2) a moderately smooth surface close to the true blue $f$; (3) a very rough, wiggly surface that bends to pass through (almost) every red point, i.e.\ zero training error but far from the true $f$ (overfitting).}
+\slide{1}{54}{[Model flexibility/complexity]}
+\fig{ISLR \texttt{Income} vs.\ Years of Education, Seniority (3-D). True $f$ = smooth surface. Fits in order of increasing flexibility: flat plane (misses curvature, large errors); smooth surface $\approx f$; wiggly surface through every point (zero training error, far from $f$ = overfitting).}
 \ixh{flexibility}\ixh{model complexity}\ixh{overfitting}\ixh{Income data}
-

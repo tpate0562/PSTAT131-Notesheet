@@ -1,82 +1,62 @@
 %% raw_s3b.tex -- raw transcription of Slide Set 3, PDF pages 43--93
-%% (Discriminant analysis: LDA, QDA, comparison of classifiers). Trimmed: only material not in Part I.
+%% (Discriminant analysis: LDA, QDA, comparison of classifiers). Trimmed + compressed: only material not in Part I.
 \section{Slide Set 3 (cont.) --- Discriminant analysis: LDA \& QDA (pp.~43--93; past the Slide-42 cutoff)}
 \ixh{discriminant analysis}\ixh{linear discriminant analysis (LDA)}\ixh{quadratic discriminant analysis (QDA)}
-{\color{figgray}\itshape [Slides/parts already covered in Part I are omitted: S3.43--44, S3.46, S3.48--51, S3.53,
-S3.56, S3.58--60, S3.62, S3.65--74, S3.76--79, S3.81--84, S3.86--93; on the kept slides only the details missing
-from Part I remain.]}
-{\color{figgray}\itshape [note: these pages lie past the official ``up until Slide 42'' midterm cutoff, but are included because practice exam Q20, Lab~3 and HW~3 test LDA/QDA.]}
+{\color{figgray}\itshape [Omitted (in Part I): S3.43--44, 46, 48--51, 53, 56, 58--60, 62, 65--74, 76--79, 81--84, 86--93.
+Past the Slide-42 cutoff; kept because PE Q20, Lab~3, HW~3 test LDA/QDA.]}
 
-%% ------------------------------------------------------------------
-\subsection{Motivation: why LDA?}
+\subsection{Why LDA?}
 \ixh{linear discriminant analysis (LDA)}
 
 \slide{3}{45}{Why bother considering LDA?}
-\ixh{linear discriminant analysis (LDA)}\ixh{perfect separation}
+\ixh{perfect separation}
 \begin{routput}
 > x <- seq(100)
 > y <- c(rep(0, 50), rep(1, 50))
 > fit <- glm(y~x, family = "binomial")        (*@\ixch{glm()}\ixch{family = "binomial"}@*)
 \end{routput}
 
-\slide{3}{47}{[untitled --- feature extraction vs feature selection]}
-\fig{Two-panel graphic with no other text. Left panel (dark slate background), titled ``\ix{feature extraction}'': a row of 5 diamonds, a red down-arrow, a row of 8 circles, a red arrow, a row of 6 circles, a red arrow, and finally a row of 3 glowing circles --- the original features are transformed/combined into a small number of \emph{new} features. Right panel (light teal background), titled ``\ix{feature selection}'': a single row of 7 dark circles, 3 of which (the 2nd, 5th and 6th) are crossed out with red X's --- a subset of the \emph{original} features is kept and the rest are dropped.}\ixh{dimension reduction}
-{\color{figgray}\itshape [note: LDA is a feature-extraction method --- it builds new axes (LD1, LD2, \ldots) from combinations of the predictors; see S3.64--67, S3.80--85.]}
+\slide{3}{47}{[feature extraction vs feature selection]}
+\fig{Left, ``\ix{feature extraction}'': original features transformed/combined into a few \emph{new} features (rows of
+5 $\to$ 8 $\to$ 6 $\to$ 3 shapes). Right, ``\ix{feature selection}'': row of 7 circles, 3 crossed out --- a subset of the
+\emph{original} features kept.}\ixh{dimension reduction}
+{\color{figgray}\itshape [note: LDA = feature extraction --- new axes LD1, LD2, \ldots{} from combinations of predictors; S3.64--67, 80--85.]}
 
-%% ------------------------------------------------------------------
-\subsection{The geometric picture: the gene-expression example}
-\ixh{projection}\ixh{linear discriminant analysis (LDA)}
+\subsection{Geometric picture: gene-expression example}
+\ixh{projection}\ixh{gene-expression example}
 
-\slide{3}{52}{LDA: A motivating example}
-\ixh{linear discriminant analysis (LDA)}\ixh{gene-expression example}
-\fig{Number line titled ``Transcription for Gene X'' (``Fewer Transcripts'' $\leftarrow$ / $\to$ ``More transcripts''). Twelve dots from left to right: green, green, green, green, red, green, red, green, red, red, red, red (6 green, 6 red). Legend: green dot ``= The drug works!''; red dot ``= The drug does not work :(''.}
-\begin{center}\footnotesize\texttt{https://youtu.be/azXCzI57Yfc}\quad{\color{figgray}\itshape(link at the bottom of the slide)}\end{center}
-
-\slide{3}{54}{LDA: A motivating example}
-\fig{Same Gene X number line; the four leftmost green dots are circled in red (left callout) and the four rightmost red dots are circled in red (right callout).}
+\slide{3}{52--57}{LDA: A motivating example}
+\fig{Number line ``Transcription for Gene X'' (fewer $\leftarrow\to$ more transcripts), 12 dots left to right:
+G G G G R G R G R R R R (green = drug works, red = does not). \url{https://youtu.be/azXCzI57Yfc}}
 \begin{itemize}
-\item Left callout: ``For the most part, the drug works in people with low transcription of gene X.''
-\item Right callout: ``And, for the most part, the drug does not work in people with high transcription of gene X.''
+\item S3.54: Mostly, drug works with low Gene X transcription (4 leftmost green circled), not with high (4 rightmost red).
+\item S3.55: But overlap\ixh{class overlap} (middle R G R G) and no obvious ``cutoff'' for who gets the drug.
+\item S3.57: Gene X does an OK job. Can we do better with more than one gene?
 \end{itemize}
 
-\slide{3}{55}{LDA: A motivating example}
-\fig{Same Gene X number line; now the middle section (red, green, red, green) is circled in red, with an arrow from the callout text:}
-\begin{quote}``However, there is overlap\ixh{class overlap} and no obvious `cutoff' for who to give the drug to.''\end{quote}
-
-\slide{3}{57}{LDA: A motivating example}
-\begin{quote}In summary, Gene X does an OK job at telling us who should take the drug (and who shouldn't).
-
-Can we do better?\quad What if we used more than one gene?\end{quote}
-
-\slide{3}{61}{LDA: A motivating example}
-\fig{2D \ix{scatterplot}: ``Gene X'' (horizontal) vs.\ ``Gene Y'' (vertical). 6 green points (drug works) lie mostly toward the lower-left; 6 red points (drug does not work) lie mostly along the top/upper-right, plus one red at the lower right. A black dashed line running diagonally from the top down to the lower right separates the green points (below-left) from the red points (above-right) --- a linear \ix{decision boundary}.}
-\begin{quote}Two genes do a better job separating the two categories.
-
-Would three genes be even better?\end{quote}
-
-\slide{3}{63}{LDA: A motivating example}
-\fig{3D plot (Gene X, Gene Y, Gene Z; point size suggests depth) with a translucent light-blue plane cutting through the cloud; an arrow points to it from the callout text:}
-\begin{quote}With 3 dimensions, we use a \ix{plane} to try and separate the two categories.\end{quote}\ixh{hyperplane}
-
-\slide{3}{64}{LDA: A motivating example}
-\begin{center}Reducing a 2-D graph to a 1-D graph\end{center}\ixh{dimension reduction}
-\fig{Left, ``A 2-D graph (aka X/Y Graph)'': the Gene X / Gene Y scatterplot. Arrow $\to$ ``A 1-D graph (aka number line)'': points (left to right) green, green, green, green, green, then red, red, green, red, then red, red, red.}
-
-\slide{3}{75}{[untitled --- distance between means alone vs means and scatter]}
-\fig{Left: a 2D scatterplot: 6 red points in an upper band and 6 green points in a lower band, both bands rising gently to the right (separated vertically, each spread out horizontally).
-Top right: the points are projected onto a line rising with the bands; the class means are far apart, but in the middle of the line green and red points are interleaved.
-Bottom right: the points are projected onto a steep, nearly vertical line; the red points cluster tightly near the top and the green points tightly near the bottom, with no overlap.}\ixh{distance between means}\ixh{scatter}\ixh{projection}
+\slide{3}{61--64}{LDA: A motivating example}
 \begin{itemize}
-\item If we only maximize the distance between means\ldots\quad The separation isn't great\ldots
-\item However, if we optimize the distance between means and scatter\ldots\quad We get nice separation!
+\item S3.61: 2D \ix{scatterplot} Gene X vs.\ Gene Y: 6 green mostly lower-left, 6 red along top/upper-right (+1 red lower
+right); a diagonal dashed line (linear \ix{decision boundary}) separates them. Two genes separate better. Three?
+\item S3.63: With 3 genes (X, Y, Z) we use a \ix{plane}\ixh{hyperplane} to separate the categories.
+\item S3.64: Reducing 2-D graph $\to$ 1-D graph (number line)\ixh{dimension reduction}: G G G G G R R G R R R R.
 \end{itemize}
 
-\slide{3}{80}{[untitled --- LDA with three genes]}
-\fig{Left: the 3D Gene X / Gene Y / Gene Z plot with a solid black line drawn diagonally through the cloud. Right: all points lie on the diagonal line: 6 green points on the lower-left part and 6 red points on the upper-right part, completely separated.}\ixh{projection}\ixh{LD1}\ixh{dimension reduction}
-\begin{itemize}
-\item Here's the new axis that LDA created.\ixh{linear discriminant (LD1, LD2)}
-\item The data are projected onto the new axis.
-\end{itemize}
+\slide{3}{75}{[distance between means alone vs.\ means and scatter]}
+\ixh{distance between means}\ixh{scatter}
+\fig{2D: 6 red in an upper band, 6 green in a lower band, both rising gently right. Projected onto a line along the
+bands: means far apart but classes interleave in the middle. Projected onto a near-vertical line: red tight at top,
+green tight at bottom, no overlap.}
+Maximizing only the distance between means $\to$ poor separation; optimizing distance between means \emph{and}
+scatter $\to$ nice separation.
 
-\slide{3}{85}{[untitled --- LDA plot: LD1 vs LD2]}
-\fig{R scatterplot titled ``LDA'': horizontal axis ``\ix{LD1}'' (ticks $-4$ to $2$), vertical axis ``\ix{LD2}'' (ticks $-2$ to $2$), three classes: red points on the left (LD1 from about $-4.2$ to $-0.8$, LD2 around $-1$ to $1$), black points at upper right (LD1 $0$ to $2$, LD2 $-0.7$ to $2.6$), blue points at lower right (LD1 $-0.2$ to $2.2$, LD2 $-2.7$ to $0$), with a few blue points mixed in among the black ones --- LD1 separates red from the rest; LD2 separates black from blue.}\ixh{linear discriminant (LD1, LD2)}\ixh{projection}
+\slide{3}{80}{[LDA with three genes]}
+\ixh{LD1}\ixh{linear discriminant (LD1, LD2)}
+\fig{3D Gene X/Y/Z cloud with a diagonal line = the new axis LDA created; data projected onto it: 6 green
+lower-left, 6 red upper-right, completely separated.}
+
+\slide{3}{85}{[LDA plot: LD1 vs LD2]}
+\ixh{linear discriminant (LD1, LD2)}
+\fig{R plot ``LDA'', \ix{LD1} ($-4$ to 2) vs.\ \ix{LD2} ($-2$ to 2), three classes: red at left (LD1 $-4.2$ to $-0.8$,
+LD2 $-1$ to 1); black upper right (LD1 0--2, LD2 $-0.7$ to 2.6); blue lower right (LD1 $-0.2$ to 2.2, LD2 $-2.7$ to 0),
+a few blue among black. LD1 separates red from the rest; LD2 separates black from blue.}

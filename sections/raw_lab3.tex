@@ -1,40 +1,29 @@
 %% raw_lab3.tex -- raw transcription of Lab 3 "Intro to Binary Classification"
 %% (source/labs/lab3/lab-3.Rmd + knitted output work/text/lab3_html.txt).
 \section{Lab 3 --- Intro to binary classification (logistic, LDA, QDA, naive Bayes)}
-{\color{figgray}\itshape [Parts already covered in Part I are omitted: intro paragraph; \texttt{tidymodels}/\texttt{discrim}/\texttt{corrr}/\texttt{corrplot}/\texttt{klaR} loading; \texttt{correlate()}/\texttt{rplot()} and \texttt{corrplot()} code; \texttt{Direction}/\texttt{Purchase} bar plots and \texttt{table()} counts (602/648, 653/417); stratified 70/30 splits; \texttt{oj\_recipe}, \texttt{logistic\_reg()} spec and workflows; all \texttt{conf\_mat()} / \texttt{accuracy()} code and the 8 training accuracies; LDA/QDA/naive Bayes specs and workflows; model-comparison tables; why choosing by training accuracy is bad; Smarket QDA and OJ logistic test confusion matrices and metrics.]}
+{\color{figgray}\itshape [In Part I: package loading (tidymodels, discrim, corrr, corrplot, klaR); correlation code; Direction/Purchase bar plots + counts (602/648, 653/417); 70/30 stratified splits; \texttt{oj\_recipe}, model specs, workflows; \texttt{conf\_mat()}/\texttt{accuracy()} code, 8 training accuracies; comparison tables; training-accuracy pitfall; Smarket QDA + OJ logistic test results.]}
 \ixh{classification}\ixh{logistic regression}\ixh{LDA}\ixh{QDA}\ixh{naive Bayes}%
-{\bfseries Lab 3: Intro to Binary Classification} \quad PSTAT 131/231
 
-\subsubsection{Loading Packages}
-We load \ixc{tidymodels} for modeling functions, \ixc{ISLR} and \ixc{ISLR2} for data sets, \ixc{discrim} to give us access to discriminant analysis models such as \ix{LDA} and \ix{QDA}, as well as the Naive Bayes\ixh{naive Bayes}{} model, and \ixc{poissonreg} for Poisson regression. Finally, we load \ixc{corrr} for aid in visualizing correlation matrices\ixh{correlation matrix}.
+\subsubsection{Packages}
+Also loaded: \ixc{ISLR}, \ixc{ISLR2} (data), \ixc{discrim} (\ix{LDA}, \ix{QDA}, naive Bayes\ixh{naive Bayes}), \ixc{poissonreg} (Poisson regression), \ixc{corrr} (correlation matrices\ixh{correlation matrix}).
 \begin{rcode}
-library(ISLR) # For the Smarket data set     (*@\ixch{ISLR}\ixch{Smarket}@*)
-library(ISLR2) # For the Bikeshare data set  (*@\ixch{ISLR2}\ixh{Bikeshare}@*)
-library(poissonreg)                 (*@\ixch{poissonreg}@*)
+library(ISLR) # Smarket     (*@\ixch{ISLR}\ixch{Smarket}@*)
+library(ISLR2) # Bikeshare  (*@\ixch{ISLR2}\ixh{Bikeshare}@*)
+library(poissonreg)         (*@\ixch{poissonreg}@*)
 \end{rcode}
 
 \subsubsection{Data}
-We'll start out by working with the \rc{Smarket}\ixch{Smarket}{} data set for this lab, which contains daily percentage returns for the S\&P 500 stock index between 2001 and 2005. It contains 1,250 observations on 8 numeric variables, plus a factor variable called \rc{Direction}\ixh{Direction (Smarket)}{} which has two levels, ``Up'' and ``Down''.
+\rc{Smarket}\ixch{Smarket}: daily \% returns of S\&P 500, 2001--2005; 1,250 obs, 8 numeric vars + factor \rc{Direction}\ixh{Direction (Smarket)}{} (``Up''/``Down'') = \ix{outcome}; predictors \rc{Volume} (shares traded) + \rc{Lag1}--\rc{Lag5} (previous days' \% returns).
+\rc{OJ}\ixch{OJ}{} (Orange Juice): 1,070 purchases of Citrus Hill or Minute Maid; outcome \rc{Purchase}\ixh{Purchase (OJ)}{} = brand; predictors: prices of each brand, discounts, customer-loyalty metric.
 
-Before we go on to modeling, we'll explore the data a little, at least to look at possible correlations\ixh{correlation}{} between the variables. \rc{Direction} is our \ix{outcome} variable of interest; we'll attempt to predict it using the volume of shares traded (\rc{Volume}) and the five lag variables (which represent the percentage return for the previous days).
+\textbf{Activities:} Help page of \rc{Smarket}\ixch{Smarket}: what does \rc{Direction} represent, which predictors might correlate with it? Read help page of \rc{OJ}\ixch{OJ}.
 
-The other data set we'll work with for this lab is the \rc{OJ}\ixch{OJ}, or Orange Juice, data set. It contains 1,070 observations, each of which represents a customer's purchase of either Citrus Hill or Minute Maid Orange Juice. \rc{Purchase}\ixh{Purchase (OJ)}{} is our outcome variable, which indicates the brand purchased. We'll attempt to predict it using the prices charged for each brand, the discounts offered, and a metric of customer loyalty.
+\ixc{correlate()} (\ixc{corrr}) computes the \ix{correlation matrix} (drop non-numeric \rc{Direction}); \ixc{rplot()} plots it.
+\fig{\rc{rplot()}, Smarket (Year, Lag1--5, Volume, Today; red $-1$, blue $+1$): all $\approx$0 except Year--Volume $r\approx0.54$.}
 
-\par\textbf{Activities}
-\begin{itemize}
-\item Access the help page for \rc{Smarket}\ixch{Smarket}. What does the \rc{Direction} variable represent? What predictors do you think might be correlated with it?
-\item Access the help page for \rc{OJ}\ixch{OJ}{} and familiarize yourself with it.
-\end{itemize}
-To look at correlations among the continuous variables, we'll try using the \ixc{corrr} package. The \ixc{correlate()} function will calculate the \ix{correlation matrix} between all the variables that it is given. We choose to remove \rc{Direction,} it is not numeric. Then we pass the results to \ixc{rplot()} to visualize the correlation matrix.
-\fig{\rc{rplot()} of the \rc{Smarket} correlation matrix: rows and columns Year, Lag1--Lag5, Volume, Today; each cell a dot whose size and colour show the correlation (colour bar $-1$ red, 0 white, $+1$ blue; diagonal left blank). Every dot is essentially invisible (correlation $\approx$0) except two light-blue dots at Year--Volume and Volume--Year ($r\approx0.54$).}
+\textbf{Activities:} What do you notice? Need to worry about highly linearly correlated predictors\ixh{collinearity}? Does it say anything about predictor--outcome relationships?
 
-\par\textbf{Activities}
-\begin{itemize}
-\item What do you notice from this correlation matrix?
-\item With this data set, do you need to worry about predictors being highly linearly correlated with each other?\ixh{collinearity}
-\item Does this matrix tell you anything about relationships between predictors and the outcome?
-\end{itemize}
-We could also use \rc{ggplot}\ixch{ggplot2}{} and the \ixc{geom\_tile()} function to create a heatmap-style correlation plot, with a few more lines of code:
+Heatmap alternative with \rc{ggplot}\ixch{ggplot2}{} + \ixc{geom\_tile()}:
 \begin{rcode}
 cor_Smarket %>%
   stretch() %>%                           (*@\ixch{stretch()}@*)
@@ -42,49 +31,32 @@ cor_Smarket %>%
   geom_tile() +                           (*@\ixch{geom\_tile()}@*)
   geom_text(aes(label = as.character(fashion(r))))  (*@\ixch{geom\_text()}\ixch{fashion()}@*)
 \end{rcode}
-\fig{Heatmap (\rc{geom\_tile()}) of the stretched correlations: x and y both Lag1--Lag5, Today, Volume, Year; fill = $r$ (dark navy $\approx$0 to light blue 0.5); diagonal tiles grey (NA); each tile labelled with $r$ to two decimals. All labels are between $-.05$ and $.04$ (e.g.\ Lag1--Lag2 $-.03$, Volume--Lag4 $-.05$, Year--Lag4 $.04$, Volume--Today $.01$), except the two bright-blue tiles Year--Volume $= .54$.}
-
-Notice that the upper and lower triangles of the matrix are identical; that's a common feature of correlation matrices\ixh{correlation matrix}. Again, we see that only \rc{Year} and \rc{Volume} have much of any \ix{correlation} with each other, and it's only about $0.54$.
-
-Let's investigate that correlation a little further. Here's a \ix{boxplot} of \rc{Volume} by \rc{Year}:
+\fig{Tiles labeled with $r$; diagonal NA (gray); all in $[-.05,.04]$ (e.g.\ Lag1--Lag2 $-.03$, Volume--Lag4 $-.05$, Year--Lag4 $.04$, Volume--Today $.01$) except Year--Volume $.54$.}
+Upper and lower triangles identical (always true of a correlation matrix\ixh{correlation matrix}); only \rc{Year}--\rc{Volume} have notable \ix{correlation} ($\approx0.54$). \ix{boxplot} of \rc{Volume} by \rc{Year}:
 \begin{rcode}
 ggplot(Smarket, aes(factor(Year), Volume)) +   (*@\ixch{ggplot()}\ixch{factor()}@*)
   geom_boxplot() +                            (*@\ixch{geom\_boxplot()}@*)
   geom_jitter(alpha = 0.1) +                  (*@\ixch{geom\_jitter()}@*)
   xlab("Year")                                (*@\ixch{xlab()}@*)
 \end{rcode}
-\fig{Boxplots of Volume (y, $\approx$0.4--3.2) for each Year 2001--2005 (x), with faint jittered points. Medians rise: 2001 $\approx$1.2, 2002 $\approx$1.38, 2003 $\approx$1.40, 2004 $\approx$1.42, 2005 $\approx$1.90 (box $\approx$1.65--2.15, max outlier $\approx$3.15). 2001 and 2002 have many high outliers ($\approx$1.8--2.8). Volume clearly increases with Year, especially in 2005.}
+\fig{Volume (0.4--3.2) by Year: medians 2001 $\approx$1.2, 2002 $\approx$1.38, 2003 $\approx$1.40, 2004 $\approx$1.42, 2005 $\approx$1.90 (box 1.65--2.15, max $\approx$3.15); 2001--02 many high outliers (1.8--2.8). Volume rises with Year, esp.\ 2005.}
+\fig{OJ \rc{corrplot} (\rc{diag = F}, \rc{type = 'lower'}) of PriceCH, PriceMM, DiscCH, DiscMM, LoyalCH, PctDiscMM, PctDiscCH: PctDiscMM--DiscMM and PctDiscCH--DiscCH $r\approx1$; PriceMM--PriceCH $\approx$0.6--0.7; $\approx$0.1--0.2 for PriceCH with DiscCH, DiscMM, LoyalCH, PctDiscMM, PctDiscCH, for LoyalCH with PriceMM, DiscCH, PctDiscCH; rest $\approx$0 (a few faintly negative).}
+\rc{PriceMM}, \rc{PriceCH} positively correlated\ixh{correlation}: when OJ is cheaper to make, both brands lower prices.
 
-We'll also consider a correlation plot for the orange juice data, restricting our analysis to the continuous predictor variables we'll be including:
-\fig{Lower-triangle \rc{corrplot} (no diagonal) of the 7 \rc{OJ} predictors PriceCH, PriceMM, DiscCH, DiscMM, LoyalCH, PctDiscMM, PctDiscCH (colour bar $-1$ red to $+1$ blue along the bottom). Strongest: PctDiscMM--DiscMM and PctDiscCH--DiscCH, huge dark-blue circles ($r\approx1$); PriceMM--PriceCH a large medium-blue circle ($\approx$0.6--0.7). Small light-blue circles ($\approx$0.1--0.2) for DiscCH, DiscMM, LoyalCH, PctDiscMM, PctDiscCH with PriceCH, for LoyalCH with PriceMM and DiscCH, and for PctDiscCH--LoyalCH; the rest are tiny ($\approx$0, a few faintly negative/orange).}
+\textbf{Activities:} Describe the relationship between \rc{Year} and \rc{Volume}.
 
-Here, we set \rc{diag = F} and \rc{type = 'lower'}, which simplifies the plot a bit and may make it easier to read. We can practice interpreting these correlations\ixh{correlation}; for example, \rc{PriceMM} and \rc{PriceCH} are positively correlated. This implies that higher prices for one brand of orange juice are correlated with higher prices for the other, and makes sense; when orange juice in general is cheaper to make, both brands would lower their prices, and vice versa.
-
-\par\textbf{Activities}
-\begin{itemize}
-\item Describe the relationship between \rc{Year} and \rc{Volume}.
-\end{itemize}
-The orange juice data set is definitely somewhat unbalanced\ixh{class imbalance}; the Citrus Hill brand appears to be more popular overall, with 653 observations representing customers purchasing Citrus Hill and only 417 Minute Maid. For now, we won't adjust for this, but we'll discuss methods of \textbf{upsampling}\ixh{upsampling}{} and \textbf{downsampling}\ixh{downsampling}{} in next week's lab. Also, note that this is by no means the most extreme example of an unbalanced outcome; some outcomes have incredibly rare levels.
+OJ is unbalanced\ixh{class imbalance}: 653 Citrus Hill vs.\ 417 Minute Maid; not adjusted here (\textbf{upsampling}\ixh{upsampling}/\textbf{downsampling}\ixh{downsampling}{} next week). Far from extreme --- some outcomes have very rare levels.
 
 \subsection{Logistic Regression}
 \ixh{logistic regression}%
-\subsubsection{Creating a Recipe}
-First, just as with our \ix{linear regression} lab last week, we want to create a recipe\ixch{recipe()}{} to represent the model we'll be fitting -- one for \rc{Direction} and one for \rc{Purchase}. Neither model has categorical predictors\ixh{categorical predictor}, so we won't need to include \rc{step\_dummy}\ixch{step\_dummy()}\ixh{dummy variable}.
+Recipe\ixch{recipe()}{} as in the \ix{linear regression} lab; no categorical predictors\ixh{categorical predictor}{} $\Rightarrow$ no \rc{step\_dummy}\ixch{step\_dummy()}\ixh{dummy variable}.
 \begin{rcode}
 smarket_recipe <- recipe(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 +   (*@\ixch{recipe()}@*)
                            Lag5 + Volume, data = smarket_train)
-\end{rcode}
-
-\subsubsection{Model Results}
-We can view the results -- for the \rc{Smarket}\ixch{Smarket}{} data:
-\begin{rcode}
-smarketlog_fit %>%
-  tidy()                        (*@\ixch{tidy()}\ixh{coefficient}@*)
+smarketlog_fit %>% tidy()       (*@\ixch{tidy()}\ixh{coefficient}@*)
 \end{rcode}
 \begin{routput}
-# A tibble: 7 x 5
   term        estimate std.error statistic p.value
-  <chr>          <dbl>     <dbl>     <dbl>   <dbl>
 1 (Intercept) -0.197      0.293    -0.672    0.502
 2 Lag1        -0.00479    0.0601   -0.0797   0.937
 3 Lag2        -0.0537     0.0619   -0.868    0.386
@@ -94,15 +66,11 @@ smarketlog_fit %>%
 7 Volume       0.184      0.193     0.952    0.341
 \end{routput}
 \ixh{p-value}\ixh{standard error}\ixh{intercept}%
-And for the \rc{OJ}\ixch{OJ}{} data:
 \begin{rcode}
-ojlog_fit %>%
-  tidy()                        (*@\ixch{tidy()}@*)
+ojlog_fit %>% tidy()            (*@\ixch{tidy()}\ixch{OJ}@*)
 \end{rcode}
 \begin{routput}
-# A tibble: 8 x 5
   term        estimate std.error statistic  p.value
-  <chr>          <dbl>     <dbl>     <dbl>    <dbl>
 2 PriceCH         3.68     1.49      2.48  1.31e- 2
 3 PriceMM        -4.17     0.980    -4.26  2.03e- 5
 4 DiscCH        -10.0     23.2      -0.431 6.66e- 1
@@ -110,19 +78,17 @@ ojlog_fit %>%
 7 PctDiscMM     -51.8     21.0      -2.47  1.36e- 2
 8 PctDiscCH       8.43    43.5       0.194 8.46e- 1
 \end{routput}
-{\color{figgray}\itshape [note: rows 1 and 6 (\texttt{(Intercept)} 4.47, \texttt{LoyalCH} $-6.07$) are in Part I and omitted here.]}
-\ixh{coefficient}\ixh{p-value}%
+{\color{figgray}\itshape [rows 1, 6 (Intercept 4.47, LoyalCH $-6.07$) in Part I.]}
 
 \subsubsection{Assessing Model Performance}
 \ixh{model evaluation}%
-We can use each of these models to generate probability predictions for the training data:
+Training-set probability predictions:
 \begin{rcode}
 predict(smarketlog_fit, new_data = smarket_train, type = "prob")  (*@\ixch{predict()}\ixch{new\_data}\ixch{type = "prob"}@*)
 \end{rcode}
 \begin{routput}
 # A tibble: 874 x 2                (*@\ixch{.pred\_Down}\ixch{.pred\_Up}@*)
    .pred_Down .pred_Up
-        <dbl>    <dbl>
  1      0.521    0.479
  2      0.470    0.530
  3      0.498    0.502
@@ -135,17 +101,13 @@ predict(smarketlog_fit, new_data = smarket_train, type = "prob")  (*@\ixch{predi
 10      0.521    0.479
 # ... with 864 more rows
 \end{routput}
-Each row represents the probability predicted by the model that a given observation belongs to a given class\ixh{posterior probability}. Notice this is redundant, because one could be calculated directly from the other, but it's useful in multiclass situations\ixh{multiclass classification}.
-
-We haven't stored these, just looked at them to illustrate what's going on ``behind the scenes.'' For the first row, or the first observation in the \rc{Smarket} \textbf{training} set, the logistic regression\ixh{logistic regression}{} model generated a predicted probability of \rc{Down} of about 0.56 and a probability of \rc{Up} of about 0.44. The other rows could be interpreted in much the same way. One thing to note is that none of these first 10 probabilities is below 0.40 or above 0.59; this is a clue that the model is not able to discriminate between the two outcome classes very well. Compare that to the probabilities for the \rc{OJ} data:
-{\color{figgray}\itshape [note: the knitted output above shows 0.521 / 0.479 for row 1; the 0.56 / 0.44 in the text are from an earlier knit.]}
+Each row = predicted probability of each class\ixh{posterior probability}; redundant for 2 classes (one = 1 $-$ other) but useful for multiclass\ixh{multiclass classification}. Text: row 1 P(Down) $\approx$0.56, P(Up) $\approx$0.44 {\color{figgray}\itshape [earlier knit; output shows 0.521/0.479]}. None of first 10 below 0.40 or above 0.59 $\to$ model cannot discriminate the classes well. Compare \rc{OJ}:
 \begin{rcode}
 predict(ojlog_fit, new_data = oj_train, type = "prob")   (*@\ixch{predict()}\ixch{type = "prob"}@*)
 \end{rcode}
 \begin{routput}
 # A tibble: 748 x 2               (*@\ixch{.pred\_CH}\ixch{.pred\_MM}@*)
    .pred_CH .pred_MM
-      <dbl>    <dbl>
  3    0.970  0.0300
  4    0.958  0.0424
  5    0.951  0.0494
@@ -156,111 +118,36 @@ predict(ojlog_fit, new_data = oj_train, type = "prob")   (*@\ixch{predict()}\ixc
 10    0.795  0.205
 # ... with 738 more rows
 \end{routput}
-However, it's more useful to summarize the predicted values. We can use \ixc{augment()} to attach the predicted values to the data, then generate a \ix{confusion matrix} for \rc{Smarket}:
+Summarize: \ixc{augment()} attaches predictions $\to$ \ix{confusion matrix}. Smarket (left), OJ (right; $623/748=0.833$ correct):
 \begin{routput}
-          Truth
-Prediction Down  Up
-      Down  104  98
-      Up    317 355
+          Truth                      Truth
+Prediction Down  Up        Prediction  CH  MM
+      Down  104  98                CH 403  71
+      Up    317 355                MM  54 220
 \end{routput}
+\textbf{Activities:} What do you notice from each confusion matrix\ixh{confusion matrix}? For each outcome, do the models overpredict one class; which? Are the models doing well? Why/why not?
 
-We'll create a confusion matrix for the orange juice data as well:
-\fig{Heatmap of the \rc{OJ} logistic-regression training confusion matrix (rows Prediction CH/MM, columns Truth CH/MM): Pred CH: 403 (Truth CH), 71 (Truth MM); Pred MM: 54 (Truth CH), 220 (Truth MM). The diagonal (403, 220) is dark --- mostly correct predictions ($623/748 = 0.833$).}
-
-\par\textbf{Activities}
-\begin{itemize}
-\item What do you notice from each of these confusion matrices\ixh{confusion matrix}?
-\item Consider the data sets. For each outcome, do the models tend to overpredict one class or the other? If so, which one?
-\item Do you think the models are doing well? Why or why not?
-\end{itemize}
-
-\subsection{LDA}
-\ixh{LDA}%
-\subsubsection{Assessing Performance}
-This can be done almost exactly the same way. We can view a confidence matrix and calculate \ix{accuracy} on the \textbf{training data}\ixh{training data}:
-{\color{figgray}\itshape [note: ``confidence matrix'' (sic) = confusion matrix\ixh{confusion matrix}.]}
-{\color{figgray}\itshape [Smarket, training data]}
+\subsection{LDA, QDA, Naive Bayes --- training confusion matrices}
+\ixh{LDA}\ixh{QDA}\ixh{naive Bayes}\ixh{training data}\ixh{confusion matrix}%
+Same procedure: confusion matrix (lab says ``confidence matrix'', sic) and \ix{accuracy} on \textbf{training data}. Rows = Prediction, cols = Truth.
 \begin{routput}
-          Truth
-Prediction Down  Up
-      Down  103  98
-      Up    318 355
+              Smarket          OJ
+            Down   Up       CH   MM
+LDA   Down   103   98   CH 398   70
+      Up     318  355   MM  59  221
+QDA   Down   125   99   CH 370   65
+      Up     296  354   MM  87  226
+NB    Down   107   98   CH 338   47
+      Up     314  355   MM 119  244
 \end{routput}
-{\color{figgray}\itshape [OJ, training data]}
-\begin{routput}
-          Truth
-Prediction  CH  MM
-        CH 398  70
-        MM  59 221
-\end{routput}
-\par\textbf{Activities}
-\begin{itemize}
-\item Compare the results of the \ix{LDA} models to the results of the logistic regression\ixh{logistic regression}{} models.
-\end{itemize}
-
-\subsection{QDA}
-\ixh{QDA}%
-\subsubsection{Assessing Performance}
-{\color{figgray}\itshape [Smarket, training data]}
-\begin{routput}
-          Truth
-Prediction Down  Up
-      Down  125  99
-      Up    296 354
-\end{routput}
-{\color{figgray}\itshape [OJ, training data]}
-\begin{routput}
-          Truth
-Prediction  CH  MM
-        CH 370  65
-        MM  87 226
-\end{routput}
-
-\subsection{Naive Bayes}
-\ixh{naive Bayes}%
-\subsubsection{Assessing Performance}
-{\color{figgray}\itshape [Smarket, training data]}
-\begin{routput}
-          Truth
-Prediction Down  Up
-      Down  107  98
-      Up    314 355
-\end{routput}
-{\color{figgray}\itshape [OJ, training data]}
-\begin{routput}
-          Truth
-Prediction  CH  MM
-        CH 338  47
-        MM 119 244
-\end{routput}
-
-\subsection{Comparing Model Performance}
-\ixh{model comparison}%
-\par\textbf{Activities}
-\begin{itemize}
-\item Which model performed the best on the training data for each data set?
-\item Which model would you choose? Why?\ixh{model comparison}
-\end{itemize}
+\textbf{Activities:} Compare \ix{LDA} with logistic regression\ixh{logistic regression}. Which model performed best on training data for each data set? Which would you choose, why?\ixh{model comparison}
 
 \subsection{Fitting to Testing Data}
 \ixh{testing data}%
-Finally, let's look at an \ix{ROC curve} on the testing data:
-\fig{ROC curve of the \rc{Smarket} QDA model on the test set (x ``1 - specificity'', y ``sensitivity'', both 0--1, dotted diagonal): a jagged staircase that hugs the 45$^\circ$ diagonal the whole way, dipping slightly below it (e.g.\ sensitivity $\approx$0.06 at FPR 0.12, $\approx$0.25 at FPR 0.28, $\approx$0.71 at FPR 0.75) and only marginally above it around FPR 0.4--0.6 --- essentially no discrimination (AUC $\approx$0.5; not printed).}
+\fig{\ix{ROC curve}, Smarket QDA, test set: jagged staircase hugging the diagonal, slightly below it (sens.\ $\approx$0.06 at FPR 0.12, 0.25 at 0.28, 0.71 at 0.75), marginally above at FPR 0.4--0.6 $\to$ no discrimination (AUC $\approx$0.5, not printed).}
+Logistic regression\ixh{logistic regression}{} fit to \rc{OJ}\ixch{OJ}{} test set (best on training, same caveats); code (\texttt{roc\_curve(Purchase, .pred\_CH)}) and metrics in Part I.\ixch{roc\_curve()}\ixch{.pred\_CH}
+\fig{ROC, OJ logistic, test set: bows to top-left --- sens.\ $\approx$0.68 at FPR 0.06, 0.81 at 0.13, 0.90 at 0.25, 0.95 at 0.37, 0.97 at 0.45--0.55, 0.99 at 0.75, 1.00 at 0.89 $\to$ good discrimination (AUC not printed).}
 
-We'll fit the logistic regression\ixh{logistic regression}{} to the \rc{OJ}\ixch{OJ}{} testing set, since it also performed best on the training set, with the same caveats, and view the same things:
-{\color{figgray}\itshape [code (\texttt{conf\_mat()}, \texttt{metric\_set()}, \texttt{roc\_curve(Purchase, .pred\_CH)}) and the confusion matrix / metrics are in Part I.]}\ixch{roc\_curve()}\ixch{.pred\_CH}
-\fig{ROC curve of the \rc{OJ} logistic regression on the test set (same axes, dotted diagonal): bows strongly toward the top-left corner --- rises steeply to sensitivity $\approx$0.68 by FPR $\approx$0.06, $\approx$0.81 by FPR $\approx$0.13, $\approx$0.90 by FPR $\approx$0.25, $\approx$0.95 by FPR $\approx$0.37, then flattens ($\approx$0.97 at 0.45--0.55, $\approx$0.99 at 0.75) to 1.00 at FPR $\approx$0.89. Far above the diagonal = good discrimination (AUC not printed).}
+\textbf{Activities:} Interpret \ix{sensitivity} and \ix{specificity} in terms of the data. How well did the models do on \textbf{testing} data, and why? Which was better?
 
-\par\textbf{Activities}
-\begin{itemize}
-\item What do the \ix{sensitivity} and \ix{specificity} values mean? Interpret them in terms of the concepts and data.
-\item How well did the models perform on the \textbf{testing} data?
-\item Why do you think the models performed like they did?
-\item Which model performed better?
-\end{itemize}
-
-\subsection{Resources}
-The free book \emph{Tidy Modeling with R} is strongly recommended.
-
-\subsection{Source}
-Several parts of this lab come directly from the ``ISLR Tidymodels Labs''. Credit to Emil Hvitfeldt for writing and maintaining the open-source book.
+Resources: \emph{Tidy Modeling with R} (free). Source: ``ISLR Tidymodels Labs'' by Emil Hvitfeldt.
