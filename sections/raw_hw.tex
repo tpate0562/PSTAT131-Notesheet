@@ -184,7 +184,7 @@ There is a clear negative relationship between highway efficiency and cylinder c
 \end{qbox}
 
 \begin{qbox}{HW1 Ex5}
-\textbf{Prompt.} Use the \ixc{corrplot} package to make a lower triangle \ix{correlation matrix} of the \texttt{mpg} dataset. (Hint: You can find information on the package here [link: \texttt{cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html}].)
+\textbf{Prompt.} Use the \ixc{corrplot} package to make a lower triangle \ix{correlation matrix} of the \texttt{mpg} dataset. (Hint: You can find information on the package here [link: \nolinkurl{cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html}].)
 
 Which variables are positively or negatively correlated with which others? Do these relationships make sense to you? Are there any that surprise you?
 \mine
@@ -401,7 +401,7 @@ abalone_recipe %>%
   head()
 \end{rcode}
 \begin{routput}
--- Recipe ------------------------------------------------------------
+-- Recipe ----------------------------------------------
 -- Inputs
 Number of variables by role
 outcome:   1
@@ -521,7 +521,7 @@ knn_fit
 Preprocessor: Recipe
 Model: nearest_neighbor()
 
--- Preprocessor ------------------------------------------------------
+-- Preprocessor ----------------------------------------
 4 Recipe Steps
 
 * step_dummy()
@@ -529,7 +529,7 @@ Model: nearest_neighbor()
 * step_center()
 * step_scale()
 
--- Model -------------------------------------------------------------
+-- Model -----------------------------------------------
 
 Call:
 kknn::train.kknn(formula = ..y ~ ., data = data,
@@ -741,9 +741,9 @@ Prompt setup chunk:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE,
                       warning = FALSE)
 \end{rcode}
-Codebook (\texttt{titanic\_codebook.txt}):
+Codebook (\texttt{titanic\_codebook.txt}):\par\noindent
 {\footnotesize
-\begin{tabular}{@{}l l@{}}
+\begin{tabular}{@{}l p{0.78\linewidth}@{}}
 survival: & Survival\\
 pclass: & Ticket class \quad 1 = 1st, 2 = 2nd, 3 = 3rd\\
 sex: & Sex\\
@@ -759,7 +759,7 @@ embarked: & Port of Embarkation \quad C = Cherbourg, Q = Queenstown,\\
 
 {\color{figgray}\itshape [note: CSV columns: \ixc{passenger\_id}, \texttt{survived} (Yes/No), \texttt{pclass}, \texttt{name}, \ixc{sex}, \ixc{age}, \ixc{sib\_sp}, \ixc{parch}, \texttt{ticket}, \ixc{fare}, \ixc{cabin}, \ixc{embarked}; 891 rows.]}
 
-\textbf{My solution setup} (all HW3 code: \texttt{work/tmp/hw3/hw3\_solution.R}; seed 3435 as in Lab 3):
+\textbf{My solution setup} (my own answers, HW3 not yet submitted; seed 3435 as in Lab 3):
 \begin{rcode}
 library(tidyverse)
 library(tidymodels)
@@ -812,7 +812,7 @@ passenger_id     survived       pclass         name          sex
 \begin{qbox}{HW3 Q2}
 \textbf{Prompt.} Using the \textbf{training} data set, explore/describe the distribution of the outcome variable \texttt{survived}.
 
-Create a percent stacked bar chart [link: \texttt{r-graph-gallery.com/48-grouped-barplot-with-ggplot2}] (recommend using \texttt{ggplot}) with \texttt{survived} on the \emph{x}-axis and \texttt{fill = sex}. Do you think \texttt{sex} will be a good predictor of the outcome?
+Create a percent stacked bar chart [link: \nolinkurl{r-graph-gallery.com/48-grouped-barplot-with-ggplot2}] (recommend using \texttt{ggplot}) with \texttt{survived} on the \emph{x}-axis and \texttt{fill = sex}. Do you think \texttt{sex} will be a good predictor of the outcome?
 
 Create one more percent stacked bar chart of \texttt{survived}, this time with \texttt{fill = pclass}. Do you think passenger class will be a good predictor of the outcome?
 
@@ -914,7 +914,7 @@ baked
 sum(is.na(baked$age))
 \end{rcode}
 \begin{routput}
--- Recipe ------------------------------------------------------
+-- Recipe ----------------------------------------------
 -- Inputs
 Number of variables by role
 outcome:   1
@@ -991,12 +991,12 @@ lda_fit
 == Workflow [trained] ==========================================
 Preprocessor: Recipe
 Model: discrim_linear()
--- Preprocessor ------------------------------------------------
+-- Preprocessor ----------------------------------------
 3 Recipe Steps
 * step_impute_linear()
 * step_dummy()
 * step_interact()
--- Model -------------------------------------------------------
+-- Model -----------------------------------------------
 Call:
 lda(..y ~ ., data = data)
 

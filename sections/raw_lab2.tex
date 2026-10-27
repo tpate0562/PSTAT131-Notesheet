@@ -1,0 +1,524 @@
+%% raw_lab2.tex -- raw transcription of Lab 2 (PSTAT 131/231), source: source/labs/lab2/lab-2.Rmd
+%% knitted output: work/text/lab2_html.txt, plots: work/html_imgs/lab2/img01-05.png
+\section{Lab 2 --- Model fitting with tidymodels: linear regression, KNN, missing data}
+\ixh{linear regression}\ixh{KNN}\ixh{missing data}\ixch{tidymodels}\ixch{diamonds}%
+\textbf{Lab 2} \quad PSTAT 131/231. \quad {\color{figgray}\itshape [Rmd header: \texttt{html\_document} with \texttt{toc: true}, \texttt{toc\_float: true}, \texttt{code\_folding: show}. Setup chunk (not shown in output): \texttt{knitr::opts\_chunk\$set(echo = TRUE, message = FALSE, warning = FALSE)}.]}
+
+\subsection{Introduction: Model Fitting}
+\ixh{data splitting}\ixh{training/testing split}%
+\begin{rcode}
+library(tidyverse)                    (*@\ixch{library()}\ixch{tidyverse}@*)
+library(tidymodels)                   (*@\ixch{tidymodels}@*)
+library(ggplot2)                      (*@\ixch{ggplot2}@*)
+library(corrplot)                     (*@\ixch{corrplot}@*)
+library(ggthemes)                     (*@\ixch{ggthemes}@*)
+library(kableExtra)                   (*@\ixch{kableExtra}@*)
+tidymodels_prefer()                   (*@\ixch{tidymodels\_prefer()}@*)
+
+set.seed(3435)                        (*@\ixch{set.seed()}\ixh{random seed}@*)
+
+diamonds_split <- initial_split(diamonds, prop = 0.80,  (*@\ixch{initial\_split()}\ixch{prop}\ixch{diamonds}@*)
+                                strata = price)         (*@\ixch{strata}\ixh{stratified sampling}@*)
+diamonds_train <- training(diamonds_split)              (*@\ixch{training()}@*)
+diamonds_test <- testing(diamonds_split)                (*@\ixch{testing()}@*)
+\end{rcode}
+
+\subsubsection{Creating a Recipe}
+\ixch{recipe()}%
+You'll notice that the textbooks use the \ixc{lm()} function to fit a \ix{linear regression}. The \ixc{tidymodels} framework, however, has its own structure and flow, which is designed to work with multiple different \ix{machine learning} models and packages seamlessly.
+
+To fit any model with \rc{tidymodels}, the first step is to create a recipe\ixh{recipe()}. The structure of this recipe is similar to that of \rc{lm()}; the \ix{outcome} is listed first, then the features\ixh{feature}{} are added:
+\begin{rcode}
+simple_diamonds_recipe <-
+  recipe(price ~ ., data = diamonds_train)   (*@\ixch{recipe()}\ixh{formula (R)}@*)
+\end{rcode}
+Note that \rc{.} is a placeholder for ``all other variables.'' If we call the recipe object now, we can see some information:
+\begin{rcode}
+simple_diamonds_recipe
+\end{rcode}
+\begin{routput}
+## Recipe
+##
+## Inputs:
+##
+##       role #variables
+##    outcome          1
+##  predictor          9
+\end{routput}
+More specifically, we see that there are 9 predictors\ixh{predictor}.
+
+We should dummy-code all categorical predictors\ixh{categorical predictor}\ixh{dummy variable}. We can do that easily with \rc{step} functions:
+\begin{rcode}
+diamonds_recipe <- recipe(price ~ ., data = diamonds_train) %>%  (*@\ixch{\%>\%}@*)
+  step_dummy(all_nominal_predictors())  (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}@*)
+\end{rcode}
+Note that we haven't specified what type of model we'll be fitting yet. The other beauty of the recipe is that it can then be directly given to one of many machine learning model ``engines.''\ixh{engine}
+
+Running the above code is essentially like writing down the instructions for a recipe on a sheet of paper. We've prepared the recipe to give to the workflow\ixh{workflow()}, but we are probably interested in seeing what the results of the recipe itself actually look like. Did the dummy coding work, for example? To apply the recipe to a data set and view the results, we can use \ixc{prep()}, which is akin to setting out a \emph{mise en place} of ingredients, and \ixc{bake()}.
+
+We'll also use \ixc{kbl()} and \ixc{kable\_styling()} from the \ixc{kableExtra} package (\url{https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html}), which we installed above. It's not necessary to use these functions, but doing so allows the table of data to display more neatly, so that all the columns and rows are actually legible. We also use \ixc{head()} to select only the first few rows; otherwise the entire data frame would print, which would be time-consuming. Also note the use of \ixc{scroll\_box()}, allowing us to scroll through the entire data set.
+\begin{rcode}
+prep(diamonds_recipe) %>%                 (*@\ixch{prep()}@*)
+  bake(new_data = diamonds_train) %>%     (*@\ixch{bake()}\ixch{new\_data}@*)
+  head() %>%                              (*@\ixch{head()}@*)
+  kable() %>%                             (*@\ixch{kable()}@*)
+  kable_styling(full_width = F) %>%       (*@\ixch{kable\_styling()}@*)
+  scroll_box(width = "100%", height = "200px")  (*@\ixch{scroll\_box()}@*)
+\end{rcode}
+{\color{figgray}\itshape [note: the HTML table has 24 columns; shown here split into three blocks of the same 6 rows. \rc{cut}, \rc{color}, \rc{clarity} are \emph{ordered} factors, so \rc{step\_dummy()} produced orthogonal-polynomial contrast columns (\rc{cut\_1}..\rc{cut\_4}, \rc{color\_1}..\rc{color\_6}, \rc{clarity\_1}..\rc{clarity\_7}), not 0/1 columns.]}\ixh{dummy variable}\ixh{orthogonal polynomial contrast}
+\begin{routput}
+carat depth table    x    y    z price   cut_1   cut_2
+ 0.23  61.5    55 3.95 3.98 2.43   326  0.6325  0.5345
+ 0.21  59.8    61 3.89 3.84 2.31   326  0.3162 -0.2673
+ 0.23  56.9    65 4.05 4.07 2.31   327 -0.3162 -0.2673
+ 0.29  62.4    58 4.20 4.23 2.63   334  0.3162 -0.2673
+ 0.31  63.3    58 4.34 4.35 2.75   335 -0.3162 -0.2673
+ 0.24  62.8    57 3.94 3.96 2.48   336  0.0000 -0.5345
+  cut_3   cut_4 color_1 color_2 color_3 color_4 color_5
+ 0.3162  0.1195 -0.3780  0.0000  0.4082 -0.5641  0.4364
+-0.6325 -0.4781 -0.3780  0.0000  0.4082 -0.5641  0.4364
+ 0.6325 -0.4781 -0.3780  0.0000  0.4082 -0.5641  0.4364
+-0.6325 -0.4781  0.3780  0.0000 -0.4082 -0.5641 -0.4364
+ 0.6325 -0.4781  0.5669  0.5455  0.4082  0.2417  0.1091
+ 0.0000  0.7171  0.5669  0.5455  0.4082  0.2417  0.1091
+color_6 clar_1 clar_2 clar_3 clar_4 clar_5 clar_6 clar_7
+-0.1974 -.3858  .0772  .3077 -.5238  .4922 -.3077  .1195
+-0.1974 -.2315 -.2315  .4308 -.1209 -.3638  .5539 -.3585
+-0.1974  .0772 -.3858 -.1846  .3626  .3210 -.3077 -.5974
+-0.1974 -.0772 -.3858  .1846  .3626 -.3210 -.3077  .5974
+ 0.0329 -.3858  .0772  .3077 -.5238  .4922 -.3077  .1195
+ 0.0329  .2315 -.2315 -.4308 -.1209  .3638  .5539  .3585
+\end{routput}
+{\color{figgray}\itshape [note: values rounded to 4 places (output has 7); \rc{clar\_k} = \rc{clarity\_k}.]}
+
+\par\textbf{Activities:}
+\begin{itemize}
+\item Use the Internet to find documentation about the possible \rc{step} functions. Name three \rc{step} functions that weren't used here and describe what they do.
+\end{itemize}
+
+\subsection{Linear Regression}
+\ixh{linear regression}\ixch{linear\_reg()}%
+Next, we can specify the model \ixc{engine} that we want to fit:
+\begin{rcode}
+lm_model <- linear_reg() %>%      (*@\ixch{linear\_reg()}@*)
+  set_engine("lm")                (*@\ixch{set\_engine()}\ixch{lm}@*)
+\end{rcode}
+We set up a workflow\ixh{workflow()}. This step might seem unnecessary now, with only one model and one recipe, but it can make life easier when you are trying out a series of models or several different recipes later on.
+\begin{rcode}
+lm_wflow <- workflow() %>%        (*@\ixch{workflow()}@*)
+  add_model(lm_model) %>%         (*@\ixch{add\_model()}@*)
+  add_recipe(diamonds_recipe)     (*@\ixch{add\_recipe()}@*)
+\end{rcode}
+Finally, we can fit the linear model to the \ix{training set}\ixh{training data}:
+\begin{rcode}
+lm_fit <- fit(lm_wflow, diamonds_train)   (*@\ixch{fit()}@*)
+\end{rcode}
+We can view the model results:
+\begin{rcode}
+lm_fit %>%
+  # This returns the parsnip object:
+  extract_fit_parsnip() %>%      (*@\ixch{extract\_fit\_parsnip()}\ixch{parsnip}@*)
+  # Now tidy the linear model object:
+  tidy()                         (*@\ixch{tidy()}@*)
+\end{rcode}
+\begin{routput}
+## # A tibble: 24 x 5
+##    term        estimate std.error statistic   p.value
+##    <chr>          <dbl>     <dbl>     <dbl>     <dbl>
+##  1 (Intercept)  5317.      496.      10.7   8.54e- 27
+##  2 carat       11282.       54.3    208.    0
+##  3 depth         -58.4       6.25    -9.33  1.07e- 20
+##  4 table         -24.1       3.23    -7.45  9.40e- 14
+##  5 x            -970.       49.0    -19.8   5.16e- 87
+##  6 y               9.08     19.9      0.456 6.49e-  1
+##  7 z            -127.       73.2     -1.74  8.23e-  2
+##  8 cut_1         596.       25.0     23.8   1.22e-124
+##  9 cut_2        -300.       19.9    -15.0   4.77e- 51
+## 10 cut_3         153.       17.2      8.90  5.99e- 19
+## # ... with 14 more rows
+\end{routput}
+\ixh{coefficient}\ixh{intercept}\ixh{standard error}\ixh{t-statistic}\ixh{p-value}%
+
+\par\textbf{Activities:}
+\begin{itemize}
+\item Explain what the \ix{intercept} represents.
+\item Describe the effect of \rc{carat}. Is it a significant predictor of \rc{price}? Holding everything else constant, what is the effect on \rc{price} of a one-unit increase in \rc{carat}?\ixh{coefficient}\ixh{p-value}
+\end{itemize}
+The following code generates predicted values for \rc{price} for each observation in the training set:\ixh{prediction}
+\begin{rcode}
+diamond_train_res <- predict(lm_fit, new_data = diamonds_train %>% select(-price))  (*@\ixch{predict()}\ixch{select()}@*)
+diamond_train_res %>%
+  head()
+\end{rcode}
+\begin{routput}
+## # A tibble: 6 x 1        (*@\ixch{.pred}@*)
+##    .pred
+##    <dbl>
+## 1 -1363.
+## 2  -667.
+## 3   199.
+## 4  -815.
+## 5 -3472.
+## 6 -1373.
+\end{routput}
+Now we attach a column with the actual observed \rc{price} observations:
+\begin{rcode}
+diamond_train_res <- bind_cols(diamond_train_res, diamonds_train %>% select(price))  (*@\ixch{bind\_cols()}@*)
+diamond_train_res %>%
+  head()
+\end{rcode}
+\begin{routput}
+## # A tibble: 6 x 2
+##    .pred price
+##    <dbl> <int>
+## 1 -1363.   326
+## 2  -667.   326
+## 3   199.   327
+## 4  -815.   334
+## 5 -3472.   335
+## 6 -1373.   336
+\end{routput}
+We might be interested in a plot of predicted values vs.\ actual values\ixh{predicted vs.\ actual plot}, here for the training data:
+\begin{rcode}
+diamond_train_res %>%
+  ggplot(aes(x = .pred, y = price)) +   (*@\ixch{ggplot()}\ixch{aes()}@*)
+  geom_point(alpha = 0.2) +             (*@\ixch{geom\_point()}@*)
+  geom_abline(lty = 2) +                (*@\ixch{geom\_abline()}@*)
+  theme_bw() +                          (*@\ixch{theme\_bw()}@*)
+  coord_obs_pred()                      (*@\ixch{coord\_obs\_pred()}@*)
+\end{rcode}
+\fig{Square \ix{scatterplot} (\rc{theme\_bw}, \rc{coord\_obs\_pred} so both axes share the range $\approx-5000$ to $40000$): x = \rc{.pred} (linear-model prediction), y = \rc{price}; semi-transparent black points; dashed 45$^\circ$ line $y=x$. Points form a curved (convex) band, not a line: for actual prices below $\approx\$2000$ many predictions are negative (down to $\approx-4000$); between $\approx$\$5000 and \$10000 actual, predictions are too low; the band then flattens at the price ceiling $\approx\$18{,}800$, with predictions spreading from $\approx$7000 to $\approx$40000 (scattered points at .pred 25000--40000 with price 12000--18500). Shows a \ix{nonlinear relationship} the linear model misses.}
+
+It's fairly clear that the model didn't do very well. If it predicted every observation accurately, the dots would form a straight line. We also have predicted some negative values for price, and once the actual price is approximately over \$5,000, the model does a pretty poor job.
+
+The odds are that a linear model is simply not the best tool for this machine learning task. It is likely not an accurate representation of \rc{f()}; remember that by using a linear regression, we are imposing a specific form on the function, rather than learning the function from the data.\ixh{parametric model}
+
+In future labs, we'll try out different models and compare them\ixh{model comparison}. Finally, we can calculate the \textbf{training} root mean squared error (RMSE)\ixh{RMSE}\ixh{training error}{} and the \textbf{testing} RMSE\ixh{testing error}.
+\begin{rcode}
+diamond_test_res <- predict(lm_fit, new_data = diamonds_test %>% select(-price))
+diamond_test_res <- bind_cols(diamond_test_res, diamonds_test %>% select(price))
+
+rmse(diamond_train_res, truth = price, estimate = .pred)  (*@\ixch{rmse()}\ixch{truth}\ixch{estimate}@*)
+\end{rcode}
+\begin{routput}
+## # A tibble: 1 x 3                (*@\ixch{.estimate}\ixch{.metric}@*)
+##   .metric .estimator .estimate
+##   <chr>   <chr>          <dbl>
+## 1 rmse    standard       1126.
+\end{routput}
+\begin{rcode}
+rmse(diamond_test_res, truth = price, estimate = .pred)   (*@\ixch{rmse()}@*)
+\end{rcode}
+\begin{routput}
+## # A tibble: 1 x 3
+##   .metric .estimator .estimate
+##   <chr>   <chr>          <dbl>
+## 1 rmse    standard       1146.
+\end{routput}
+We can create and view a ``metric set'' of RMSE, MSE, and $R^2$\ixh{R-squared}\ixh{MAE}{} as shown:
+\begin{rcode}
+diamond_metrics <- metric_set(rmse, rsq, mae)    (*@\ixch{metric\_set()}\ixch{rsq()}\ixch{mae()}@*)
+diamond_metrics(diamond_train_res, truth = price,
+                estimate = .pred)
+\end{rcode}
+\begin{routput}
+## # A tibble: 3 x 3
+##   .metric .estimator .estimate
+##   <chr>   <chr>          <dbl>
+## 1 rmse    standard    1126.
+## 2 rsq     standard       0.920
+## 3 mae     standard     736.
+\end{routput}
+\begin{rcode}
+diamond_metrics(diamond_test_res, truth = price,
+                estimate = .pred)
+\end{rcode}
+\begin{routput}
+## # A tibble: 3 x 3
+##   .metric .estimator .estimate
+##   <chr>   <chr>          <dbl>
+## 1 rmse    standard    1146.
+## 2 rsq     standard       0.918
+## 3 mae     standard     751.
+\end{routput}
+{\color{figgray}\itshape [note: the text says ``RMSE, MSE, and $R^2$'' but the metric set is RMSE, $R^2$ (\rc{rsq}) and MAE (\rc{mae}).]}
+
+\par\textbf{Activities:}
+\begin{itemize}
+\item Is there a difference between the three metrics for the training data and the testing data?\ixh{training error}\ixh{testing error}
+\item Do your best to explain why this difference does (or does not) exist.
+\end{itemize}
+
+\subsection{\emph{k}-Nearest Neighbors}
+\ixh{KNN}\ixch{nearest\_neighbor()}%
+Now we'll take the recipe we've already created and try fitting a \ix{KNN} (\emph{k}-nearest neighbors) model with it (\url{https://parsnip.tidymodels.org/reference/nearest_neighbor.html})! To do this, we'll use the \ixc{nearest\_neighbor()} function, rather than the \ixc{linear\_reg()} function, but we'll still need to select an engine\ixh{engine}. There is only one \emph{R} package, or engine, that works with \rc{nearest\_neighbor()}, and that is the \ixc{kknn} package.
+
+\fig{Cartoon by Allison Horst (\rc{images/parsnip.png}): title ``parsnip::set\_\textsuperscript{your}engine()!''. Four race cars on a track at a checkered start line, labelled \rc{STAN} (purple), \rc{keras} (red, flag), \rc{GLMNET} (blue) and \rc{lm} (yellow); a purple fuzzy creature in sunglasses holds a ``parsnip'' hex flag; text ``3\dots2\dots1\dots Run model!''. Caption: ``a standardized interface for fitting models and making predictions.''}\ixch{parsnip}\ixch{set\_engine()}
+
+To use an engine, we must make sure that the related package is installed and loaded on our machine. The code to do that is below -- however, remember that you must keep the \rc{install\_packages()} line commented out to successfully knit this file.
+\begin{rcode}
+# install.packages("kknn")          (*@\ixch{install.packages()}@*)
+library(kknn)                       (*@\ixch{kknn}@*)
+
+knn_model <- nearest_neighbor() %>% (*@\ixch{nearest\_neighbor()}@*)
+  set_engine("kknn") %>%            (*@\ixch{set\_engine()}@*)
+  set_mode("regression")            (*@\ixch{set\_mode()}\ixch{mode}@*)
+\end{rcode}
+Unlike a linear regression, however, there is a parameter -- more specifically, a \emph{hyperparameter}\ixh{hyperparameter}\ixh{tuning parameter}{} -- that we have to set to fit a \emph{k}-nearest neighbors model. That hyperparameter is \rc{k} -- the number of neighbors for the model to consider.
+
+How do we know the ``right'' or the optimal value of \rc{k} to use? Well, we don't! Eventually we'll discuss the concepts of resampling\ixh{resampling}, \ix{cross-validation}, and tuning\ixh{tuning parameter}, which will allow us to determine the optimal value of a hyperparameter with relative ease. For now, we'll go with the default value of \rc{k}.
+
+Also unlike a linear regression, we need to specify whether our model is for \ix{regression} or \ix{classification} using \ixc{set\_mode()}. Simply by fitting a linear regression model, it's implied that the problem must be for regression, but KNN models can be used for either regression \emph{or} classification.
+
+\par\textbf{Activities:}
+\begin{itemize}
+\item What IS the default value of \rc{k} here, if we do not specify a value? How did you find out?
+\end{itemize}
+Now we add the model and recipe to the workflow and fit the model to the training data set:
+\begin{rcode}
+knn_wflow <- workflow() %>%          (*@\ixch{workflow()}@*)
+  add_model(knn_model) %>%           (*@\ixch{add\_model()}@*)
+  add_recipe(simple_diamonds_recipe) (*@\ixch{add\_recipe()}@*)
+
+knn_fit <- fit(knn_wflow, diamonds_train)  (*@\ixch{fit()}@*)
+\end{rcode}
+Trying to view the results, as we did with the linear regression, is not very informative:
+\begin{rcode}
+knn_fit %>%
+  extract_fit_parsnip()              (*@\ixch{extract\_fit\_parsnip()}@*)
+\end{rcode}
+\begin{routput}
+## parsnip model object
+##
+##
+## Call:
+## kknn::train.kknn(formula = ..y ~ ., data = data,
+##     ks = min_rows(5,     data, 5))     (*@\ixch{train.kknn()}@*)
+##
+## Type of response variable: continuous
+## minimal mean absolute error: 373.8765
+## Minimal mean squared error: 515091.1
+## Best kernel: optimal
+## Best k: 5
+\end{routput}
+It tells us that the ``best'' value of \rc{k} is 5, but that is also because it's the only value we tried, so it doesn't mean much.
+
+We'll generate the predictions from this model for the training set and testing set, and then compare the metrics for each, as before:
+\begin{rcode}
+diamond_train_knn <- predict(knn_fit, new_data = diamonds_train %>% select(-price))  (*@\ixch{predict()}@*)
+diamond_train_knn <- bind_cols(diamond_train_knn, diamonds_train %>% select(price))  (*@\ixch{bind\_cols()}@*)
+
+diamond_test_knn <- predict(knn_fit, new_data = diamonds_test %>% select(-price))
+diamond_test_knn <- bind_cols(diamond_test_knn, diamonds_test %>% select(price))
+
+diamond_metrics(diamond_train_knn, truth = price,   (*@\ixch{metric\_set()}\ixch{truth}@*)
+                estimate = .pred)
+\end{rcode}
+\begin{routput}
+## # A tibble: 3 x 3
+##   .metric .estimator .estimate
+##   <chr>   <chr>          <dbl>
+## 1 rmse    standard     386.
+## 2 rsq     standard       0.991
+## 3 mae     standard     201.
+\end{routput}
+\begin{rcode}
+diamond_metrics(diamond_test_knn, truth = price,
+                estimate = .pred)
+\end{rcode}
+\begin{routput}
+## # A tibble: 3 x 3
+##   .metric .estimator .estimate
+##   <chr>   <chr>          <dbl>
+## 1 rmse    standard     711.
+## 2 rsq     standard       0.968
+## 3 mae     standard     373.
+\end{routput}
+\ixh{RMSE}\ixh{R-squared}\ixh{MAE}%
+Let's try a different value for \emph{k}. We can manually specify a value by adding it inside the \ixc{nearest\_neighbor()} function. Later, when we introduce cross-validation\ixh{cross-validation}, that's also where we'll specify the parameter to be tuned. The value we try is arbitrary; we can try basically any value of \emph{k} from 1 to \emph{n}. Then we have to fit the new model, etc.:
+\begin{rcode}
+knn_model2 <- nearest_neighbor(neighbors = 2) %>%  (*@\ixch{nearest\_neighbor()}\ixch{neighbors}@*)
+  set_engine("kknn") %>%
+  set_mode("regression")
+
+knn_wflow2 <- workflow() %>%
+  add_model(knn_model2) %>%
+  add_recipe(diamonds_recipe)
+
+knn_fit2 <- fit(knn_wflow2, diamonds_train)
+
+diamond_train_knn2 <- predict(knn_fit2, new_data = diamonds_train %>% select(-price))
+diamond_train_knn2 <- bind_cols(diamond_train_knn2, diamonds_train %>% select(price))
+
+diamond_test_knn2 <- predict(knn_fit2, new_data = diamonds_test %>% select(-price))
+diamond_test_knn2 <- bind_cols(diamond_test_knn2, diamonds_test %>% select(price))
+
+diamond_metrics(diamond_train_knn2, truth = price,
+                estimate = .pred)
+\end{rcode}
+\begin{routput}
+## # A tibble: 3 x 3
+##   .metric .estimator .estimate
+##   <chr>   <chr>          <dbl>
+## 1 rmse    standard     152.
+## 2 rsq     standard       0.999
+## 3 mae     standard      74.6
+\end{routput}
+\begin{rcode}
+diamond_metrics(diamond_test_knn2, truth = price,
+                estimate = .pred)
+\end{rcode}
+\begin{routput}
+## # A tibble: 3 x 3
+##   .metric .estimator .estimate
+##   <chr>   <chr>          <dbl>
+## 1 rmse    standard     851.
+## 2 rsq     standard       0.955
+## 3 mae     standard     421.
+\end{routput}
+\ixh{overfitting}\ixh{training error}\ixh{testing error}%
+{\color{figgray}\itshape [note: summary of test metrics --- LM: RMSE 1146, $R^2$ .918, MAE 751; KNN $k=5$: 711, .968, 373; KNN $k=2$: 851, .955, 421 (train 152, .999, 74.6).]}
+
+\par\textbf{Activities:}
+\begin{itemize}
+\item Which of the three models -- linear regression, \emph{k}-nearest neighbors with $k = 5$, or \emph{k}-nearest neighbors with $k = 2$ -- performed better on the testing data? Why do you think this is so?\ixh{model comparison}
+\item What do you think explains the difference between the training and testing metrics for the KNN models?\ixh{overfitting}\ixh{bias-variance tradeoff}
+\item How many predictors are included in our KNN model(s)?\ixh{predictor}
+\item Do you think changing the number of predictors might improve the performance of the KNN model(s)?\ixh{curse of dimensionality}
+\end{itemize}
+
+\subsection{Missing Data}
+\ixh{missing data}\ixch{airquality}%
+We'll use the \ixc{airquality} data set, which comes installed with base R, to illustrate some ways of handling \ix{missing data}. Let's start by loading the \ixc{naniar} package (\url{https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html}). Usually it's considered good practice to load all packages in the same place -- at the beginning of the Markdown file -- but we'll make an exception. If this is your first time using the package, you'll need to uncomment and run the \ixc{install.packages()} line.
+
+Try running \rc{?airquality} to learn about the variables in the data set. There are 153 observations on six variables.
+
+It often makes sense to look at missingness in the data prior to splitting it. \ixc{vis\_miss()} is a good function for this:
+\begin{rcode}
+# install.packages("naniar")
+library(naniar)                    (*@\ixch{naniar}@*)
+vis_miss(airquality)               (*@\ixch{vis\_miss()}@*)
+\end{rcode}
+\fig{\rc{vis\_miss(airquality)} heat map: columns (top labels) Ozone (24.18\%), Solar.R (4.58\%), Wind (0\%), Temp (0\%), Month (0\%), Day (0\%); y axis ``Observations'' 0--153 (row 1 at top). Grey = present, black = missing. Ozone has many black stripes (rows $\approx$5, 10, 25--27, big blocks $\approx$32--37 and $\approx$52--61, plus $\approx$65, 72, 75, 84, 102--103, 107, 115, 119, 150); Solar.R has a few (rows $\approx$5--6, 11, 27, 96--98); the other four columns are fully grey. Legend: Missing (4.8\%), Present (95.2\%).}
+
+This plot shows us at a glance that 4.8\% of the entire dataset is missing; that missingness is on two of six variables, \rc{Ozone} and \rc{Solar.R}. 24.16\% of \rc{Ozone} observations are missing and 4.56\% of \rc{Solar.R} observations are. We can see that these observations are missing also by directly looking at the data:
+\begin{rcode}
+airquality %>%                                (*@\ixch{airquality}@*)
+  kable() %>%                                 (*@\ixch{kable()}@*)
+  kable_styling(full_width = F) %>%
+  scroll_box(width = "100%", height = "200px")
+\end{rcode}
+\begin{routput}
+Ozone Solar.R Wind Temp Month Day
+   41     190  7.4   67     5   1
+   36     118  8.0   72     5   2
+   12     149 12.6   74     5   3
+   18     313 11.5   62     5   4
+   NA      NA 14.3   56     5   5
+   28      NA 14.9   66     5   6
+   23     299  8.6   65     5   7
+   19      99 13.8   59     5   8
+    8      19 20.1   61     5   9
+   NA     194  8.6   69     5  10
+    7      NA  6.9   74     5  11
+   16     256  9.7   69     5  12
+# ... (141 more rows; e.g. rows 25-27 and 32-37 have Ozone NA)
+\end{routput}
+Since the data set is meant to measure air quality, it makes sense that we might want to predict the ozone levels. We can look at a \ix{histogram} of the variable:
+\begin{rcode}
+ggplot(aes(x = Ozone), data = airquality) +   (*@\ixch{ggplot()}@*)
+  geom_histogram()                            (*@\ixch{geom\_histogram()}@*)
+\end{rcode}
+\fig{Histogram (default 30 bins, grey ggplot theme) of \rc{Ozone}: x 0--170, y count 0--17. Strongly right-skewed\ixh{skewness}: tallest bar $\approx$17 at Ozone $\approx$10--15, bars of 13 at $\approx$15--25, 10 at $\approx$35, 8 at $\approx$30 and $\approx$45, then mostly 1--6 per bin from 50 to 125, isolated bars at $\approx$130--135 and $\approx$165--170 (count 1).}
+
+If we tried to run this code in the R console -- outside of the .Rmd environment -- we would receive a warning message that \rc{37 rows containing non-finite values} were removed. That is R's way of informing us that it handled the missing values, or \rc{NA}s\ixh{NA}, by dropping those observations entirely. That message doesn't appear in the knitted .html file for this lab because in the global options chunk, at the very top of this document, we set \rc{message=FALSE} and \rc{warning=FALSE} for the sake of neatness.
+
+Some R functions, like \ixc{geom\_histogram()}, will handle missing data in one way or another by default and will give a reasonable response or value. Others will not:
+\begin{rcode}
+airquality %>%
+  summarise(mean(Ozone))           (*@\ixch{summarise()}\ixch{mean()}@*)
+\end{rcode}
+\begin{routput}
+##   mean(Ozone)
+## 1          NA
+\end{routput}
+If there is even one \rc{NA} value, for instance, \ixc{mean()} will report \rc{NA}. We can tell it to drop any rows with \rc{NA} and get a value instead:
+\begin{rcode}
+airquality %>%
+  summarise(mean(Ozone, na.rm = T))   (*@\ixch{na.rm}@*)
+\end{rcode}
+\begin{routput}
+##   mean(Ozone, na.rm = T)
+## 1               42.12931
+\end{routput}
+One way we could choose to handle the missingness is to remove the variables with any missing data by simply not including them. However, here one of those variables is our \ix{outcome}, and it would make very little sense to remove it.
+
+Another way is to remove all observations with missing data from the dataset, which is what \rc{geom\_histogram()} and \rc{mean()} do by default. We could do that before we split the data like so:
+\begin{rcode}
+airquality_droprow <- airquality %>% drop_na()   (*@\ixch{drop\_na()}\ixh{complete-case analysis}@*)
+\end{rcode}
+However, dropping those observations reduced the overall number of observations from 135 to 111, a reduction of approximately 17.78\%, which is a fairly large reduction for a dataset that was already fairly small.
+{\color{figgray}\itshape [note: as written in the lab; \rc{airquality} actually has 153 rows, so 153 $\to$ 111 is a 27.5\% reduction.]}
+
+The other option is to use some form of \ix{imputation} and generate values for the missing observations. There are several functions we can use for imputation; you can find more about them here (\url{https://recipes.tidymodels.org/reference/step_impute_linear.html}). The primary downside to mean, median, and mode imputation\ixh{mean imputation}\ixh{median imputation}{} are that they result in a reduction in \ix{variance}. Imputation using KNN\ixh{KNN imputation}, bagging, or a linear model tends to perform better.
+
+Since only two variables have missingness, we'll take a relatively easy route and use \ix{linear imputation} to handle them. This can be incorporated in the recipe like so:
+\begin{rcode}
+airquality_split <- initial_split(airquality, prop = 0.80,  (*@\ixch{initial\_split()}\ixch{prop}@*)
+                                strata = Ozone)             (*@\ixch{strata}@*)
+airquality_train <- training(airquality_split)              (*@\ixch{training()}@*)
+airquality_test <- testing(airquality_split)                (*@\ixch{testing()}@*)
+
+air_recipe <- recipe(Ozone ~ ., data = airquality_train) %>%  (*@\ixch{recipe()}@*)
+  step_impute_linear(Ozone, impute_with =      (*@\ixch{step\_impute\_linear()}\ixch{impute\_with}@*)
+                       imp_vars(Wind, Temp, Month, Day)) %>%  (*@\ixch{imp\_vars()}@*)
+  step_impute_linear(Solar.R, impute_with =
+                       imp_vars(Wind, Temp, Month, Day))
+\end{rcode}
+And we can \ixc{prep()} and \ixc{bake()} the recipe to verify that it worked -- these missing values were imputed, or predicted, using the complete variables!
+\begin{rcode}
+prep(air_recipe) %>%                     (*@\ixch{prep()}@*)
+  bake(new_data = airquality_train) %>%  (*@\ixch{bake()}@*)
+  kable() %>%
+  kable_styling(full_width = F) %>%
+  scroll_box(width = "100%", height = "200px")
+\end{rcode}
+\begin{routput}
+Solar.R Wind Temp Month Day Ozone
+    149 12.6   74     5   3    12
+    313 11.5   62     5   4    18
+     19 20.1   61     5   9     8
+    206  6.9   74     5  11     7   # Solar.R imputed
+    256  9.7   69     5  12    16
+    290  9.2   66     5  13    11
+# ... (121 rows in all; Ozone is now the last column) ...
+    162 14.3   56     5   5   -11   # both imputed
+    194  8.6   69     5  10    37   # Ozone imputed
+     66 16.6   57     5  25   -12   # Ozone imputed
+    286  8.6   78     6   1    47   # Ozone imputed
+    266 14.9   58     5  26    -3   # Ozone imputed
+    128  8.0   57     5  27    22   # both imputed
+    269  4.1   84     7   1   135
+\end{routput}
+{\color{figgray}\itshape [note: the ``imputed'' comments are added here by comparing with the raw data; the knitted table has no comments. Linear imputation produced some impossible negative Ozone values ($-11$, $-12$, $-3$).]}\ixh{linear imputation}
+
+\ixc{vis\_miss()} on the prepped data would tell us no observations are missing now:
+\begin{rcode}
+prep(air_recipe) %>%
+  bake(new_data = airquality_train) %>%
+  vis_miss()                            (*@\ixch{vis\_miss()}@*)
+\end{rcode}
+\fig{\rc{vis\_miss()} of the baked training data: columns Solar.R, Wind, Temp, Month, Day, Ozone, each labelled (0\%); y ``Observations'' 0--121 (ticks 0, 25, 50, 75, 100, 125); the whole panel is solid grey; legend ``Present (100\%)''.}
+
+Note that you don't need to handle missingness on all variables in the same way. You could choose to use mean imputation\ixh{mean imputation}{} for one, KNN imputation\ixh{KNN imputation}{} for another, drop a third completely, etc. The most important aspects here are that you should (a) handle \textbf{all} missingness in some way, (b) if possible consider \textbf{why} observations are missing, and (c) \textbf{report} what you did for the sake of transparency.
+
+\par\textbf{Activities}
+\begin{itemize}
+\item Fit a linear regression\ixh{linear regression}{} model using the imputed data.
+\item Compare the results of that model to a linear regression fit using mean imputation\ixh{mean imputation}\ixch{step\_impute\_mean()}{} for both variables. Discuss the similarities and differences.
+\end{itemize}
+
+\subsection{Resources}
+The free book \emph{Tidy Modeling with R} (\url{https://www.tmwr.org/}) is strongly recommended.
+
+You can view all the ISLR textbook code written with \rc{tidymodels} here (\url{https://emilhvitfeldt.github.io/ISLR-tidymodels-labs/index.html}).

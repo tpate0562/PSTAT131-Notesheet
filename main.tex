@@ -10,7 +10,7 @@
 % \gridmarksfalse   % uncomment to hide the tiny grid letters/numbers in the margins
 % \gridlinestrue    % uncomment to draw the full 8x11 grid (to check the index)
 
-\newcommand{\inputsection}[1]{\IfFileExists{sections/#1.tex}{\input{sections/#1}}{\par\textbf{\color{warnc}[missing section: #1]}\par}}
+\newcommand{\inputsection}[1]{\IfFileExists{sections/#1.tex}{\input{sections/#1}}{\par\textbf{\color{warnc}[missing section: \detokenize{#1}]}\par}}
 
 \begin{document}
 \ixwritealiases

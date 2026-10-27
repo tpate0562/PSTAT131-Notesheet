@@ -173,15 +173,14 @@ from this problem} \src{S3.45}.
 \ixh{multiple logistic regression}\ixh{confounding}
 
 \begin{topic}{The student paradox on the Default data}
-\src{S3.27--29}\quad
-\begin{tabular}{@{}lrr@{}}
+\src{S3.27--29}\par\noindent\resizebox{\linewidth}{!}{\begin{tabular}{@{}lrr@{}}
 \toprule
  & \texttt{default\textasciitilde student} & \texttt{\textasciitilde balance+income+student}\\ \midrule
 Intercept & $-3.5041$ & $-10.8690$\\
 balance & --- & $0.0057$ \;($p<.0001$)\\
 income (\$1000s) & --- & $0.0030$ \;($p=.7115$)\\
 student[Yes] & $\mathbf{0.4049}$ \;($p=.0004$) & $\mathbf{-0.6468}$ \;($p=.0062$)\\ \bottomrule
-\end{tabular}
+\end{tabular}}
 \begin{itemize}
 \item \textbf{Contradicting signs!} Simple model: a student is \textbf{riskier} than a non-student
   \emph{if no other information} about the student is available. Multiple model: a student is
@@ -199,9 +198,11 @@ student[Yes] & $\mathbf{0.4049}$ \;($p=.0004$) & $\mathbf{-0.6468}$ \;($p=.0062$
 \ixh{predicted probability}\ixh{threshold}
 
 \begin{keybox}[Worked prediction (Default data)]
-\ixh{predicted probability}$\widehat{\Pr}(\text{default}=\text{Yes}\mid \text{balance}=1500,\ \text{income}=\$40\text{k},\ \text{student}=\text{No})$
+\ixh{predicted probability}$\widehat{\Pr}(\text{default}=\text{Yes}\mid \text{balance}=1500,$ $\text{income}=\$40\text{k},\ \text{student}=\text{No})$
 \[
 =\frac{e^{-10.869+0.00574(1500)+0.0030(40)-0.6468(0)}}{1+e^{-10.869+0.00574(1500)+0.0030(40)-0.6468(0)}}
+\]
+\[
 =\frac{e^{-2.14}}{1+e^{-2.14}}=0.105
 \]
 Same person but student $=$ Yes: $z=-2.14-0.6468=-2.79\Rightarrow\hat p=0.058$ \src{S3.32}.
@@ -315,8 +316,8 @@ $\Pr(Y=1\mid x_0)=\frac{0.12}{0.12+0.07}=0.63$ $\Rightarrow$ class 1, despite th
 
 \begin{keybox}[LDA, p = 1: model, discriminant function, estimates]
 \textbf{Assume} $X\mid Y=k\sim N(\mu_k,\sigma^2)$ --- \textbf{different mean, same variance} \src{S3.69}:
-\[ f_k(x)=\frac{1}{\sqrt{2\pi}\,\sigma}\exp\Bigl(-\frac{1}{2\sigma^2}(x-\mu_k)^2\Bigr),\qquad
-\Pr(Y=k\mid X=x)\propto\pi_k\exp\Bigl(-\frac{1}{2\sigma^2}(x-\mu_k)^2\Bigr) \]
+\[ f_k(x)=\frac{1}{\sqrt{2\pi}\,\sigma}\exp\Bigl(-\frac{1}{2\sigma^2}(x-\mu_k)^2\Bigr), \]
+\[ \Pr(Y=k\mid X=x)\propto\pi_k\exp\Bigl(-\frac{1}{2\sigma^2}(x-\mu_k)^2\Bigr) \]
 ($\tfrac{1}{\sqrt{2\pi}\sigma}$ and the denominator are the same for all $k$ and cancel.) Taking logs and dropping
 terms that do not depend on $k$, assign $x$ to the class whose \ix{discriminant function}
 \[ \delta_k(x)=x\cdot\frac{\mu_k}{\sigma^2}-\frac{\mu_k^2}{2\sigma^2}+\log(\pi_k)\quad\text{is largest} \]
