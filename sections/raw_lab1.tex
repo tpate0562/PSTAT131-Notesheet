@@ -1,6 +1,7 @@
 %% raw_lab1.tex -- raw transcription of Lab 1 (PSTAT 131/231), source: source/labs/lab1/lab-1/lab 1.Rmd
 %% knitted output: work/text/lab1_html.txt, plots: work/html_imgs/lab1/img01-04.png
 \section{Lab 1 --- R basics, dplyr, EDA (diamonds), data splitting}
+{\color{figgray}\itshape [Parts already covered in Part I are omitted: package loading / \texttt{tidymodels\_prefer()} / \texttt{install.packages()} note, \texttt{?mean}/\texttt{help()}, pipe shortcut and operators, \texttt{select()}/\texttt{mutate()}/\texttt{transmute()} code and outputs, \texttt{ungroup()}, \texttt{corrplot}/boxplot/histogram code, seed rationale and split code.]}
 \ixch{dplyr}\ixch{tidyverse}\ixh{exploratory data analysis (EDA)}\ixh{data splitting}\ixch{diamonds}%
 \textbf{Lab 1} \quad PSTAT 131/231. \quad {\color{figgray}\itshape [Rmd header: \texttt{html\_document} with \texttt{toc: true}, \texttt{toc\_float: true}, \texttt{code\_folding: show}. Setup chunk (not shown in output): \texttt{knitr::opts\_chunk\$set(echo = TRUE, message = FALSE, warning = FALSE)}.]}
 
@@ -25,30 +26,7 @@ mean(c(1, 2, 3)) (*@\ixch{mean()}\ixch{c()}@*)
 [1] 2
 \end{routput}
 Each function in R has its own set of arguments and possible values that these arguments accept. You will often need to look up a specific function or one of its arguments --- very often! The good news is, there is a lot of R documentation out there, and it's fairly easy to get help.
-
-To get help about \rc{mean()}, you can uncomment (delete the \rc{\#}) and run either of these lines:
-\begin{rcode}
-# ?mean
-# help(mean) (*@\ixch{help()}@*)
-\end{rcode}
 Or simply open your Web browser and do a search for something like \rc{R function mean help}.
-
-\subsubsection{The \emph{tidyverse} and \emph{tidymodels}}
-\ixch{tidymodels}%
-Throughout this course, in the homework and labs, we'll spend a lot of time using the \ixc{tidyverse} (\url{https://www.tidyverse.org/}) and \ixc{tidymodels} (\url{https://www.tidymodels.org/}). These are two collections of R packages that not only work together very well but also are relatively easy to use. The \emph{tidyverse} makes a lot of data manipulation, exploring, and visualizing much simpler, and \emph{tidymodels} has provided a framework that allows users to fit \ix{machine learning} models in R more easily than ever before.
-
-I recommend loading the following packages for all your homework assignments and for your final project. We also load a few extra packages here for use later on.
-
-What do you think \ixc{tidymodels\_prefer()} might do? Try looking it up to find out (or asking your TA)!
-\begin{rcode}
-library(tidyverse) (*@\ixch{library()}\ixch{tidyverse}@*)
-library(tidymodels) (*@\ixch{tidymodels}@*)
-library(ggplot2) (*@\ixch{ggplot2}@*)
-library(corrplot) (*@\ixch{corrplot}@*)
-library(ggthemes) (*@\ixch{ggthemes}@*)
-tidymodels_prefer() (*@\ixch{tidymodels\_prefer()}@*)
-\end{rcode}
-Recall that the first time you use the packages, you'll need to install them using \ixc{install.packages()}; make sure to install any packages \textbf{outside} of an .Rmd file, though, because including that command in an .Rmd will prevent the file from knitting. Speaking of .Rmd files:
 
 \subsubsection{Update an .Rmd}
 \ixh{R Markdown}%
@@ -84,8 +62,6 @@ Now we'll take some time to go over some of the basic tools for managing data vi
 
 First, you'll need to install and load some packages. These include, but are not limited to: \rc{tidyverse}, \rc{tidymodels}, and \ixc{ISLR}. Make sure to install each of these using the \rc{install.packages()} function and load them with \ixc{library()}.
 \begin{rcode}
-library(tidyverse)
-library(tidymodels)
 library(ISLR) (*@\ixch{ISLR}@*)
 \end{rcode}
 Some packages include datasets when they are loaded. Set \rc{eval = TRUE}\ixch{eval} and knit your .Rmd to run the following code chunk:
@@ -94,8 +70,6 @@ mpg (*@\ixch{mpg}@*)
 \end{rcode}
 {\color{figgray}\itshape [note: this chunk has \texttt{eval = FALSE}, so no output is printed in the knitted lab.]}
 Run \rc{?mpg} to learn more about this data set.
-
-There are five key \rc{tidyverse} functions, or ``verbs.'' We'll go through each of them briefly with the \ixc{mpg} data set. All of these functions work similarly; their first argument is a data frame, subsequent arguments describe operations on the data frame, and the function's result is a new data frame.
 
 \subsubsection{Select observations by their value: \texttt{filter()}}
 \ixch{filter()}%
@@ -143,15 +117,6 @@ mpg %>% (*@\ixch{\%>\%}@*)
 15 manu... 4        15    25 p     comp...
 \end{routput}
 {\color{figgray}\itshape [note: the printed tibble is one 11-column table; it is split in two here only to fit the column width.]}
-The above code takes the \rc{mpg} data set and pipes it into \rc{filter()}. The \ix{pipe} symbol is \ixc{\%>\%}; a shortcut for typing it is Cmd+Shift+M on Macs, or Cntrl+Shift+M on Windows.
-
-If you want to store the result of your filtering, you need to assign it to an object:
-\begin{rcode}
-filtered_mpg <- mpg %>%
-  filter(class == "compact" & manufacturer == "audi")
-\end{rcode}
-You can use the classic \ix{comparison operator}s --- \rc{!=} for not equal to, \ixc{==} for equal to, \rc{>}, etc. They can also be used in combination with \ix{Boolean operator}s, as demonstrated above; \rc{\&} for ``and'', \rc{|} for ``or'', and \rc{!} for ``not.''
-
 \subsubsection{Activities}
 On your own, find ways to filter the \ixc{flights} data set from the \ixc{nycflights13} package to achieve each of the following:
 \begin{itemize}
@@ -168,44 +133,6 @@ On your own, find ways to filter the \ixc{flights} data set from the \ixc{nycfli
 \ixch{select()}%
 Often in machine learning, we end up working with very large data sets that have a lot of columns. The \rc{mpg} data set is pretty small, but we can still practice with it.
 
-We can select the \rc{year}, \rc{hwy}, and \rc{class} variables and store them in a new object, \rc{mpg\_small}, by:
-\begin{rcode}
-mpg_small <- mpg %>%
-  select(year, hwy, class) (*@\ixch{select()}@*)
-\end{rcode}
-For a shortcut, when working with large data frames, we can use \rc{(year:class)} or \rc{-(year:class)} to select or de-select all columns including them and between them, respectively.
-
-Note that we use the \ixc{head()} function here so that only a few rows of the resulting tibble\ixch{tibble} are displayed when we knit to .html.
-\begin{rcode}
-mpg %>% select(year:class) %>% (*@\ixch{select()}@*)
-  head() (*@\ixch{head()}@*)
-
-mpg %>% select(-(year:class)) %>%
-  head()
-\end{rcode}
-\begin{routput}
-# A tibble: 6 x 8
-   year   cyl trans      drv     cty   hwy fl    class
-  <int> <int> <chr>      <chr> <int> <int> <chr> <chr>
-1  1999     4 auto(l5)   f        18    29 p     compact
-2  1999     4 manual(m5) f        21    29 p     compact
-3  2008     4 manual(m6) f        20    31 p     compact
-4  2008     4 auto(av)   f        21    30 p     compact
-5  1999     6 auto(l5)   f        16    26 p     compact
-6  1999     6 manual(m5) f        18    26 p     compact
-
-# A tibble: 6 x 3
-  manufacturer model displ
-  <chr>        <chr> <dbl>
-1 audi         a4      1.8
-2 audi         a4      1.8
-3 audi         a4      2
-4 audi         a4      2
-5 audi         a4      2.8
-6 audi         a4      2.8
-\end{routput}
-The tidyverse includes a number of helper functions that can be used inside \rc{select()}, like \ixc{starts\_with()}, etc. You can see more of them with \rc{?select}.
-
 \subsubsection{Activities}
 On your own, working with the \rc{flights} data:
 \begin{itemize}
@@ -214,58 +141,9 @@ On your own, working with the \rc{flights} data:
 \end{itemize}
 
 \subsubsection{Create or add new variables: \texttt{mutate()}}
-\ixch{mutate()}%
 Besides selecting existing columns, it's often useful to add new columns that are functions of existing columns. That's the job of \ixc{mutate()}.
 
-\rc{mutate()} always adds new columns at the end of your dataset, so we'll use \rc{select()} to reorder the columns and put the new ones at the front. \ixc{everything()} is a helper function to grab all the other variables.
-
-We can add a new column that has the value \rc{0} for cars manufactured before $2000$ and \rc{1} for those manufactured after $2000$ with the following code. Variables set up in this way are ``dummy-coded.''\ixh{dummy variable}\ixh{dummy coding}
-\begin{rcode}
-mpg %>%
-  mutate(after_2k = if_else(year <= 2000, 0, 1)) %>% (*@\ixch{mutate()}\ixch{if\_else()}@*)
-  select(after_2k, year, everything()) %>% (*@\ixch{everything()}@*)
-  head()
-\end{rcode}
-\begin{routput}
-# A tibble: 6 x 12
-  after_2k  year manufac...^1 model displ   cyl
-     <dbl> <int> <chr>        <chr> <dbl> <int>
-1        0  1999 audi         a4      1.8     4
-2        0  1999 audi         a4      1.8     4
-3        1  2008 audi         a4      2       4
-4        1  2008 audi         a4      2       4
-5        0  1999 audi         a4      2.8     6
-6        0  1999 audi         a4      2.8     6
-# (same 6 rows, columns 7-12:)
-  trans   drv     cty   hwy fl    class
-  <chr>   <chr> <int> <int> <chr> <chr>
-1 auto... f        18    29 p     comp...
-2 manu... f        21    29 p     comp...
-3 manu... f        20    31 p     comp...
-4 auto... f        21    30 p     comp...
-5 auto... f        16    26 p     comp...
-6 manu... f        18    26 p     comp...
-# ... with abbreviated variable name ^1manufacturer
-\end{routput}
 You can see an overview of a number of useful variable creation functions here: \url{https://r4ds.had.co.nz/transform.html#mutate-funs}.
-
-For an alternative to \rc{mutate()} when you only want to retain the newly created variables, not all variables, use \ixc{transmute()}:
-\begin{rcode}
-transmute(mpg, (*@\ixch{transmute()}@*)
-  after_2k = if_else(year <= 2000, 0, 1)) %>%
-  head()
-\end{rcode}
-\begin{routput}
-# A tibble: 6 x 1
-  after_2k
-     <dbl>
-1        0
-2        0
-3        1
-4        1
-5        0
-6        0
-\end{routput}
 
 \subsubsection{Activities}
 On your own, working with the \rc{flights} data:
@@ -354,7 +232,6 @@ mpg %>%
  9 volkswagen      29.2    27
 10 honda           32.6     9
 \end{routput}
-It's not demonstrated here, but you can also use other verbs like \rc{mutate()} and \rc{filter()} in conjunction with \rc{group\_by()}. Use \ixc{ungroup()} when you want to return to ungrouped data.
 
 \subsection{Exploratory Data Analysis}
 \ixh{exploratory data analysis (EDA)}%
@@ -386,15 +263,8 @@ Think about which of these variables we might want to predict with a machine lea
 \end{itemize}
 Run \rc{?diamonds} and look at the variable definitions.
 
-First, let's make a \ix{correlation matrix} to see which continuous variables are correlated with \rc{price}. See example code below:
-\begin{rcode}
-diamonds %>%
-  select(is.numeric) %>% (*@\ixch{select()}\ixch{is.numeric()}@*)
-  cor() %>% (*@\ixch{cor()}@*)
-  corrplot(type = 'lower', diag = FALSE, (*@\ixch{corrplot()}@*)
-           method = 'color')
-\end{rcode}
-\fig{\texttt{corrplot} of the correlation matrix of the 7 numeric \texttt{diamonds} variables, lower triangle only, no diagonal (\texttt{type = 'lower'}, \texttt{diag = FALSE}), each cell a coloured square (\texttt{method = 'color'}). Variable labels in red: columns carat, depth, table, price, x, y; rows depth, table, price, x, y, z. Colour bar at the bottom from $-1$ (dark red) through 0 (white) to $+1$ (dark navy blue). Dark blue (strong positive, roughly 0.85--0.98): carat with price, x, y, z; price with x, y, z; x with y and z; y with z. Light salmon/orange (moderate negative, about $-0.3$): depth--table, the only clearly negative cell. Near white ($\approx 0$): depth with carat, price, x, y. Pale blue (weak positive, $\approx 0.1$--0.2): table with carat, price, x, y, z; depth with z.}
+First, let's make a \ix{correlation matrix} to see which continuous variables are correlated with \rc{price}.
+\fig{\texttt{corrplot} (lower triangle, coloured squares, $-1$ dark red to $+1$ dark navy). Besides the strong positive carat/price/x/y/z block: light salmon (moderate negative, about $-0.3$): depth--table, the only clearly negative cell. Near white ($\approx 0$): depth with carat, price, x, y. Pale blue (weak positive, $\approx 0.1$--0.2): table with carat, price, x, y, z; depth with z.}
 \ixh{correlation}%
 
 Take a moment and look at the arguments in the \ixc{corrplot()} function. What does each one do? What happens if you change \rc{diag} to \rc{TRUE} and \rc{method} to \rc{'square'}?
@@ -407,14 +277,7 @@ Take a moment and look at the arguments in the \ixc{corrplot()} function. What d
 \end{itemize}
 
 Let's make a \ix{boxplot} of the distribution of \rc{price} per level of \rc{cut} and \rc{color}, to see if there appears to be a relationship between it and these predictors.\ixh{predictor}
-\begin{rcode}
-diamonds %>%
-  ggplot(aes(x = price, y = reorder(cut, price), fill = color)) + (*@\ixch{ggplot()}\ixch{aes()}\ixch{reorder()}\ixch{fill}@*)
-  geom_boxplot() + (*@\ixch{geom\_boxplot()}@*)
-  labs(y = "Cut", x = "Price") + (*@\ixch{labs()}@*)
-  theme_bw() (*@\ixch{theme\_bw()}@*)
-\end{rcode}
-\fig{Horizontal boxplots (\texttt{geom\_boxplot}, \texttt{theme\_bw}). x-axis ``Price'' 0 to $\approx$19{,}000 (ticks 0, 5000, 10000, 15000); y-axis ``Cut'' ordered by \texttt{reorder(cut, price)} (median price), bottom to top: Ideal, Good, Very Good, Fair, Premium. Within each cut there are 7 stacked boxes filled by \texttt{color} (legend ``color'', viridis palette): D dark purple (bottom of each group), E indigo, F blue, G teal, H green, I light green, J yellow (top). All boxes sit at low prices (lower quartiles $\approx$ 800--2{,}500) with long right whiskers and many black outlier dots extending to $\approx$18{,}800; Fair has far fewer outlier dots. In every cut the worse colours (I, J) have higher medians and wider boxes than D/E: e.g.\ Premium J median $\approx$5{,}000 with box to $\approx$9{,}000, Premium I box to $\approx$9{,}000, while Ideal D/E medians are only $\approx$1{,}500--1{,}800 with boxes ending near 3{,}000. Ideal (the best cut) has the lowest prices overall; Premium the highest.}
+\fig{Horizontal boxplots of price by cut (y, ordered by \texttt{reorder(cut, price)}, bottom to top: Ideal, Good, Very Good, Fair, Premium), 7 boxes per cut filled by \texttt{color} (viridis: D dark purple \dots{} J yellow). All boxes sit at low prices (lower quartiles $\approx$ 800--2{,}500) with long right whiskers and many outlier dots up to $\approx$18{,}800; Fair has far fewer outlier dots. In every cut the worse colours (I, J) have higher medians and wider boxes than D/E: e.g.\ Premium J median $\approx$5{,}000 with box to $\approx$9{,}000, while Ideal D/E medians are only $\approx$1{,}500--1{,}800 with boxes ending near 3{,}000. Ideal (the best cut) has the lowest prices overall; Premium the highest.}
 \ixh{boxplot}%
 
 \subsubsection{Activities}
@@ -439,16 +302,10 @@ diamonds %>%
   \item Explain why lower-quality colors tend to cost more.
 \end{itemize}
 
-Now we'll assess the distribution of our \ix{outcome} variable \rc{price}. Let's make a \ix{histogram}:
-\begin{rcode}
-diamonds %>%
-  ggplot(aes(x = price)) +
-  geom_histogram(bins = 60) + (*@\ixch{geom\_histogram()}\ixch{bins}@*)
-  theme_bw()
-\end{rcode}
-\fig{Histogram of \texttt{price} with 60 bins (dark grey bars, \texttt{theme\_bw}). x-axis ``price'' 0 to $\approx$19{,}000 (ticks 0, 5000, 10000, 15000); y-axis ``count'' 0--8000. Very tall narrow peak near price $\approx$700 ($\approx$8{,}200 diamonds), next bin $\approx$7{,}000, then a sharp drop to $\approx$3{,}200 and $\approx$2{,}300--2{,}600 around 1{,}500--2{,}000; a small secondary bump of $\approx$1{,}600 near 4{,}500; then a long, slowly decaying right tail with only $\approx$100--300 diamonds per bin from about 10{,}000 to the maximum $\approx$18{,}800. Clearly right (positively) skewed.}
+Now we'll assess the distribution of our \ix{outcome} variable \rc{price}. Let's make a \ix{histogram}:\ixch{geom\_histogram()}\ixch{bins}
+\fig{Histogram of \texttt{price}, 60 bins. Very tall narrow peak near price $\approx$700 ($\approx$8{,}200 diamonds), next bin $\approx$7{,}000, then a sharp drop to $\approx$3{,}200 and $\approx$2{,}300--2{,}600 around 1{,}500--2{,}000; a small secondary bump of $\approx$1{,}600 near 4{,}500; then a long, slowly decaying right tail with only $\approx$100--300 diamonds per bin from about 10{,}000 to the maximum $\approx$18{,}800.}
 
-Notice that we increased the number of bins here; this allows us to get a more fine-grained picture of the distribution. \rc{price} is positively skewed\ixh{skewness}, meaning that much of the mass of its distribution is at the lower end, with a long tail to the right. Most diamonds in the data set are worth less than \$10{,}000.
+Notice that we increased the number of bins here; this allows us to get a more fine-grained picture of the distribution.
 
 \subsubsection{Activities}
 \begin{itemize}
@@ -459,22 +316,9 @@ Notice that we increased the number of bins here; this allows us to get a more f
 \ixh{data splitting}\ixh{training/testing split}%
 Now we're going to walk through the process of splitting the \rc{diamonds} data set into two, a training set\ixh{training data} and a test set\ixh{testing data}. Note that in the future, after we discuss the concept of \ix{resampling}, we'll use a resampling technique called \ix{cross-validation}, but for now, we'll work with the entire training set.
 
-We also could have performed this split prior to doing exploratory data analysis\ixh{exploratory data analysis (EDA)}, and in future we'll split data first. That's arguably better practice because it means we will have never encountered the test observations before we fit a final model to them.
-
 The textbook(s) describe a way to split data using base R functions, but \rc{tidymodels} makes the process a lot easier.
 
-We set a seed\ixh{random seed} first because the splitting process is random. If we don't set a seed, each time we re-run the code we'll get a new random split, and the results will not be identical.\ixh{reproducibility}
-
-In general, set a seed to whatever number you like. People often use birthdates, anniversaries, or lucky numbers, etc. Just make sure you remember the number, because you'll need to set the seed to that number to reproduce your split in future.
-\begin{rcode}
-set.seed(3435) (*@\ixch{set.seed()}@*)
-
-diamonds_split <- initial_split(diamonds, prop = 0.80, (*@\ixch{initial\_split()}\ixch{prop}@*)
-                                strata = price) (*@\ixch{strata}@*)
-diamonds_train <- training(diamonds_split) (*@\ixch{training()}@*)
-diamonds_test <- testing(diamonds_split) (*@\ixch{testing()}@*)
-\end{rcode}
-{\color{figgray}\itshape [note: no output is printed for this chunk.]}
+In general, set a seed to whatever number you like. People often use birthdates, anniversaries, or lucky numbers, etc.
 
 \subsubsection{Activities}
 \begin{itemize}
