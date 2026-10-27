@@ -1,72 +1,42 @@
-%% raw_s1b.tex -- raw transcription of Slide Set 1, PDF pages 59--116
-%% (training vs. test MSE, overfitting, bias-variance decomposition/tradeoff,
-%%  classification error rates, Bayes classifier, k-nearest neighbors).
+%% raw_s1b.tex -- raw transcription of Slide Set 1, PDF pages 59--116 (compressed)
+%% (training vs. test MSE, overfitting, bias-variance decomposition, Bayes classifier).
 \section{Slide Set 1 (cont.) --- pp.~59--116}
-{\color{figgray}\itshape [Slides/parts already covered in Part I are omitted: S1.59--60, S1.66, S1.68--80, S1.82, S1.85--96, S1.99--102.]}
+{\color{figgray}\itshape [In Part I: S1.59--60, 66, 68--80, 82, 85--96, 99--102.]}
 \ixh{bias-variance tradeoff}\ixh{k-nearest neighbors (KNN)}
 
-%% ------------------------------------------------------------------
 \subsection{Training MSE vs.\ test MSE; overfitting}
-\ixh{training MSE}\ixh{test MSE}\ixh{overfitting}
+\ixh{training MSE}\ixh{test MSE}\ixh{overfitting}\ixh{flexibility}
 
-\slide{1}{61}{Lowest training MSE $\neq$ lowest test MSE}
-\ixh{training MSE}\ixh{test MSE}\ixh{flexibility}
-\fig{Scatterplot (ISLR Fig.~2.9 left): about 50 open black circles, $X$ from 0 to 100 (horizontal), $Y$ from about 3 to 11 (vertical axis ticks 2--12). Four fitted curves: \textbf{black} = the true $f$ (rises from $\approx$4.5 at $X=0$ to a peak $\approx$9.4 near $X=70$, then falls to $\approx$6.3 at $X=100$); \textbf{orange} = \ix{linear regression} straight line (from $\approx$4.5 to $\approx$9.9); \textbf{light blue} = a simple \ix{smoothing spline}, close to the black curve; \textbf{green} = a complicated smoothing spline that wiggles up and down to chase individual points.}
-\fig{Colour key below the plot, placed along a long right-pointing arrow labelled ``\textbf{level of model flexibility}'': {\color{orange}Linear regression} (least flexible), True $f$ (black), {\color{cyan!70!blue}smoothing spline (simple)}, {\color{green!50!black}smoothing spline (complicated)} (most flexible).}
+\slide{1}{61--62}{Lowest training MSE $\neq$ lowest test MSE}
+\fig{Ex.~1 (ISLR 2.9): $Y$ (3--11) vs.\ $X$ (0--100); true $f$ (black) rises $\approx$4.5$\to$9.4 (peak $X\approx70$) then falls to $\approx$6.3. Fits by increasing flexibility: orange \ix{linear regression}; light-blue simple \ix{smoothing spline} ($\approx f$); green complicated spline (chases points).
+MSE vs.\ flexibility (log, 2--20): test MSE (red) U-shaped: $\approx$2.12 (linear), min $\approx$1.13 at $\approx$5.5 (simple spline), $\approx$1.53 at $\approx$25 (complicated), up to $\approx$2.4. Training MSE (grey) falls monotonically: 1.73, 0.87, 0.38, $\to$0.12. Dashed line at 1.0 = \ix{irreducible error} $\mathrm{Var}(\epsilon)$: test MSE never below it, training MSE is.}
 
-\slide{1}{62}{[untitled --- training vs.\ test MSE as flexibility grows]}
-\ixh{flexibility}\ixh{training MSE}\ixh{test MSE}
-\fig{Left: the same scatterplot and four fits as S1.61 (smaller), with the same colour key and ``level of model flexibility'' arrow underneath (Linear regression, True $f$, smoothing spline (simple), smoothing spline (complicated)). Right: plot of \textbf{Mean Squared Error} (vertical, 0.0--2.5) vs.\ \textbf{Flexibility} (horizontal, log scale, ticks 2, 5, 10, 20). \textbf{Red} curve labelled ``Test MSE'' is U-shaped: $\approx$2.12 at flexibility 2 (orange square = linear regression), minimum $\approx$1.13 at flexibility $\approx$5.5 (blue square = simple spline), $\approx$1.53 at flexibility $\approx$25 (green square = complicated spline), then shoots up to $\approx$2.4. \textbf{Grey} curve labelled ``Training MSE'' decreases monotonically: $\approx$1.73 (orange square), $\approx$0.87 (blue square), $\approx$0.38 (green square), $\approx$0.12 at the right end. A horizontal dashed line at MSE $=1.0$ (the \ix{irreducible error} $\mathrm{Var}(\epsilon)$; unlabelled) --- test MSE never goes below it, training MSE does.}
+\slide{1}{63}{[Ex.~2: true $f$ nearly linear]}
+\fig{$f$ rises $\approx$2.7$\to$12.7, almost linear; \ix{linear regression} and simple spline lie on it, complicated spline wiggly. Test MSE: $\approx$1.09 (linear), min $\approx$1.06 at $\approx$3, $\approx$1.52 at $\approx$25, $\to$2.35. Training: 0.99, 0.91, 0.39, $\to$0.13. Inflexible linear fit is already nearly optimal.}
 
-\slide{1}{63}{[untitled --- example 2: true $f$ nearly linear]}
-\ixh{flexibility}\ixh{training MSE}\ixh{test MSE}
-\fig{Left: scatterplot of $Y$ (2--13) vs.\ $X$ (0--100); the true $f$ (black) is almost linear, rising from $\approx$2.7 to $\approx$12.7. Orange = \ix{linear regression} line (from $\approx$2 to $\approx$12.5) lies almost on top of it; light blue = simple smoothing spline, also close; green = complicated smoothing spline, very wiggly. Right: Mean Squared Error (0.0--2.5) vs.\ Flexibility (log scale 2, 5, 10, 20). Red test-MSE curve: $\approx$1.09 at flexibility 2 (orange square), minimum $\approx$1.06 at $\approx$3 (blue square), $\approx$1.52 at $\approx$25 (green square), rising to $\approx$2.35. Grey training-MSE curve: $\approx$0.99 (orange), $\approx$0.91 (blue), $\approx$0.39 (green), $\approx$0.13 at the end. Dashed line at 1.0. Here the inflexible linear fit is already nearly optimal.}
-\fig{Colour key under the plots with the arrow ``\textbf{level of model flexibility}'': Linear regression (orange), True $f$ (black), smoothing spline (simple) (blue), smoothing spline (complicated) (green).}
+\slide{1}{64}{[Ex.~3: true $f$ highly nonlinear]}
+\ixh{nonlinear relationship}
+\fig{$f$: $\approx$27 at $X=0$, $\approx$11 at 30, bump $\approx$13.8 at 65, plunges to $\approx-11$ at 100. Linear line fits badly; both splines follow the data. Test/training MSE: 18.8/14.8 at flexibility 2, fall steeply between 3 and 6; 1.2/0.8 at $\approx$10; 1.5/0.4 at $\approx$25; test $\to$2.5 at the end. Flexible method needed: linear fit has huge \ix{bias}.}
 
-\slide{1}{64}{[untitled --- example 3: true $f$ highly nonlinear]}
-\ixh{flexibility}\ixh{nonlinear relationship}
-\fig{Left: scatterplot of $Y$ ($-10$ to 25) vs.\ $X$ (0--100). True $f$ (black) is strongly nonlinear: $\approx$27 at $X=0$, drops to $\approx$11 near $X=30$, small bump $\approx$13.8 near $X=65$, then plunges to $\approx-11$ at $X=100$. The orange linear-regression line (from $\approx$20 down to $\approx$3) fits badly; the light-blue and green splines both follow the data closely (green slightly wiggly). Right: Mean Squared Error (0--20) vs.\ Flexibility (log scale 2, 5, 10, 20). Test MSE (red) $\approx$18.8 and training MSE (grey) $\approx$14.8 at flexibility 2 (orange squares); both fall steeply between flexibility 3 and 6; at flexibility $\approx$10 (blue square) test $\approx$1.2, training $\approx$0.8; at $\approx$25 (green squares) test $\approx$1.5, training $\approx$0.4; test MSE turns up slightly at the right end ($\approx$2.5). Dashed line at 1.0. Here a flexible method is needed: the linear fit has huge error (high \ix{bias}).}
+\slide{1}{65}{Overfitting = small train MSE, large test MSE}
+\ixh{underfitting}\ixh{validation set}
+\fig{Under / optimal / over-fitting. Regression (U-shaped data): straight line / parabola / zig-zag through every point. Classification: straight boundary (many errors) / smooth curve around red cluster / snaking boundary looping individual points. Deep learning, error vs.\ epochs: training and validation both level off high / both low, validation slightly above / training $\to$0 while validation stays high (big gap).}
 
-\slide{1}{65}{Overfitting = Small train MSE, large test MSE}
-\ixh{overfitting}\ixh{underfitting}\ixh{training MSE}\ixh{test MSE}
-\fig{$3\times3$ grid of cartoons; columns ``Under-fitting'' / ``Optimal-fitting'' / ``Over-fitting'', rows ``Regression'' / ``Classification'' / ``Deep learning''. \emph{Regression row}: blue points following a U-shape; under-fitting = a straight downward-sloping line missing the U; optimal = a smooth parabola through the cloud; over-fitting = a jagged black polyline that zig-zags through every point. \emph{Classification row}: blue and red points (red cluster on the right, a few red points among the blue); under-fitting = a straight line boundary that misclassifies many; optimal = a smooth parabola-shaped boundary enclosing the red cluster; over-fitting = a tortuous, snaking boundary that loops around individual points. \emph{Deep learning row}: Error (vertical) vs.\ Epochs (horizontal), blue ``Validation'' and red ``Training'' curves; under-fitting = both curves decrease and level off together at a fairly high error; optimal = both curves decrease, validation slightly above training, both low; over-fitting = training error keeps falling to near 0 while validation error levels off much higher (large gap).}\ixh{underfitting}\ixh{validation set}
+\slide{1}{67}{[Overfitting memes]}
+\fig{mattress bent to the shape of a body (``best way to explain overfitting''); ``Not sure if 99\% accuracy\ixh{accuracy} \ldots\ or overfitting''.}
 
-\slide{1}{67}{[untitled --- overfitting memes]}
-\ixh{overfitting}
-\fig{Two memes. Left: a photo of a wooden bed frame with a mattress bent into the curvy shape of a body lying on it; caption ``THE BEST WAY TO EXPLAIN OVERFITTING''. Right: the Futurama ``Fry squinting'' meme, captioned ``NOT SURE IF 99\% ACCURACY\ixh{accuracy} \ldots\ OR OVERFITTING'' (memegenerator.net).}
-
-%% ------------------------------------------------------------------
 \subsection{Bias-variance decomposition}
-\ixh{bias-variance decomposition}\ixh{bias}\ixh{variance}\ixh{irreducible error}
+\ixh{bias-variance decomposition}\ixh{bias}\ixh{variance}\ixh{irreducible error}\ixh{test MSE}
 
-\slide{1}{81}{Bias-variance tradeoff}
-\ixh{bias-variance tradeoff}
-\fig{ISLR Fig.~2.12 (left) style plot: horizontal axis Flexibility (log scale 2, 5, 10, 20), vertical axis 0.0--2.5. Dark-red curve ``Test MSE'' is U-shaped ($\approx$2.12 at flexibility 2, minimum $\approx$1.13 near flexibility 5.5, up to $\approx$2.43 at the right end). Orange curve ``Variance'' starts near 0.05 and increases, slowly at first then sharply, to $\approx$1.42. Cyan curve ``Bias$^2$'' starts at $\approx$1.08 and drops quickly to $\approx$0 by flexibility $\approx$5.5, then stays flat near 0. Horizontal dashed line at 1.0 (= $\mathrm{Var}(\varepsilon)$); vertical dotted line at flexibility $\approx$5.5 where the test MSE is smallest. Test MSE = Variance + Bias$^2$ + 1.0 at every flexibility.}\ixh{test MSE}\ixh{irreducible error}\ixh{flexibility}
+\slide{1}{81}{Bias-variance tradeoff (Ex.~1)}
+\fig{ISLR 2.12 vs.\ flexibility (log 2--20): test MSE U-shaped ($\approx$2.12, min $\approx$1.13 at $\approx$5.5, $\to$2.43); variance rises $\approx$0.05$\to$1.42 (slowly, then sharply); bias$^2$ $\approx$1.08$\to\approx$0 by 5.5, then flat; dashed 1.0 = $\mathrm{Var}(\varepsilon)$; dotted vertical at min. Test MSE = Var + Bias$^2$ + 1.0 everywhere.}
 
-\slide{1}{83}{[untitled --- example 2: data, MSE, and its decomposition]}
-\ixh{bias-variance decomposition}
-\fig{Three panels for the second example (true $f$ nearly linear, S1.63). Right: decomposition --- dark-red test MSE starts $\approx$1.09, reaches its minimum $\approx$1.06 at flexibility $\approx$3 (vertical dotted line), then rises to $\approx$2.35; cyan squared bias is tiny everywhere ($\approx$0.05 at flexibility 2, $\approx$0 afterwards); orange variance rises from $\approx$0.04 to $\approx$1.33; dashed line at 1.0. With little bias to remove, the optimum is at low flexibility and variance dominates.}\ixh{bias}\ixh{variance}
+\slide{1}{83--84}{[Ex.~2 and 3 decompositions]}
+\fig{Ex.~2 (nearly linear): bias$^2$ tiny ($\approx$0.05 at 2, then $\approx$0); variance $\approx$0.04$\to$1.33; test MSE min $\approx$1.06 at $\approx$3 $\Rightarrow$ optimum at low flexibility, variance dominates. Ex.~3 (highly nonlinear): MSE 18.8$\to$1.2 between 2 and 6, $\to$2.5 at end; bias$^2$ 17.7$\to$0 by $\approx$8; variance $\approx$0 until rising to $\approx$1.5 at right; min at $\approx$10 $\Rightarrow$ bias dominates, optimum at higher flexibility.}
 
-\slide{1}{84}{[untitled --- example 3: data, MSE, and its decomposition]}
-\ixh{bias-variance decomposition}
-\fig{Three panels for the third example (true $f$ highly nonlinear, S1.64). Right: decomposition with legend ``MSE'' (dark red), ``Bias'' (cyan), ``Var'' (orange): MSE falls from $\approx$18.8 to $\approx$1.2 between flexibility 2 and 6 and stays low, turning up to $\approx$2.5 at the end; squared bias falls from $\approx$17.7 to $\approx$0 by flexibility $\approx$8; variance is $\approx$0 until it rises to $\approx$1.5 at the right end; vertical dotted line at flexibility $\approx$10 (the minimum); dashed line at 1.0. Here bias dominates, so the optimum is at higher flexibility.}\ixh{bias}\ixh{variance}
+\subsection{Classification: the Bayes classifier}
+\ixh{classification}\ixh{error rate}\ixh{Bayes classifier}
 
-%% ------------------------------------------------------------------
-\subsection{Classification setting: error rates and the Bayes classifier}
-\ixh{classification}\ixh{error rate}
-
-\slide{1}{97}{[untitled --- Bayes classifier, two classes]}
-\ixh{Bayes classifier}\ixh{Bayes decision boundary}
-\fig{ISLR Fig.~2.13 (simulated two-class data). Axes $X_1$ (horizontal) and $X_2$ (vertical), no tick values. About 100 orange circles (class 1) mostly in the upper left and about 100 blue circles (class 2) mostly in the lower and right part, with considerable overlap in the middle. A purple dashed curve --- the \ix{Bayes decision boundary} --- winds from the left edge (about 1/3 up from the bottom), dips down around the lower middle, rises up through the centre, bulges left, and exits through the top edge right of centre. The background is a grid of small dots coloured orange on the side where the Bayes classifier predicts orange (upper left) and blue where it predicts blue (lower part and right side). Several orange circles lie in the blue region and vice versa.}\ixh{decision boundary}
-
-\slide{1}{98}{[untitled --- reading the Bayes classifier plot]}
-\ixh{Bayes classifier}
-\begin{itemize}
-\item[] \textbf{Each circle is an observation}
-\item[] \quad\textbf{location: \ix{predictor} $X$}
-\item[] \quad\textbf{color: \ix{class label} $Y$, $Y={\color{orange}1}$ vs.\ $Y={\color{dblue}2}$}
-\end{itemize}
-\textbf{Areas:}
-\[ {\color{orange}\mathrm{Prob}\big(Y=1\,|\,X=\mathbf{x}_0\big)>50\,\%}\qquad
-{\color{dblue}\mathrm{Prob}\big(Y=2\,|\,X=\mathbf{x}_0\big)>50\,\%} \]
-
+\slide{1}{97--98}{[Bayes classifier, two classes]}
+\fig{ISLR 2.13: $\sim$100 orange (class 1, upper left) and $\sim$100 blue (class 2, lower/right) circles in $(X_1,X_2)$, overlapping in the middle. Purple dashed wiggly \ix{Bayes decision boundary}\ixh{decision boundary}; background dots coloured by the Bayes prediction; some circles on the wrong side.}
+Each circle = an observation; location = \ix{predictor} $X$; colour = \ix{class label} $Y\in\{{\color{orange}1},{\color{dblue}2}\}$. Areas: ${\color{orange}\Pr(Y=1\,|\,X=\mathbf{x}_0)>50\%}$ vs.\ ${\color{dblue}\Pr(Y=2\,|\,X=\mathbf{x}_0)>50\%}$.

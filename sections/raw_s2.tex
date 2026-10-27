@@ -1,80 +1,56 @@
-%% raw_s2.tex -- raw transcription of Slide Set 2 (Linear models; feature engineering; EDA), PDF pages 1-78
-%% Dedupe pass: slides/passages already covered in Part I (d2_models etc.) removed; proofs removed.
+%% raw_s2.tex -- raw transcription of Slide Set 2 (Linear models; feature engineering; EDA), PDF pages 1-78 (compressed)
 \section{Slide Set 2 --- Linear models, feature engineering, EDA}
 \ixh{linear model}\ixh{linear regression}\ixh{feature engineering}\ixh{exploratory data analysis (EDA)}
-{\color{figgray}\itshape [Slides/parts already covered in Part I are omitted: S2.1, S2.3--5, S2.7--10, S2.12--14, S2.16--17, S2.20--24, S2.26--31, S2.33--36, S2.38--44, S2.46--49, S2.51--52, S2.54, S2.56--58; S2.59--78 (diagnostics, collinearity, LR vs.\ KNN) are covered in Part I.]}
+{\color{figgray}\itshape [In Part I: S2.1, 3--5, 7--10, 12--14, 16--17, 20--24, 26--31, 33--36, 38--44, 46--49, 51--52, 54, 56--78.]}
 
-\slide{2}{2}{Required reading:}
-\begin{itemize}
-\item For \textbf{undergraduates}, ch.\ 2 of \ixc{ISLR}
-\item For \textbf{graduate students}, ch.\ 2 of \ix{ESL}
-\end{itemize}
+\slide{2}{2}{Required reading}
+Undergrads: ch.~2 of \ixc{ISLR}; grads: ch.~2 of \ix{ESL}.
 
-\subsection{Exploratory data analysis (EDA)}
-\ixh{exploratory data analysis (EDA)}
-
-\slide{2}{6}{[Missing-data patterns and missingness mechanisms]}
-\begin{itemize}
-\item[] D: Dog (missingness mechanism)
-\end{itemize}
-\fig{left: four schematic data matrices of variables $Y_1,Y_2,Y_3,Y_4$ drawn as tall bars, grey shading = missing values. (a) \emph{Univariate Pattern}\ixh{missingness pattern}: $Y_1$--$Y_3$ complete, only $Y_4$ has a missing block at the bottom. (b) \emph{Monotone Pattern}: $Y_1,Y_2$ complete, $Y_3$ missing at the bottom third, $Y_4$ missing at the bottom half (each later variable missing for a superset of the rows). (c) \emph{General Pattern}: small missing bands scattered at different rows in every variable. (d) \emph{Planned Missingness}: $Y_1$ complete, $Y_2$ missing at the top, $Y_3$ in the middle, $Y_4$ at the bottom (missing blocks staggered by design).}
-\fig{right: three hand-drawn causal diagrams (R.\ McElreath), each with A $\to$ H, H $\to$ H*, D $\to$ H*. (1) MCAR\ixh{missing completely at random (MCAR)}: no arrow into D. (2) MAR\ixh{missing at random (MAR)}: extra arrow A $\to$ D. (3) MNAR\ixh{missing not at random (MNAR)}: extra arrow H $\to$ D.}
+\slide{2}{6}{[Missing-data patterns and mechanisms]}
+\fig{Patterns over $Y_1..Y_4$: (a) \emph{univariate}\ixh{missingness pattern}: only $Y_4$ has missing rows; (b) \emph{monotone}: $Y_3$ missing bottom third, $Y_4$ bottom half (each later variable missing on a superset of rows); (c) \emph{general}: scattered gaps everywhere; (d) \emph{planned}: $Y_2,Y_3,Y_4$ missing in staggered blocks by design.}
+\fig{Causal DAGs (McElreath), all with A$\to$H, H$\to$H*, D$\to$H* (D = dog = missingness mechanism): MCAR\ixh{missing completely at random (MCAR)}: nothing $\to$ D; MAR\ixh{missing at random (MAR)}: A$\to$D; MNAR\ixh{missing not at random (MNAR)}: H$\to$D.}
 
 \subsection{Linear regression}
-\ixh{linear regression}
 
 \slide{2}{11}{Linear regression}
-\textbf{PSTAT 126}\par
-\textbf{Carl Friedrich Gauss in 1795}\ixh{Gauss, Carl Friedrich}\par
-\textbf{Simple, interpretable, and often very useful}\ixh{interpretability}\par
-\textbf{Many nonlinear methods are direct generalization of \ix{linear regression}}\par
-\textbf{(1809): {\color{warnc}Method of \ix{least squares}}, MLE\ixh{maximum likelihood}, Gaussian distribution\dots}
+PSTAT 126. Gauss\ixh{Gauss, Carl Friedrich}, 1795. Simple, interpretable\ixh{interpretability}, often very useful; many nonlinear methods generalize \ix{linear regression}. (1809): method of \ix{least squares}, MLE\ixh{maximum likelihood}, Gaussian distribution.
 
-\slide{2}{15}{Simple linear regression}
+\slide{2}{15--18}{Simple linear regression; which line?}
 \ixh{simple linear regression}
-\fig{base-R scatterplot of 9 counties (open circles): x-axis ``population'' (ticks 1000000--3000000), y-axis ``confirmed'' (ticks 50000--200000). Points approx.\ (0.89M, 73k), (0.98M, 70k), (1.52M, 70k), (1.66M, 56k), (1.93M, 75k), (2.15M, 212k), (2.41M, 200k), (3.17M, 182k), (3.31M, 171k). A blue increasing line $y = \beta_0 + \beta_1 x$ runs from about 71k at the left edge to about 210k at the right edge.}
+\fig{9 counties, confirmed (50k--200k) vs.\ population (1M--3.3M): $\approx$(0.89M,73k), (0.98M,70k), (1.52M,70k), (1.66M,56k), (1.93M,75k), (2.15M,212k), (2.41M,200k), (3.17M,182k), (3.31M,171k); line $y=\beta_0+\beta_1x$ from $\approx$71k to $\approx$210k. Riverside ($x\approx$2.41M): observed $\approx$200k vs.\ predicted $\approx$157k; gap = \ix{residual}.}
 
-\slide{2}{18}{Estimating parameters}
-\textbf{Which line should we choose?}
-\fig{Riverside County (population $\approx$2.41M, observed confirmed $y_{\mathrm{RS}}\approx$200k) vs.\ its predicted response $\beta_0 + \beta_1 x_{\mathrm{RS}}\approx$157k on the line; the vertical gap is the \ix{residual}.}
-
-\slide{2}{19}{Simple linear regression}
-\fig{flow diagram of three light-blue boxes joined by arrows: \textbf{Data} $\to$ \textbf{Learn} $\to$ \textbf{Evaluate}. Under Data: ``Training set $\{(x_1,y_1),(x_2,y_2),\dots,(x_n,y_n)\}$''\ixh{training data}. Under Learn: $\hat\beta_0,\hat\beta_1$\ixh[beta hat]{$\hat\beta$}. Under Evaluate: ``1.\ Accuracy of the coefficient estimates $\hat\beta_0,\hat\beta_1$'' and ``2.\ Accuracy of the linear model''.}
+\slide{2}{19}{[Workflow]}
+Data (training set\ixh{training data} $\{(x_i,y_i)\}_{i=1}^n$) $\to$ Learn ($\hat\beta_0,\hat\beta_1$\ixh[beta hat]{$\hat\beta$}) $\to$ Evaluate (1.~accuracy of $\hat\beta_0,\hat\beta_1$; 2.~accuracy of the model).
 
 \slide{2}{25}{Accuracy of the coefficient estimates}
-\fig{two panels (ISLR Fig.\ 3.3 style), both with x-axis X ($-2$ to 2) and y-axis Y ($-10$ to 10). Left: about 100 simulated points (open circles) with a positive trend and large scatter; a \textbf{red} line $Y = \beta_0 + \beta_1 X$ (the true population line, $\approx 2+3X$) and a \textbf{dark blue} line $Y = \hat\beta_0 + \hat\beta_1 X$ (the least-squares fit to these data, slightly steeper). Right: the same red and dark-blue lines plus about ten \textbf{light-blue} lines $Y = \hat\beta_0+\hat\beta_1X$, ``each computed on the basis of a separate random set of observations''; the light-blue lines scatter around the red line, with slopes varying.}\ixh{sampling variability}
+\ixh{sampling variability}
+\fig{ISLR 3.3: red = true line ($\approx 2+3X$); dark blue = least-squares fit to one sample; light-blue lines = fits to ~10 separate random samples, scattering around the red line.}
 
 \subsection{Multiple linear regression}
 \ixh{multiple linear regression}
 
 \slide{2}{32}{Coefficient estimates}
-$i$th \ix{residual}: $\displaystyle y_i - \hat y_i = y_i - \hat\beta_0 - \sum_{j=1}^p \hat\beta_j x_{ij}$
-\fig{3-D plot (ISLR Fig.\ 3.4) with axes $X_1$, $X_2$ (floor) and $Y$ (vertical): a tilted blue-to-green least-squares regression \emph{plane}\ixh{regression plane} fitted to about 30 red points; each red point is joined to the plane by a vertical black segment (its residual), some points above and some below the plane.}
+$i$th \ix{residual}: $y_i - \hat y_i = y_i - \hat\beta_0 - \sum_{j=1}^p \hat\beta_j x_{ij}$.
+\fig{ISLR 3.4: least-squares \emph{plane}\ixh{regression plane} in $(X_1,X_2,Y)$; vertical segments = residuals (points above and below).}
 
-\slide{2}{37}{[Forward / backward stepwise selection example]}
+\slide{2}{37}{[Stepwise selection, 5 variables]}
 \ixh{stepwise selection}\ixh{forward selection}\ixh{backward selection}
-\textbf{Forward stepwise selection example with 5 variables:} \quad \textbf{Backward stepwise selection example with 5 variables:}\par
-\fig{forward: Null Model (no variables) $\to$ add the most significant, $X_2$ (Model with 1 variable) $\to$ add $X_5$ (Model with 2 variables $\{X_2,X_5\}$), ``until reaching the stopping rule or running out of variables''. Backward: Full Model $\{X_1,\dots,X_5\}$ $\to$ remove the least significant, $X_4$ (Model with 4 variables) $\to$ remove $X_1$ (Model with 3 variables $\{X_2,X_3,X_5\}$).}
+Forward: null $\to$ add most significant ($X_2$) $\to$ add $X_5$ $\to$ \ldots\ until stopping rule or out of variables. Backward: full $\{X_1..X_5\}$ $\to$ remove least significant ($X_4$) $\to$ remove $X_1$ $\to\{X_2,X_3,X_5\}$.
 
-\subsection{Practical considerations: qualitative predictors}
-\ixh{categorical predictor}
+\slide{2}{45}{tidymodels: traditional dummy variables}
+\ixch{tidymodels}\ixh{dummy variable}\ixh{categorical predictor}
+\ixc{recipes}: ``\ixc{step\_dummy()} creates a \emph{specification} of a recipe step that will convert nominal data (e.g.\ character or factors) into one or more numeric binary model terms for the levels of the original data.''
 
-\slide{2}{45}{tidymodels: Create traditional dummy variables}
-\ixch{tidymodels}\ixh{dummy variable}
-\textit{\ixc{tidymodels}} --- screenshot of the \ixc{recipes} reference page \textbf{``Create traditional dummy variables''} (Source: \texttt{R/dummy.R}):\par
-``\ixc{step\_dummy()} creates a \emph{specification} of a recipe step that will convert nominal data (e.g.\ character or factors) into one or more numeric binary model terms for the levels of the original data.''
-
-\subsection{Extensions of the linear model: interactions, polynomial regression}
-\ixh{interaction term}\ixh{polynomial regression}
+\subsection{Interactions, polynomial regression}
 
 \slide{2}{50}{Interactions vs.\ main effects}
 \ixh{main effect}\ixh{interaction term}
-\fig{three schematic interaction plots, ``Cleanliness'' vs.\ ``B: Water Temperature'' (Cold, Warm, Hot), one line per ``A: Detergent'' \#1/\#2. (1) \textbf{A Significant, B Not}: two horizontal flat lines, Detergent \#1 clearly above \#2. (2) \textbf{A and B Significant}: two parallel rising lines, constant gap. (3) \textbf{B Significant, A Not}: two almost coincident rising lines.}
+\fig{Cleanliness vs.\ water temperature (B), lines = detergent (A). A sig., B not: flat lines, \#1 above \#2. A and B sig.: parallel rising lines. B sig., A not: coincident rising lines.}
 
 \slide{2}{53}{Interaction: Credit example}
-\ixh{Credit (dataset)}\ixh{interaction term}
-\fig{two panels (ISLR Fig.\ 3.7), x-axis Income (0--150), y-axis Balance (200--1400); red line = student, black line = non-student. Left (no interaction): student from $\approx$600 at income 0 to $\approx$1490 at 150; non-student from $\approx$215 to $\approx$1105. Right (with interaction): student line from $\approx$680 to $\approx$1310 (flatter), non-student from $\approx$205 to $\approx$1130 (steeper).}
+\ixh{Credit (dataset)}
+\fig{ISLR 3.7, Balance vs.\ Income (0--150); red student, black non-student. No interaction (parallel): student $\approx$600$\to$1490, non-student $\approx$215$\to$1105. With interaction: student $\approx$680$\to$1310 (flatter), non-student $\approx$205$\to$1130 (steeper).}
 
 \slide{2}{55}{Non-linear relationships}
-\ixh{nonlinear relationship}
-\fig{ISLR Fig.\ 3.8, Auto data: mpg ($Y$, 10--50) vs.\ horsepower ($X$, 50--230), $\approx$400 points with a curved, decreasing, convex trend. \textbf{Orange} = Linear (from $\approx$34 at $X=40$ down to $\approx$6 at $X=215$ --- too high in the middle, too low at the right); \textbf{light blue} = Degree 2 (from $\approx$41 down to a minimum $\approx$13 near $X=190$, slightly rising after); \textbf{green} = Degree 5 (bump $\approx$35 near $X=50$, dips to $\approx$11.5 near $X=205$, then shoots up to $\approx$22 at the right edge).}\ixh{overfitting}
+\ixh{nonlinear relationship}\ixh{polynomial regression}\ixh{overfitting}
+\fig{ISLR 3.8, Auto mpg vs.\ horsepower (convex decreasing). Linear (orange): $\approx$34$\to$6, too high mid, too low right. Degree 2 (blue): $\approx$41$\to$min $\approx$13 near 190. Degree 5 (green): bump $\approx$35 at 50, $\approx$11.5 at 205, shoots up to $\approx$22 at the edge.}
