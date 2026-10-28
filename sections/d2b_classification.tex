@@ -17,7 +17,7 @@
   (\ix{LDA}, \ix{QDA}), \ix{naive Bayes}.
 \item Running example: \ixc{Default} data (ISLR): $Y=$ \texttt{default} (Yes/No);
   $X_1=$ annual \texttt{income}, $X_2=$ monthly credit-card \texttt{balance}, $X_3=$ \texttt{student}.
-  Defaulters have much higher balances; income barely differs \src{S3.8}.
+  Defaulters have much higher balances; income barely differs \src{S3.8}\,\fref{21}.
 \end{itemize}
 \end{topic}
 
@@ -26,7 +26,7 @@
 \item \textbf{Binary} $Y\in\{0,1\}$: \ix{linear regression} models
   $\Pr(Y=1\mid X)=\beta_0+\beta_1X_1+\dots+\beta_pX_p$, an unbounded line
   $\Rightarrow$ fitted ``probabilities'' can be $<0$ (Default data: \textbf{negative probability} for
-  balance $\lesssim 500$) or $>1$. Logistic regression's S-curve stays in $[0,1]$ \src{S3.5}.
+  balance $\lesssim 500$) or $>1$. Logistic regression's S-curve stays in $[0,1]$ \src{S3.5}\,\fref{20}.
 \item \textbf{$>2$ classes}: coding $Y=1$ (stroke), 2 (drug overdose), 3 (seizure) imposes an
   \textbf{ordering} and equal spacing (stroke$\to$overdose gap $=$ overdose$\to$seizure gap); a different
   coding (1 stroke, 2 seizure, 3 overdose) gives a different model; $\{$dog, cat, fish$\}$ has no
@@ -187,7 +187,7 @@ student[Yes] & $\mathbf{0.4049}$ \;($p=.0004$) & $\mathbf{-0.6468}$ \;($p=.0062$
   which are associated with high default rates. Balance \ix{confounding} the student effect.
 \item Lesson: pay extra attention when regressing on a \textbf{single predictor} while other relevant predictors
   exist (\ix{confounding}; \ix{Simpson's paradox}: S3.30 shows two groups each with a positive
-  $y$--$x$ trend, but the pooled data trend is negative) \src{S3.29--31}.
+  $y$--$x$ trend, but the pooled data trend is negative) \src{S3.29--31}\,\fref{22}.
 \end{itemize}
 \end{topic}
 
@@ -326,7 +326,7 @@ $\hat\delta_k(x)=x\,\hat\mu_k/\hat\sigma^2-\hat\mu_k^2/(2\hat\sigma^2)+\log\hat\
 \end{keybox}
 
 \begin{topic}{Decision boundary ($p=1$, $K=2$)}
-\ixh{decision boundary}\src{S3.77}
+\ixh{decision boundary}\src{S3.77}\,\fref{30}
 \begin{itemize}
 \item \ix{decision boundary}: $\delta_1(x)=\delta_2(x)$. With equal priors $\pi_1=\pi_2$:
   $x^*=\frac{\mu_1+\mu_2}{2}$ (midpoint of the means). Unequal priors (ISLR):
@@ -358,14 +358,14 @@ The Bayes classifier assigns $\mathbf x$ to the class with the largest
 LDA plugs in $\hat\mu_k$, $\hat\Sigma$ (pooled), $\hat\pi_k$: $\hat\delta_k(\mathbf x)$ is \textbf{linear in $\mathbf x$}
 (only the term $\mathbf x^T\hat\Sigma^{-1}\hat\mu_k$ involves $\mathbf x$) \src{S3.79}.
 Posterior probabilities: $\widehat{\Pr}(Y=k\mid\mathbf x)=e^{\hat\delta_k(\mathbf x)}\big/\sum_j e^{\hat\delta_j(\mathbf x)}$.\\
-\textbf{Boundary} \src{S3.81}: Bayes $=\{\mathbf x:\delta_k(\mathbf x)=\delta_j(\mathbf x)\}$, LDA
+\textbf{Boundary} \src{S3.81}\,\fref{31}: Bayes $=\{\mathbf x:\delta_k(\mathbf x)=\delta_j(\mathbf x)\}$, LDA
 $=\{\mathbf x:\hat\delta_k(\mathbf x)=\hat\delta_j(\mathbf x)\}$, $k\neq j$ $\Rightarrow$ \textbf{linear
 boundary, i.e.\ a hyperplane} (a line when $p=2$; with $K=3$, three line pieces meeting at a point). In S3.81 the
 LDA (solid) and Bayes (dashed) boundaries nearly coincide.
 \end{keybox}
 
 %% ==================================================================
-\subsection{Quadratic discriminant analysis (QDA)}
+\subsection{Quadratic discriminant analysis (QDA)}\fref{32}
 \ixh{quadratic discriminant analysis (QDA)}
 
 \begin{keybox}[QDA]

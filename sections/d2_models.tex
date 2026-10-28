@@ -42,7 +42,7 @@ ggplot(mpg, aes(x = factor(cyl), y = hwy)) +
 ggplot(mpg, aes(y = fct_rev(fct_infreq(manufacturer)))) +
   geom_bar()        # HW1 Ex3: flipped bar plot, ordered by height
 \end{rcode}
-\textbf{EDA findings to remember.} \ixc{mpg} \src{HW1}: \texttt{hwy} vs \texttt{cty} strong positive linear; median \texttt{hwy} falls with \texttt{cyl} (29/24/17 mpg for 4/6/8 cyl); \texttt{cty}--\texttt{hwy} and \texttt{displ}--\texttt{cyl} strongly $+$, each pair negatively correlated with the other. \ixc{diamonds} \src{Lab 1, S2.74}: $r(\text{price},\text{carat})=0.92$; $x,y,z$ correlate 0.86--0.88 with price and 0.95--0.98 with carat (\ix{collinearity}). Worst color J costs \emph{more} because J diamonds tend to be larger (carat) --- a third variable drives both: \ix{confounding}.
+\textbf{EDA findings to remember.} \ixc{mpg} \src{HW1}: \texttt{hwy} vs \texttt{cty} strong positive linear; median \texttt{hwy} falls with \texttt{cyl} (29/24/17 mpg for 4/6/8 cyl); \texttt{cty}--\texttt{hwy} and \texttt{displ}--\texttt{cyl} strongly $+$, each pair negatively correlated with the other. \ixc{diamonds} \src{Lab 1, S2.74}\,\fref{17}: $r(\text{price},\text{carat})=0.92$; $x,y,z$ correlate 0.86--0.88 with price and 0.95--0.98 with carat (\ix{collinearity}). Worst color J costs \emph{more} because J diamonds tend to be larger (carat) --- a third variable drives both: \ix{confounding}.
 
 \begin{keybox}[Pearson correlation]
 \[ r_{xy}=\frac{\sum_i (x_i-\bar x)(y_i-\bar y)}{\sqrt{\sum_i (x_i-\bar x)^2\,\sum_i (y_i-\bar y)^2}}\in[-1,1] \]
@@ -65,7 +65,7 @@ ggplot(mpg, aes(y = fct_rev(fct_infreq(manufacturer)))) +
 \end{axis}
 \end{tikzpicture}
 \end{center}
-{\footnotesize Left \src{PE Q8}: $Y=X^2$, Pearson $r\approx0$. Right \src{S2.50--51}: cleanliness vs.\ water temperature, one line per detergent; the best detergent depends on temperature = interaction. Parallel lines = main effects only, no interaction.}
+{\footnotesize Left \src{PE Q8}: $Y=X^2$, Pearson $r\approx0$. Right \src{S2.50--51}\,\fref{11}: cleanliness vs.\ water temperature, one line per detergent; the best detergent depends on temperature = interaction. Parallel lines = main effects only, no interaction.}
 
 \begin{trap}[Correlation myths (PE Q4, Q8, Q9)]
 \begin{itemize}
@@ -81,9 +81,9 @@ ggplot(mpg, aes(y = fct_rev(fct_infreq(manufacturer)))) +
 \begin{topic}{Handling missing values}
 \textbf{Look first} \src{S2.5, Lab 2}: \ixc{vis\_miss()} (\ixc{naniar}) on \ixc{airquality}: 4.8\% of all cells missing; \texttt{Ozone} 24.18\%, \texttt{Solar.R} 4.58\%, others 0\%. Fine to inspect missingness before splitting.
 \textbf{Why missing?} \src{S2.6} (dog eats homework $H$; $H^*$ = observed homework; $A$ = student attribute):
-\textbf{MCAR}\ixh{missing completely at random (MCAR)} (missing completely at random) --- dog eats \emph{any} homework, missingness unrelated to anything;
-\textbf{MAR}\ixh{missing at random (MAR)} (missing at random) --- dog eats \emph{some students'} homework, missingness depends on an observed attribute $A$;
-\textbf{MNAR}\ixh{missing not at random (MNAR)} (missing not at random) --- dog eats \emph{bad} homework, missingness depends on the missing value itself.
+\textbf{MCAR}\ixh{missing completely at random (MCAR)}{} (missing completely at random) --- dog eats \emph{any} homework, missingness unrelated to anything;
+\textbf{MAR}\ixh{missing at random (MAR)}{} (missing at random) --- dog eats \emph{some students'} homework, missingness depends on an observed attribute $A$;
+\textbf{MNAR}\ixh{missing not at random (MNAR)}{} (missing not at random) --- dog eats \emph{bad} homework, missingness depends on the missing value itself.
 Patterns: univariate, monotone, general, planned.
 \textbf{Options} \src{Lab 2}: (1) drop the variable (not if it is the \ix{outcome}); (2) drop rows, \ixc{drop\_na()}: \texttt{airquality} 153 $\to$ 111 rows (large loss); (3) \ix{imputation} = predict the missing values.
 \textbf{Imputation steps} \src{S2.7}: numeric: \ixc{step\_impute\_bag()}, \ixc{step\_impute\_knn()}, \ixc{step\_impute\_linear()}; categorical: bag, knn, \ixc{step\_impute\_mode()}; also \ixc{step\_impute\_mean()}/\texttt{median}. \ix{mean imputation} (and median/mode) \textbf{reduces variance} (all imputed values identical); KNN, bagging or \ix{linear imputation} tend to perform better.
@@ -127,7 +127,7 @@ dim(diamonds_train); dim(diamonds_test)     # verify sizes
 \src{S2.12--14} The best possible prediction under squared error is $\hat f(\mathbf x_0)=E[Y\mid X=\mathbf x_0]$ --- unknown because the joint distribution of $(X,Y)$ is unknown. So \textbf{make an assumption}:
 \[ Y=\beta_0+X_1\beta_1+\dots+X_p\beta_p+\varepsilon,\quad E[\varepsilon]=0,\ \varepsilon \perp (X_1,\dots,X_p) \]
 $\Rightarrow E[Y\mid X=\mathbf x_0]=\beta_0+x_{01}\beta_1+\dots+x_{0p}\beta_p$: the conditional expectation is \textbf{linear in the parameters}. \ix{simple linear regression}: $p=1$, data $\{(x_1,y_1),\dots,(x_n,y_n)\}$; \ix{multiple linear regression}: $p>1$, $\mathbf x_i=(x_{i1},\dots,x_{ip})$. $\varepsilon$ = catch-all for what the simple model misses, mean zero, independent of everything else \src{S2.24}. A \ix{parametric model}: estimate $p+1$ numbers instead of a whole function.
-\textbf{Assumptions} \src{S2.48, S2.58--61}: (1) \textbf{linear} and \textbf{additive} in the predictors; (2) errors $\varepsilon_1,\dots,\varepsilon_n$ \textbf{uncorrelated}; (3) \textbf{constant variance} $\mathrm{Var}(\varepsilon_i)=\sigma^2$; plus no influential outliers / severe collinearity (diagnostics below).
+\textbf{Assumptions} \src{S2.48, S2.58--61}\,\fref{14}: (1) \textbf{linear} and \textbf{additive} in the predictors; (2) errors $\varepsilon_1,\dots,\varepsilon_n$ \textbf{uncorrelated}; (3) \textbf{constant variance} $\mathrm{Var}(\varepsilon_i)=\sigma^2$; plus no influential outliers / severe collinearity (diagnostics below).
 \textbf{Picture} \src{S2.15--18}: $y$ = confirmed COVID cases, $x$ = county population. \ix{intercept} $\beta_0$ = mean $y$ when $x=0$; \ix{slope} $\beta_1$ = change in mean $y$ per one-unit increase in $x$ (+10{,}000 people $\Rightarrow +10000\beta_1$ cases). Different $(\beta_0,\beta_1)$ give different lines ($y=8000+0.057x$ vs.\ $5000+0.061x$); \ix{residual} for Riverside $=y_{RS}-\beta_0-\beta_1x_{RS}$ = observed $-$ predicted.
 \end{topic}
 
@@ -144,8 +144,8 @@ $\sigma^2$ unknown $\to$ $\hat\sigma^2=\mathrm{SSR}/(n-2)$ and plug in ($\wideha
 
 \begin{keybox}[Model accuracy and tests (S2.30, S2.34--39)]
 $\mathrm{SST}=\sum_i(y_i-\bar y)^2$,\quad $\mathrm{SSR}=\sum_i(y_i-\hat y_i)^2$.
-\textbf{RSE}\ixh{residual standard error (RSE)} (residual standard error) $=\sqrt{\mathrm{SSR}/(n-p-1)}$ ($n-2$ in SLR): absolute lack of fit, in units of $Y$.
-\textbf{$R^2$}\ixh{R-squared} $=1-\mathrm{SSR}/\mathrm{SST}\in[0,1]$ = proportion of the variability in $Y$ explained by $X$. $R^2$ \textbf{always increases} as predictors are added; RSE and $R^2$ favor flexible models, which may overfit\ixh{overfitting}.
+\textbf{RSE}\ixh{residual standard error (RSE)}{} (residual standard error) $=\sqrt{\mathrm{SSR}/(n-p-1)}$ ($n-2$ in SLR): absolute lack of fit, in units of $Y$.
+\textbf{$R^2$}\ixh{R-squared}{} $=1-\mathrm{SSR}/\mathrm{SST}\in[0,1]$ = proportion of the variability in $Y$ explained by $X$. $R^2$ \textbf{always increases} as predictors are added; RSE and $R^2$ favor flexible models, which may overfit\ixh{overfitting}.
 \textbf{\ix{adjusted R-squared}} $=1-\dfrac{(1-R^2)(n-1)}{n-p-1}$ (penalizes extra predictors).
 \textbf{\ix{F-statistic}} for $H_0:\beta_1=\dots=\beta_p=0$ vs.\ $H_a$: at least one $\beta_j\ne0$:
 \[ F=\frac{(\mathrm{SST}-\mathrm{SSR})/p}{\mathrm{SSR}/(n-p-1)} \]
@@ -186,7 +186,7 @@ lm_fit %>% extract_fit_parsnip() %>% tidy()  (*@\ixch{extract\_fit\_parsnip()}\i
 \textbf{2 levels} (Credit: balance vs.\ gender): $x_i=1$ if female, $0$ if male $\Rightarrow$
 $y_i=\beta_0+\beta_1+\varepsilon_i$ (female), $\beta_0+\varepsilon_i$ (male). $\beta_0$ = mean balance of males (baseline); $\beta_1$ = average difference female $-$ male.
 \textbf{Coding is not unique}: $1$=male/$0$=female flips the sign of $\beta_1$ and $\beta_0$ becomes the female mean; $\pm1$ coding ($1$ male, $-1$ female) gives $\beta_0$ = average of the two group means, $\beta_1$ = half the male$-$female difference. Same fitted values, different interpretation.
-\textbf{$m$ levels $\Rightarrow m-1$ dummies.} Ethnicity \{African American, Asian, Caucasian\}: $x_{i1}=1$ if Asian, $x_{i2}=1$ if Caucasian; African American = \textbf{baseline}\ixh{reference level} (no dummy).
+\textbf{$m$ levels $\Rightarrow m-1$ dummies.} Ethnicity \{African American, Asian, Caucasian\}: $x_{i1}=1$ if Asian, $x_{i2}=1$ if Caucasian; African American = \textbf{baseline}\ixh{reference level}{} (no dummy).
 \[ y_i=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+\varepsilon_i=\begin{cases}\beta_0+\beta_1+\varepsilon_i&\text{Asian}\\ \beta_0+\beta_2+\varepsilon_i&\text{Caucasian}\\ \beta_0+\varepsilon_i&\text{Afr.\ American}\end{cases} \]
 $\beta_0$ = mean of the baseline; $\beta_j$ = difference between level $j$ and the baseline. Coding and choice of baseline are arbitrary but change the interpretation of $\beta_0,\beta_1,\beta_2$.
 \src{PE Q11}: only categorical variables (\texttt{Major}, \texttt{Dorm}) need dummy encoding; numeric ones (\texttt{HS\_GPA}, \texttt{CreditsCompleted}) do not.
@@ -209,7 +209,7 @@ One-hot is \textbf{fine for KNN} (no intercept, no linear dependency problem) \s
 \end{trap}
 
 % =====================================================================
-\subsection{Interactions and nonlinear terms}
+\subsection{Interactions and nonlinear terms}\fref{12}
 \ixh{interaction term}\ixh{nonlinear relationship}
 \begin{topic}{Relaxing additivity and linearity}
 \src{S2.48, S2.54} The plain model is \textbf{additive} --- the effect of changing $X_j$ on $Y$ does not depend on the other predictors (relax with \textbf{interaction terms}) --- and \textbf{linear} --- a one-unit change in $X_j$ changes $Y$ by the same amount whatever the value of $X_j$ (relax with \textbf{polynomial regression} / transformations).
@@ -245,7 +245,7 @@ step_interact(terms = ~ starts_with("type_"):shucked_weight +  (*@\ixch{step\_in
 \ixc{step\_interact()} needs numeric columns: after \ixc{step\_dummy()} the factor \texttt{type} no longer exists, so refer to its dummies with \ixc{starts\_with()}\texttt{("type\_")}. Slope of \texttt{shucked\_weight} for infants $=\hat\beta_{\text{shucked}}+\hat\beta_{\text{type\_I\_x\_shucked}}$; for females (reference) $=\hat\beta_{\text{shucked}}$.
 
 \begin{keybox}[Polynomials and transformations (S2.55--56)]
-\ix{polynomial regression} of degree $d$: $Y=\beta_0+\beta_1X+\beta_2X^2+\dots+\beta_dX^d+\varepsilon$. $Y$ is no longer linear in $X$, \textbf{but it is still a linear model}: let $Z_k=X^k$, then $Y=\beta_0+\beta_1X+\beta_2Z_2+\dots+\beta_dZ_d+\varepsilon$ is linear in $X,Z_2,\dots,Z_d$ (linear in the parameters). Figure: linear vs.\ degree 2 vs.\ degree 5 fits to a curved cloud --- degree 2 follows the curve, degree 5 wiggles at the edges (more flexible $\to$ overfitting risk).
+\ix{polynomial regression} of degree $d$\,\fref{13}: $Y=\beta_0+\beta_1X+\beta_2X^2+\dots+\beta_dX^d+\varepsilon$. $Y$ is no longer linear in $X$, \textbf{but it is still a linear model}: let $Z_k=X^k$, then $Y=\beta_0+\beta_1X+\beta_2Z_2+\dots+\beta_dZ_d+\varepsilon$ is linear in $X,Z_2,\dots,Z_d$ (linear in the parameters). Figure: linear vs.\ degree 2 vs.\ degree 5 fits to a curved cloud --- degree 2 follows the curve, degree 5 wiggles at the edges (more flexible $\to$ overfitting risk).
 \ix{transformation}s: \ixc{step\_poly()}\texttt{(x, degree = 2)}, \ixc{step\_log()}; a \ix{log transformation} tames right skew and funnel-shaped residuals. Transform the \emph{outcome} with \ixc{mutate()} (e.g.\ \texttt{log(price)}) before splitting rather than in the recipe.
 \end{keybox}
 
@@ -257,12 +257,12 @@ step_interact(terms = ~ starts_with("type_"):shucked_weight +  (*@\ixch{step\_in
 \toprule Problem & Detect $\to$ consequence / fix\\\midrule
 1.\ Non-linearity & \textbf{\ix{residual plot}}: $e_i=y_i-\hat y_i$ vs.\ fitted $\hat y_i$. Correct model $\Rightarrow$ \emph{no discernible pattern}; a U-shape means missed curvature $\to$ add $X^2$, $\log X$, $\sqrt X$.\\
 2.\ Correlated errors & e.g.\ time series; estimated SEs inaccurate $\to$ wrong CIs and tests.\\
-3.\ Non-constant variance & \ix{heteroscedasticity}: funnel shape in the residual plot $\to$ inaccurate CIs and tests; fix by transforming $Y$ ($\log Y$, $\sqrt Y$): S2.61 funnel vanishes for $\log(Y)$.\\
+3.\ Non-constant variance & \ix{heteroscedasticity}: funnel shape in the residual plot\,\fref{15} $\to$ inaccurate CIs and tests; fix by transforming $Y$ ($\log Y$, $\sqrt Y$): S2.61 funnel vanishes for $\log(Y)$.\\
 4.\ \ix{outlier}s & $y_i$ far from $\hat y_i$ (e.g.\ recording error). Use \ix{studentized residual}s (residual / its SE; $|{\cdot}|>3$ suspicious, ISLR).\\
 5.\ \ix{high leverage point}s & unusual $x_i$ values. Leverage (SLR) $h_i=\frac1n+\frac{(x_i-\bar x)^2}{\sum_k(x_k-\bar x)^2}$; $h_i\in[1/n,1]$, average $(p+1)/n$.\\
 6.\ \ix{collinearity} & correlation matrix, VIF (below).\\\bottomrule
 \end{tabularx}}
-\textbf{\ix{influential observation}}: removing it changes the fit a lot. It may or may not be an outlier or have high leverage, but tends to have at least one of the two. \textbf{Example} \src{S2.66--72} (fit without the red point: $y=1.73+5.12x$):
+\textbf{\ix{influential observation}}: removing it changes the fit a lot. It may or may not be an outlier or have high leverage, but tends to have at least one of the two. \textbf{Example} \src{S2.66--72}\,\fref{16} (fit without the red point: $y=1.73+5.12x$):
 outlier only $(4,40)$: $y=2.96+5.04x$ --- barely changes, \textbf{not} influential;
 high leverage on the trend $(14,68)$: $y=2.47+4.93x$ --- \textbf{not} influential;
 outlier \emph{and} high leverage $(13,15)$: $y=8.51+3.32x$ --- \textbf{influential}.

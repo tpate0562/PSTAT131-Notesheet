@@ -20,18 +20,18 @@ PSTAT 126. Gauss\ixh{Gauss, Carl Friedrich}, 1795. Simple, interpretable\ixh{int
 \fig{9 counties, confirmed (50k--200k) vs.\ population (1M--3.3M): $\approx$(0.89M,73k), (0.98M,70k), (1.52M,70k), (1.66M,56k), (1.93M,75k), (2.15M,212k), (2.41M,200k), (3.17M,182k), (3.31M,171k); line $y=\beta_0+\beta_1x$ from $\approx$71k to $\approx$210k. Riverside ($x\approx$2.41M): observed $\approx$200k vs.\ predicted $\approx$157k; gap = \ix{residual}.}
 
 \slide{2}{19}{[Workflow]}
-Data (training set\ixh{training data} $\{(x_i,y_i)\}_{i=1}^n$) $\to$ Learn ($\hat\beta_0,\hat\beta_1$\ixh[beta hat]{$\hat\beta$}) $\to$ Evaluate (1.~accuracy of $\hat\beta_0,\hat\beta_1$; 2.~accuracy of the model).
+Data (training set\ixh{training data}{} $\{(x_i,y_i)\}_{i=1}^n$) $\to$ Learn ($\hat\beta_0,\hat\beta_1$\ixh[beta hat]{$\hat\beta$}) $\to$ Evaluate (1.~accuracy of $\hat\beta_0,\hat\beta_1$; 2.~accuracy of the model).
 
 \slide{2}{25}{Accuracy of the coefficient estimates}
 \ixh{sampling variability}
-\fig{ISLR 3.3: red = true line ($\approx 2+3X$); dark blue = least-squares fit to one sample; light-blue lines = fits to ~10 separate random samples, scattering around the red line.}
+\figref{10}
 
 \subsection{Multiple linear regression}
 \ixh{multiple linear regression}
 
 \slide{2}{32}{Coefficient estimates}
 $i$th \ix{residual}: $y_i - \hat y_i = y_i - \hat\beta_0 - \sum_{j=1}^p \hat\beta_j x_{ij}$.
-\fig{ISLR 3.4: least-squares \emph{plane}\ixh{regression plane} in $(X_1,X_2,Y)$; vertical segments = residuals (points above and below).}
+\fig{ISLR 3.4: least-squares \emph{plane}\ixh{regression plane}{} in $(X_1,X_2,Y)$; vertical segments = residuals (points above and below).}
 
 \slide{2}{37}{[Stepwise selection, 5 variables]}
 \ixh{stepwise selection}\ixh{forward selection}\ixh{backward selection}
@@ -45,12 +45,12 @@ Forward: null $\to$ add most significant ($X_2$) $\to$ add $X_5$ $\to$ \ldots\ u
 
 \slide{2}{50}{Interactions vs.\ main effects}
 \ixh{main effect}\ixh{interaction term}
-\fig{Cleanliness vs.\ water temperature (B), lines = detergent (A). A sig., B not: flat lines, \#1 above \#2. A and B sig.: parallel rising lines. B sig., A not: coincident rising lines.}
+\figref{11}
 
 \slide{2}{53}{Interaction: Credit example}
 \ixh{Credit (dataset)}
-\fig{ISLR 3.7, Balance vs.\ Income (0--150); red student, black non-student. No interaction (parallel): student $\approx$600$\to$1490, non-student $\approx$215$\to$1105. With interaction: student $\approx$680$\to$1310 (flatter), non-student $\approx$205$\to$1130 (steeper).}
+\figref{12}
 
 \slide{2}{55}{Non-linear relationships}
 \ixh{nonlinear relationship}\ixh{polynomial regression}\ixh{overfitting}
-\fig{ISLR 3.8, Auto mpg vs.\ horsepower (convex decreasing). Linear (orange): $\approx$34$\to$6, too high mid, too low right. Degree 2 (blue): $\approx$41$\to$min $\approx$13 near 190. Degree 5 (green): bump $\approx$35 at 50, $\approx$11.5 at 205, shoots up to $\approx$22 at the edge.}
+\figref{13}

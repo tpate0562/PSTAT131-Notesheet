@@ -13,7 +13,7 @@
 \textbf{Prompt.} \ix{histogram} of \ixc{hwy} (highway mpg); describe.
 \mine
 \fig{binwidth 2, x = Highway MPG, y = Count. Counts (centers 12, 14, \dots, 44): 5, 12, 38, 23, 13, 14, 28, 46, 29, 11, 6, 3, 3, 0, 1, 0, 2.}
-Two peaks, $\approx$16--18 and 24--28 mpg; median 24, mean $\approx$23.4. Most cars 15--30 mpg; a few outliers\ixh{outlier} $>40$.
+Two peaks, $\approx$16--18 and 24--28 mpg; median 24, mean $\approx$23.4. Most cars 15--30 mpg; a few outliers\ixh{outlier}{} $>40$.
 \end{qbox}
 
 \begin{qbox}{HW1 Ex2}
@@ -205,7 +205,7 @@ Best k: 7
 \end{qbox}
 
 \begin{qbox}{HW2 Q8}
-\textbf{Prompt.} With \ixc{yardstick}, for LM and KNN: metric set of $R^2$, RMSE, MAE;\ixh{R-squared}\ixh{RMSE}\ixh{MAE} \ixc{augment()} on \textbf{testing} data (predictions + observed age); apply metrics, report, interpret $R^2$.
+\textbf{Prompt.} With \ixc{yardstick}, for LM and KNN: metric set of $R^2$, RMSE, MAE;\ixh{R-squared}\ixh{RMSE}\ixh{MAE}{} \ixc{augment()} on \textbf{testing} data (predictions + observed age); apply metrics, report, interpret $R^2$.
 \mine (\texttt{head()} of \texttt{augment(...) \%>\% select(age, .pred)}, LM and KNN side by side):
 \begin{routput}
     age .pred(LM) .pred(KNN)

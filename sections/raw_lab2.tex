@@ -86,8 +86,8 @@ diamond_train_res %>% head()
 ## 5 -3472.
 ## 6 -1373.
 \end{routput}
-Predicted vs.\ actual\ixh{predicted vs.\ actual plot} (training):
-\fig{\ix{scatterplot}, \rc{coord\_obs\_pred} (both axes $\approx-5000$ to $40000$), x = \rc{.pred}, y = \rc{price}, dashed $y=x$. Curved (convex) band, not a line: actual $<\$2000$ often predicted negative (to $\approx-4000$); actual \$5000--\$10000 under-predicted; band flattens at price ceiling $\approx\$18{,}800$ with preds $\approx$7000--40000. A \ix{nonlinear relationship} the linear model misses.}
+Predicted vs.\ actual\ixh{predicted vs.\ actual plot}{} (training):
+\figref{19}
 Poor fit: perfect predictions would lie on the line; negative price predictions; poor once actual price $>\approx\$5{,}000$.
 
 Metric set (RMSE, $R^2$, MAE)\ixh{R-squared}\ixh{MAE}; same call for each model, train and test:
@@ -131,12 +131,12 @@ knn_fit2 <- fit(knn_wflow2, diamonds_train)
 # predict()/bind_cols() as in Part I; metrics: KNN2 columns above
 \end{rcode}
 \ixh{overfitting}%
-\textbf{Activities:} which model (LR, KNN $k=5$, KNN $k=2$) is best on test data, and why?\ixh{model comparison} What explains the KNN train--test gap?\ixh{overfitting}\ixh{bias-variance tradeoff} How many predictors\ixh{predictor} are in the KNN model(s)? Would changing that number help?\ixh{curse of dimensionality}
+\textbf{Activities:} which model (LR, KNN $k=5$, KNN $k=2$) is best on test data, and why?\ixh{model comparison} What explains the KNN train--test gap?\ixh{overfitting}\ixh{bias-variance tradeoff}{} How many predictors\ixh{predictor}{} are in the KNN model(s)? Would changing that number help?\ixh{curse of dimensionality}
 
 \subsection{Missing Data}
 \ixh{missing data}\ixch{airquality}%
 \ix{missing data} with \ixc{airquality} (base R; 153 obs, 6 variables; \rc{?airquality}) and \ixc{naniar} (\url{https://cran.r-project.org/web/packages/naniar/vignettes/getting-started-w-naniar.html}; loaded here as an exception to load-all-at-top; uncomment \ixc{install.packages()} if needed).
-\fig{\rc{vis\_miss(airquality)} (black = missing, rows 1--153): Ozone many gaps (rows $\approx$5, 10, 25--27, blocks $\approx$32--37 and $\approx$52--61, $\approx$65, 72, 75, 84, 102--103, 107, 115, 119, 150); Solar.R a few ($\approx$5--6, 11, 27, 96--98); Wind, Temp, Month, Day complete.}\ixch{vis\_miss()}
+\figref{18}\ixch{vis\_miss()}
 Also visible in the data:
 \begin{rcode}
 airquality %>%                                (*@\ixch{airquality}@*)

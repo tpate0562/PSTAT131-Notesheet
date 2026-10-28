@@ -10,7 +10,7 @@
 \begin{itemize}
 \item Regression. Training MSE\ixh{training error}\ixh{MSE}
   $=\frac1n\sum_{i=1}^{n}\big(y_i-\hat f(\mathbf x_i)\big)^2$ on the $n$ training points;
-  test MSE\ixh{testing error} $=\frac1m\sum_{i=1}^{m}\big(\tilde y_i-\hat f(\tilde{\mathbf x}_i)\big)^2$ on $m$
+  test MSE\ixh{testing error}{} $=\frac1m\sum_{i=1}^{m}\big(\tilde y_i-\hat f(\tilde{\mathbf x}_i)\big)^2$ on $m$
   points \emph{not seen or used} to fit. In both, $\hat f$ is obtained on the training set.
 \item Classification. \ix{error rate} $=\frac1n\sum_{i=1}^n I(y_i\ne\hat y_i)$ = fraction misclassified;
   \ix{accuracy} $=1-$ error rate. Toy example \src{S1.90}: 2 of 5 wrong $\Rightarrow$ error rate $0.40$, accuracy $0.60$.
@@ -21,7 +21,7 @@
 
 \textbf{Why training error is optimistic.} $\hat f$ was chosen to fit exactly those training points
 (noise included), so it looks better on them than on new data. As \ix{flexibility} (complexity) grows,
-training MSE/error rate keeps falling, but test error is U-shaped \src{S1.62, S1.101}:
+training MSE/error rate keeps falling, but test error is U-shaped \src{S1.62, S1.101}\,\fref{2}:
 higher complexity $\to$ lower training error, but higher complexity $\not\to$ lower test error
 (see \ix{bias-variance tradeoff}).
 
@@ -225,7 +225,7 @@ so the test accuracy (below 0.5) is the honest number \src{Lab 3}.
 %======================================================================
 \subsection{ROC curve and AUC}
 \ixh{ROC curve}
-\begin{keybox}[ROC curve \src{S3.39--40, ROC}]
+\begin{keybox}[ROC curve \src{S3.39--40, ROC}]\fref{23}
 \begin{itemize}
 \item A popular graphic for displaying the \textbf{2 types of error} for \textbf{all threshold values}:
   \ix{TPR} (sensitivity, $y$-axis) vs.\ \ix{FPR} ($1-$specificity, $x$-axis).
@@ -234,7 +234,7 @@ so the test accuracy (below 0.5) is the honest number \src{Lab 3}.
   Each point on the curve = one threshold.
 \item Ends: $t=\infty$ $\to$ (0,\,0); $t=-\infty$ $\to$ (1,\,1). Lowering $t$ moves up and to the right.
 \item \textbf{Perfect classifier} = point (0,\,1), top-left corner. \textbf{Random classifier} = the diagonal
-  TPR $=$ FPR. Curves toward the top-left are better \src{S3.40}.
+  TPR $=$ FPR. Curves toward the top-left are better \src{S3.40}\,\fref{24}.
 \item Useful for \emph{comparing} classifiers (e.g.\ logistic regression vs.\ KNN); methods perform differently in
   different parts of the curve, i.e.\ at different thresholds, so curves can cross \src{S3.39--40}.
 \end{itemize}

@@ -117,6 +117,9 @@
   \noindent{\color{slidec}\bfseries\footnotesize\fbox{\rule[-1pt]{0pt}{6.5pt}S#1.#2}}\hspace{0.35em}{\bfseries #3}\par\nopagebreak[4]}
 % figure / image description (what a picture on a slide shows)
 \newcommand{\fig}[1]{{\color{figgray}\itshape[Figure: #1]}}
+% reference to the figure atlas: [Figure: see F7, p. 33] / short form (F7)
+\newcommand{\figref}[1]{{\color{figgray}\itshape[Figure: see \textbf{F#1}, p.\,\pageref{atlas:F#1}]}}
+\newcommand{\fref}[1]{{\color{figgray}\scriptsize(\textbf{F#1}, p.\,\pageref{atlas:F#1})}}
 % short source citation inside the distilled notes, e.g. \src{S1.23}
 \newcommand{\src}[1]{{\color{figgray}\scriptsize(#1)}}
 % inline R code (argument must be LaTeX-safe: \_ \% \$ \# \& \{ \})

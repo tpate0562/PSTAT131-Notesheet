@@ -84,7 +84,7 @@ e.g.\ \ix{linear regression}, logistic regression, LDA & e.g.\ KNN\\\bottomrule
 
 \begin{topic}{Flexibility vs.\ interpretability \src{S1.53--56}}
 \ixh{flexibility}\ixh{interpretability}
-Different methods give different $\hat f$, each with its own \ix{flexibility} (complexity). Ranking, interpretability high $\to$ low / flexibility low $\to$ high: subset selection, lasso $\to$ least squares $\to$ GAMs, trees $\to$ bagging, boosting $\to$ SVMs \src{S1.55}.
+Different methods give different $\hat f$, each with its own \ix{flexibility} (complexity). Ranking, interpretability high $\to$ low / flexibility low $\to$ high: subset selection, lasso $\to$ least squares $\to$ GAMs, trees $\to$ bagging, boosting $\to$ SVMs \src{S1.55}\,\fref{1}.
 \begin{itemize}
 \item Why ever pick a \emph{less} flexible method? Better \textbf{interpretability} and, sometimes, \textbf{smaller test error}.
 \item \textbf{No single method is best for all data sets}; choosing one depends on \emph{evaluating} its performance \src{S1.56}.
@@ -106,7 +106,7 @@ Training set $\{(\mathbf x_1,y_1),\dots,(\mathbf x_n,y_n)\}$; test set $\{(\tild
 $\hat f$ is obtained on the \textbf{training} set. We want the $\hat f$ with the \textbf{smallest test MSE}. \textbf{Lowest training MSE $\neq$ lowest test MSE.}
 \end{keybox}
 
-\begin{topic}{How the errors move with flexibility \src{S1.61--66}}
+\begin{topic}{How the errors move with flexibility \src{S1.61--66}}\fref{3}
 \begin{itemize}
 \item Higher flexibility $\to$ matches training points better, more wiggly curve $\to$ \textbf{\ix{training MSE} always decreases} (monotone, can reach 0).
 \item Higher flexibility $\not\to$ better fit to the true $f$: \textbf{\ix{test MSE} is U-shaped} --- falls, hits a minimum, then rises.
@@ -166,7 +166,7 @@ Smaller $k$ = more flexible $\Rightarrow$ lower training error but a bigger trai
 \end{itemize}
 \end{keybox}
 
-\begin{topic}{The tradeoff picture \src{S1.80--84, 101}}
+\begin{topic}{The tradeoff picture \src{S1.80--84, 101}\,\fref{6}}
 \ixh{bias-variance tradeoff}
 \begin{tikzpicture}
 \begin{axis}[width=\linewidth,height=4.6cm,xmin=0,xmax=10,ymin=0,ymax=3.4,
@@ -196,7 +196,7 @@ Smaller $k$ = more flexible $\Rightarrow$ lower training error but a bigger trai
 \begin{itemize}
 \item \textbf{Simple model $\to$ high bias + low variance; flexible model $\to$ low bias + high variance} \src{S1.81}. More complexity: variance $\uparrow$, bias $\downarrow$.
 \item Want \emph{simultaneously} low variance and low (squared) bias --- the challenge is finding such a method.
-\item Where the minimum sits depends on the true $f$ \src{S1.82--84}: true $f$ moderately curved $\to$ intermediate flexibility best; $f$ nearly linear $\to$ linear regression already near-optimal (bias$\approx$0, extra flexibility only adds variance); $f$ very nonlinear $\to$ bias falls steeply, flexible methods win.
+\item Where the minimum sits depends on the true $f$ \src{S1.82--84}\,\fref{5}: true $f$ moderately curved $\to$ intermediate flexibility best; $f$ nearly linear $\to$ linear regression already near-optimal (bias$\approx$0, extra flexibility only adds variance); $f$ very nonlinear $\to$ bias falls steeply, flexible methods win.
 \end{itemize}
 \end{topic}
 
@@ -245,7 +245,7 @@ $I(y_i\neq\hat y_i)$ & 1 & 0 & 1 & 0 & 0
 Training error rate $=2/5=0.40$; training accuracy $=1-2/5=0.60$. Same story as regression \src{S1.93}: higher flexibility $\to$ lower training error rate, but $\not\to$ lower test error rate; \textbf{overfitting = large test error rate + small training error rate}.
 \end{topic}
 
-\begin{keybox}[Bayes classifier and Bayes error rate \src{S1.96--99}]
+\begin{keybox}[Bayes classifier and Bayes error rate \src{S1.96--99}]\fref{7}
 \ixh{Bayes classifier}\ixh{Bayes error rate}
 \textbf{\ix{Bayes classifier}}: assign each observation to the \emph{most likely class given its predictor values}:
 \[ \hat y_0=\operatorname{argmax}_j\ \operatorname{Prob}(Y=j\mid X=\mathbf x_0) \]
@@ -313,7 +313,7 @@ Predictions can flip as $k$ changes. Even $k$ can tie (here $k=2$: 1--1, $k=4$: 
 \textbf{ISLR picture} \src{S1.110}: $K=3$, the circle around $\times$ holds 2 blue + 1 orange $\Rightarrow$ predict blue; repeating for every point of the plane draws the KNN \ix{decision boundary}.
 \end{topic}
 
-\begin{topic}{Choosing $k$: the KNN bias--variance tradeoff \src{S1.113--115}}
+\begin{topic}{Choosing $k$: the KNN bias--variance tradeoff \src{S1.113--115}\,\fref{8}}
 \ixh{tuning parameter}\ixh{hyperparameter}\ixh{flexibility}
 For fixed $(\mathbf x_0,y_0)$, with $Y=f(X)+\varepsilon$:
 \[ E\big[(y_0-\hat f(\mathbf x_0))^2\big]=\underbrace{\frac{\operatorname{Var}(\varepsilon)}{k}}_{\text{variance}}+\underbrace{\Big[f(\mathbf x_0)-\frac1k\sum_{i\in\mathcal N_0}f(\mathbf x_i)\Big]^2}_{\text{bias}^2}+\operatorname{Var}(\varepsilon) \]
@@ -326,7 +326,7 @@ $k\downarrow$ & increase & decrease & beyond our control\\\bottomrule
 \begin{itemize}
 \item \textbf{Small $k$ = flexible}: jagged, island-filled decision boundary; $k=1$ gives \textbf{training error 0} (each point is its own nearest neighbor) $\to$ low bias, high variance, overfits.
 \item \textbf{Large $k$ = smooth / rigid}: boundary nearly linear at $K=100$ $\to$ high bias, low variance, underfits. $k=n$: every prediction = overall mean / majority class.
-\item Flexibility grows with $1/K$ \src{S1.115}: training error falls steadily to 0 at $1/K=1$; test error is U-shaped (min near $K\approx10$), never below the dashed Bayes error rate ($\approx0.13$).
+\item Flexibility grows with $1/K$ \src{S1.115}\,\fref{9}: training error falls steadily to 0 at $1/K=1$; test error is U-shaped (min near $K\approx10$), never below the dashed Bayes error rate ($\approx0.13$).
 \item $k$ is a \ix{hyperparameter} (\ix{tuning parameter}): not estimated by fitting; choose it by test/\ix{cross-validation} error, never by training error.
 \end{itemize}
 \end{topic}

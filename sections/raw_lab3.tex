@@ -144,9 +144,9 @@ NB    Down   107   98   CH 338   47
 
 \subsection{Fitting to Testing Data}
 \ixh{testing data}%
-\fig{\ix{ROC curve}, Smarket QDA, test set: jagged staircase hugging the diagonal, slightly below it (sens.\ $\approx$0.06 at FPR 0.12, 0.25 at 0.28, 0.71 at 0.75), marginally above at FPR 0.4--0.6 $\to$ no discrimination (AUC $\approx$0.5, not printed).}
+\figref{29}
 Logistic regression\ixh{logistic regression}{} fit to \rc{OJ}\ixch{OJ}{} test set (best on training, same caveats); code (\texttt{roc\_curve(Purchase, .pred\_CH)}) and metrics in Part I.\ixch{roc\_curve()}\ixch{.pred\_CH}
-\fig{ROC, OJ logistic, test set: bows to top-left --- sens.\ $\approx$0.68 at FPR 0.06, 0.81 at 0.13, 0.90 at 0.25, 0.95 at 0.37, 0.97 at 0.45--0.55, 0.99 at 0.75, 1.00 at 0.89 $\to$ good discrimination (AUC not printed).}
+\figref{28}
 
 \textbf{Activities:} Interpret \ix{sensitivity} and \ix{specificity} in terms of the data. How well did the models do on \textbf{testing} data, and why? Which was better?
 

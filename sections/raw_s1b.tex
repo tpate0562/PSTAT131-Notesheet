@@ -8,11 +8,10 @@
 \ixh{training MSE}\ixh{test MSE}\ixh{overfitting}\ixh{flexibility}
 
 \slide{1}{61--62}{Lowest training MSE $\neq$ lowest test MSE}
-\fig{Ex.~1 (ISLR 2.9): $Y$ (3--11) vs.\ $X$ (0--100); true $f$ (black) rises $\approx$4.5$\to$9.4 (peak $X\approx70$) then falls to $\approx$6.3. Fits by increasing flexibility: orange \ix{linear regression}; light-blue simple \ix{smoothing spline} ($\approx f$); green complicated spline (chases points).
-MSE vs.\ flexibility (log, 2--20): test MSE (red) U-shaped: $\approx$2.12 (linear), min $\approx$1.13 at $\approx$5.5 (simple spline), $\approx$1.53 at $\approx$25 (complicated), up to $\approx$2.4. Training MSE (gray) falls monotonically: 1.73, 0.87, 0.38, $\to$0.12. Dashed line at 1.0 = \ix{irreducible error} $\mathrm{Var}(\epsilon)$: test MSE never below it, training MSE is.}
+\figref{2}
 
 \slide{1}{63}{[Ex.~2: true $f$ nearly linear]}
-\fig{$f$ rises $\approx$2.7$\to$12.7, almost linear; \ix{linear regression} and simple spline lie on it, complicated spline wiggly. Test MSE: $\approx$1.09 (linear), min $\approx$1.06 at $\approx$3, $\approx$1.52 at $\approx$25, $\to$2.35. Training: 0.99, 0.91, 0.39, $\to$0.13. Inflexible linear fit is already nearly optimal.}
+\figref{3}
 
 \slide{1}{64}{[Ex.~3: true $f$ highly nonlinear]}
 \ixh{nonlinear relationship}
@@ -23,13 +22,13 @@ MSE vs.\ flexibility (log, 2--20): test MSE (red) U-shaped: $\approx$2.12 (linea
 \fig{Under / optimal / over-fitting. Regression (U-shaped data): straight line / parabola / zig-zag through every point. Classification: straight boundary (many errors) / smooth curve around red cluster / snaking boundary looping individual points. Deep learning, error vs.\ epochs: training and validation both level off high / both low, validation slightly above / training $\to$0 while validation stays high (big gap).}
 
 \slide{1}{67}{[Overfitting memes]}
-\fig{mattress bent to the shape of a body (``best way to explain overfitting''); ``Not sure if 99\% accuracy\ixh{accuracy} \ldots\ or overfitting''.}
+\fig{mattress bent to the shape of a body (``best way to explain overfitting''); ``Not sure if 99\% accuracy\ixh{accuracy}{} \ldots\ or overfitting''.}
 
 \subsection{Bias-variance decomposition}
 \ixh{bias-variance decomposition}\ixh{bias}\ixh{variance}\ixh{irreducible error}\ixh{test MSE}
 
 \slide{1}{81}{Bias-variance tradeoff (Ex.~1)}
-\fig{ISLR 2.12 vs.\ flexibility (log 2--20): test MSE U-shaped ($\approx$2.12, min $\approx$1.13 at $\approx$5.5, $\to$2.43); variance rises $\approx$0.05$\to$1.42 (slowly, then sharply); bias$^2$ $\approx$1.08$\to\approx$0 by 5.5, then flat; dashed 1.0 = $\mathrm{Var}(\varepsilon)$; dotted vertical at min. Test MSE = Var + Bias$^2$ + 1.0 everywhere.}
+\figref{5}
 
 \slide{1}{83--84}{[Ex.~2 and 3 decompositions]}
 \fig{Ex.~2 (nearly linear): bias$^2$ tiny ($\approx$0.05 at 2, then $\approx$0); variance $\approx$0.04$\to$1.33; test MSE min $\approx$1.06 at $\approx$3 $\Rightarrow$ optimum at low flexibility, variance dominates. Ex.~3 (highly nonlinear): MSE 18.8$\to$1.2 between 2 and 6, $\to$2.5 at end; bias$^2$ 17.7$\to$0 by $\approx$8; variance $\approx$0 until rising to $\approx$1.5 at right; min at $\approx$10 $\Rightarrow$ bias dominates, optimum at higher flexibility.}
@@ -38,5 +37,5 @@ MSE vs.\ flexibility (log, 2--20): test MSE (red) U-shaped: $\approx$2.12 (linea
 \ixh{classification}\ixh{error rate}\ixh{Bayes classifier}
 
 \slide{1}{97--98}{[Bayes classifier, two classes]}
-\fig{ISLR 2.13: $\sim$100 orange (class 1, upper left) and $\sim$100 blue (class 2, lower/right) circles in $(X_1,X_2)$, overlapping in the middle. Purple dashed wiggly \ix{Bayes decision boundary}\ixh{decision boundary}; background dots colored by the Bayes prediction; some circles on the wrong side.}
+\figref{7}
 Each circle = an observation; location = \ix{predictor} $X$; color = \ix{class label} $Y\in\{{\color{orange}1},{\color{dblue}2}\}$. Areas: ${\color{orange}\Pr(Y=1\,|\,X=\mathbf{x}_0)>50\%}$ vs.\ ${\color{dblue}\Pr(Y=2\,|\,X=\mathbf{x}_0)>50\%}$.

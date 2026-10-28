@@ -1,0 +1,46 @@
+% figs_atlas.tex -- FIGURE ATLAS: 32 key charts, 8 per page (2 columns x 4 rows).
+% Images live in figs/F01.png ... figs/F32.png (cropped from the slides / knitted labs / ROC reading).
+% Text elsewhere refers to them as "F7" etc.
+\makeatletter\gdef\cs@partname{Figures}\makeatother\markboth{}{}
+\addcontentsline{toc}{part}{FIGURE ATLAS (F1--F32)}
+\ixdistilled
+\setlength{\parskip}{0pt}\setlength{\lineskip}{0pt}\setlength{\lineskiplimit}{0pt}
+\newcommand{\atlasfig}[3]{% #1 id (e.g. 7), #2 image file, #3 caption
+  \par\nointerlineskip\noindent\vbox to 0.245\textheight{%
+    \centering
+    \includegraphics[width=\linewidth,height=0.185\textheight,keepaspectratio]{#2}\par
+    \vspace{1pt}%
+    {\scriptsize\raggedright\label{atlas:F#1}\textbf{\color{dblue}F#1.}\ #3\par}%
+    \vfil}}
+\atlasfig{1}{figs/F01.png}{Flexibility vs.\ \ix{interpretability} \src{S1.55}: subset selection/lasso (high interp., low flex.) $\to$ least squares $\to$ GAMs, trees $\to$ bagging/boosting, SVM (high \ix{flexibility}, low interp.).}
+\atlasfig{2}{figs/F02.png}{Ex.\ 1, curved true $f$ \src{S1.62}. Left: linear (orange), simple and complex smoothing splines (blue, green). Right: \ix{training error} (gray) keeps falling; test MSE (red) U-shaped, min at medium flexibility; dashed = Var$(\varepsilon)$.}
+\atlasfig{3}{figs/F03.png}{Ex.\ 2, true $f$ nearly linear \src{S1.63}: the linear fit is already close; test MSE is lowest at low flexibility and rises for the wiggly spline (\ix{overfitting}).}
+\atlasfig{4}{figs/F04.png}{Prediction error vs.\ model complexity \src{S1.66}: training sample error falls monotonically; test sample error U-shaped. Left = high \ix{bias}/low \ix{variance}, right = low bias/high variance.}
+\atlasfig{5}{figs/F05.png}{\ix{bias-variance tradeoff} for Ex.\ 1 \src{S1.82}. Right panel: test MSE (red) $=$ squared bias (blue, falls) $+$ variance (orange, rises) $+$ Var$(\varepsilon)$ (dashed); dotted vertical line = flexibility with the lowest test MSE.}
+\atlasfig{6}{figs/F06.png}{Dartboards \src{S1.80}: rows = low/high bias (off-center), columns = low/high variance (spread). Ideal = top-left (tight on the bullseye).}
+\atlasfig{7}{figs/F07.png}{\ix{Bayes classifier} \src{S1.97}: orange vs.\ blue simulated classes in $(X_1,X_2)$; purple dashed = \ix{Bayes decision boundary} where Prob$(Y=1\mid X)=0.5$; shaded grid = predicted class.}
+\atlasfig{8}{figs/F08.png}{KNN \src{S1.113}: $K=1$ (left) gives a jagged, island-filled boundary (overfits, training error 0); $K=100$ (right) is too smooth, nearly linear (underfits). Purple dashed = Bayes boundary.}
+\atlasfig{9}{figs/F09.png}{KNN error rate vs.\ $1/K$ (log scale) \src{S1.115}: training (blue) falls to 0 at $K=1$; test (orange) U-shaped, min near $K\approx10$; dashed $\approx0.13$ = \ix{Bayes error rate}.}
+\atlasfig{10}{figs/F10.png}{Accuracy of \ix{least squares} estimates \src{S2.25}. Left: red = true line, blue = LS fit to one sample. Right: light-blue LS lines from many random samples scatter around the true line (unbiased, but variable).}
+\atlasfig{11}{figs/F11.png}{\ix{main effect} plots \src{S2.50}: Cleanliness vs.\ water temperature for detergents A/B. Parallel lines in every panel $\Rightarrow$ \emph{no} \ix{interaction term} (only which factor shifts the lines differs).}
+\atlasfig{12}{figs/F12.png}{Credit data \src{S2.53}: balance vs.\ income, student (red) vs.\ non-student (black). Left: no interaction $\Rightarrow$ parallel lines. Right: with interaction $\Rightarrow$ different slopes (student line flatter).}
+\atlasfig{13}{figs/F13.png}{\ix{polynomial regression} \src{S2.55}: Auto mpg vs.\ horsepower with linear, degree-2 and degree-5 fits. The curved (degree 2) fit follows the data; still a linear model in $X, X^2$.}
+\atlasfig{14}{figs/F14.png}{\ix{residual} plot \src{S2.59}: residuals vs.\ fitted values. A U-shaped pattern $\Rightarrow$ \ix{nonlinear relationship} missed; a correct linear model shows no discernible pattern.}
+\atlasfig{15}{figs/F15.png}{\ix{heteroscedasticity} \src{S2.61}: residual spread grows with the fitted value (funnel), left; after transforming $Y$ (e.g.\ log) the spread is roughly constant, right.}
+\atlasfig{16}{figs/F16.png}{\ix{influential observation} \src{S2.70}: fit without the flagged point $y=1.73+5.12x$ vs.\ with a high-leverage point on the trend $y=2.47+4.93x$ --- almost the same line, so \emph{not} influential.}
+\atlasfig{17}{figs/F17.png}{\ix{correlation matrix} of \texttt{diamonds} \src{S2.74}: price--carat $r=0.92$; strong positive correlations between size variables $\Rightarrow$ \ix{collinearity}.}
+\atlasfig{18}{figs/F18.png}{\ixc{vis\_miss()} on \texttt{airquality} \src{Lab 2}: black = missing. Ozone $\approx$24\% missing, Solar.R $\approx$5\%; other columns complete ($\approx$4.8\% of all cells).}
+\atlasfig{19}{figs/F19.png}{Predicted vs.\ actual \texttt{price}, linear model on \texttt{diamonds} \src{Lab 2}: curved band, not along $y=x$; cheap diamonds get negative predictions $\Rightarrow$ \ix{nonlinear relationship} the linear model misses.}
+\atlasfig{20}{figs/F20.png}{Why not linear regression? \src{S3.5}: on Default vs.\ balance, the linear fit gives \emph{negative} probabilities at low balance; the \ix{logistic regression} S-curve stays in $[0,1]$.}
+\atlasfig{21}{figs/F21.png}{Default data \src{S3.8}: balance vs.\ income, orange = defaulted. Boxplots: balance much higher for default = Yes; income barely differs $\Rightarrow$ balance is the useful \ix{predictor}.}
+\atlasfig{22}{figs/F22.png}{Simpson's paradox \src{S3.31}: pooled points trend downward, but each visible cluster trends upward --- a \ix{confounding} variable reverses the sign (like the student coefficient in Default).}
+\atlasfig{23}{figs/F23.png}{\ix{ROC curve} \src{S3.39}: TPR (sensitivity) vs.\ FPR (1 $-$ specificity) over all thresholds. \ix{AUC} summarizes performance over all thresholds; higher AUC is better.}
+\atlasfig{24}{figs/F24.png}{ROC examples \src{S3.40}. Left: perfect classifier at the top-left corner $(0,1)$, random guessing = diagonal; curves toward the top-left are better. Right: AUC Model A 0.923 $>$ B 0.794 $>$ C 0.588.}
+\atlasfig{25}{figs/F25.png}{ROC reading, Titanic Model A, test set \src{ROC}: curve bows well toward the top-left (good discrimination). Axes: sensitivity vs.\ 1 $-$ specificity; dotted diagonal = coin flip.}
+\atlasfig{26}{figs/F26.png}{ROC reading, Titanic Model B \src{ROC}: curve sits on the diagonal, AUC $=0.496$ --- no better than a coin flip; it never reaches TPR 1 with FPR 0.}
+\atlasfig{27}{figs/F27.png}{Model A predicted P(Yes) by true class \src{ROC}: survivors (blue) mostly near 1, non-survivors (orange) mostly near 0 --- good separation, which is why its ROC bows toward the top-left.}
+\atlasfig{28}{figs/F28.png}{Lab 3 OJ logistic regression, test ROC \src{Lab 3}: sensitivity $\approx$0.68 at FPR 0.06, 0.90 at FPR 0.25 --- good discrimination.}
+\atlasfig{29}{figs/F29.png}{Lab 3 Smarket QDA, test ROC \src{Lab 3}: jagged and hugging the diagonal $\Rightarrow$ AUC $\approx0.5$; stock direction is essentially unpredictable from the lags.}
+\atlasfig{30}{figs/F30.png}{LDA, $p=1$ \src{S3.77}. Left: two normal class densities with equal variance; dashed = Bayes boundary (midpoint if $\pi_1=\pi_2$). Right: histograms of training data with the LDA boundary (solid) next to the Bayes one.}
+\atlasfig{31}{figs/F31.png}{LDA, $p>1$, three classes \src{S3.81}: dashed = Bayes boundaries, solid = \ix{linear discriminant analysis (LDA)} boundaries; both are straight lines (hyperplanes).}
+\atlasfig{32}{figs/F32.png}{LDA vs.\ QDA \src{S3.88}. Purple dashed = Bayes, black dotted = LDA, green solid = QDA. Left, $\Sigma_1=\Sigma_2$: LDA is closer to Bayes. Right, $\Sigma_1\ne\Sigma_2$: \ix{quadratic discriminant analysis (QDA)} is closer.}

@@ -101,12 +101,12 @@ assign with \texttt{<-} \src{Lab 1}.\\[1pt]
 {\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\leavevmode}p{0.27\linewidth} >{\raggedright\arraybackslash\leavevmode}X@{}}
 \toprule
 Function & Does / example\\\midrule
-\ixc{filter()} & keep \emph{rows}: \texttt{filter(class == "compact" \& manufacturer == "audi")}; \texttt{==}, \texttt{!=}, \texttt{>}, \texttt{\&} and, \texttt{|} or, \texttt{!} not, \texttt{\%in\%}\ixh{\%in\%} \texttt{c("IAH","HOU")}\\
+\ixc{filter()} & keep \emph{rows}: \texttt{filter(class == "compact" \& manufacturer == "audi")}; \texttt{==}, \texttt{!=}, \texttt{>}, \texttt{\&} and, \texttt{|} or, \texttt{!} not, \texttt{\%in\%}\ixh{\%in\%}{} \texttt{c("IAH","HOU")}\\
 \ixc{select()} & keep \emph{columns}: \texttt{select(year, hwy, class)}; ranges \texttt{year:class}; drop \texttt{-(year:class)}, \texttt{-price}; helpers \ixc{starts\_with()}, \texttt{everything()}\ixch{everything()}, \texttt{where(is.numeric)}\ixch{where()}\\
 \ixc{mutate()} & add/modify columns (added at the end): \texttt{mutate(age = rings + 1.5)}, \texttt{mutate(after\_2k = if\_else(year <= 2000, 0, 1))}\ixch{if\_else()}\\
 \texttt{transmute()}\ixch{transmute()} & like \texttt{mutate()} but keeps only the new columns\\
 \ixc{summarise()} & collapse to one row (per group): \texttt{summarise(avg\_hwy = mean(hwy), count = }\ixc{n()}\texttt{)}\\
-\ixc{group\_by()} & following \texttt{summarise}/\texttt{mutate}/\texttt{filter} work per group; \texttt{ungroup()}\ixch{ungroup()} undoes\\
+\ixc{group\_by()} & following \texttt{summarise}/\texttt{mutate}/\texttt{filter} work per group; \texttt{ungroup()}\ixch{ungroup()}{} undoes\\
 \ixc{arrange()} & sort rows ascending; \texttt{arrange(desc(x))} or \texttt{arrange(-x)} descending\\
 \ixc{count()} & \texttt{count(manufacturer, sort = TRUE)} = \texttt{group\_by + summarise(n = n())}\\
 \texttt{drop\_na()}\ixch{drop\_na()} & delete rows with any \texttt{NA} (\texttt{airquality}: 153 $\to$ 111 rows)\\
@@ -197,7 +197,7 @@ Step & What it does\\\midrule
 
 \begin{keybox}[Selectors (used inside steps)]
 \ixc{all\_predictors()} (every predictor) $\cdot$ \ixc{all\_numeric\_predictors()} $\cdot$ \ixc{all\_nominal\_predictors()}
-(factor/character) $\cdot$ \texttt{all\_outcomes()}\ixh{all\_outcomes()} $\cdot$ by name (\texttt{type}, \texttt{age}) $\cdot$ \ixc{starts\_with()}\texttt{("type\_")}
+(factor/character) $\cdot$ \texttt{all\_outcomes()}\ixh{all\_outcomes()}{} $\cdot$ by name (\texttt{type}, \texttt{age}) $\cdot$ \ixc{starts\_with()}\texttt{("type\_")}
 $\cdot$ \texttt{contains()}, \texttt{ends\_with()} $\cdot$ exclude with \texttt{-}: \texttt{all\_predictors(), -age}.
 \ixc{all\_predictors()} never touches the outcome, so the outcome is not normalized.
 \end{keybox}
@@ -319,7 +319,7 @@ predict(smarketlog_fit, new_data = smarket_train, type = "prob") (*@\ixch{type =
 1      0.521    0.479         # model can't discriminate
 \end{routput}
 \begin{itemize}
-\item \textbf{Predicting one new case} \src{HW2 Q7}: build a \texttt{tibble()}\ixch{tibble()} with \emph{every} predictor the
+\item \textbf{Predicting one new case} \src{HW2 Q7}: build a \texttt{tibble()}\ixch{tibble()}{} with \emph{every} predictor the
   recipe uses, same names and types (factor with the training levels):
   \texttt{tibble(type = factor("F", levels = levels(abalone\$type)), longest\_shell = 0.5, ...)}, then
   \texttt{predict(lm\_fit, new\_data = new\_abalone)} (recipe applied automatically; $\to$ \texttt{.pred} 21.8).

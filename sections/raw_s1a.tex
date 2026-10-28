@@ -28,11 +28,11 @@ Undergrads: ch.~1 of ISLR\ixch{ISLR}; grads: ch.~1 of ESL\ixh{ESL}.
 \end{itemize}
 
 \slide{1}{18}{[How a child vs.\ a program learns ``dog'' (New Yorker)]}
-Old program: thousands of if-then-else rules (ears, snout, hair, not a rat \ldots). Child: sees labeled dogs, errs (wolf = dog), is corrected. ML, like the child, uses a classified \ix{training set}\ixh{training data} (dog / not dog), extracts features\ixh{feature}, tests itself on thousands of labeled images, and builds its own recognizer.
+Old program: thousands of if-then-else rules (ears, snout, hair, not a rat \ldots). Child: sees labeled dogs, errs (wolf = dog), is corrected. ML, like the child, uses a classified \ix{training set}\ixh{training data}{} (dog / not dog), extracts features\ixh{feature}, tests itself on thousands of labeled images, and builds its own recognizer.
 
 \slide{1}{19--23}{[ML applications]}
-Generative AI\ixh{generative AI}: Lensa, DALL$\cdot$E, ChatGPT, Jukebox (music as raw audio). Lee Sedol vs.\ AlphaGo\ixh{AlphaGo} (2016). Google AI car first non-human to qualify as a driver\ixh{self-driving car}.
-\textbf{Netflix Challenge}\ixh{Netflix Challenge}: 100M+ ratings, 400k+ users, 17k+ movies; predict\ixh{prediction} user's star rating (1--5); prize \$1,000,000. Kaggle\ixh{Kaggle} competitions.
+Generative AI\ixh{generative AI}: Lensa, DALL$\cdot$E, ChatGPT, Jukebox (music as raw audio). Lee Sedol vs.\ AlphaGo\ixh{AlphaGo}{} (2016). Google AI car first non-human to qualify as a driver\ixh{self-driving car}.
+\textbf{Netflix Challenge}\ixh{Netflix Challenge}: 100M+ ratings, 400k+ users, 17k+ movies; predict\ixh{prediction}{} user's star rating (1--5); prize \$1,000,000. Kaggle\ixh{Kaggle}{} competitions.
 
 \slide{1}{24}{ML in research}
 High-energy physics; gene-expression microarrays (20,000+ features\ixh{feature}); GWAS (millions of features). $\Rightarrow$ unprecedented data scale + highly complicated structure.\ixh{high-dimensional data}
@@ -53,7 +53,7 @@ install.packages("tidymodels")   (*@\ixch{install.packages()}\ixch{tidymodels}@*
 \quad
 \underset{\textbf{age, education, year}}{\begin{pmatrix} x_{11},\colorbox{cyan!35}{$x_{12}$},x_{13}\\ x_{21},\colorbox{cyan!35}{$x_{22}$},x_{23}\\ \colorbox{cyan!35}{$x_{31},x_{32},x_{33}$}\\ \vdots\\ x_{91},\colorbox{cyan!35}{$x_{92}$},x_{93}\end{pmatrix}}
 \]
-Row 3 (``John'') = one observation (one employee's wage, age, education, year). Column 2 = one predictor\ixh{predictor} (all 9 employees' education). $x_{ij}$ = obs.\ $i$, predictor $j$.
+Row 3 (``John'') = one observation (one employee's wage, age, education, year). Column 2 = one predictor\ixh{predictor}{} (all 9 employees' education). $x_{ij}$ = obs.\ $i$, predictor $j$.
 
 \slide{1}{34}{[Regression vs.\ ML cartoon]}
 \fig{same scatterplot+line, one plain (``REGRESSION''), one in top hat and monocle (``MACHINE LEARNING''): ML is often \ixh{regression}regression dressed up.}

@@ -6,7 +6,7 @@
 
 \subsection{Basics of Data Processing}
 \ixh{data processing}%
-Tools: \emph{tidyverse}; more in \emph{R for Data Science} (\url{https://r4ds.had.co.nz/}). Packages: \rc{tidyverse}, \rc{tidymodels}, \ixc{ISLR} (\rc{install.packages()}, then \ixc{library()}). Some packages ship datasets: \rc{library(ISLR)}\ixch{ISLR}, then \rc{mpg}\ixch{mpg} (chunk \rc{eval = FALSE}\ixch{eval}, no output); \rc{?mpg} for info.
+Tools: \emph{tidyverse}; more in \emph{R for Data Science} (\url{https://r4ds.had.co.nz/}). Packages: \rc{tidyverse}, \rc{tidymodels}, \ixc{ISLR} (\rc{install.packages()}, then \ixc{library()}). Some packages ship datasets: \rc{library(ISLR)}\ixch{ISLR}, then \rc{mpg}\ixch{mpg}{} (chunk \rc{eval = FALSE}\ixch{eval}, no output); \rc{?mpg} for info.
 
 \subsubsection{\texttt{filter()} --- rows by value}
 \ixch{filter()}%
@@ -125,12 +125,12 @@ Predict \rc{price}\ixh{outcome}: not directly measurable, and we care what a dia
 \ix{correlation matrix} of continuous variables vs \rc{price}:
 \fig{\texttt{corrplot}, lower triangle, $-1$ dark red to $+1$ navy. Besides the strong $+$ carat/price/x/y/z block: depth--table $\approx-0.3$ (only clearly negative); depth with carat, price, x, y $\approx 0$; table with carat, price, x, y, z and depth with z weak $+$ ($\approx$0.1--0.2).}
 \ixh{correlation}%
-Look at the \ixc{corrplot()} arguments; what if \rc{diag = TRUE}, \rc{method = 'square'}? \textbf{Activities:} which features are positively correlated\ixh{correlation} with \rc{price} (sensible?); any negative? which correlate with \emph{each other}, and why?\ixh{collinearity}
+Look at the \ixc{corrplot()} arguments; what if \rc{diag = TRUE}, \rc{method = 'square'}? \textbf{Activities:} which features are positively correlated\ixh{correlation}{} with \rc{price} (sensible?); any negative? which correlate with \emph{each other}, and why?\ixh{collinearity}
 
 \ix{boxplot} of \rc{price} per \rc{cut} and \rc{color}:\ixh{predictor}
 \fig{Horizontal boxplots of price by cut (\texttt{reorder(cut, price)}, bottom to top: Ideal, Good, Very Good, Fair, Premium), 7 boxes per cut filled by color (D \dots{} J). All right-skewed (Q1 $\approx$800--2{,}500, outliers to $\approx$18{,}800; Fair fewest outliers). In every cut I, J have higher medians/wider boxes than D/E: Premium J median $\approx$5{,}000 (Q3 $\approx$9{,}000); Ideal D/E medians $\approx$1{,}500--1{,}800 (Q3 $\approx$3{,}000). Ideal (best cut) cheapest overall; Premium priciest.}
 \ixh{boxplot}%
-\textbf{Activities:} what does this say about \rc{price}, \rc{cut}, \rc{color}? Anything surprising given \rc{?diamonds}? Why do \rc{J} (worst color) diamonds cost more? Check \rc{color} vs \rc{carat} (\rc{carat} highly $+$ correlated\ixh{correlation} with \rc{price}):\ixh{confounding}
+\textbf{Activities:} what does this say about \rc{price}, \rc{cut}, \rc{color}? Anything surprising given \rc{?diamonds}? Why do \rc{J} (worst color) diamonds cost more? Check \rc{color} vs \rc{carat} (\rc{carat} highly $+$ correlated\ixh{correlation}{} with \rc{price}):\ixh{confounding}
 \begin{rcode}
 diamonds %>%
   ggplot(aes(x = carat, y = reorder(color, carat))) + (*@\ixch{reorder()}@*)
@@ -147,5 +147,5 @@ diamonds %>%
 
 \subsection{Data Splitting}
 \ixh{data splitting}\ixh{training/testing split}%
-Split \rc{diamonds} into training\ixh{training data} and test\ixh{testing data} sets (later: \ix{resampling} / \ix{cross-validation}; for now use the whole training set). \rc{tidymodels} is easier than the textbooks' base-R way. Seed: any number.
+Split \rc{diamonds} into training\ixh{training data}{} and test\ixh{testing data}{} sets (later: \ix{resampling} / \ix{cross-validation}; for now use the whole training set). \rc{tidymodels} is easier than the textbooks' base-R way. Seed: any number.
 \textbf{Activities:} exact number of observations in training and testing sets? What does \ixc{strata} \rc{= price} do? Guess, then check \rc{?initial\_split}.\ixh{stratified sampling}\ixch{initial\_split()}
