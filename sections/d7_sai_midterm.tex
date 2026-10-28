@@ -1,0 +1,213 @@
+% d7_sai_midterm.tex -- Sai's graded midterm: every question in full + worked answers
+\section{Sai's graded midterm (last quarter, 20/26): every question, full worked answers}
+\ixh{Sai midterm}\ixh{model evaluation}
+
+\begin{keybox}[Cover-sheet rules that matter]
+\begin{itemize}[leftmargin=1em]
+\item Exam = 7 multiple choice (2 pts each) + free response Q8a--d (4 $\times$ 2 pts) + Q9 (4 pts) = 26 pts. Open book/open notes:
+  \emph{physical} materials only; no electronic or digital tools, no generative AI.
+\item \textbf{Multiple choice:} ``multiple answers marked for Multiple Choice questions will receive a score of zero'' unless
+  otherwise specified. Mark exactly one bubble. Options like ``Both A and B'' / ``All of the above'' are single bubbles.
+\item \textbf{Free response:} if several answers are given the \emph{first} is graded. Round to 3--4 decimals. Answers must be legible.
+\item Answers must be written in the booklet. Gradescope numbers the graded items 1--12 (Q8a--d = items 8--11, Q9 = item 12).
+\item Result: Q1,2,3,5 full; Q4 1/2; Q6, Q7 0/2; Q8a--d 8/8; Q9 3/4 $\Rightarrow$ \textbf{20/26}. Points lost: Q4 ($-1$), Q6 ($-2$), Q7 ($-2$), Q9 ($-1$).
+\end{itemize}
+\end{keybox}
+
+%% ------------------------------------------------------------------ Q1
+\begin{qbox}{Sai Q1 (2 pts) --- Sai 2/2}
+\ixh{flexibility}\ixh{polynomial regression}\ixh{interaction term}
+\textbf{Which change generally makes a statistical learning method \ix{more flexible}?}
+\begin{enumerate}[label=(\Alph*),leftmargin=1.6em,itemsep=0pt]
+\item Increasing $k$ in \ix{KNN}
+\item Removing predictors from a linear model
+\item Adding polynomial or interaction terms to a regression model
+\item Using LDA instead of QDA
+\item All of the above
+\end{enumerate}
+\ans (C).
+\par\textbf{Why right:} polynomial/\ix{interaction term}s add columns (parameters), letting the fitted \ixh{regression} function bend more; more
+\ix{flexibility} = lower \ix{bias}, higher \ix{variance}. \src{S1; S2}
+\par\textbf{Why others wrong:}
+(A) wrong: larger $k$ averages more neighbors, so the KNN boundary is smoother = \emph{less} flexible (flexibility $\propto 1/k$).
+(B) wrong: dropping predictors removes parameters, a simpler/less flexible model.
+(D) wrong: LDA forces one shared covariance matrix (linear boundary); QDA allows a covariance per class (quadratic boundary), so LDA is the \emph{less} flexible one.
+(E) wrong: A, B, D are all less flexible, so ``all'' fails.
+\par\textbf{\color{dblue}Sai:} (C), correct. \grader ``Correct answer is C. All other answers would all result in a \textbf{less} flexible model.'' $-$2 for A, B, D or E.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q2
+\begin{qbox}{Sai Q2 (2 pts) --- Sai 2/2}
+\ixh{KNN}\ixh{decision boundary}\ixh{non-parametric model}
+\textbf{Why can \ix{KNN} represent nonlinear \ix{decision boundary}s even without explicitly including polynomial or interaction terms?}
+\begin{enumerate}[label=(\Alph*),leftmargin=1.6em,itemsep=0pt]
+\item It assumes predictors are normally distributed
+\item It does not assume equal variances across levels of the outcome
+\item Classification is determined locally by neighboring observations
+\item It estimates a different regression coefficient for every observation
+\item It automatically creates squared terms
+\item Both A and B
+\end{enumerate}
+\ans (C).
+\par\textbf{Why right:} KNN is a \ix{non-parametric model}: the predicted class is the majority class among the $k$ nearest training points, so the boundary follows the local data layout and can take any shape. \src{S1}
+\par\textbf{Why others wrong:}
+(A) wrong: KNN makes no normality assumption (that is an LDA/QDA assumption).
+(B) wrong: true that KNN assumes nothing about variances, but that is not \emph{why} it is nonlinear; it is the QDA ``unequal covariance'' idea that gives QDA a quadratic boundary.
+(D) wrong: KNN has no coefficients at all.
+(E) wrong: no squared terms are created; locality does the work.
+(F) wrong: A is false, so ``both A and B'' is false.
+\par\textbf{\color{dblue}Sai:} (C), correct. \grader ``Correct answer is C. KNN does not make any assumptions about normality or equality of variances, it also doesn't create squared terms.'' $-$1 partial for B (confusing with QDA); $-$2 for A, D, E, F.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q3
+\begin{qbox}{Sai Q3 (2 pts) --- Sai 2/2}
+\ixh{ROC curve}\ixh{threshold}\ixh{AUC}
+\fig{ROC curve (same as practice-exam Q19), black and white, no grid: x-axis ``False Positive Rate'' 0.0--1.0, y-axis ``True Positive Rate'' 0.0--1.0, dashed diagonal reference line, one solid concave curve with three dots: A $\approx$ (FPR 0.05, TPR 0.45), B $\approx$ (0.22, 0.74), C $\approx$ (0.47, 0.92).} \fref{24}\par
+\textbf{Moving along the \ix{ROC curve} from Point A toward Point C corresponds generally to:}
+\begin{enumerate}[label=(\Alph*),leftmargin=1.6em,itemsep=0pt]
+\item Increasing the classification threshold
+\item Decreasing the classification \ix{threshold}
+\item Increasing the AUC
+\item Decreasing the \ix{AUC}
+\end{enumerate}
+\ans (B).
+\par\textbf{Why right:} from A to C both \ixh{TPR}TPR (0.45$\to$0.92) and \ixh{FPR}FPR (0.05$\to$0.47) rise: more observations are predicted positive, which happens when the threshold is \emph{lowered}. \src{ROC; S3}
+\par\textbf{Why others wrong:}
+(A) wrong: raising the threshold moves the operating point toward the lower left (0,0), i.e.\ from C toward A.
+(C), (D) wrong: AUC is the area under the \emph{whole} curve, a property of the model; sliding the operating point does not change it.
+\par\textbf{\color{dblue}Sai:} (B), correct. \grader ``Correct answer is B. Moving from Point A to Point C represents an increase in both TPR and FPR; this corresponds to decreasing the threshold, resulting in more predicted positives overall.'' $-$1 for A (wrong direction); $-$2 for C or D.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q4
+\begin{qbox}{Sai Q4 (2 pts) --- Sai 1/2}
+\ixh{identifier variable}\ixh{predictor}\ixh{categorical predictor}
+\textbf{A hospital is developing a model to predict whether a patient will be readmitted within 30 days after discharge. Which of the following variables would be most reasonable to include as a \ix{predictor}?}
+\begin{enumerate}[label=(\Alph*),leftmargin=1.6em,itemsep=0pt]
+\item \texttt{PatientID}, a randomly assigned unique identifier for each patient.
+\item \texttt{HospitalID}, which identifies which of 15 hospitals treated the patient. Hospitals differ in their patient populations.
+\item \texttt{AdmissionID}, a unique identifier assigned to each hospital admission.
+\item \texttt{RecordID}, a sequential identifier (1, 2, 3, \dots) assigned to each row of the dataset.
+\item None of the above.
+\end{enumerate}
+\ans (B).
+\par\textbf{Why right:} \texttt{HospitalID} has only 15 levels shared by many patients and reflects real differences in populations, so it is a legitimate \ix{categorical predictor} (dummy-encode it with \ixc{step\_dummy()}). \src{HW2 Q3}
+\par\textbf{Why others wrong:}
+(A) wrong: random unique ID, one level per patient; no pattern can generalize to new patients (pure overfitting/noise).
+(C) wrong: unique per admission, same problem.
+(D) wrong: a row counter; carries no information about readmission (and any pattern would be an artifact of row order).
+(E) wrong: B is reasonable, so ``none'' is false.
+Rule: unique-per-row \ix{identifier variable} $\Rightarrow$ drop; shared group label with few levels $\Rightarrow$ may keep.
+\par\textbf{\color{dblue}Sai:} (E), \textbf{lost 1 pt}. Sai correctly rejected the three unique IDs but also rejected \texttt{HospitalID}; missing: noticing that a group label with real between-group differences is informative. \grader ``Correct answer is Hospital ID. The other variables are specifically defined as unique identifiers, which should not be included as predictors, while patient populations differ across hospital.'' Applied: $-$1 ``Partial credit for answering all variables''; $-$2 for A, C, or D.
+{\color{figgray}\itshape [note: the applied rubric line (``answering all variables'') does not literally match (E) ``None of the above''; it looks like half credit for avoiding the unique IDs.]}
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q5
+\begin{qbox}{Sai Q5 (2 pts) --- Sai 2/2}
+\ixh{QDA}\ixh{LDA}\ixh{covariance matrix}\ixh{variance}
+\textbf{Suppose the population covariance matrices really are identical across all classes. What advantage does \ix{QDA} gain from estimating a separate covariance matrix for every class?}
+\begin{enumerate}[label=(\Alph*),leftmargin=1.6em,itemsep=0pt]
+\item A closer fit to the population decision boundary
+\item No inherent advantage from the extra covariance flexibility; it may simply increase estimation variance
+\item Perfect classification
+\item QDA, unlike LDA, is nonparametric
+\end{enumerate}
+\ans (B).
+\par\textbf{Why right:} when the \ix{covariance matrix} is truly shared, \ix{LDA}'s assumption holds and its pooled estimate is more efficient; QDA estimates extra parameters (a matrix per class) for no bias reduction, so only \ix{variance} goes up. \src{S3}
+\par\textbf{Why others wrong:}
+(A) wrong: the true boundary is linear and LDA already matches it; extra flexibility does not bring a closer fit.
+(C) wrong: Bayes error remains; no method gives perfect classification when classes overlap.
+(D) wrong: both LDA and QDA are parametric (assume multivariate normal classes).
+\par\textbf{\color{dblue}Sai:} (B), correct. \grader ``Correct answer is B; if the primary assumption of LDA is being met, fitting QDA will not provide any advantage, and will only increase variance.'' $-$2 for A, C, or D.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q6
+\begin{qbox}{Sai Q6 (2 pts) --- Sai 0/2}
+\ixh{interaction term}\ixh{main effect}
+\textbf{Consider the following fitted values:}\par
+\begin{tabular}{@{}lcc@{}}\toprule
+ & \textbf{Treatment A} & \textbf{Treatment B}\\\midrule
+\textbf{Low dosage} & 20 & 25\\
+\textbf{High dosage} & 30 & 50\\\bottomrule
+\end{tabular}\par
+\textbf{Which feature of these results most strongly suggests an \ix{interaction term}?}
+\begin{enumerate}[label=(\Alph*),leftmargin=1.6em,itemsep=0pt]
+\item Treatment B always has the larger fitted value
+\item Increasing dosage changes the fitted value by 10 under Treatment A but by 25 under Treatment B
+\item All four fitted values are different
+\item Increasing dosage increases the fitted value across both treatments
+\item Dosage has two levels
+\item Both B and D
+\end{enumerate}
+\ans (B).
+\par\textbf{Why right:} an interaction means the effect of one variable differs across levels of the other: dosage effect is $30-20=10$ for A but $50-25=25$ for B (non-parallel lines). \src{S2}
+\par\textbf{Why others wrong:}
+(A) wrong: a treatment main effect (B$>$A at both dosages); additive models allow this.
+(C) wrong: distinct cells occur with main effects only.
+(D) wrong: that is a dosage \ix{main effect} (same direction in both treatments); D says nothing about whether the \emph{size} of the increase differs by treatment, which is what an interaction is about.
+(E) wrong: number of levels is irrelevant.
+(F) wrong: B is right but D is not evidence of interaction, so the combination is false (and only one bubble is allowed).
+\par\textbf{\color{dblue}Sai:} (F), \textbf{lost 2 pts}. Sai identified B but added D, which describes a main effect. \grader ``Correct answer is B. The definition of an interaction is that the relationship between one variable and the outcome differs across levels of the other variable. A change in dosage has more of an effect on Treatment B than it does on Treatment A.'' $-$2 for A, C, D, E, or F (no partial credit).
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q7
+\begin{qbox}{Sai Q7 (2 pts) --- Sai 0/2}
+\ixh{logistic regression}\ixh{coefficient}\ixh{threshold}\ixh{log odds}
+\textbf{In a \ix{logistic regression} model, the coefficient for \texttt{age} is positive. Increasing one customer's age from 40 to 41 does not change that customer's predicted class. Why is this possible?}
+\begin{enumerate}[label=(\Alph*),leftmargin=1.6em,itemsep=0pt]
+\item A positive coefficient does not affect predicted probabilities
+\item The predicted probability can increase without crossing the classification threshold
+\item Logistic regression coefficients affect only training observations
+\item Age must interact with another predictor before it can affect classification
+\end{enumerate}
+\ans (B).
+\par\textbf{Why right:} $\beta_{\text{age}}>0$ raises the \ix{log odds} by $\beta$ per year, hence raises $\hat p$ (sigmoid is increasing), but the predicted class changes only if $\hat p$ crosses the \ix{threshold} (e.g.\ 0.31$\to$0.32 with $t=0.5$ stays ``No''). \src{S3}
+\par\textbf{Why others wrong:}
+(A) wrong: it does change $\hat p$ (log odds and probability both increase).
+(C) wrong: the fitted equation applies to any new observation.
+(D) wrong: main effects need no interaction to affect predictions.
+\par\textbf{\color{dblue}Sai:} (A), \textbf{lost 2 pts}. Sai denied that the coefficient moves the probability; the missing idea is that a probability change need not change the thresholded class. \grader ``Correct answer is B. An increase in age of 1 unit will have a positive effect on the log odds (and therefore on the predicted probability), but that will only result in a changing classification if it results in crossing the threshold.'' $-$2 for A, C, or D.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q8
+\begin{qbox}{Sai Q8a--d (4 $\times$ 2 pts) --- Sai 8/8}
+\ixh{threshold}\ixh{sensitivity}\ixh{specificity}\ixh{ROC curve}
+\textbf{A bank uses a model to flag credit-card transactions as potentially fraudulent. The classification \ix{threshold} previously used was 0.40; the bank's lead data scientist decides to increase the threshold to 0.70. Explain the effect, if any, that this change would generally have on each of the following:}
+\par\textbf{(a) (2 pts) Sensitivity.}
+\par\textbf{(b) (2 pts) Specificity.}
+\par\textbf{(c) (2 pts) The model's ROC curve.}
+\par\textbf{(d) (2 pts) The overall number of transactions flagged for investigation.}
+
+\par\textbf{Key (general principle):} flag if $\hat p\ge t$. Raising $t$ from 0.40 to 0.70 makes ``positive'' harder: fewer flags, so both TP and FP shrink while TN and FN grow. \src{S3; ROC}
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+\item \textbf{(a) Decreases.} \ix{sensitivity} $=$ TPR $=TP/(TP+FN)$; fewer frauds clear the higher bar (TP$\downarrow$, FN$\uparrow$). Wrong answers: ``increases/same''.
+\item \textbf{(b) Increases.} \ix{specificity} $=TN/(TN+FP)=1-$FPR; fewer legitimate transactions are flagged (FP$\downarrow$, TN$\uparrow$). Wrong: ``decreases/same''.
+\item \textbf{(c) No change.} The \ix{ROC curve} is built from \emph{all} thresholds, so it is a property of the model; changing $t$ only moves the operating point along it (toward the lower left, (FPR,TPR)$\to(0,0)$). AUC unchanged. \fref{24}
+\item \textbf{(d) Decreases.} fewer observations satisfy $\hat p\ge 0.70$ than $\hat p\ge 0.40$, so fewer transactions are flagged (TP+FP falls).
+\end{itemize}
+\par\textbf{Sai's answers and rubric.}
+\par\textbf{(a) 2/2.} ``Sensitivity would be lowered'', with a margin note: high sensitivity $\to$ choose a point with high TPR even if FPR is higher $\to$ lower threshold; ``so we are doing the opposite here''. \grader ``Sensitivity is the true positive rate (TPR). Increasing the threshold makes it harder to classify observations as positive. This will result in a lower sensitivity.'' $-$2 for saying increase/same; $-$1 partial.
+\par\textbf{(b) 2/2.} ``Being stricter would decrease FPR and the formula for specificity is $1-$FPR so if FPR gets smaller specificity would go up.'' \grader ``Specificity is the true negative rate (or 1 minus the false positive rate). Increasing the threshold will result in a higher specificity.'' $-$2 for decrease/same; $-$1 partial.
+\par\textbf{(c) 2/2.} ``The model's curve wouldn't necessarily change, only the dot of the threshold would. Only determines which point on the ROC curve you operate at.'' \grader ``A change in threshold will have no effect on the ROC curve at all. The ROC curve exists at the model level and is made up of many different thresholds' combinations of true and false positive rates.'' $-$2 any other answer; $-$1 partial.
+\par\textbf{(d) 2/2.} ``When the threshold is increased, it means we require more `certainty' (higher predicted probability) --- so fewer observations exceed the high bar, so we get fewer positive predictions, more negative predictions.'' \grader ``The number of transactions flagged for investigation will generally decrease as the threshold is raised.'' $-$2 any other answer.
+\par No points lost on Q8.
+\end{qbox}
+
+%% ------------------------------------------------------------------ Q9
+\begin{qbox}{Sai Q9 (4 pts) --- Sai 3/4}
+\ixh{collinearity}\ixh{normalization}\ixh{linear regression}\ixh{feature engineering}
+\textbf{Consider the following recipe. The model's goal is to predict the sale price of a home. \texttt{square\_feet} represents the house size measured in feet; \texttt{square\_meters} represents the house size measured in meters:}
+\begin{rcode}
+house_recipe <-
+  recipe(sale_price ~ ., data = houses) %>%           (*@\ixch{recipe()}\ixch{\%>\%}@*)
+  step_mutate(                                        (*@\ixch{step\_mutate()}@*)
+    square_meters = square_feet * 0.092903
+  ) %>%
+  step_normalize(all_numeric_predictors())            (*@\ixch{step\_normalize()}\ixch{all\_numeric\_predictors()}@*)
+\end{rcode}
+\textbf{A student argues that because both \texttt{square\_feet} and \texttt{square\_meters} are \ix{normalization}d, it is appropriate to keep both in an ordinary \ix{linear regression}. Is this reasoning correct or incorrect? Explain.}
+\par\ans Incorrect.
+\par\textbf{Model answer:} \texttt{square\_meters} $=0.092903\times$\texttt{square\_feet} is an exact linear function of the other predictor, so the two are perfectly \ix{collinearity}-related ($r=\pm1$). \ixc{step\_normalize()} (center to mean 0, scale to sd 1) is a linear rescaling, so after it the two columns are \emph{identical}; normalization cannot remove collinearity. OLS then cannot separate the two \ix{coefficient}s (the design matrix is singular: one coefficient is \texttt{NA} or estimates/standard errors blow up). Fix: keep only one of the two (they carry the same information). \src{S2; HW3 Q1--2}
+\par\textbf{Why the student's reasoning fails:} normalizing puts variables on a common scale (useful for KNN or penalties) but does nothing about one predictor being a direct function of another. The word to write: \textbf{collinearity}.
+\par\textbf{\color{dblue}Sai:} wrote the simple linear regression formula $Y=\beta_0+\beta_1X+\epsilon$ (labelling response, intercept, slope), then: ``I personally believe it is not appropriate because the resulting value would be the same (if only one of the two is used). If you normalize both in terms of price your result would be same as standardizing/normalizing means $\mu=0$, $\sigma=1$ in a [sketch] normally distributed curve. So I believe it isn't.''
+\par\textbf{Points lost ($-1$):} the verdict (``not appropriate'') is right, but Sai never named \textbf{collinearity} or said that one predictor is a direct function of the other; the argument is about normal curves and a single-predictor model. \grader ``Students should recognize that this results in collinearity, regardless of normalization. One predictor will still be a direct function of the other predictor.'' $-$0 full; $-$2 logic partially correct; $-$4 completely incorrect; \textbf{applied: $-$1} ``Correct answer (that the reasoning is wrong) but doesn't specifically mention collinearity''.
+\end{qbox}

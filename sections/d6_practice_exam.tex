@@ -1,0 +1,268 @@
+% d6_practice_exam.tex -- DISTILLED: practice exam (Fall 2026), all 20 questions with full worked answers.
+\section{Practice exam (Fall 2026): all 20 questions, full worked answers}
+\ixh{practice exam}\ixh{model evaluation}\ixh{model comparison}
+{\small Official key = \texttt{source/practice\_exam} solutions. Each block: question in full, choices, \textbf{Answer}, why right, why each other choice is wrong. Free-response: model answer. \src{PE}\par}
+
+%% ---------------------------------------------------------------- Q1
+\begin{qbox}{PE Q1}
+\ixh{KNN}\ixh{overfitting}\ixh{tuning parameter}
+1.~A \ix{KNN} classifier has excellent performance on the \ix{training data} but noticeably worse performance on new data. Which change would be most likely to help?
+(a) Decrease $k$ \quad (b) Increase $k$ \quad (c) Give variables with larger variances more weight \quad (d) Include an interaction term
+\ans (b) Increase $k$.\par
+\textbf{Why right:} excellent train but worse new-data performance is \ix{overfitting}; small $k$ = very flexible (low \ix{bias}, high \ix{variance}), so a larger $k$ smooths the \ix{decision boundary} and lowers variance. \src{S1}
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+\item (a) wrong: smaller $k$ is more flexible, making overfitting worse ($k=1$ gives training error 0).
+\item (c) wrong: KNN is distance-based\ixh{Euclidean distance}; up-weighting high-variance variables lets them dominate distances (the cure is \ix{standardization}, i.e.\ equal weight).
+\item (d) wrong: an \ix{interaction term} is a linear-model device; KNN is \ix{non-parametric model}, already adapts locally, and adding terms is not a KNN fix.
+\end{itemize}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q2
+\begin{qbox}{PE Q2}
+\ixh{flexibility}\ixh{interpretability}\ixh{inference}
+2.~A student says, ``The most flexible model is always preferable because it can represent more complicated relationships.'' Explain what is wrong with this reasoning.
+\ans False: flexibility is not always good.\par
+\textbf{Model answer.} (i) More flexible models are less \ix{interpretability}-friendly, so if the goal is \ix{inference} (understanding), a simpler model is preferable. (ii) A very flexible model can fit patterns in the \ix{training data} that are noise and absent in the population: \ix{overfitting}, i.e.\ low \ix{training error} but high \ix{testing error}. Best flexibility minimizes test error (\ix{bias-variance tradeoff}: bias falls, variance rises with flexibility). \src{S1}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q3
+\begin{qbox}{PE Q3}
+\ixh{accuracy}\ixh{overfitting}\ixh{testing data}
+3.~Models A, B, C (training / testing accuracy): A 71\% / 70\%; B 86\% / 82\%; C 100\% / 68\%. Which model would you prefer based only on this information? What appears to be happening with Model C?
+\ans Prefer \textbf{Model B}; Model C is \ix{overfitting}.\par
+\textbf{Why:} choose by \emph{testing} \ix{accuracy} (honest estimate of new-data performance): B has the highest (82\%). C's 100\% training vs.\ 68\% testing (32-point gap) = memorizing noise. \textbf{Why not A:} train $\approx$ test (71/70) is little overfitting but accuracy is lower (70\% $<$ 82\%): it underfits\ixh{underfitting}. \textbf{Why not C:} best training accuracy but lowest test accuracy. (B overfits a little too, gap 4 points, but far less than C.) \src{S1}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q4
+\begin{qbox}{PE Q4}
+\ixh{Pearson correlation}\ixh{interaction term}\ixh{training error}
+4.~Claims: (a) A predictor with zero \ix{Pearson correlation} with the outcome cannot improve prediction. (b) Two highly correlated predictors necessarily interact. (c) A model with lower training error is always preferable. State true/false and explain each.
+\ans (a) False. (b) False. (c) False.
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+\item (a) Pearson $r=0$ means no \emph{linear} \ix{correlation} only. A predictor with a U-shaped\ixh{nonlinear relationship} or otherwise nonlinear relation (cf.\ Q8) can have $r\approx0$ and still predict well in nonlinear/empirical models (KNN, polynomials, trees).
+\item (b) Interaction = the relationship between $X_1$ and $Y$ differs depending on the value of $X_2$. That is about the effect on $Y$, not about $X_1$--$X_2$ correlation (correlated predictors are \ix{collinearity}, a different issue).
+\item (c) \ix{training error} is not a good estimator of \ix{testing error}; it only falls as flexibility rises. As training error $\to0$ testing error almost always increases (\ix{overfitting}). Compare models on test/validation error.
+\end{itemize}
+\src{S1, S2}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q5
+\begin{qbox}{PE Q5}
+\ixh{KNN}\ixh{classification}
+5.~A new observation has seven nearest neighbors, ordered closest to farthest, with classes: 1 A, 2 B, 3 B, 4 A, 5 A, 6 B, 7 B. Predict its class using $k=1,3,5,7$.
+\ans $k=1$: \textbf{A}; $k=3$: \textbf{B}; $k=5$: \textbf{A}; $k=7$: \textbf{B}.\par
+\textbf{Work} (majority vote\ixh{k-nearest neighbors (KNN)} of the $k$ closest): $k=1$: \{A\} $\to$ A. $k=3$: \{A,B,B\} = 1A:2B $\to$ B. $k=5$: \{A,B,B,A,A\} = 3A:2B $\to$ A. $k=7$: all seven = 3A:4B $\to$ B. The prediction flips with $k$; odd $k$ avoids ties for two classes. \src{S1}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q6
+\begin{qbox}{PE Q6}
+\ixh{standardization}\ixh{KNN}\ixh{distance metric}
+6.~A student standardizes age but forgets to standardize annual income before fitting KNN. Explain why this is a problem even though both variables are numeric.
+\ans KNN is distance-based; unscaled income dominates the distance.\par
+\textbf{Model answer.} \ix{KNN} uses \ix{Euclidean distance}, $d=\sqrt{\sum_j (x_j-x_{0j})^2}$, so a variable's influence depends on its units/variance. Income (tens of thousands) has a \emph{much} larger variance than standardized age (about $\pm1$), so differences in income swamp age and the neighbors are chosen essentially by income alone. Fix: \ix{standardization}/\ix{scaling} of \emph{all} numeric predictors (\ixc{step\_normalize()}). \src{S1}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q7
+\begin{qbox}{PE Q7}
+\ixh{KNN}\ixh{target leakage}\ixh{identifier variable}
+7.~A researcher wants to use KNN to predict whether a bank customer will default on a loan:
+\begin{rcode}
+loan_recipe <-
+  recipe(defaulted ~ ., data = loans) |>                    (*@\ixch{recipe()}\ixch{|>}@*)
+  step_dummy(all_nominal_predictors(), one_hot = TRUE)      (*@\ixch{step\_dummy()}\ixch{all\_nominal\_predictors()}\ixch{one\_hot}@*)
+
+loan_model <-
+  nearest_neighbor(neighbors = 5) |>                        (*@\ixch{nearest\_neighbor()}\ixch{neighbors}@*)
+  set_engine("kknn") |>                                     (*@\ixch{set\_engine()}\ixch{kknn}@*)
+  set_mode("classification")                                (*@\ixch{set\_mode()}@*)
+
+loan_fit <-
+  loan_model |>
+  fit(defaulted ~ ., data = loans)                          (*@\ixch{fit()}@*)
+\end{rcode}
+Variables: \texttt{application\_id}, \texttt{age}, \texttt{income}, \texttt{employment\_type}, \texttt{credit\_score}, \texttt{default\_date}, \texttt{defaulted}. Identify at least four problems; for each, why it matters and how to correct it.
+\ans Four bugs (official).
+\begin{enumerate}[leftmargin=1.4em,itemsep=0pt]
+\item \textbf{``.'' includes everything.} \texttt{application\_id} is an \ix{identifier variable} (unique per row, no generalizable pattern, adds noise to distances) and \texttt{default\_date} is \ix{target leakage} (it exists only if the customer defaulted, so it encodes the outcome; unavailable at prediction time). \emph{Fix:} drop both, e.g.\ \texttt{recipe(defaulted \textasciitilde{} age + income + employment\_type + credit\_score, ...)} or \ixc{update\_role()}/\ixc{select()}.
+\item \textbf{No \ixc{step\_normalize()}.} KNN is distance-based; income would dominate age/credit score (cf.\ Q6). \emph{Fix:} add \texttt{step\_normalize(all\_numeric\_predictors())} to the recipe.
+\item \textbf{Recipe never used.} \texttt{loan\_recipe} is defined, but \ixc{fit()} is called on the bare model with a formula and raw \texttt{loans}. \emph{Fix:} \texttt{workflow() \pipe{} add\_recipe(loan\_recipe) \pipe{} add\_model(loan\_model) \pipe{} fit(data = loans)}.
+\item \textbf{Consequently \texttt{employment\_type} is not dummy-encoded}\ixh{dummy variable} in the fitted model (categorical predictor reaches the engine unencoded). \emph{Fix:} same as 3 (use the recipe's \ixc{step\_dummy()}).
+\end{enumerate}
+\textbf{Not a bug:} \texttt{one\_hot = TRUE} is fine for KNN (no \ix{intercept}, so no linear dependency; contrast Q13). Also check: \texttt{defaulted} must be a factor for classification mode. \src{HW1, Lab 2}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q8
+\begin{qbox}{PE Q8}
+\ixh{scatterplot}\ixh{Pearson correlation}\ixh{nonlinear relationship}
+8.~A \ix{scatterplot} of X and Y shows a very strong U-shaped relationship. Their Pearson correlation is 0.03. Which statement is best?
+(a) X and Y are essentially unrelated \quad (b) The scatterplot is likely wrong \quad (c) There is little linear correlation, despite a strong nonlinear relationship \quad (d) X will not be a useful variable for predicting Y \quad (e) Both C and D
+\ans (c).\par
+\textbf{Why right:} Pearson $r$ measures only \emph{linear} association; the two arms of the U cancel, giving $r\approx0$ though the dependence is strong (add a squared term or use KNN).
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+\item (a) wrong: they are strongly related, just nonlinearly.
+\item (b) wrong: a U-shape with $r\approx0$ is entirely consistent; the plot is not suspect.
+\item (d) wrong: X predicts Y well in a nonlinear model (e.g.\ \ixc{step\_poly()}).
+\item (e) wrong: ``Both C and D'' needs D true; D is false.
+\end{itemize}
+\src{S2 EDA}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q9
+\begin{qbox}{PE Q9}
+\ixh{interaction term}\ixh{exploratory data analysis (EDA)}
+9.~Which \ix{EDA} finding is evidence of an \textbf{interaction}?
+(a) X1 and X2 have a Pearson correlation of 0.91 \quad (b) The relationship between X1 and Y is positive for one level of X2 and negative for the other \quad (c) X1 is strongly right-skewed and X2 strongly left-skewed \quad (d) X1 and Y have a Pearson correlation of 0.80 \quad (e) The relationship between X1 and Y is the same across both levels of X2
+\ans (b).\par
+\textbf{Why right:} interaction = the effect of X1 on Y depends on the level of X2 (here even the sign flips: non-parallel lines).
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+\item (a) wrong: correlated predictors (\ix{collinearity}) say nothing about how they act on Y.
+\item (c) wrong: \ix{skewness} is a marginal shape property.
+\item (d) wrong: a strong X1--Y correlation is a main effect, not interaction.
+\item (e) wrong: it is the \emph{opposite} (parallel, no interaction).
+\end{itemize}
+\src{S2, Sai Q6}
+\end{qbox}
+
+\noindent For Questions 10--12, a university predicts whether a student graduates within four years using information available \textbf{at the end of the student's first year}. Variables: StudentID (unique identifier); HS\_GPA; FirstYearGPA (end of first year); Major (end of first year); CreditsAttempted, CreditsCompleted (first year); Dorm (first-year residence hall); GraduationDate (date of graduation, if graduated); FinalGPA (GPA upon leaving the university); Graduated4Years (outcome).\ixh{feature engineering}\ixh{predictor}\par
+
+%% ---------------------------------------------------------------- Q10
+\begin{qbox}{PE Q10}
+\ixh{target leakage}\ixh{identifier variable}\ixh{outcome}
+10.~Which variables clearly should \textbf{not} be included as predictors? Select all that apply: (a) StudentID (b) HS\_GPA (c) FirstYearGPA (d) GraduationDate (e) FinalGPA (f) Major (g) Graduated4Years (h) CreditsAttempted (i) CreditsCompleted
+\ans \textbf{(a), (d), (e), (g).}
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+\item (a) StudentID: an \ix{identifier variable}, unique per row, no predictive pattern.
+\item (d) GraduationDate and (e) FinalGPA: only known at/after the end of studies, not at end of year 1: \ix{target leakage} (GraduationDate is non-missing essentially only when the outcome is yes).
+\item (g) Graduated4Years: it is the \ix{outcome}.
+\item Fine to include: (b) HS\_GPA (known before college), (c) FirstYearGPA, (f) Major, (h)--(i) credits: all known at end of year 1.
+\end{itemize}
+\src{S2 EDA, HW1}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q11
+\begin{qbox}{PE Q11}
+\ixh{dummy variable}\ixh{categorical predictor}\ixh{logistic regression}
+11.~Which predictors would require dummy encoding before fitting a \ix{logistic regression}? Select all that apply: (a) HS\_GPA (b) FirstYearGPA (c) Major (d) CreditsCompleted (e) Dorm
+\ans \textbf{(c) Major, (e) Dorm.}\par
+\textbf{Why:} they are \ix{categorical predictor}s (names/labels), which a numeric design matrix cannot use directly; \ixc{step\_dummy()} makes $K-1$ indicator columns. (a), (b), (d) are numeric (GPAs, credit counts) and enter as is (after optional \ixc{step\_normalize()}). \src{S2}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q12
+\begin{qbox}{PE Q12}
+\ixh{target leakage}\ixh{feature engineering}\ixh{collinearity}
+12.~A student creates CompletionRate $=$ CreditsCompleted $/$ CreditsAttempted. Would including it as a predictor constitute \ix{target leakage}? Explain.
+\ans \textbf{No.}\par
+\textbf{Why:} it is built only from first-year quantities, known at prediction time (end of year 1), and the outcome is graduation within \emph{four} years, so it contains no outcome information. Caveat (not asked): CompletionRate is a function of CreditsCompleted and CreditsAttempted, so keeping all three is redundant and near-\ix{collinearity}; keep the ratio or the two components. \src{S2, HW1}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q13
+\begin{qbox}{PE Q13}
+\ixh{one-hot encoding}\ixh{dummy variable}\ixh{rank deficiency}\ixh{linear regression}
+13.~A student predicts ``salary'' from ``experience'' and ``department'':
+\begin{rcode}
+salary_recipe <- recipe(salary ~ experience + department,
+                        data = employees) %>%           (*@\ixch{recipe()}\ixch{\%>\%}@*)
+  step_dummy(department, one_hot = TRUE)                (*@\ixch{step\_dummy()}\ixch{one\_hot}@*)
+
+salary_model <- linear_reg() %>%                        (*@\ixch{linear\_reg()}@*)
+  set_engine("lm")                                      (*@\ixch{set\_engine()}\ixch{lm}@*)
+
+salary_workflow <- workflow() %>%                       (*@\ixch{workflow()}@*)
+  add_recipe(salary_recipe) %>%                         (*@\ixch{add\_recipe()}@*)
+  add_model(salary_model)                               (*@\ixch{add\_model()}@*)
+
+salary_fit <- fit(salary_workflow, data = employees)    (*@\ixch{fit()}@*)
+\end{rcode}
+``department'' has three levels: Sales, IT, HR. R reports the model matrix is rank-deficient and some coefficients cannot be uniquely identified. (a) What caused the problem? (b) Why does \texttt{one\_hot = TRUE} cause it with an intercept? (c) How should the code change? (d) After the change, how many indicator variables are created for ``department''?
+\ans (a) one-hot encoding; (b) the indicators sum to the intercept column; (c) \texttt{one\_hot = FALSE}; (d) two.
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+\item (a) \texttt{one\_hot = TRUE} makes \emph{three} indicators (Sales, IT, HR), one per level, which are linearly dependent.
+\item (b) \ix{linear regression} with an \ix{intercept} has a column of ones; for every row exactly one indicator is 1, so Sales$+$IT$+$HR $=1=$ the intercept column. The design matrix\ixh{design matrix} is not full rank, so \ix{least squares} ($(X^\top X)^{-1}$) has no unique solution; \ixc{lm} returns \texttt{NA} for an aliased coefficient. (Not a problem for KNN, Q7.)
+\item (c) Use \texttt{step\_dummy(department, one\_hot = FALSE)} (the default): drops the first level as the \ix{reference level}.
+\item (d) $K-1=3-1=2$ indicators (e.g.\ \texttt{department\_IT}, \texttt{department\_Sales}, with HR the reference, alphabetical); each coefficient is the difference from the reference.
+\end{itemize}
+\src{S2, Lab 2}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q14
+\begin{qbox}{PE Q14}
+\ixh{logistic regression}\ixh{posterior probability}
+14.~A \ix{logistic regression} predicts whether a patient has pneumonia. For one patient the predicted probability is 0.78. Which interpretation is correct?
+(a) The model is 78\% accurate for this patient. (b) The patient definitely has pneumonia. (c) The fitted model assigns this patient a probability of 0.78 of belonging to the pneumonia class. (d) 78\% of the patient's symptoms indicate pneumonia.
+\ans (c).\par
+\textbf{Why right:} logistic regression outputs $\hat p=\Pr(Y=\text{pneumonia}\mid x)$, a modelled class probability.
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+\item (a) wrong: \ix{accuracy} is a property of many predictions, not of one patient.
+\item (b) wrong: 0.78 is not certainty (22\% for no pneumonia); a class label needs a \ix{threshold}.
+\item (d) wrong: $\hat p$ is not a share of symptoms; it combines predictors through $\beta_0+\sum\beta_jx_j$ and the sigmoid.
+\end{itemize}
+\src{S3}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q15
+\begin{qbox}{PE Q15}
+\ixh{threshold}\ixh{classification}\ixh{true positive}\ixh{false positive}
+15.~Predicted default probabilities: A .31, B .48, C .63, D .81. (a) Using a \ix{threshold} of 0.50, which borrowers are classified as likely to default? (b) With threshold 0.70? (c) What happens to the number of positive classifications when the threshold is increased?
+\ans (a) \textbf{C and D}; (b) \textbf{D only}; (c) it tends to \textbf{decrease}.\par
+\textbf{Work.} Predict default if $\hat p\ge t$. $t=0.50$: A (.31) no, B (.48) no, C (.63) yes, D (.81) yes. $t=0.70$: only D (.81) clears 0.70; C (.63) no. (c) Raising $t$ makes the rule stricter, so fewer (never more) borrowers qualify: TP and FP both fall (sensitivity down, specificity up); lowering $t$ does the reverse. \src{S3, Sai Q8}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q16
+\begin{qbox}{PE Q16}
+\ixh{logistic regression}\ixh{coefficient}\ixh{log odds}\ixh{logit}
+16.~A logistic regression predicts whether a customer cancels. The \ix{coefficient} for MonthlyFee is 0.04. A student writes: ``A \$1 increase in the monthly fee causes a customer's probability of canceling to increase by 4\%.'' Identify \textbf{one problem} and give a better interpretation.
+\ans Problems: (1) probability is not linear in the fee; (2) ``causes'' is unjustified.\par
+\textbf{Model answer.} The model is linear in the \ix{log odds} (\ix{logit}), not in the probability: 0.04 is the change in log odds per \$1, holding other predictors fixed; the change in $p$ depends on where you start (S-shaped sigmoid). Observational data gives association, not causation (\ix{confounding}). Better: ``A \$1 higher monthly fee is \emph{associated} with a 0.04 increase in the log odds of canceling'' (odds multiplied by $e^{0.04}\approx1.041$, about +4.1\% in odds), or qualitatively ``higher fee is associated with higher probability of canceling'' (sign positive). \src{S3}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q17
+\begin{qbox}{PE Q17}
+\ixh{confusion matrix}\ixh{accuracy}\ixh{TPR}\ixh{FPR}
+17.~Confusion matrix (rows = predicted):\par
+{\small\begin{tabular}{@{}lcc@{}}\toprule
+ & Actually Pos. & Actually Neg.\\\midrule
+Predicted Pos. & 72 & 18\\ Predicted Neg. & 28 & 182\\\bottomrule\end{tabular}}\par
+Calculate accuracy, true positive rate, and false positive rate.
+\ans accuracy $=0.8467$; TPR $=0.72$; FPR $=0.09$.\par
+\textbf{Work.} Rows are \emph{predicted}, so TP $=72$, FP $=18$, FN $=28$, TN $=182$, $n=300$. \ix{accuracy} $=(TP+TN)/n=254/300=0.8467$. \ix{TPR} (sensitivity) $=TP/(TP+FN)=72/100=0.72$ (divide by actual positives, column 1). \ix{FPR} $=FP/(FP+TN)=18/200=0.09$ (divide by actual negatives, column 2; $=1-$specificity $=1-0.91$). Trap: do not divide by row totals (that gives precision $72/90$). \src{S3}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q18
+\begin{qbox}{PE Q18}
+\ixh{AUC}\ixh{threshold}\ixh{ROC curve}
+18.~A student says: ``I changed my classification threshold from 0.50 to 0.30, so the ROC AUC of my fitted model will change.'' Is this correct? Explain.
+\ans \textbf{No}, AUC does not change.\par
+\textbf{Why:} the \ix{ROC curve} plots TPR vs.\ FPR over \emph{all} thresholds, and AUC is the area under that whole curve, a property of the fitted model's predicted probabilities (ranking quality). Moving from 0.50 to 0.30 only slides the operating point along the same curve (higher TPR and FPR); the curve and \ix{AUC} stay the same. AUC changes only if the model (probabilities) changes. \src{ROC, S3}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q19
+\begin{qbox}{PE Q19}
+\ixh{ROC curve}\ixh{false negative}\ixh{TPR}\ixh{threshold}
+19.~The \ix{ROC curve} below screens patients for a very dangerous disease; a \ix{false negative} is substantially worse than a \ix{false positive}. Of points A, B, C, which threshold would you be most inclined to choose?\par
+\fig{ROC curve (x: False Positive Rate, y: True Positive Rate, both 0--1) with dashed no-skill diagonal; three labelled points on the curve: A $\approx$ (FPR 0.05, TPR 0.45), B $\approx$ (0.22, 0.74), C $\approx$ (0.47, 0.92). Moving A$\to$B$\to$C = lower threshold, more TPR and more FPR.} \fref{24}
+(a) Point A \quad (b) Point B \quad (c) Point C \quad (d) All points are equally good \quad (e) Not enough information to decide
+\ans (c) Point C.\par
+\textbf{Why right:} FN costly means maximize \ix{TPR} (sensitivity) even at the expense of FPR; C has the highest TPR ($\approx0.92$, FPR $\approx0.47$), reached with the lowest threshold.
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+\item (a) wrong: A has the lowest FPR but misses over half of the sick (TPR $\approx0.45$): the costly error.
+\item (b) wrong: a compromise (TPR $\approx0.74$) that still misses about 26\%.
+\item (d) wrong: points are different trade-offs, not equivalent.
+\item (e) wrong: the stated cost asymmetry is enough.
+\end{itemize}
+\src{ROC, S3}
+\end{qbox}
+
+%% ---------------------------------------------------------------- Q20
+\begin{qbox}{PE Q20}
+\ixh{LDA}\ixh{QDA}\ixh{covariance matrix}\ixh{decision boundary}
+20.~You have 50,000 observations, two predictors, and clear evidence that the \ix{covariance matrix}es differ substantially across levels of the outcome. Which has the greater potential to capture the true \ix{decision boundary}?
+(a) LDA \quad (b) QDA \quad (c) Both would do equally well \quad (d) Neither would do well because they are both parametric models
+\ans (b) QDA.\par
+\textbf{Why right:} \ix{QDA} estimates a separate covariance matrix per class, giving a quadratic boundary that matches differing covariances; its extra parameters (more \ix{variance}) are cheap with $n=50{,}000$ and $p=2$.
+\begin{itemize}[leftmargin=1em,itemsep=0pt]
+\item (a) wrong: \ix{LDA} assumes one common covariance matrix, so its linear boundary is misspecified here (high bias).
+\item (c) wrong: same reason; they differ when covariances differ (LDA $\approx$ QDA only when covariances are equal).
+\item (d) wrong: being \ix{parametric model}s is not a defect when the assumptions (multivariate normal classes) hold roughly and $n$ is huge.
+\end{itemize}
+\src{S3, Lab 3}
+\end{qbox}

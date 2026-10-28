@@ -1,6 +1,6 @@
 % d5_exam.tex -- DISTILLED: exam prep. Every practice-exam and Sai-midterm question in one line,
 % recurring question patterns with answer recipes + tiny worked numbers, 60-second facts, HW1-3 answers.
-% (Full question text / official solutions: Part II raw_exams.tex; full HW: raw_hw.tex.)
+% (Full question text / official solutions: d6_practice_exam.tex and d7_sai_midterm.tex; full HW: raw_hw.tex.)
 \section{Exam prep: past questions, patterns, quick answers}
 \ixh{model evaluation}\ixh{model comparison}\ixh{exam patterns}
 
@@ -9,103 +9,8 @@ Sai's midterm (Summer 2026, 26 pts) = 7 MC $\times$ 2 pts + 2 free-response (8 +
 \emph{more than one bubble = zero}; ``Both X and Y'' options are traps unless \emph{both} parts are right. Round to 3--4 decimals.\par}
 
 %======================================================================
-\subsection{Practice exam: every question, one line}
-\ixh{practice exam}
-\begin{keybox}[Practice exam (Fall 2026) answer key, condensed \src{PE, official solutions}]
-\begin{itemize}[leftmargin=1.9em,labelsep=0.3em,itemsep=1pt]
-\item[\textbf{Q1}] \ix{KNN} great on train, worse on new data $\Rightarrow$ \textbf{(b) increase $k$}. Small $k$ =
-  \ix{overfitting} (high \ix{variance}); decreasing $k$ makes it worse; weighting high-variance variables hurts
-  (\ix{standardization}); interactions irrelevant for non-parametric KNN. \src{PE Q1}
-\item[\textbf{Q2}] ``Most flexible is always best'' --- wrong: flexible models lose \ix{interpretability} (bad if goal
-  is \ix{inference}) and can fit noise $\Rightarrow$ low \ix{training error}, high \ix{testing error}. \src{PE Q2}
-\item[\textbf{Q3}] Train/test acc.\ A 71/70, B 86/82, C 100/68 $\Rightarrow$ \textbf{B} (highest \emph{test} accuracy);
-  C overfits (B a little). \src{PE Q3}
-\item[\textbf{Q4}] All three claims \textbf{false}: (a) zero \ix{Pearson correlation} = no \emph{linear} relation, can
-  still help nonlinear/empirical models; (b) correlated $\ne$ interacting (\ix{interaction term} = effect of $X_1$
-  depends on $X_2$); (c) lower training error not better. \src{PE Q4}
-\item[\textbf{Q5}] Neighbors A B B A A B B: $k=1$ \textbf{A}, $k=3$ \textbf{B} (2B:1A), $k=5$ \textbf{A} (3A:2B),
-  $k=7$ \textbf{B} (4B:3A). \src{PE Q5}
-\item[\textbf{Q6}] Age standardized, income not: KNN is distance-based\ixh{distance metric}; income's huge variance
-  dominates the \ix{Euclidean distance}. Normalize \emph{all} numeric predictors. \src{PE Q6}
-\item[\textbf{Q7}] Loan KNN code, $\ge$4 bugs: (1) \texttt{defaulted \textasciitilde{} .} pulls in \texttt{application\_id}
-  (\ix{identifier variable}) and \texttt{default\_date} (\ix{target leakage}) --- drop them; (2) no
-  \ixc{step\_normalize()}; (3) recipe never used (\ixc{fit()} on raw formula, no \ixc{workflow()}/\ixc{add\_recipe()});
-  (4) so \texttt{employment\_type} never dummy-coded. \ixc{one\_hot} \texttt{= TRUE} is \emph{fine} for KNN (no
-  intercept). \src{PE Q7}
-\item[\textbf{Q8}] Strong U-shape, $r=0.03$ $\Rightarrow$ \textbf{(c)} little linear correlation despite strong
-  \ix{nonlinear relationship}; X can still predict Y. \src{PE Q8}
-\item[\textbf{Q9}] Evidence of interaction = \textbf{(b)} $X_1$--$Y$ slope positive for one level of $X_2$, negative
-  for the other. Correlation/skew are not evidence. \src{PE Q9}
-\item[\textbf{Q10}] Graduation model (info at end of year 1): exclude \textbf{StudentID} (ID), \textbf{GraduationDate},
-  \textbf{FinalGPA} (unknown at prediction time = leakage), \textbf{Graduated4Years} (the \ix{outcome}). Keep
-  HS\_GPA, FirstYearGPA, Major, Credits*. \src{PE Q10}
-\item[\textbf{Q11}] Need dummies for \ix{logistic regression}: \textbf{Major, Dorm} (categorical\ixh{categorical predictor}). \src{PE Q11}
-\item[\textbf{Q12}] CompletionRate = Completed/Attempted (year-1 info) is \textbf{not} leakage; but with both
-  components it is redundant (\ix{collinearity}). \src{PE Q12}
-\item[\textbf{Q13}] Rank-deficient \texttt{lm}\ixh{rank deficiency}: \ixc{step\_dummy()} with \texttt{one\_hot = TRUE}
-  gives 3 indicators that sum to the \ix{intercept} column $\Rightarrow$ design matrix not full rank. Fix
-  \texttt{one\_hot = FALSE} $\Rightarrow$ \textbf{2} indicators ($K-1$, one \ix{reference level}). \src{PE Q13}
-\item[\textbf{Q14}] $\hat p=0.78$ $\Rightarrow$ \textbf{(c)} model assigns probability 0.78 of the pneumonia class
-  (not ``78\% accurate'', not certain). \src{PE Q14}
-\item[\textbf{Q15}] $\hat p$ = .31,.48,.63,.81: \ix{threshold} 0.5 $\Rightarrow$ \textbf{C, D}; 0.7 $\Rightarrow$
-  \textbf{D}; raising $t$ $\Rightarrow$ fewer positives. \src{PE Q15}
-\item[\textbf{Q16}] $\beta=0.04$ for MonthlyFee: not ``causes +4\% probability''. Linear in \ix{log odds}, and only
-  association: ``\$1 more is \emph{associated} with +0.04 log odds'' (odds $\times e^{0.04}=1.041$). \src{PE Q16}
-\item[\textbf{Q17}] TP 72, FP 18, FN 28, TN 182: \ix{accuracy} $254/300=0.8467$, \ix{TPR} $72/100=0.72$,
-  \ix{FPR} $18/200=0.09$. \src{PE Q17}
-\item[\textbf{Q18}] Threshold 0.5 $\to$ 0.3 does \textbf{not} change \ix{AUC} (ROC built over all thresholds). \src{PE Q18}
-\item[\textbf{Q19}] Dangerous disease, FN $\gg$ FP cost $\Rightarrow$ \textbf{Point C} (highest TPR, accept FPR
-  $\approx$ 0.5) on the \ix{ROC curve}. \src{PE Q19}
-\item[\textbf{Q20}] $n=50{,}000$, $p=2$, covariances clearly differ $\Rightarrow$ \textbf{(b)} \ix{QDA} (\ix{LDA}
-  assumes a common \ix{covariance matrix}; extra variance negligible at this $n$). \src{PE Q20}
-\end{itemize}
-\end{keybox}
+{\small Every practice-exam and Sai question, in full with worked answers: the next two sections.\par}
 
-%======================================================================
-\subsection{Sai's graded midterm: every question, where points were lost}
-\ixh{Sai midterm}
-{\footnotesize
-\begin{tabularx}{\linewidth}{@{}l >{\leavevmode}X c c r@{}}
-\toprule
-Q & Topic (correct answer, why) & Sai & Key & Pts\\ \midrule
-1 & More flexible? Add polynomial/\ix{interaction term}s. ($\uparrow k$, fewer predictors, LDA vs QDA = \emph{less} flexible) & C & C & 2/2\\
-2 & Why KNN makes nonlinear boundaries: classification decided \emph{locally} by neighbors & C & C & 2/2\\
-3 & ROC point A$\to$C = \emph{decreasing} the threshold (TPR and FPR both rise) & B & B & 2/2\\
-4 & Readmission predictor: \texttt{HospitalID} (15 hospitals, populations differ = real group info); others are unique IDs & E & B & \textbf{1/2}\\
-5 & Covariances truly equal: QDA gains nothing, only adds estimation \ix{variance} & B & B & 2/2\\
-6 & Interaction: dosage effect $+10$ under A vs.\ $+25$ under B & F & B & \textbf{0/2}\\
-7 & $\beta_{\text{age}}>0$ but class unchanged: $\hat p$ rose without crossing the \ix{threshold} & A & B & \textbf{0/2}\\
-8a & Threshold $0.40\to0.70$: \ix{sensitivity} decreases & \checkmark & & 2/2\\
-8b & \ix{specificity} increases ($=1-$FPR, FPR falls) & \checkmark & & 2/2\\
-8c & \ix{ROC curve} unchanged (model-level; only the operating point moves) & \checkmark & & 2/2\\
-8d & Number flagged decreases (fewer $\hat p$ above the bar) & \checkmark & & 2/2\\
-9 & Keep \texttt{square\_feet} \& \texttt{square\_meters} after normalizing? \textbf{No}: exact \ix{collinearity} & ok & & \textbf{3/4}\\ \bottomrule
-\end{tabularx}}
-\par{\scriptsize Total 20/26. Verified against the scanned booklet and Gradescope rubric (\src{Sai pp.\,1--8}).\par}
-
-\begin{trap}[Sai's lost points and the correct reasoning]
-\begin{itemize}[leftmargin=1em]
-\item \textbf{Q4 ($-1$).} Sai: (E) ``None of the above''. Key: (B) \texttt{HospitalID}. A grouping ID with few levels
-  that \emph{carries information} (patient populations differ) is a legitimate \ix{categorical predictor}
-  (dummy-encode it); \texttt{PatientID}, \texttt{AdmissionID}, \texttt{RecordID} are unique per row
-  (\ix{identifier variable}: no pattern can generalize). \emph{Unclear grading:} the rubric item applied reads
-  ``partial credit for answering all variables'', which does not literally match (E); it appears the grader gave
-  half credit for rejecting the three unique IDs. Rule: unique-per-row ID $\Rightarrow$ drop; shared group label
-  $\Rightarrow$ keep. \src{Sai Q4}
-\item \textbf{Q6 ($-2$).} Sai: (F) ``Both B and D''. D (``dosage increases the fitted value under both treatments'') is a
-  \ix{main effect}, not evidence of interaction; so F is wrong even though B is right. Interaction = the \emph{size}
-  (or sign) of one variable's effect differs across levels of the other: $30-20=10$ vs.\ $50-25=25$. \src{Sai Q6}
-\item \textbf{Q7 ($-2$).} Sai: (A) ``a positive coefficient does not affect predicted probabilities'' --- false; a
-  positive $\beta$ raises the \ix{log odds} and hence $\hat p$. Key (B): $\hat p$ can rise (e.g.\ 0.31$\to$0.32) without
-  crossing $t=0.5$, so the class is unchanged. \src{Sai Q7}
-\item \textbf{Q9 ($-1$).} Sai said ``not appropriate'' (right) but argued via normal curves. Required word:
-  \textbf{collinearity}. \texttt{square\_meters} $=0.092903\times$\texttt{square\_feet} exactly, so after
-  \ixc{step\_normalize()} the two columns are \emph{identical} ($r=1$); OLS cannot separate their
-  \ix{coefficient}s (one is \texttt{NA}/huge SEs). Normalizing never removes collinearity --- drop one. \src{Sai Q9}
-\end{itemize}
-\end{trap}
-
-%======================================================================
 \subsection{Question patterns and how to answer them}
 \ixh{exam patterns}
 
